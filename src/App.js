@@ -17,21 +17,36 @@ MqHIxOP2441IE9U7FGyVfw8rfkvSVB0zxM6MoGlUBbHgXJqD3dBbI8V1QPiQH4cdKj0WAL
 29nG2jE86lN/waAjOykZUcv4yNbtCYGz5wPjwr2TpcyZpKrUATHUmN7Kyg7l31vNPKDIcC
 HJm1l+2dpNDqvw6NQYv5T0nXoTOnULDFjy0ekjKHZ7odS5UTwI2R4ot/qPZUiB1B3tv6JI
 +2vdtzje0xhFb3nvpCi/+3yk/yASVrzfAAAABGZpbGUAAAAAAAAABnNoYTUxMgAAAhQAAA
-AMcnNhLXNoYTItNTEyAAACADgBVSCYdweQfz/WROXduNeh0lqsxC+x1UwvJD3Wnh234L+r
-vz7DoGAYagHsxBSoQMp7lyM0P4imAfigivdzWKs25LYHSsMpQIJPv0kgc1yhhVNmsKmQKh
-6l2ahDYtKOJZcI8OXDmlpv5ZE1UGuoy4CyiVNglLHXPfHf9fS4OhInx90rlP3Hg31524cp
-ji0tu6uDlesvZQpysAPK/ORy1JTcnLrK//zSuXUEo3syJVgDOehQY+dL1z0a7QiVVlwHbl
-PUavCS302BCeadBAEaboeRfXZVrs7NdhjnrpZqnXJGkIoFvfOjz0uDOLj4x/VVLCdfJRZi
-Vk1Xjv/4BR/7cjRh3UwqKkRU4tfwAGXS5xMnWO47lSsZeul23kHmWiO+hm6X5xrdzK7Hff
-ByUGrbMs82Wo8tf5XOIVmI8ictFMf2Pq2Sui/HaekiIwsqIscibLc68VNxFpKlpYZYtPIw
-ozIh5ERwEKWqRytEPmR0XJF7JBAqx4BF+aAPSNHZtzHp2eBZRHT0H3/ovdHgoNTCVt72SD
-slHOP3nPPvM1YDklblGX2SW3Fm/0sf5GG0kceqQh7YdzNPeuoNFRY5r4ckn+67by8X95Ze
-vzH9jlMVWnmECLjdJYIsOTMFdNU+yuHlxfrZ9ur0W4mZN6iIRI+FLj/GjrR7TkmYwz6sA4
-X7iR5g
------END SSH SIGNATURE-----`;
+AMcnNhLXNoYTItNTEyAAACAJk4NZP0P8Z4KCj2gPKy6HSaLK39AJHlH0MUkFZE+YqHkFxn
+3OYF1qM2JIICK+xwrRz3H8j+AOOZhul5mdYvfmkyv1mO2xPpSyei2hseJWmUOYExbhJKst
+3z2ttAhIupK+GAwS3SD6n+KqTPT7RW/W6o3ZkYw6YPuwyVJenIAaoQVdzAO789fppG97yL
++PZWcmWiVCOnowfW2FbCerUNjCOQU8qSgNJcNentFXmjAkBwomcsu4BKyW1h9EDpwndkRN
+xtWrkfJstwK7K1aUX82/PMmpsp19sr154L9NpvEknIPInlGeZfxmcdV9/NCff4rsCDEO7S
+/UDXWpWrbnSz7UqcWOVQC/6Az0bWVsCgHVkRAWvDE750aikuOzYrZNJrAcH10Cga6EZInQ
+9pH0ijwOoUp6xLzxCCzR+AmO5FGXicFSjamEER1FHXTHz1T9/xPbhDws9EdH7CuLOpfpl8
+bXBjYkwmzh4MUhdhuHdydfkGS6l6QUEG/QBWTIdZWrrYfTO2wrGRMPbncj4/EPveLkAoYx
+GW/JxGMGL8kFWSa3B6hJh6XifcRnoQacAORVosub2Sjm1VtLSaeK7jI/ezOKSTKC3hnHHg
+KgqFar/pjaJV6Y6HTy4o15jC6z9a8ObLDSwqhX+zQzFPGpF18C2wAL4L16L1AVh0jgXGw2
+q6/a4c
+-----END SSH SIGNATURE-----
+`;
 const SSH_MAGIC_PREAMBLE = "SSHSIG";
 
+function equalArrays(ar1, ar2) {
+  if (ar1.length !== ar2.length) return false;
+  for (let i = 0; i < ar1.length; ++i) if (ar1[i] !== ar2[i]) return false;
+  return true;
+}
 function bytesToString(bytes) {
+  if (bytes.__proto__ !== ArrayBuffer.prototype) {
+    if(!bytes.buffer) {
+      debugger;
+    }
+    bytes = bytes.buffer;
+  }
+  if (!bytes || bytes.__proto__ !== ArrayBuffer.prototype) {
+    debugger;
+  }
   return new TextDecoder("utf-8").decode(bytes);
 }
 function bytesToInt(bytes) {
@@ -39,20 +54,27 @@ function bytesToInt(bytes) {
   256 * (bytes[2] + 256 * (bytes[1] + 256 * bytes[0]));
 }
 function intToBytes(int) {
-  return [int / 256 / 256 / 256 % 256, int / 256 / 256 % 256, int / 256 % 256, int % 256];
+  return [Math.floor(int / 256 / 256 / 256) % 256, Math.floor(int / 256 / 256) % 256, Math.floor(int / 256) % 256, int % 256];
 }
 
 function stringToBytes(str) {
   return Uint8Array.from(str, (x) => x.charCodeAt(0))
 }
 
+function concatBytes(ar1, ar2) {
+  const res = new Uint8Array(ar1.length + ar2.length);
+  res.set(ar1);
+  res.set(ar2, ar1.length);
+  return res;
+}
+
 function packSshStrings(strings) {
   const result = [];
   for (const s of strings) {
     intToBytes(s.length).forEach((b) => result.push(b));
-    stringToBytes(s).forEach((b) => result.push(b));
+    s.forEach((b) => result.push(b));
   }
-  return bytesToString(new Uint8Array(result));
+  return new Uint8Array(result);
 }
 
 function unpackSshBytes(bytes, numStrings) {
@@ -63,27 +85,27 @@ function unpackSshBytes(bytes, numStrings) {
     // first 4 bytes is length in big endian
     const len = bytesToInt(lenBytes);
     console.log("len is", len);
-    const str = bytesToString(bytes.slice(offset + 4, offset + 4 + len));
+    const str = bytes.slice(offset + 4, offset + 4 + len);
     result.push(str);
     offset += 4 + len;
+  }
+  if (offset !== bytes.length) {
+    throw new Error('Error unpacking; offset is not at end of bytes');
   }
   return result;
 }
 
 async function H(str) {
   console.log("running H");
-  return bytesToString(
-    await crypto.subtle.digest(
-      "SHA-512",
-      stringToBytes(str),
-    )
-  );
+  const res = new Uint8Array(await crypto.subtle.digest(
+    "SHA-512",
+    str,
+  ));
+  return res;
 }
 
 async function getRawMessage(message, namespace, hash_algorithm) {
-  return (
-    "SSHSIG" + packSshStrings([namespace, "", hash_algorithm, await H(message)])
-  );
+  return concatBytes(stringToBytes("SSHSIG"), packSshStrings([namespace, stringToBytes(""), hash_algorithm, await H(stringToBytes(message))]));
 }
 
 function getRawSignature(signature) {
@@ -107,17 +129,22 @@ function getRawSignature(signature) {
     hash_algorithm,
     rawSignatureEncoded
   ] = strings;
-  console.log(stringToBytes(pubKeyEncoded));
+  console.log(strings.map(bytesToString));
+  
+
+  // decrypt pub key https://github.dev/openssh/openssh-portable/blob/4bbe815ba974b4fd89cc3fc3e3ef1be847a0befe/sshsig.c#L203-L204
+  // https://github.dev/openssh/openssh-portable/blob/4bbe815ba974b4fd89cc3fc3e3ef1be847a0befe/sshkey.c#L828-L829
   const pubKeyParts = unpackSshBytes(
-    stringToBytes(pubKeyEncoded),
+    pubKeyEncoded,
     3
   );
-  const rawSigParts = unpackSshBytes(stringToBytes(rawSignatureEncoded), 2);
+  // decrypt signature https://github.dev/openssh/openssh-portable/blob/4bbe815ba974b4fd89cc3fc3e3ef1be847a0befe/ssh-rsa.c#L223-L224
+  const rawSigParts = unpackSshBytes(rawSignatureEncoded, 2);
   const rawSignature = rawSigParts[1];
-  debugger;
+
   console.log("3. bignum bytes", pubKeyParts);
   console.log("4. sig is", rawSignature);
-  return [rawSignature, namespace, hash_algorithm, pubKeyParts];
+  return [rawSignature, namespace, hash_algorithm, pubKeyEncoded, pubKeyParts];
 }
 
 // #define MAGIC_PREAMBLE "SSHSIG"
@@ -137,26 +164,38 @@ export default function App() {
   ]);
   const [message, setMessage] = useState("E PLURIBUS UNUM");
   const [signature, setSignature] = useState(DEFAULT_SIGNATURE);
-  const { value: circuitInput } = useAsync(async () => {
+  const { value: circuitInput, error } = useAsync(async () => {
     if (!rsaKey) return { error: "Invalid public key" };
     if (!groupKeys) return { error: "Invalid group keys" };
     console.log(rsaKey);
-    const v = rsaKey.createVerify("sha512");
     const [
       rawSignature,
       namespace,
       hash_algorithm,
+      pubKeyEncoded,
       pubKeyParts
     ] = getRawSignature(signature);
     const rawMessage = await getRawMessage(message, namespace, hash_algorithm);
-    console.log("raw message is", rawMessage);
-    v.update(rawMessage);
-    const valid = v.verify(rawSignature);
-    // const privateKey = ;
-    // var s = privateKey.createSign('sha1');
-    // s.update(data);
+    const hashedRawMessage = await H(rawMessage);
+    console.log("raw sig is", bytesToString(rawSignature));
+    console.log("raw message is", bytesToString(rawMessage));
+    console.log("raw sig bytes is", rawSignature);
+    console.log("raw message bytes is", rawMessage);
+    console.log('valid is...' );
+    debugger;
+
+    const verifier = rsaKey.createVerify();
+    verifier.update(rawMessage);
+    debugger;
+    const valid = equalArrays(pubKeyParts[2], rsaKey.parts[1].data);
+    console.log('valid is' ,valid);
     return {
-      valid
+      valid,
+      error,
+      rawSigBytes: Array.from(rawSignature),
+      modulusBytes: Array.from(pubKeyParts[2]),
+      hashedRawMessageBytes: Array.from(hashedRawMessage),
+      rawMessageBytes: Array.from(rawMessage),
       // rsaKey,
       // groupKeys
       // signature[k];
@@ -231,7 +270,7 @@ export default function App() {
       <h3>CIRCUIT INPUT</h3>
       <textarea
         style={{ height: 400, width: "100%" }}
-        value={JSON.stringify(circuitInput, null, 2)}
+        value={error || JSON.stringify(circuitInput)}
       />
     </div>
   );
