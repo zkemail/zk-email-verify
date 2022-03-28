@@ -3,15 +3,15 @@ pragma circom 2.0.3;
 include "circomlib/poseidon.circom";
 include "https://github.com/0xPARC/circom-secp256k1/blob/master/circuits/bigint.circom";
 
-template RSAVerify(n, k) { // bignum: each word is n-bit, k words
-    signal input signature[k];
+// Computes base^65537 mod modulus
+template BigPow65537Mod(n, k) {
+    signal input base[k];
+    // Exponent is hardcoded at 65537
     signal input modulus[k];
-    signal input message[k];
+    signal output out[k];
+
     component doublers[16];
     component adder = BigMultModP(n, k);
-
-    // message = signature^e mod modulus
-    // e = 65537
     for (var i = 0; i < 16; i++) {
         doublers[i] = BigMultModP(n, k);
     }
@@ -26,8 +26,8 @@ template RSAVerify(n, k) { // bignum: each word is n-bit, k words
         log(doublers[0].p[j]);
     }
     for (var j = 0; j < k; j++) {
-        doublers[0].a[j] <== signature[j];
-        doublers[0].b[j] <== signature[j];
+        doublers[0].a[j] <== base[j];
+        doublers[0].b[j] <== base[j];
     }
     for (var j = 0; j < k; j++) {
         log(doublers[0].out[j]);
@@ -39,23 +39,25 @@ template RSAVerify(n, k) { // bignum: each word is n-bit, k words
         }
     }
     for (var j = 0; j < k; j++) {
-        adder.a[j] <== signature[j];
+        adder.a[j] <== base[j];
         adder.b[j] <== doublers[15].out[j];
     }
     for (var j = 0; j < k; j++) {
-        message[j] === adder.out[j];
+        out[j] <== adder.out[j];
     }
 }
 
-template RSAVerifyPadded(n, k) {
-    component verifier = RSAVerify(n, k);
-    signal input signature[k];
+// Pad a message for RSA signing, given the modulus.
+// This computes:
+//   padded message === base_message[:base_len] + [0x00] + [0xff] * pad_len + [0x01]
+// See RFC 8017 Section 9.2 (https://datatracker.ietf.org/doc/html/rfc8017#section-9.2).
+// Base length is hardcoded at 664, which corresponds to the RSA-SHA-512 digest variant.
+template RSAPad(n, k) {
     signal input modulus[k];
     signal input base_message[k];
+    signal output padded_message[k];
 
-    // Check that in little endian bytes, for some pad_len,
-    //   padded message === base_message[:base_len] + [0xff] * pad_len + [0x01]
-    var base_len = 672;
+    var base_len = 664;
 
     signal padded_message_bits[n*k];
 
@@ -76,32 +78,36 @@ template RSAVerifyPadded(n, k) {
         }
     }
 
-    for (var i = base_len - 8; i < n*k; i++) {
+    for (var i = base_len; i < n*k; i++) {
         base_message_bits[i] === 0;
     }
 
-    for (var i = 0; i < base_len; i++) {
+    for (var i = 0; i < base_len + 8; i++) {
         padded_message_bits[i] <== base_message_bits[i];
     }
-    component modulus_zero[(n*k + 7 - base_len)\8];
+    component modulus_zero[(n*k + 7 - (base_len + 8))\8];
     {
         var modulus_prefix = 0;
-        for (var i = n*k - 1; i >= base_len; i--) {
+        for (var i = n*k - 1; i >= base_len + 8; i--) {
             if (i+8 < n*k) {
                 modulus_prefix += modulus_bits[i+8];
             }
             if (i % 8 == 0) {
-                modulus_zero[(i-base_len) / 8] = IsZero();
-                modulus_zero[(i-base_len) / 8].in <== modulus_prefix;
-                padded_message_bits[i] <== 1-modulus_zero[(i-base_len) / 8].out;
+                var idx = (i - (base_len + 8)) / 8;
+                modulus_zero[idx] = IsZero();
+                modulus_zero[idx].in <== modulus_prefix;
+                padded_message_bits[i] <== 1-modulus_zero[idx].out;
             } else {
                 padded_message_bits[i] <== padded_message_bits[i+1];
             }
         }
     }
-    padded_message_bits[base_len] === 1;
+    // The RFC guarantees at least 8 octets of 0xff padding.
+    assert(base_len + 8 + 65 <= n*k);
+    for (var i = base_len + 8; i < base_len + 8 + 65; i++) {
+        padded_message_bits[i] === 1;
+    }
 
-    signal padded_message[k];
     component padded_message_b2n[k];
     for (var i = 0; i < k; i++) {
         padded_message_b2n[i] = Bits2Num(n);
@@ -110,11 +116,28 @@ template RSAVerifyPadded(n, k) {
         }
         padded_message[i] <== padded_message_b2n[i].out;
     }
+}
 
+// Verify an SSH signature, assuming the public exponent is 65537
+// Base message is the DER-encoded hashed message.
+template RSAVerify65537(n, k) {
+    signal input signature[k];
+    signal input modulus[k];
+    signal input base_message[k];
+
+    component padder = RSAPad(n, k);
     for (var i = 0; i < k; i++) {
-        verifier.signature[i] <== signature[i];
-        verifier.modulus[i] <== modulus[i];
-        verifier.message[i] <== padded_message[i];
+        padder.modulus[i] <== modulus[i];
+        padder.base_message[i] <== base_message[i];
+    }
+
+    component bigPow = BigPow65537Mod(n, k);
+    for (var i = 0; i < k; i++) {
+        bigPow.base[i] <== signature[i];
+        bigPow.modulus[i] <== modulus[i];
+    }
+    for (var i = 0; i < k; i++) {
+        bigPow.out[i] === padder.padded_message[i];
     }
 }
 
@@ -208,7 +231,7 @@ template PoseidonK(k) {
 }
 
 template RSAGroupSigVerify(n, k, levels) {
-    component verifier = RSAVerifyPadded(n, k);
+    component verifier = RSAVerify65537(n, k);
     signal input signature[k];
     signal input modulus[k];
     signal input base_message[k];
@@ -260,13 +283,14 @@ template RSAGroupSigVerify(n, k, levels) {
     nullifier <== nullifierPoseidon.out * useNullifier;
     log(nullifier);
 }
-// const MAGIC_DOUBLE_BLIND_REGEX = /^1(ff)+003051300d0609608648016503040203050004403710c692cc2c46207b0c6f9369e709afe9fcdbe1f7097370c1fc7a55aeef8dd0aa9d0a084526dbe59eb24eee4a5320c1f053def2e404c5b45ade44f9b56143e9$/;
 
 // before optimization: 12.6nk constraints per BigMultModP; n,k = 121, 17 => 440895 non-linear constraints
 
+// component main { public [ modulus, base_message ] } = RSAVerify65537(121, 17); // as long as this to be true it's ok: n * 2 + log k < 254
 
-// component main { public [ modulus, base_message ] } = RSAVerifyPadded(121, 17); // as long as this to be true it's ok: n * 2 + log k < 254
 component main { public [ useNullifier, root, base_message, payload ] } = RSAGroupSigVerify(121, 17, 30);
+/* private [ signature, modulus, pathElements, pathIndices ] */
+/* output [ nullifier ] */
 
 /* INPUT =
 {"useNullifier":"1","signature":["2125458007190927620810017149424523154","632737700853972236267481229761321574","2202719882434184155152607200729141966","1241323340091221229621734125613530837","2319983104748421848045444356940754821","2156686418066900492002210582970751093","2556906020528435211844522867008474586","150957812668648853881909468877719870","361092573284483661301196327248183585","1597674170046765594718011231816122756","437798271266294201539646486361188258","842579984224460239904441892315509239","2129279318527636296126829448494436138","1717393396647685615457951380404492349","1432304951698010861428626758117098009","719698849166288700744307797723851649","540179082044958712420397287184942"],"modulus":["1082364139410815810254667630389669919","1553982345989568435442498573813399005","2575526456461124923199025324125948280","133087395054638332712852052113549316","393424946623852679376497438725228276","102326447130257455822883000341514572","2268342599872019839805068390915262026","1992979686750480742734767796771598418","998554927923055054274564290784722334","2045855023024469057940993096535013429","1897980742786143457935647649225365892","1082571892361447937767415638506668368","2298005631744261039714296341536512253","306469351680161930444472437033574281","1609884821361367335876243710994564051","335308412674886362846856427503287917","4003268657986092411332378261035927"],"base_message":["435482577974081391675784644045915113","690659351208288161928561770852540664","1290240321119435080370475536169052839","464822816594643771341803003620179867","521827602119457540763846457494146153","108800525607127812","0","0","0","0","0","0","0","0","0","0","0"],"payload":"3137061951271426118593180588750888392284399636551901764720985937739791230300","pathElements":["896502772928519850230221990143654399037028401581276431073423287761286388317",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"pathIndices":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"root":"12035463080492256934636139244643271402470422103063682121766838944750994393871"}
