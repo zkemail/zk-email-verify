@@ -300,7 +300,6 @@ export default function App() {
       useNullifier: "1",
       signature: toCircomBigIntBytes(signatureBigInt),
       modulus: toCircomBigIntBytes(modulusBigInt),
-      padded_message: toCircomBigIntBytes(messageBigInt),
       base_message: toCircomBigIntBytes(baseMessageBigInt),
       payload: payloadHashBigInt.toString(),
       pathElements,
