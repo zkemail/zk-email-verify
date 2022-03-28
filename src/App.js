@@ -174,6 +174,8 @@ function bytesToBigInt(bytes) {
 }
 
 
+const CIRCOM_FIELD_MODULUS = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
+
 // circom constants from circuit https://zkrepl.dev/?gist=30d21c7a7285b1b14f608325f172417b
 // template RSAGroupSigVerify(n, k, levels) {
 // component main { public [ modulus ] } = RSAVerify(121, 17);
@@ -277,10 +279,11 @@ export default function App() {
     console.log('message bigint is', messageBigInt);
     const baseMessageBigInt = messageBigInt & ((1n << BigInt(MAGIC_DOUBLE_BLIND_BASE_MESSAGE_HEX.length * 4)) - 1n);
     console.log('base message bigint is', baseMessageBigInt);
-    debugger;
     const validMessage = !!MAGIC_DOUBLE_BLIND_REGEX.exec(messageBigInt.toString(16));
-    debugger;
     console.log('validMessage is', validMessage);
+    console.log(modulusBigInt / messageBigInt);
+
+    const payloadHashBigInt = bytesToBigInt(await H(stringToBytes(message))) % CIRCOM_FIELD_MODULUS;
     
     // modExp(bytesToBigInt(rawSignature), 65537, bytesToBigInt(data.modulusBytes))
 
@@ -294,12 +297,12 @@ export default function App() {
       // parts: rsaKey.parts,
       validPublicKeyGroupMembership,
       validMessage,
+      useNullifier: "1",
       signature: toCircomBigIntBytes(signatureBigInt),
       modulus: toCircomBigIntBytes(modulusBigInt),
       padded_message: toCircomBigIntBytes(messageBigInt),
       base_message: toCircomBigIntBytes(baseMessageBigInt),
-      payload: await H(stringToBytes(message)),
-      leaf,
+      payload: payloadHashBigInt.toString(),
       pathElements,
       pathIndices,
       root,
