@@ -5,13 +5,13 @@ import { useState } from "react";
 import { useAsync } from "react-use";
 import sshpk from "sshpk";
 import _, { result } from "lodash";
+import { buildPoseidon } from "circomlibjs";
 
 import Merkle from "./Merkle";
 
-const DEFAULT_PUBLIC_KEY =
-  "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDBN+ISLXgsf3xxG18ZSKAwARj/0mw0x8JGQoWuCcDB5C99bgC5CMIsm/7ZYHye6BdB7GbY3RV/aVuLzm2lh2Q9opPT2AJhWDdeYyLhrIRsexNfnUXZsETxI4M7P5mZXNHAVASG/Q/gu2lb1aPt5oOiRCI7tvitKLOGrUtb0/KToaityX2OJFmEnmH+RM6t2ICwmfObterWjzm+J5k1ydFjSSwkx669U/GWVf56Rruburz/XlDwUm9liVef5iTOH8/rSu82ejamZXoYJFCaSq3nCZRw8mb6xs+zoiYcKiGozlhg6Zbpkexr4i20vPR5d9rQItaZ38cmbk2HwZzpaqUx/t055CpmUQ2N/vfvzr3rUCeG0SkWsew0m8UDB0AU6LYKCQS50kr0KBYEtE+lt46iLf+5XrlBhFj99xqx5qOeSY9Pz8xuu3Ti2ckDKhyMTj9uONSBPVOxRslX8PK35L0lQdM8TOjKBpVAWx4Fyag93QWyPFdUD4kB+HHSo9FgC9vZxtoxPOpTf8GgIzspGVHL+MjW7QmBs+cD48K9k6XMmaSq1AEx1JjeysoO5d9bzTygyHAhyZtZftnaTQ6r8OjUGL+U9J16Ezp1CwxY8tHpIyh2e6HUuVE8CNkeKLf6j2VIgdQd7b+iSPtr3bc43tMYRW9576Qov/t8pP8gEla83w== stevenhao@gmail.com";
-const DEFAULT_SIGNATURE = `
------BEGIN SSH SIGNATURE-----
+const DEFAULT_PUBLIC_KEY_1 ="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDFYFqsui6PpLDN0A2blyBJ/ZVnTEYjnlnuRh9/Ns2DXMo4YRyEq078H68Q9Mdgw2FgcNHFe/5HdrfT8TupRs2ISGcpGnNupvARj9aD91JNAdze04ZsrP1ICoW2JrOjXsU6+eZLJVeXZhMUCOF0CCNArZljdk7o8GrAUI8cEzyxMPtRZsKy/Z6/6r4UBgB+8/oFlOJn2CltN3svzpDxR8ZVWGDAkZKCdqKq3DKahumbv39NiSmEvFWPPV9e7mseknA8vG9AzQ24siMPZ8O2kX2wl0AnwB0IcHgrFfZT/XFnhiXiVpJ9ceh8AqPBAXyRX3u60HSsE6NE7oiB9ziA8rAf stevenhao@Stevens-MacBook-Pro.local";
+const DEFAULT_PUBLIC_KEY_2 = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDiIy+zqA142+M+GJvVV6Q+YCzic8ZjEzGduW/qtl+vMIx1fUU0GgWoyO3P6FnOr5AGkW4z8NG+CZaDdotwaes3IErJosDzMtAPbF1AfDYs4jIg3HCEC3ZGi2a6X5/TxiSVMAk79k4A6s8td/wP6dGInPVDdqKfhVsACn7NboJHUsqRurImHNVKpuqU9SvO+u10LFm/cSP7bkUkhLjAmlP3TN6MmupvU7JgIRqM1GMYr7yismap0w4fHfISE2jxQ9xcfV1QL2uHF7Wy3jr5uPXYn5LoNQjKw+PpL2ZaQGVVre3V4gBztr8loKo/Gkkg4JTsDk5yiACBMRHGLy4dS0wl stevenhao@Stevens-MacBook-Pro.local";
+const DEFAULT_SIGNATURE = `-----BEGIN SSH SIGNATURE-----
 U1NIU0lHAAAAAQAAARcAAAAHc3NoLXJzYQAAAAMBAAEAAAEBAMVgWqy6Lo+ksM3QDZuXIE
 n9lWdMRiOeWe5GH382zYNcyjhhHISrTvwfrxD0x2DDYWBw0cV7/kd2t9PxO6lGzYhIZyka
 c26m8BGP1oP3Uk0B3N7Thmys/UgKhbYms6NexTr55kslV5dmExQI4XQII0CtmWN2Tujwas
@@ -24,8 +24,7 @@ Egsc8qUSMzRcnaziZD5g5Op1j7lRRHwyYtbZHsPGTPxynopnZtYlHt4JTXDHotKYAwhFiz
 0HFc7oPrHr495bwSEOiWW76HWGRu4DoWTbRJ97HEzKq08QrzM3BumCA3az65szN6v21Y4M
 QjSs+w677P/43CeXxFIYoK5N/vhXeI+6FAg2oGA3rn1sFfauoOnmbQqQ85KQ2DyQsks487
 jBIoOQ90WPWCEhZDTNmVkrpBft05kmbgkm/FeS
------END SSH SIGNATURE-----
-`;
+-----END SSH SIGNATURE-----`;
 const SSH_MAGIC_PREAMBLE = "SSHSIG";
 const SSH_RESERVED = "";
 
@@ -107,15 +106,20 @@ async function H(str) {
   return res;
 }
 
-async function getRawMessage(message, namespace, hash_algorithm) {
-  return concatBytes(stringToBytes(SSH_MAGIC_PREAMBLE), packSshStrings([namespace, stringToBytes(SSH_RESERVED), hash_algorithm, await H(stringToBytes(message))]));
-}
 
 function getRawSignature(signature) {
   // 0. strip out "armor" headers (lines that start with -----)
   // 1. base64 -d
   // 2. skipping first 10 bytes (for MAGIC_PREAMBLE and SIG_VERSION), unpack into 5 strings: publickey, namespace, reserved, hash_algorithm, signature
   // 3. convert public key and signature to bignum
+
+// #define MAGIC_PREAMBLE "SSHSIG"
+// byte[6]   MAGIC_PREAMBLE
+// string    namespace
+// string    reserved
+// string    hash_algorithm
+// string    H(message)
+
   const encodedPart = signature
     .split("\n")
     .filter((line) => !line.includes("SSH SIGNATURE"))
@@ -176,7 +180,7 @@ function bytesToBigInt(bytes) {
 // component main { public [ root, message ] } = RSAGroupSigVerify(121, 17, 30);
 const CIRCOM_BIGINT_N = 121;
 const CIRCOM_BIGINT_K = 17;
-const CIRCOM_BIGINT_LEVELS = 30;
+const CIRCOM_LEVELS = 30;
 function toCircomBigIntBytes(num) {
   const res = [];
   const msk = (1n << BigInt(CIRCOM_BIGINT_N)) - 1n;
@@ -186,27 +190,71 @@ function toCircomBigIntBytes(num) {
   return res;
 }
 
-// #define MAGIC_PREAMBLE "SSHSIG"
-// byte[6]   MAGIC_PREAMBLE
-// string    namespace
-// string    reserved
-// string    hash_algorithm
-// string    H(message)
+let poseidonHasher;
+async function initializePoseidon() {
+  if (!poseidonHasher) {
+    poseidonHasher = await buildPoseidon();
+  }
+}
+const poseidon = arr => poseidonHasher.F.toString(poseidonHasher(arr));
+const poseidonK = (ar) => {
+  let cur = [];
+  for (const elt of ar) {
+    cur.push(elt);
+    if (cur.length === 16) {
+      cur = [poseidon(cur)];
+    }
+  }
+  if (cur.length === 1) return cur[0];
+  while (cur.length < 16) cur.push(0);
+  return poseidon(cur);
+}
+
+async function buildMerkleTree(groupModulusBigInts) {
+  groupModulusBigInts = _.sortBy(groupModulusBigInts);
+  let SIZE = 1;
+  while (SIZE < groupModulusBigInts.length) { SIZE *= 2; }
+  const res = _.times(2 * SIZE, () => "0");
+  for (let i = 0; i < SIZE; ++i) {
+    const bigIntBytes = toCircomBigIntBytes(groupModulusBigInts[i]);
+    res[SIZE + i] = poseidonK(bigIntBytes);
+  }
+  for (let i = SIZE - 1; i > 0; --i) {
+    res[i] = poseidon([res[2 * i], res[2 * i + 1]]);
+  }
+  return res;
+}
+
+async function generateMerkleTreeInputs(groupModulusBigInts, modulusBigInt) {
+  const tree = await buildMerkleTree(groupModulusBigInts);
+  const leaf = poseidonK(toCircomBigIntBytes(modulusBigInt));
+  const pathElements = [];
+  const pathIndices = [];
+  for (let idx = tree.indexOf(leaf); idx > 1; idx = idx >> 1) {
+    pathElements.push(tree[idx ^ 1]);
+    pathIndices.push(idx & 1);
+  }
+  while (pathElements.length < CIRCOM_LEVELS) {
+    pathElements.push(0);
+    pathIndices.push(0);
+  }
+  const root = tree[1];
+  return {
+    leaf, pathElements, pathIndices, root,
+  }
+}
 
 export default function App() {
-  const [rsaKey, setRsaKey] = useState(
-    sshpk.parseKey(DEFAULT_PUBLIC_KEY, "ssh")
-  );
   const [groupKeys, setGroupKeys] = useState([
-    sshpk.parseKey(DEFAULT_PUBLIC_KEY, "ssh"),
-    sshpk.parseKey(DEFAULT_PUBLIC_KEY, "ssh")
+    sshpk.parseKey(DEFAULT_PUBLIC_KEY_1, "ssh"),
+    sshpk.parseKey(DEFAULT_PUBLIC_KEY_2, "ssh")
   ]);
-  const [message, setMessage] = useState("E PLURIBUS UNUM; DO NOT SHARE");
+  const [message, setMessage] = useState("Hello World");
   const [signature, setSignature] = useState(DEFAULT_SIGNATURE);
   const { value: circuitInput, error } = useAsync(async () => {
-    if (!rsaKey) return { error: "Invalid public key" };
+    await initializePoseidon();
+
     if (!groupKeys) return { error: "Invalid group keys" };
-    console.log(rsaKey);
     const [
       rawSignature,
       namespace,
@@ -217,56 +265,61 @@ export default function App() {
     console.log("raw sig is", bytesToString(rawSignature));
     console.log("raw sig bytes is", rawSignature);
     console.log('valid is...' );
-    const valid = equalArrays(pubKeyParts[2], rsaKey.parts[1].data);
+    console.log(namespace)
+    const validNamespace = hash_algorithm === 'sha512';
+    const groupModulusBigInts = groupKeys.map(key => bytesToBigInt(key.parts[1].data));
     const modulusBigInt = bytesToBigInt(pubKeyParts[2]);
+    const validPublicKeyGroupMembership = _.includes(groupModulusBigInts, modulusBigInt);
     const signatureBigInt = bytesToBigInt(rawSignature);
     console.log(signatureBigInt);
     const messageBigInt = modExp(signatureBigInt, 65537, modulusBigInt);
-    console.log('valid is', valid);
+    console.log('validPublicKeyGroupMembership is', validPublicKeyGroupMembership);
     console.log('message bigint is', messageBigInt);
     const baseMessageBigInt = messageBigInt & ((1n << BigInt(MAGIC_DOUBLE_BLIND_BASE_MESSAGE_HEX.length * 4)) - 1n);
     console.log('base message bigint is', baseMessageBigInt);
+    debugger;
     const validMessage = !!MAGIC_DOUBLE_BLIND_REGEX.exec(messageBigInt.toString(16));
+    debugger;
     console.log('validMessage is', validMessage);
     
     // modExp(bytesToBigInt(rawSignature), 65537, bytesToBigInt(data.modulusBytes))
 
+    const {
+      leaf,
+      pathElements,
+      pathIndices,
+      root,
+    } = await generateMerkleTreeInputs(groupModulusBigInts, modulusBigInt);
     return {
       // parts: rsaKey.parts,
-      valid,
+      validPublicKeyGroupMembership,
       validMessage,
-      error,
       signature: toCircomBigIntBytes(signatureBigInt),
       modulus: toCircomBigIntBytes(modulusBigInt),
       padded_message: toCircomBigIntBytes(messageBigInt),
       base_message: toCircomBigIntBytes(baseMessageBigInt),
-      //  leaf;
-      //  root;
-      //  pathElements[levels];
-      //  pathIndices[levels];
+      leaf,
+      pathElements,
+      pathIndices,
+      root,
     };
-  }, [rsaKey, signature, message, groupKeys]);
+  }, [signature, message, groupKeys]);
+  if (error) console.error(error);
   return (
     <div className="App">
       <h2>Zero Knowledge RSA Group Signature Generator</h2>
+      <div>
+        <h3>Instructions</h3>
+        1. Run the following command (see <a href="https://man7.org/linux/man-pages/man1/ssh-keygen.1.html">Man Page</a> of <code>ssh-keygen</code> for more info).
+        <br/>
+        <pre>
+        echo "E PLURIBUS UNUM; DO NOT SHARE" | ssh-keygen -Y sign -n doubleblind.xyz -f ~/.ssh/id_rsa  | pbcopy
+        </pre>
+        2. Enter the signature in this page but do not share it with anyone else.
+        <br/>
+
+      </div>
       <div className="fields">
-        <div>
-          <label>Your Public Key</label>
-          <textarea
-            style={{ height: 50, width: 400 }}
-            ref={(c) => {
-              if (c) c.innerText = DEFAULT_PUBLIC_KEY;
-            }}
-            onChange={(e) => {
-              try {
-                const key = sshpk.parseKey(e.currentTarget.value, "ssh");
-                setRsaKey(key);
-              } catch (err) {
-                setRsaKey(null);
-              }
-            }}
-          />
-        </div>
         <div>
           <label>Message</label>
           <input
@@ -290,7 +343,7 @@ export default function App() {
           <textarea
             ref={(c) => {
               if (c)
-                c.innerHTML = DEFAULT_PUBLIC_KEY + "\n" + DEFAULT_PUBLIC_KEY;
+                c.innerHTML = DEFAULT_PUBLIC_KEY_1 + '\n' + DEFAULT_PUBLIC_KEY_2;
             }}
             style={{ height: 100, width: 400 }}
             onChange={(e) => {

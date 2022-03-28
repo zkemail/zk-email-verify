@@ -10,10 +10,15 @@
     "lodash": "^4.17.21",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-error-overlay": "6.0.9",
     "react-scripts": "^4",
     "react-use": "^17.3.2",
     "sshpk": "^1.17.0",
     "web-vitals": "^2.1.4"
+  },
+  "resolutions": {
+    "//": "See https://github.com/facebook/create-react-app/issues/11773",
+    "react-error-overlay": "6.0.9"
   },
   "scripts": {
     "start": "react-scripts start",
