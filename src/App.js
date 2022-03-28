@@ -5,6 +5,9 @@ import { useState } from "react";
 import { useAsync } from "react-use";
 import sshpk from "sshpk";
 import _, { result } from "lodash";
+
+import Merkle from "./Merkle";
+
 const DEFAULT_PUBLIC_KEY =
   "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDBN+ISLXgsf3xxG18ZSKAwARj/0mw0x8JGQoWuCcDB5C99bgC5CMIsm/7ZYHye6BdB7GbY3RV/aVuLzm2lh2Q9opPT2AJhWDdeYyLhrIRsexNfnUXZsETxI4M7P5mZXNHAVASG/Q/gu2lb1aPt5oOiRCI7tvitKLOGrUtb0/KToaityX2OJFmEnmH+RM6t2ICwmfObterWjzm+J5k1ydFjSSwkx669U/GWVf56Rruburz/XlDwUm9liVef5iTOH8/rSu82ejamZXoYJFCaSq3nCZRw8mb6xs+zoiYcKiGozlhg6Zbpkexr4i20vPR5d9rQItaZ38cmbk2HwZzpaqUx/t055CpmUQ2N/vfvzr3rUCeG0SkWsew0m8UDB0AU6LYKCQS50kr0KBYEtE+lt46iLf+5XrlBhFj99xqx5qOeSY9Pz8xuu3Ti2ckDKhyMTj9uONSBPVOxRslX8PK35L0lQdM8TOjKBpVAWx4Fyag93QWyPFdUD4kB+HHSo9FgC9vZxtoxPOpTf8GgIzspGVHL+MjW7QmBs+cD48K9k6XMmaSq1AEx1JjeysoO5d9bzTygyHAhyZtZftnaTQ6r8OjUGL+U9J16Ezp1CwxY8tHpIyh2e6HUuVE8CNkeKLf6j2VIgdQd7b+iSPtr3bc43tMYRW9576Qov/t8pP8gEla83w== stevenhao@gmail.com";
 const DEFAULT_SIGNATURE = `
@@ -30,7 +33,8 @@ const SSH_RESERVED = "";
 // corresponds to the openssh signature produced by the following command:
 // echo "E PLURIBUS UNUM; DO NOT SHARE" | ssh-keygen -Y sign -n do_not_share_this_signature@doubleblind.xyz -f ~/.ssh/id_rsa  | pbcopy
 // regex 
-const MAGIC_DOUBLE_BLIND_REGEX = /^1(ff)+003051300d0609608648016503040203050004403710c692cc2c46207b0c6f9369e709afe9fcdbe1f7097370c1fc7a55aeef8dd0aa9d0a084526dbe59eb24eee4a5320c1f053def2e404c5b45ade44f9b56143e9$/;
+const MAGIC_DOUBLE_BLIND_BASE_MESSAGE_HEX = "003051300d0609608648016503040203050004403710c692cc2c46207b0c6f9369e709afe9fcdbe1f7097370c1fc7a55aeef8dd0aa9d0a084526dbe59eb24eee4a5320c1f053def2e404c5b45ade44f9b56143e9";
+const MAGIC_DOUBLE_BLIND_REGEX = new RegExp(`^1(ff)+${MAGIC_DOUBLE_BLIND_BASE_MESSAGE_HEX}$`);
 
 function equalArrays(ar1, ar2) {
   if (ar1.length !== ar2.length) return false;
@@ -139,6 +143,7 @@ function getRawSignature(signature) {
   );
   // decrypt signature https://github.dev/openssh/openssh-portable/blob/4bbe815ba974b4fd89cc3fc3e3ef1be847a0befe/ssh-rsa.c#L223-L224
   const rawSigParts = unpackSshBytes(rawSignatureEncoded, 2);
+  const rawSignAlgorithm = rawSigParts[0];
   const rawSignature = rawSigParts[1];
   console.log('raw sigparts is', rawSigParts.map(bytesToString));
 
@@ -219,6 +224,8 @@ export default function App() {
     const messageBigInt = modExp(signatureBigInt, 65537, modulusBigInt);
     console.log('valid is', valid);
     console.log('message bigint is', messageBigInt);
+    const baseMessageBigInt = messageBigInt & ((1n << BigInt(MAGIC_DOUBLE_BLIND_BASE_MESSAGE_HEX.length * 4)) - 1n);
+    console.log('base message bigint is', baseMessageBigInt);
     const validMessage = !!MAGIC_DOUBLE_BLIND_REGEX.exec(messageBigInt.toString(16));
     console.log('validMessage is', validMessage);
     
@@ -231,7 +238,8 @@ export default function App() {
       error,
       signature: toCircomBigIntBytes(signatureBigInt),
       modulus: toCircomBigIntBytes(modulusBigInt),
-      message: toCircomBigIntBytes(messageBigInt),
+      padded_message: toCircomBigIntBytes(messageBigInt),
+      base_message: toCircomBigIntBytes(baseMessageBigInt),
       //  leaf;
       //  root;
       //  pathElements[levels];
@@ -303,6 +311,9 @@ export default function App() {
         style={{ height: 400, width: "100%" }}
         value={error || JSON.stringify(circuitInput)}
       />
+
+      <br />
+      <Merkle />
     </div>
   );
 }
