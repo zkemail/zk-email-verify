@@ -9,28 +9,18 @@ const DEFAULT_PUBLIC_KEY =
   "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDBN+ISLXgsf3xxG18ZSKAwARj/0mw0x8JGQoWuCcDB5C99bgC5CMIsm/7ZYHye6BdB7GbY3RV/aVuLzm2lh2Q9opPT2AJhWDdeYyLhrIRsexNfnUXZsETxI4M7P5mZXNHAVASG/Q/gu2lb1aPt5oOiRCI7tvitKLOGrUtb0/KToaityX2OJFmEnmH+RM6t2ICwmfObterWjzm+J5k1ydFjSSwkx669U/GWVf56Rruburz/XlDwUm9liVef5iTOH8/rSu82ejamZXoYJFCaSq3nCZRw8mb6xs+zoiYcKiGozlhg6Zbpkexr4i20vPR5d9rQItaZ38cmbk2HwZzpaqUx/t055CpmUQ2N/vfvzr3rUCeG0SkWsew0m8UDB0AU6LYKCQS50kr0KBYEtE+lt46iLf+5XrlBhFj99xqx5qOeSY9Pz8xuu3Ti2ckDKhyMTj9uONSBPVOxRslX8PK35L0lQdM8TOjKBpVAWx4Fyag93QWyPFdUD4kB+HHSo9FgC9vZxtoxPOpTf8GgIzspGVHL+MjW7QmBs+cD48K9k6XMmaSq1AEx1JjeysoO5d9bzTygyHAhyZtZftnaTQ6r8OjUGL+U9J16Ezp1CwxY8tHpIyh2e6HUuVE8CNkeKLf6j2VIgdQd7b+iSPtr3bc43tMYRW9576Qov/t8pP8gEla83w== stevenhao@gmail.com";
 const DEFAULT_SIGNATURE = `
 -----BEGIN SSH SIGNATURE-----
-U1NIU0lHAAAAAQAAAhcAAAAHc3NoLXJzYQAAAAMBAAEAAAIBAME34hIteCx/fHEbXxlIoD
-ABGP/SbDTHwkZCha4JwMHkL31uALkIwiyb/tlgfJ7oF0HsZtjdFX9pW4vObaWHZD2ik9PY
-AmFYN15jIuGshGx7E1+dRdmwRPEjgzs/mZlc0cBUBIb9D+C7aVvVo+3mg6JEIju2+K0os4
-atS1vT8pOhqK3JfY4kWYSeYf5Ezq3YgLCZ85u16taPOb4nmTXJ0WNJLCTHrr1T8ZZV/npG
-u5u6vP9eUPBSb2WJV5/mJM4fz+tK7zZ6NqZlehgkUJpKrecJlHDyZvrGz7OiJhwqIajOWG
-DplumR7GviLbS89Hl32tAi1pnfxyZuTYfBnOlqpTH+3TnkKmZRDY3+9+/OvetQJ4bRKRax
-7DSbxQMHQBTotgoJBLnSSvQoFgS0T6W3jqIt/7leuUGEWP33GrHmo55Jj0/PzG67dOLZyQ
-MqHIxOP2441IE9U7FGyVfw8rfkvSVB0zxM6MoGlUBbHgXJqD3dBbI8V1QPiQH4cdKj0WAL
-29nG2jE86lN/waAjOykZUcv4yNbtCYGz5wPjwr2TpcyZpKrUATHUmN7Kyg7l31vNPKDIcC
-HJm1l+2dpNDqvw6NQYv5T0nXoTOnULDFjy0ekjKHZ7odS5UTwI2R4ot/qPZUiB1B3tv6JI
-+2vdtzje0xhFb3nvpCi/+3yk/yASVrzfAAAAD2RvdWJsZWJsaW5kLnh5egAAAAAAAAAGc2
-hhNTEyAAACFAAAAAxyc2Etc2hhMi01MTIAAAIAULXLPl2eIpe5mAnfBiBW7RIn3X2OZscm
-ipwN/1mvBrbKoRx6srE9i/pARQNJNX9fkcNygWkQeEujHeZMXZfsC/bxzs5z3eKMBRkmR8
-kVKLtgwIrHIdhFYD2DWGNsCdJqM/lmcS7i3wf+nsA+dJNf4o5bJh65CTcaRaKwwrPm+yy8
-su7UMhTtSbf6UmJdatoRoufj5mW0h2DMbLYyq/NYEO4mkgYihtIIaCmbDxg9xjBZPccIhR
-cO2MutnBXY0peUN+FgJKocrE9YkrObai5u6oZTuMaIqx6OEtMk0fop0PI9l6LDA37Mk9U5
-ZPtien4+5XA0IHGzMuXKtAVbSYJkFjb6ecs56y3IXu9iMaQ6lTCapF82MJd3LxcsZeBsN/
-M8Tu0b8O3nWE1qoGaTU4okbSqYrR+F5gh2FARmTRWeS1tQSJ4eImuMD1YhCeL3ykzhTJ+A
-OaGzX22pPCwJIooL+imFeU+7zNpkcU95gzpEeHiak3XopzbAxdDFfOlnTyMwzYEqAt/hp6
-uvLlYF7/eslKLFTvR1CXiovcWWtAyrPmz3T9BcUOA7KeCi1zJ7Se2SAsWQ14SMRAMijDgB
-bFoouQ+iTpmeWFJ51ayjLVmQMItV6HNkVmFeDIlidK8zgGZ8PNN2ti6C6y2pl9B/f9DujO
-T4n+bPmHlzC469r7TPBKU=
+U1NIU0lHAAAAAQAAARcAAAAHc3NoLXJzYQAAAAMBAAEAAAEBAMVgWqy6Lo+ksM3QDZuXIE
+n9lWdMRiOeWe5GH382zYNcyjhhHISrTvwfrxD0x2DDYWBw0cV7/kd2t9PxO6lGzYhIZyka
+c26m8BGP1oP3Uk0B3N7Thmys/UgKhbYms6NexTr55kslV5dmExQI4XQII0CtmWN2Tujwas
+BQjxwTPLEw+1FmwrL9nr/qvhQGAH7z+gWU4mfYKW03ey/OkPFHxlVYYMCRkoJ2oqrcMpqG
+6Zu/f02JKYS8VY89X17uax6ScDy8b0DNDbiyIw9nw7aRfbCXQCfAHQhweCsV9lP9cWeGJe
+JWkn1x6HwCo8EBfJFfe7rQdKwTo0TuiIH3OIDysB8AAAAPZG91YmxlYmxpbmQueHl6AAAA
+AAAAAAZzaGE1MTIAAAEUAAAADHJzYS1zaGEyLTUxMgAAAQAaogS/+Wp9JcG1HMOaLkVN8k
+j9ijWGDnfaCykVwMT2hYXjEubcnD1/3pgAhmlYQQTdMdZTS9+7sHibB7mhWTXvQu+zvOH1
+Egsc8qUSMzRcnaziZD5g5Op1j7lRRHwyYtbZHsPGTPxynopnZtYlHt4JTXDHotKYAwhFiz
+0HFc7oPrHr495bwSEOiWW76HWGRu4DoWTbRJ97HEzKq08QrzM3BumCA3az65szN6v21Y4M
+QjSs+w677P/43CeXxFIYoK5N/vhXeI+6FAg2oGA3rn1sFfauoOnmbQqQ85KQ2DyQsks487
+jBIoOQ90WPWCEhZDTNmVkrpBft05kmbgkm/FeS
 -----END SSH SIGNATURE-----
 `;
 const SSH_MAGIC_PREAMBLE = "SSHSIG";
@@ -177,15 +167,16 @@ function bytesToBigInt(bytes) {
 
 // circom constants from circuit https://zkrepl.dev/?gist=30d21c7a7285b1b14f608325f172417b
 // template RSAGroupSigVerify(n, k, levels) {
-// component main { public [ root, message ] } = RSAGroupSigVerify(120, 98, 30);
-const CIRCOM_BIGINT_N = 120;
-const CIRCOM_BIGINT_K = 98;
+// component main { public [ modulus ] } = RSAVerify(121, 17);
+// component main { public [ root, message ] } = RSAGroupSigVerify(121, 17, 30);
+const CIRCOM_BIGINT_N = 121;
+const CIRCOM_BIGINT_K = 17;
 const CIRCOM_BIGINT_LEVELS = 30;
 function toCircomBigIntBytes(num) {
   const res = [];
   const msk = (1n << BigInt(CIRCOM_BIGINT_N)) - 1n;
   for (let i = 0; i < CIRCOM_BIGINT_K; ++i) {
-    res.push(((num >> BigInt((CIRCOM_BIGINT_K - i - 1) * CIRCOM_BIGINT_N)) & msk).toString());
+    res.push(((num >> BigInt(i * CIRCOM_BIGINT_N)) & msk).toString());
   }
   return res;
 }
