@@ -196,7 +196,7 @@ export default function App() {
     sshpk.parseKey(DEFAULT_PUBLIC_KEY, "ssh"),
     sshpk.parseKey(DEFAULT_PUBLIC_KEY, "ssh")
   ]);
-  const [message, setMessage] = useState("E PLURIBUS UNUM");
+  const [message, setMessage] = useState("E PLURIBUS UNUM; DO NOT SHARE");
   const [signature, setSignature] = useState(DEFAULT_SIGNATURE);
   const { value: circuitInput, error } = useAsync(async () => {
     if (!rsaKey) return { error: "Invalid public key" };
