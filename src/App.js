@@ -298,7 +298,7 @@ export default function App() {
       modulus: toCircomBigIntBytes(modulusBigInt),
       padded_message: toCircomBigIntBytes(messageBigInt),
       base_message: toCircomBigIntBytes(baseMessageBigInt),
-      payload: await H(message),
+      payload: await H(stringToBytes(message)),
       leaf,
       pathElements,
       pathIndices,
