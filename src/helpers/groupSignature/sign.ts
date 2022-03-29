@@ -10,12 +10,12 @@ import { IGroupSignature } from "./types";
 import * as snarkjs from "snarkjs";
 
 interface ICircuitInputs {
-  useNullifier: string;
+  enableSignerId: string;
   modulus: string[];
   signature: string[];
   base_message: string[];
-  payload1: string;
-  payload2: string;
+  topic: string;
+  payload: string;
   pathElements: (string|number)[];
   pathIndices: (string|number)[];
   root: string;
@@ -66,12 +66,12 @@ export async function getCircuitInputs(signature: string, payload1: string, payl
       validMessage,
     },
     circuitInputs: {
-      useNullifier: "1",
+      enableSignerId: "1",
       modulus: toCircomBigIntBytes(modulusBigInt),
       signature: toCircomBigIntBytes(signatureBigInt),
       base_message: toCircomBigIntBytes(baseMessageBigInt),
-      payload1: payload1HashBigInt.toString(),
-      payload2: payload2HashBigInt.toString(),
+      topic: payload1HashBigInt.toString(),
+      payload: payload2HashBigInt.toString(),
       pathElements,
       pathIndices,
       root,
@@ -90,8 +90,8 @@ export async function generateGroupSignature(circuitInputs: ICircuitInputs, grou
   console.log(publicSignals);
   return {
     proof,
-    payload1: circuitInputs.payload1,
-    payload2: circuitInputs.payload2,
+    payload1: circuitInputs.topic,
+    payload2: circuitInputs.payload,
     nullifier: publicSignals.nullifier,
     groupKeys,
   };
