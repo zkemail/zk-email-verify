@@ -18,7 +18,7 @@ import {
 } from "../helpers/binaryFormat";
 import { getRawSignature } from "../helpers/sshFormat";
 import { shaHash } from "../helpers/shaHash";
-import { modExp } from "../helpers/rsa";
+import { verifyRSA } from "../helpers/rsa";
 import { initializePoseidon } from "../helpers/poseidonHash";
 import {
   MAGIC_DOUBLE_BLIND_BASE_MESSAGE_HEX,
@@ -79,7 +79,7 @@ export const Prover: React.FC<{}> = (props) => {
       modulusBigInt
     );
     const signatureBigInt = bytesToBigInt(rawSignature);
-    const messageBigInt = modExp(signatureBigInt, 65537, modulusBigInt);
+    const messageBigInt = verifyRSA(signatureBigInt, modulusBigInt);
     const baseMessageBigInt =
       messageBigInt &
       ((1n << BigInt(MAGIC_DOUBLE_BLIND_BASE_MESSAGE_HEX.length * 4)) - 1n);
@@ -226,6 +226,8 @@ export const Prover: React.FC<{}> = (props) => {
           const verificationKey = "verification_key.json";
           setGroupSignature("Computing ZK Proof...");
           try {
+            (window as any).cJson = JSON.stringify(circuitInput);
+            console.log("wrote circuit input to window.cJson. Run copy(cJson)");
             const { proof, publicSignals } = await snarkjs.groth16.fullProve(
               circuitInput,
               wasmFile,
