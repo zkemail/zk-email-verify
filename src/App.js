@@ -29,7 +29,7 @@ jBIoOQ90WPWCEhZDTNmVkrpBft05kmbgkm/FeS
 const SSH_MAGIC_PREAMBLE = "SSHSIG";
 const SSH_RESERVED = "";
 
-// the numeric form of the message passed into the primitive 
+// the numeric form of the payload1 passed into the primitive 
 // corresponds to the openssh signature produced by the following command:
 // echo "E PLURIBUS UNUM; DO NOT SHARE" | ssh-keygen -Y sign -n do_not_share_this_signature@doubleblind.xyz -f ~/.ssh/id_rsa  | pbcopy
 // regex 
@@ -87,7 +87,6 @@ function unpackSshBytes(bytes, numStrings) {
     const lenBytes = bytes.slice(offset, offset + 4);
     // first 4 bytes is length in big endian
     const len = bytesToInt(lenBytes);
-    console.log("len is", len);
     const str = bytes.slice(offset + 4, offset + 4 + len);
     result.push(str);
     offset += 4 + len;
@@ -99,7 +98,6 @@ function unpackSshBytes(bytes, numStrings) {
 }
 
 async function H(str) {
-  console.log("running H");
   const res = new Uint8Array(await crypto.subtle.digest(
     "SHA-512",
     str,
@@ -119,17 +117,14 @@ function getRawSignature(signature) {
 // string    namespace
 // string    reserved
 // string    hash_algorithm
-// string    H(message)
+// string    H(payload1)
 
   const encodedPart = signature
     .split("\n")
     .filter((line) => !line.includes("SSH SIGNATURE"))
     .join("");
   const bytes = stringToBytes(atob(encodedPart));
-  console.log("0. encodedPart", encodedPart);
-  console.log("1. base64 -d result:", bytes);
   const strings = unpackSshBytes(bytes.slice(10), 5);
-  console.log("2. unpacked strings:", strings);
   const [
     pubKeyEncoded,
     namespace,
@@ -137,7 +132,6 @@ function getRawSignature(signature) {
     hash_algorithm,
     rawSignatureEncoded
   ] = strings;
-  console.log(strings.map(bytesToString));
   
 
   // decrypt pub key https://github.dev/openssh/openssh-portable/blob/4bbe815ba974b4fd89cc3fc3e3ef1be847a0befe/sshsig.c#L203-L204
@@ -150,10 +144,7 @@ function getRawSignature(signature) {
   const rawSigParts = unpackSshBytes(rawSignatureEncoded, 2);
   const rawSignAlgorithm = rawSigParts[0];
   const rawSignature = rawSigParts[1];
-  console.log('raw sigparts is', rawSigParts.map(bytesToString));
 
-  console.log("3. bignum bytes", pubKeyParts);
-  console.log("4. sig is", rawSignature);
   return [rawSignature, namespace, hash_algorithm, pubKeyEncoded, pubKeyParts];
 }
 
@@ -180,7 +171,7 @@ const CIRCOM_FIELD_MODULUS = 218882428718392752222464057452572750885483644004160
 // circom constants from circuit https://zkrepl.dev/?gist=30d21c7a7285b1b14f608325f172417b
 // template RSAGroupSigVerify(n, k, levels) {
 // component main { public [ modulus ] } = RSAVerify(121, 17);
-// component main { public [ root, message ] } = RSAGroupSigVerify(121, 17, 30);
+// component main { public [ root, payload1 ] } = RSAGroupSigVerify(121, 17, 30);
 const CIRCOM_BIGINT_N = 121;
 const CIRCOM_BIGINT_K = 17;
 const CIRCOM_LEVELS = 30;
@@ -251,7 +242,9 @@ export default function App() {
     sshpk.parseKey(DEFAULT_PUBLIC_KEY_1, "ssh"),
     sshpk.parseKey(DEFAULT_PUBLIC_KEY_2, "ssh")
   ]);
-  const [message, setMessage] = useState("Hello World");
+  const [payload1, setPayload1] = useState("Hello World");
+  const [groupSignature, setGroupSignature] = useState(null);
+  const [payload2, setPayload2] = useState("");
   const [signature, setSignature] = useState(DEFAULT_SIGNATURE);
   const { value: {circuitInput, valid} = {}, loading, error } = useAsync(async () => {
     await initializePoseidon();
@@ -264,24 +257,16 @@ export default function App() {
       pubKeyEncoded,
       pubKeyParts
     ] = getRawSignature(signature);
-    console.log("raw sig is", bytesToString(rawSignature));
-    console.log("raw sig bytes is", rawSignature);
-    console.log(namespace)
     const groupModulusBigInts = groupKeys.map(key => bytesToBigInt(key.parts[1].data));
     const modulusBigInt = bytesToBigInt(pubKeyParts[2]);
     const validPublicKeyGroupMembership = _.includes(groupModulusBigInts, modulusBigInt);
     const signatureBigInt = bytesToBigInt(rawSignature);
-    console.log(signatureBigInt);
     const messageBigInt = modExp(signatureBigInt, 65537, modulusBigInt);
-    console.log('validPublicKeyGroupMembership is', validPublicKeyGroupMembership);
-    console.log('message bigint is', messageBigInt);
     const baseMessageBigInt = messageBigInt & ((1n << BigInt(MAGIC_DOUBLE_BLIND_BASE_MESSAGE_HEX.length * 4)) - 1n);
-    console.log('base message bigint is', baseMessageBigInt);
     const validMessage = !!MAGIC_DOUBLE_BLIND_REGEX.exec(messageBigInt.toString(16));
-    console.log('validMessage is', validMessage);
-    console.log(modulusBigInt / messageBigInt);
 
-    const payloadHashBigInt = bytesToBigInt(await H(stringToBytes(message))) % CIRCOM_FIELD_MODULUS;
+    const payload1HashBigInt = bytesToBigInt(await H(stringToBytes(payload1))) % CIRCOM_FIELD_MODULUS;
+    const payload2HashBigInt = bytesToBigInt(await H(stringToBytes(payload2))) % CIRCOM_FIELD_MODULUS;
     
     // modExp(bytesToBigInt(rawSignature), 65537, bytesToBigInt(data.modulusBytes))
 
@@ -302,13 +287,14 @@ export default function App() {
         modulus: toCircomBigIntBytes(modulusBigInt),
         signature: toCircomBigIntBytes(signatureBigInt),
         base_message: toCircomBigIntBytes(baseMessageBigInt),
-        payload: payloadHashBigInt.toString(),
+        payload1: payload1HashBigInt.toString(),
+        payload2: payload2HashBigInt.toString(),
         pathElements,
         pathIndices,
         root,
       }
     };
-  }, [signature, message, groupKeys]);
+  }, [signature, payload1, payload2, groupKeys]);
   if (error) console.error(error);
   return (
     <div className="App">
@@ -318,7 +304,7 @@ export default function App() {
         1. Run the following command (see <a href="https://man7.org/linux/man-pages/man1/ssh-keygen.1.html">Man Page</a> of <code>ssh-keygen</code> for more info).
         <br/>
         <pre>
-        echo "E PLURIBUS UNUM; DO NOT SHARE" | ssh-keygen -Y sign -n doubleblind.xyz -f ~/.ssh/id_rsa  | pbcopy
+        echo "E PLURIBUS UNUM; DO NOT SHARE" | ssh-keygen -Y sign -n doubleblind.xyz -f ~/.ssh/id_rsa
         </pre>
         2. Enter the signature in this page but do not share it with anyone else.
         <br/>
@@ -326,20 +312,30 @@ export default function App() {
       </div>
       <div className="fields">
         <div>
-          <label>Message</label>
-          <input
-            value={message}
+          <label>SSH Signature</label>
+          <textarea
+          style={{height: 100}}
+            value={signature}
             onChange={(e) => {
-              setMessage(e.currentTarget.value);
+              setSignature(e.currentTarget.value);
             }}
           />
         </div>
         <div>
-          <label>Signature</label>
-          <textarea
-            value={signature}
+          <label>Payload 1</label>
+          <input
+            value={payload1}
             onChange={(e) => {
-              setSignature(e.currentTarget.value);
+              setPayload1(e.currentTarget.value);
+            }}
+          />
+        </div>
+        <div>
+          <label>Payload 2</label>
+          <input
+            value={payload1}
+            onChange={(e) => {
+              setPayload1(e.currentTarget.value);
             }}
           />
         </div>
@@ -364,7 +360,7 @@ export default function App() {
         </div>
       </div>
       <br />
-      <h3>CIRCUIT INPUT</h3>
+      <h3>ZK Proof</h3>
       {valid && !valid.validPublicKeyGroupMembership && (<div>
         Warning: Provided SSH Signature does not correspond with any public key in the group.
         </div>)}
@@ -372,19 +368,24 @@ export default function App() {
         Warning: Provided SSH Signature does not correspond with the correct payload.
         </div>)}
       <textarea
-        style={{ height: 400, width: "100%" }}
-        value={loading ? 'Computing Inputs...' : (error || JSON.stringify(circuitInput))}
+        style={{ height: 200, width: "100%" }}
+        value={groupSignature ? JSON.stringify(groupSignature, null, 2) : 'Click generate proof'}
       />
+
 
       <br />
       <button onClick={async () => {
-        console.log('proving!')
         const wasmFile = "main.wasm";
         const zkeyFile = "circuit_0000.zkey";
         const verificationKey = "verification_key.json";
         const { proof, publicSignals } = await snarkjs.groth16.fullProve(circuitInput, wasmFile, zkeyFile);
-        console.log(proof, publicSignals)
-
+        setGroupSignature({
+          proof,
+          payload1,
+          payload2,
+          publicSignals,
+          groupKeys,
+        })
       }}>Generate proof</button>
     </div>
   );
