@@ -1,0 +1,10 @@
+TODOS
+
+0. Support payload1 & payload2, recompile DONE
+0.5. Typescript everything DONE
+1. Output group signature json in prover page DONE
+2. Create verifier page
+2.5 enable csv upload in verifier page
+3. Enable query strings in prover page -- enableNullifier, group keys (base64 encoded), group metadata (base64 encoded)
+4. Create google form and test!
+5. Instructions for forking the google form & docs
