@@ -1,5 +1,6 @@
 /* global BigInt */
 
+import * as snarkjs from 'snarkjs';
 import "./styles.css";
 import { useState } from "react";
 import { useAsync } from "react-use";
@@ -214,8 +215,7 @@ const poseidonK = (ar) => {
 
 async function buildMerkleTree(groupModulusBigInts) {
   groupModulusBigInts = _.sortBy(groupModulusBigInts);
-  let SIZE = 1;
-  while (SIZE < groupModulusBigInts.length) { SIZE *= 2; }
+  let SIZE = groupModulusBigInts.length;
   const res = _.times(2 * SIZE, () => "0");
   for (let i = 0; i < SIZE; ++i) {
     const bigIntBytes = toCircomBigIntBytes(groupModulusBigInts[i]);
@@ -253,7 +253,7 @@ export default function App() {
   ]);
   const [message, setMessage] = useState("Hello World");
   const [signature, setSignature] = useState(DEFAULT_SIGNATURE);
-  const { value: circuitInput, error } = useAsync(async () => {
+  const { value: {circuitInput, valid} = {}, loading, error } = useAsync(async () => {
     await initializePoseidon();
 
     if (!groupKeys) return { error: "Invalid group keys" };
@@ -266,9 +266,7 @@ export default function App() {
     ] = getRawSignature(signature);
     console.log("raw sig is", bytesToString(rawSignature));
     console.log("raw sig bytes is", rawSignature);
-    console.log('valid is...' );
     console.log(namespace)
-    const validNamespace = hash_algorithm === 'sha512';
     const groupModulusBigInts = groupKeys.map(key => bytesToBigInt(key.parts[1].data));
     const modulusBigInt = bytesToBigInt(pubKeyParts[2]);
     const validPublicKeyGroupMembership = _.includes(groupModulusBigInts, modulusBigInt);
@@ -295,16 +293,19 @@ export default function App() {
     } = await generateMerkleTreeInputs(groupModulusBigInts, modulusBigInt);
     return {
       // parts: rsaKey.parts,
-      validPublicKeyGroupMembership,
-      validMessage,
-      useNullifier: "1",
-      signature: toCircomBigIntBytes(signatureBigInt),
-      modulus: toCircomBigIntBytes(modulusBigInt),
-      base_message: toCircomBigIntBytes(baseMessageBigInt),
-      payload: payloadHashBigInt.toString(),
-      pathElements,
-      pathIndices,
-      root,
+      valid: {
+        validPublicKeyGroupMembership,
+        validMessage,
+      },
+      circuitInput: {
+        useNullifier: "1",
+        modulus: toCircomBigIntBytes(modulusBigInt),
+        base_message: toCircomBigIntBytes(baseMessageBigInt),
+        payload: payloadHashBigInt.toString(),
+        pathElements,
+        pathIndices,
+        root,
+      }
     };
   }, [signature, message, groupKeys]);
   if (error) console.error(error);
@@ -363,13 +364,27 @@ export default function App() {
       </div>
       <br />
       <h3>CIRCUIT INPUT</h3>
+      {valid && !valid.validPublicKeyGroupMembership && (<div>
+        Warning: Provided SSH Signature does not correspond with any public key in the group.
+        </div>)}
+      {valid && !valid.validMessage && (<div>
+        Warning: Provided SSH Signature does not correspond with the correct payload.
+        </div>)}
       <textarea
         style={{ height: 400, width: "100%" }}
-        value={error || JSON.stringify(circuitInput)}
+        value={loading ? 'Computing Inputs...' : (error || JSON.stringify(circuitInput))}
       />
 
       <br />
-      <Merkle />
+      <button onClick={async () => {
+        console.log('proving!')
+        const wasmFile = "main.wasm";
+        const zkeyFile = "circuit_0000.zkey";
+        const verificationKey = "verification_key.json";
+        const { proof, publicSignals } = await snarkjs.groth16.fullProve(circuitInput, wasmFile, zkeyFile);
+        console.log(proof, publicSignals)
+
+      }}>Generate proof</button>
     </div>
   );
 }
