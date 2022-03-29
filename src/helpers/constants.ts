@@ -12,5 +12,5 @@ export const CIRCOM_FIELD_MODULUS = 21888242871839275222246405745257275088548364
 // component main { public [ modulus ] } = RSAVerify(121, 17);
 // component main { public [ root, payload1 ] } = RSAGroupSigVerify(121, 17, 30);
 export const CIRCOM_BIGINT_N = 121;
-export const CIRCOM_BIGINT_K = 17;
+export const CIRCOM_BIGINT_K = 34;
 export const CIRCOM_LEVELS = 30;

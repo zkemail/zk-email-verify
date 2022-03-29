@@ -34,25 +34,6 @@ function SplitThreeFn(in, n, m, k) {
     return [in % (1 << n), (in \ (1 << n)) % (1 << m), (in \ (1 << n + m)) % (1 << k)];
 }
 
-// in is an m bit number
-// split into ceil(m/n) n-bit registers
-function splitOverflowedRegister(m, n, in) {
-    var out[100];
-
-    for (var i = 0; i < 100; i++) {
-        out[i] = 0;
-    }
-
-    var nRegisters = div_ceil(m, n);
-    var running = in;
-    for (var i = 0; i < nRegisters; i++) {
-        out[i] = running % (1<<n);
-        running>>=n;
-    }
-
-    return out;
-}
-
 // m bits per overflowed register (values are potentially negative)
 // n bits per properly-sized register
 // in has k registers
@@ -61,60 +42,69 @@ function splitOverflowedRegister(m, n, in) {
 // - 1 since the last register is included in the last ceil(m/n) array
 // + 1 since the carries from previous registers could push you over
 function getProperRepresentation(m, n, k, in) {
-    var ceilMN = 0; // ceil(m/n)
-    if (m % n == 0) {
-        ceilMN = m \ n;
-    } else {
-        ceilMN = m \ n + 1;
-    }
-
-    var pieces[100][100]; // should be pieces[k][ceilMN]
-    for (var i = 0; i < k; i++) {
-        for (var j = 0; j < 100; j++) {
-            pieces[i][j] = 0;
-        }
-        if (isNegative(in[i]) == 1) {
-            var negPieces[100] = splitOverflowedRegister(m, n, -1 * in[i]);
-            for (var j = 0; j < ceilMN; j++) {
-                pieces[i][j] = -1 * negPieces[j];
-            }
-        } else {
-            pieces[i] = splitOverflowedRegister(m, n, in[i]);
-        }
-    }
+    var ceilMN = div_ceil(m, n);
 
     var out[100]; // should be out[k + ceilMN]
-    var carries[100]; // should be carries[k + ceilMN]
-    for (var i = 0; i < 100; i++) {
-        out[i] = 0;
-        carries[i] = 0;
+    assert(k + ceilMN < 100);
+    for (var i = 0; i < k; i++) {
+        out[i] = in[i];
     }
-    for (var registerIdx = 0; registerIdx < k + ceilMN; registerIdx++) {
-        var thisRegisterValue = 0;
-        if (registerIdx > 0) {
-            thisRegisterValue = carries[registerIdx - 1];
-        }
+    for (var i = k; i < 100; i++) {
+        out[i] = 0;
+    }
+    for (var i = 0; i+1 < k + ceilMN; i++) {
+        out[i+1] += (out[i] >> n);
+        out[i] &= (1 << n) - 1;
+    }
 
-        var start = 0;
-        if (registerIdx >= ceilMN) {
-            start = registerIdx - ceilMN + 1;
-        }
+    return out;
+}
 
-        // go from start to min(registerIdx, len(pieces)-1)
-        for (var i = start; i <= registerIdx; i++) {
-            if (i < k) {
-                thisRegisterValue += pieces[i][registerIdx - i];
+// Evaluate polynomial a at point x
+function poly_eval(len, a, x) {
+    var v = 0;
+    for (var i = 0; i < len; i++) {
+        v += a[i] * (x ** i);
+    }
+    return v;
+}
+
+// Interpolate a degree len-1 polynomial given its evaluations at 0..len-1
+function poly_interp(len, v) {
+    assert(len <= 200);
+    var out[200];
+    for (var i = 0; i < len; i++) {
+        out[i] = 0;
+    }
+
+    // Product_{i=0..len-1} (x-i)
+    var full_poly[201];
+    full_poly[0] = 1;
+    for (var i = 0; i < len; i++) {
+        full_poly[i+1] = 0;
+        for (var j = i; j >= 0; j--) {
+            full_poly[j+1] += full_poly[j];
+            full_poly[j] *= -i;
+        }
+    }
+
+    for (var i = 0; i < len; i++) {
+        var cur_v = 1;
+        for (var j = 0; j < len; j++) {
+            if (i == j) {
+                // do nothing
+            } else {
+                cur_v *= i-j;
             }
         }
+        cur_v = v[i] / cur_v;
 
-        if (isNegative(thisRegisterValue) == 1) {
-            var thisRegisterAbs = -1 * thisRegisterValue;
-            out[registerIdx] = (1<<n) - (thisRegisterAbs % (1<<n));
-            carries[registerIdx] = -1 * (thisRegisterAbs >> n) - 1;
-        } else {
-            out[registerIdx] = thisRegisterValue % (1<<n);
-            carries[registerIdx] = thisRegisterValue >> n;
+        var cur_rem = full_poly[len];
+        for (var j = len-1; j >= 0; j--) {
+            out[j] += cur_v * cur_rem;
+            cur_rem = full_poly[j] + i * cur_rem;
         }
+        assert(cur_rem == 0);
     }
 
     return out;
@@ -184,9 +174,15 @@ function long_scalar_mult(n, k, a, b) {
 // out[0] has length m + 1 -- quotient
 // out[1] has length k -- remainder
 // implements algorithm of https://people.eecs.berkeley.edu/~fateman/282/F%20Wright%20notes/week4.pdf
-// b[k-1] must be nonzero!
 function long_div(n, k, m, a, b){
     var out[2][100];
+    m += k;
+    while (b[k-1] == 0) {
+        out[1][k] = 0;
+        k--;
+        assert(k > 0);
+    }
+    m -= k;
 
     var remainder[200];
     for (var i = 0; i < m + k; i++) {
