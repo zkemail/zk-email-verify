@@ -1,3 +1,5 @@
+import _ from "lodash";
+
 export interface IInput {
   /** 
    * Plaintext string starting with -----BEGIN SSH SIGNATURE-----
@@ -28,5 +30,9 @@ export interface IGroupSignature {
   payload2: string;
   groupKeys: string[];
   proof: string;
-  publicSignals: string;
+  nullifier: string;
+}
+
+export const isGroupSignature = (o: object): o is IGroupSignature => {
+return _.every(['payload1', 'payload2', 'groupKeys', 'proof', 'nullifier'].map(k => k in o));
 }

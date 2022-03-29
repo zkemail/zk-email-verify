@@ -87,11 +87,12 @@ export async function generateGroupSignature(circuitInputs: ICircuitInputs, grou
     wasmFile,
     zkeyFile
   );
+  console.log(publicSignals);
   return {
     proof,
     payload1: circuitInputs.payload1,
     payload2: circuitInputs.payload2,
-    publicSignals,
+    nullifier: publicSignals.nullifier,
     groupKeys,
   };
 }
