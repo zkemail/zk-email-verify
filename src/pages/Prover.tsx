@@ -11,11 +11,21 @@ import sshpk from "sshpk";
 // @ts-ignore
 import _ from "lodash";
 // @ts-ignore
-import { buildPoseidon } from "circomlibjs";
-import { bytesToBigInt, stringToBytes } from "../helpers/binaryFormat";
+import {
+  bytesToBigInt,
+  stringToBytes,
+  toCircomBigIntBytes,
+} from "../helpers/binaryFormat";
 import { getRawSignature } from "../helpers/sshFormat";
-import { H } from "../helpers/hash";
+import { shaHash } from "../helpers/shaHash";
 import { modExp } from "../helpers/rsa";
+import { initializePoseidon } from "../helpers/poseidonHash";
+import {
+  MAGIC_DOUBLE_BLIND_BASE_MESSAGE_HEX,
+  MAGIC_DOUBLE_BLIND_REGEX,
+  CIRCOM_FIELD_MODULUS,
+} from "../helpers/constants";
+import { generateMerkleTreeInputs } from "../helpers/merkle";
 
 const DEFAULT_PUBLIC_KEY_1 =
   "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDFYFqsui6PpLDN0A2blyBJ/ZVnTEYjnlnuRh9/Ns2DXMo4YRyEq078H68Q9Mdgw2FgcNHFe/5HdrfT8TupRs2ISGcpGnNupvARj9aD91JNAdze04ZsrP1ICoW2JrOjXsU6+eZLJVeXZhMUCOF0CCNArZljdk7o8GrAUI8cEzyxMPtRZsKy/Z6/6r4UBgB+8/oFlOJn2CltN3svzpDxR8ZVWGDAkZKCdqKq3DKahumbv39NiSmEvFWPPV9e7mseknA8vG9AzQ24siMPZ8O2kX2wl0AnwB0IcHgrFfZT/XFnhiXiVpJ9ceh8AqPBAXyRX3u60HSsE6NE7oiB9ziA8rAf stevenhao@Stevens-MacBook-Pro.local";
@@ -35,94 +45,6 @@ Egsc8qUSMzRcnaziZD5g5Op1j7lRRHwyYtbZHsPGTPxynopnZtYlHt4JTXDHotKYAwhFiz
 QjSs+w677P/43CeXxFIYoK5N/vhXeI+6FAg2oGA3rn1sFfauoOnmbQqQ85KQ2DyQsks487
 jBIoOQ90WPWCEhZDTNmVkrpBft05kmbgkm/FeS
 -----END SSH SIGNATURE-----`;
-
-// the numeric form of the payload1 passed into the primitive
-// corresponds to the openssh signature produced by the following command:
-// echo "E PLURIBUS UNUM; DO NOT SHARE" | ssh-keygen -Y sign -n do_not_share_this_signature@doubleblind.xyz -f ~/.ssh/id_rsa  | pbcopy
-// regex
-const MAGIC_DOUBLE_BLIND_BASE_MESSAGE_HEX =
-  "003051300d0609608648016503040203050004403710c692cc2c46207b0c6f9369e709afe9fcdbe1f7097370c1fc7a55aeef8dd0aa9d0a084526dbe59eb24eee4a5320c1f053def2e404c5b45ade44f9b56143e9";
-const MAGIC_DOUBLE_BLIND_REGEX = new RegExp(
-  `^1(ff)+${MAGIC_DOUBLE_BLIND_BASE_MESSAGE_HEX}$`
-);
-
-const CIRCOM_FIELD_MODULUS = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
-
-// circom constants from circuit https://zkrepl.dev/?gist=30d21c7a7285b1b14f608325f172417b
-// template RSAGroupSigVerify(n, k, levels) {
-// component main { public [ modulus ] } = RSAVerify(121, 17);
-// component main { public [ root, payload1 ] } = RSAGroupSigVerify(121, 17, 30);
-const CIRCOM_BIGINT_N = 121;
-const CIRCOM_BIGINT_K = 17;
-const CIRCOM_LEVELS = 30;
-function toCircomBigIntBytes(num: bigint) {
-  const res = [];
-  const msk = (1n << BigInt(CIRCOM_BIGINT_N)) - 1n;
-  for (let i = 0; i < CIRCOM_BIGINT_K; ++i) {
-    res.push(((num >> BigInt(i * CIRCOM_BIGINT_N)) & msk).toString());
-  }
-  return res;
-}
-
-let poseidonHasher: any;
-async function initializePoseidon() {
-  if (!poseidonHasher) {
-    poseidonHasher = await buildPoseidon();
-  }
-}
-const poseidon = (arr: (number | bigint | string)[]) =>
-  poseidonHasher.F.toString(poseidonHasher(arr));
-const poseidonK = (ar: (number | bigint | string)[]) => {
-  let cur: (number | bigint | string)[] = [];
-  for (const elt of ar) {
-    cur.push(elt);
-    if (cur.length === 16) {
-      cur = [poseidon(cur)];
-    }
-  }
-  if (cur.length === 1) return cur[0];
-  while (cur.length < 16) cur.push(0);
-  return poseidon(cur);
-};
-
-async function buildMerkleTree(groupModulusBigInts: bigint[]) {
-  groupModulusBigInts = _.sortBy(groupModulusBigInts);
-  let SIZE = groupModulusBigInts.length;
-  const res = _.times(2 * SIZE, () => "0");
-  for (let i = 0; i < SIZE; ++i) {
-    const bigIntBytes = toCircomBigIntBytes(groupModulusBigInts[i]);
-    res[SIZE + i] = poseidonK(bigIntBytes);
-  }
-  for (let i = SIZE - 1; i > 0; --i) {
-    res[i] = poseidon([res[2 * i], res[2 * i + 1]]);
-  }
-  return res;
-}
-
-async function generateMerkleTreeInputs(
-  groupModulusBigInts: bigint[],
-  modulusBigInt: bigint
-) {
-  const tree = await buildMerkleTree(groupModulusBigInts);
-  const leaf = poseidonK(toCircomBigIntBytes(modulusBigInt));
-  const pathElements = [];
-  const pathIndices = [];
-  for (let idx = tree.indexOf(leaf); idx > 1; idx = idx >> 1) {
-    pathElements.push(tree[idx ^ 1]);
-    pathIndices.push(idx & 1);
-  }
-  while (pathElements.length < CIRCOM_LEVELS) {
-    pathElements.push(0);
-    pathIndices.push(0);
-  }
-  const root = tree[1];
-  return {
-    leaf,
-    pathElements,
-    pathIndices,
-    root,
-  };
-}
 
 export const Prover: React.FC<{}> = (props) => {
   const [groupKeys, setGroupKeys] = useState([
@@ -166,9 +88,11 @@ export const Prover: React.FC<{}> = (props) => {
     );
 
     const payload1HashBigInt =
-      bytesToBigInt(await H(stringToBytes(payload1))) % CIRCOM_FIELD_MODULUS;
+      bytesToBigInt(await shaHash(stringToBytes(payload1))) %
+      CIRCOM_FIELD_MODULUS;
     const payload2HashBigInt =
-      bytesToBigInt(await H(stringToBytes(payload2))) % CIRCOM_FIELD_MODULUS;
+      bytesToBigInt(await shaHash(stringToBytes(payload2))) %
+      CIRCOM_FIELD_MODULUS;
 
     // modExp(bytesToBigInt(rawSignature), 65537, bytesToBigInt(data.modulusBytes))
 
