@@ -538,6 +538,8 @@ template CheckCarryToZero(n, m, k) {
     
     var EPSILON = 3;
     
+    assert(m + EPSILON <= 253);
+
     signal input in[k];
     
     signal carry[k];

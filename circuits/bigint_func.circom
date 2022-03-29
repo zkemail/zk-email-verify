@@ -52,9 +52,13 @@ function getProperRepresentation(m, n, k, in) {
     for (var i = k; i < 100; i++) {
         out[i] = 0;
     }
+    assert(n <= m);
     for (var i = 0; i+1 < k + ceilMN; i++) {
-        out[i+1] += (out[i] >> n);
-        out[i] &= (1 << n) - 1;
+        assert((1 << m) >= out[i] && out[i] >= -(1 << m));
+        var shifted_val = out[i] + (1 << m);
+        assert(0 <= shifted_val && shifted_val <= (1 << (m+1)));
+        out[i] = shifted_val & ((1 << n) - 1);
+        out[i+1] += (shifted_val >> n) - (1 << (m - n));
     }
 
     return out;
