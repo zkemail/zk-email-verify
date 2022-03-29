@@ -1,9 +1,5 @@
-/* global BigInt */
-
 // @ts-ignore
 import React from "react";
-// @ts-ignore
-import * as snarkjs from "snarkjs";
 import { useState } from "react";
 import { useAsync } from "react-use";
 // @ts-ignore
@@ -11,21 +7,11 @@ import sshpk from "sshpk";
 // @ts-ignore
 import _ from "lodash";
 // @ts-ignore
+import { IGroupSignature } from "../helpers/groupSignature/types";
 import {
-  bytesToBigInt,
-  stringToBytes,
-  toCircomBigIntBytes,
-} from "../helpers/binaryFormat";
-import { getRawSignature } from "../helpers/sshFormat";
-import { shaHash } from "../helpers/shaHash";
-import { verifyRSA } from "../helpers/rsa";
-import { initializePoseidon } from "../helpers/poseidonHash";
-import {
-  MAGIC_DOUBLE_BLIND_BASE_MESSAGE_HEX,
-  MAGIC_DOUBLE_BLIND_REGEX,
-  CIRCOM_FIELD_MODULUS,
-} from "../helpers/constants";
-import { generateMerkleTreeInputs } from "../helpers/merkle";
+  generateGroupSignature,
+  getCircuitInputs,
+} from "../helpers/groupSignature/sign";
 
 const DEFAULT_PUBLIC_KEY_1 =
   "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDFYFqsui6PpLDN0A2blyBJ/ZVnTEYjnlnuRh9/Ns2DXMo4YRyEq078H68Q9Mdgw2FgcNHFe/5HdrfT8TupRs2ISGcpGnNupvARj9aD91JNAdze04ZsrP1ICoW2JrOjXsU6+eZLJVeXZhMUCOF0CCNArZljdk7o8GrAUI8cEzyxMPtRZsKy/Z6/6r4UBgB+8/oFlOJn2CltN3svzpDxR8ZVWGDAkZKCdqKq3DKahumbv39NiSmEvFWPPV9e7mseknA8vG9AzQ24siMPZ8O2kX2wl0AnwB0IcHgrFfZT/XFnhiXiVpJ9ceh8AqPBAXyRX3u60HSsE6NE7oiB9ziA8rAf stevenhao@Stevens-MacBook-Pro.local";
@@ -52,73 +38,21 @@ export const Prover: React.FC<{}> = (props) => {
     sshpk.parseKey(DEFAULT_PUBLIC_KEY_2, "ssh"),
   ]);
   const [payload1, setPayload1] = useState("Hello World");
-  const [groupSignature, setGroupSignature] = useState<any>();
+  const [groupSignature, setGroupSignature] = useState<
+    string | IGroupSignature
+  >();
   const [payload2, setPayload2] = useState("");
   const [signature, setSignature] = useState(DEFAULT_SIGNATURE);
-  const {
-    value: { circuitInput, valid } = {
-      circuitInput: undefined,
-      valid: undefined,
-    },
-    error,
-  } = useAsync(async (): Promise<{
-    circuitInput?: any;
-    valid?: any;
-    error?: any;
-  }> => {
-    await initializePoseidon();
-
-    if (!groupKeys) return { error: "Invalid group keys" };
-    const { rawSignature, pubKeyParts } = getRawSignature(signature);
-    const groupModulusBigInts = groupKeys.map((key) =>
-      bytesToBigInt(key.parts[1].data)
+  const { value, error } = useAsync(async () => {
+    const { circuitInputs, valid } = await getCircuitInputs(
+      signature,
+      payload1,
+      payload2,
+      groupKeys
     );
-    const modulusBigInt = bytesToBigInt(pubKeyParts[2]);
-    const validPublicKeyGroupMembership = _.includes(
-      groupModulusBigInts,
-      modulusBigInt
-    );
-    const signatureBigInt = bytesToBigInt(rawSignature);
-    const messageBigInt = verifyRSA(signatureBigInt, modulusBigInt);
-    const baseMessageBigInt =
-      messageBigInt &
-      ((1n << BigInt(MAGIC_DOUBLE_BLIND_BASE_MESSAGE_HEX.length * 4)) - 1n);
-    const validMessage = !!MAGIC_DOUBLE_BLIND_REGEX.exec(
-      messageBigInt.toString(16)
-    );
-
-    const payload1HashBigInt =
-      bytesToBigInt(await shaHash(stringToBytes(payload1))) %
-      CIRCOM_FIELD_MODULUS;
-    const payload2HashBigInt =
-      bytesToBigInt(await shaHash(stringToBytes(payload2))) %
-      CIRCOM_FIELD_MODULUS;
-
-    // modExp(bytesToBigInt(rawSignature), 65537, bytesToBigInt(data.modulusBytes))
-
-    const { pathElements, pathIndices, root } = await generateMerkleTreeInputs(
-      groupModulusBigInts,
-      modulusBigInt
-    );
-    return {
-      // parts: rsaKey.parts,
-      valid: {
-        validPublicKeyGroupMembership,
-        validMessage,
-      },
-      circuitInput: {
-        useNullifier: "1",
-        modulus: toCircomBigIntBytes(modulusBigInt),
-        signature: toCircomBigIntBytes(signatureBigInt),
-        base_message: toCircomBigIntBytes(baseMessageBigInt),
-        payload1: payload1HashBigInt.toString(),
-        payload2: payload2HashBigInt.toString(),
-        pathElements,
-        pathIndices,
-        root,
-      },
-    };
+    return { circuitInputs, valid };
   }, [signature, payload1, payload2, groupKeys]);
+  const { circuitInputs, valid } = value || {};
   if (error) console.error(error);
   return (
     <div className="App">
@@ -217,29 +151,21 @@ export const Prover: React.FC<{}> = (props) => {
 
       <br />
       <button
+        disabled={!circuitInputs}
         onClick={async () => {
+          if (!circuitInputs) return;
           if (groupSignature === "Computing ZK Proof...") {
             return;
           }
-          const wasmFile = "main.wasm";
-          const zkeyFile = "circuit_0000.zkey";
-          const verificationKey = "verification_key.json";
           setGroupSignature("Computing ZK Proof...");
           try {
-            (window as any).cJson = JSON.stringify(circuitInput);
+            (window as any).cJson = JSON.stringify(circuitInputs);
             console.log("wrote circuit input to window.cJson. Run copy(cJson)");
-            const { proof, publicSignals } = await snarkjs.groth16.fullProve(
-              circuitInput,
-              wasmFile,
-              zkeyFile
+            const groupSignature = await generateGroupSignature(
+              circuitInputs,
+              groupKeys
             );
-            setGroupSignature({
-              proof,
-              payload1,
-              payload2,
-              publicSignals,
-              groupKeys,
-            });
+            setGroupSignature(groupSignature);
           } catch (e) {
             setGroupSignature("Error Computing ZK Proof...");
             console.error(e);
