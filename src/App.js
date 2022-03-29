@@ -300,6 +300,7 @@ export default function App() {
       circuitInput: {
         useNullifier: "1",
         modulus: toCircomBigIntBytes(modulusBigInt),
+        signature: toCircomBigIntBytes(signatureBigInt),
         base_message: toCircomBigIntBytes(baseMessageBigInt),
         payload: payloadHashBigInt.toString(),
         pathElements,
