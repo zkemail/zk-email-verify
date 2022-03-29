@@ -1,0 +1,10 @@
+
+export function modExp(a: bigint, b: number, c: bigint): bigint {
+  let res = 1n;
+  for (let i = 0; i < 30; ++i) {
+    if ((b >> i) & 1) res = (res * a) % c;
+    a = (a * a) % c;
+  }
+  return res;
+}
+
