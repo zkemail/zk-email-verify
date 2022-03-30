@@ -17,7 +17,10 @@ import {
 } from "../helpers/groupSignature/sign";
 import styled from "styled-components";
 import { sshSignatureToPubKey } from "../helpers/sshFormat";
-import { verifyGroupSignature, verifyIdentityRevealer } from "../helpers/groupSignature/verify";
+import {
+  verifyGroupSignature,
+  verifyIdentityRevealer,
+} from "../helpers/groupSignature/verify";
 import { useSearchParams } from "react-router-dom";
 const DEFAULT_PUBLIC_KEY_1 =
   "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDFYFqsui6PpLDN0A2blyBJ/ZVnTEYjnlnuRh9/Ns2DXMo4YRyEq078H68Q9Mdgw2FgcNHFe/5HdrfT8TupRs2ISGcpGnNupvARj9aD91JNAdze04ZsrP1ICoW2JrOjXsU6+eZLJVeXZhMUCOF0CCNArZljdk7o8GrAUI8cEzyxMPtRZsKy/Z6/6r4UBgB+8/oFlOJn2CltN3svzpDxR8ZVWGDAkZKCdqKq3DKahumbv39NiSmEvFWPPV9e7mseknA8vG9AzQ24siMPZ8O2kX2wl0AnwB0IcHgrFfZT/XFnhiXiVpJ9ceh8AqPBAXyRX3u60HSsE6NE7oiB9ziA8rAf stevenhao@Stevens-MacBook-Pro.local";
@@ -74,7 +77,7 @@ function decodeSearchParams(
   };
 }
 
-function encodeSearchParams(
+function encodeMessageSearchParams(
   message: string,
   group_name: string,
   topic: string,
@@ -89,6 +92,19 @@ function encodeSearchParams(
       encodeURIComponent(group_members).length < 6800 &&
       "group_members=" + encodeURIComponent(group_members),
     enableSignerId && "enableSignerId=1",
+  ]);
+  return parts.join("&");
+}
+
+function encodeSignatureSearchParams(
+  groupSignatureText: string,
+  identityRevealerText?: string
+): string {
+  const parts = _.compact([
+    groupSignatureText &&
+      "groupSignatureText=" + encodeURIComponent(groupSignatureText),
+    identityRevealerText &&
+      "identityRevealerText=" + encodeURIComponent(identityRevealerText),
   ]);
   return parts.join("&");
 }
@@ -128,12 +144,12 @@ export const Prover: React.FC<{}> = (props) => {
     [enableSignerId, groupKeysString, groupName, message, topic]
   );
 
-  const shareLink = useMemo(() => {
+  const messageShareLink = useMemo(() => {
     return (
       window.location.host +
       window.location.pathname +
       "?" +
-      encodeSearchParams(
+      encodeMessageSearchParams(
         message,
         groupName,
         topic,
@@ -142,15 +158,33 @@ export const Prover: React.FC<{}> = (props) => {
       )
     );
   }, [enableSignerId, groupKeysString, groupName, message, topic]);
-  console.log(shareLink, shareLink.length);
+  console.log(messageShareLink, messageShareLink.length);
+  const signatureShareLink = useMemo(() => {
+    return (
+      window.location.host +
+      window.location.pathname +
+      "?" +
+      encodeSignatureSearchParams(groupSignatureText)
+    );
+  }, [groupSignatureText]);
+  const revealerShareLink = useMemo(() => {
+    return (
+      window.location.host +
+      window.location.pathname +
+      "?" +
+      encodeSignatureSearchParams(groupSignatureText, identityRevealerText)
+    );
+  }, [groupSignatureText, identityRevealerText]);
 
   // computed state
   const { value, error } = useAsync(async () => {
     try {
-      const { circuitInputs, valid, identityRevealer, signerId } = await getCircuitInputs(
-        doubleBlindKey,
-        groupMessage
-      );
+      const {
+        circuitInputs,
+        valid,
+        identityRevealer,
+        signerId,
+      } = await getCircuitInputs(doubleBlindKey, groupMessage);
       return { circuitInputs, valid, identityRevealer, signerId };
     } catch (e) {
       return {};
@@ -182,13 +216,6 @@ export const Prover: React.FC<{}> = (props) => {
       <div className="main">
         <div className="messagePane">
           <LabeledTextArea
-            label="Topic"
-            value={topic}
-            onChange={(e) => {
-              setTopic(e.currentTarget.value);
-            }}
-          />
-          <LabeledTextArea
             label="Message"
             value={message}
             onChange={(e) => {
@@ -214,6 +241,16 @@ export const Prover: React.FC<{}> = (props) => {
                 : undefined
             }
           />
+
+          {enableSignerId && (
+            <LabeledTextArea
+              label="Identity Namespace"
+              value={topic}
+              onChange={(e) => {
+                setTopic(e.currentTarget.value);
+              }}
+            />
+          )}
 
           {unmaskedIdentity && (
             <LabeledTextArea
@@ -247,6 +284,7 @@ export const Prover: React.FC<{}> = (props) => {
               if (!circuitInputs) return;
               console.time("zk");
               setIdentityRevealerText("");
+              setUnmaskedIdentity("");
               setGroupSignatureText(
                 "Computing ZK Proof... Please wait 30 seconds"
               );
@@ -258,7 +296,7 @@ export const Prover: React.FC<{}> = (props) => {
                 const groupSignature = await generateGroupSignature(
                   circuitInputs,
                   groupMessage,
-                  signerId!,
+                  signerId!
                 );
                 setGroupSignatureText(JSON.stringify(groupSignature));
                 if (identityRevealer) {
@@ -274,14 +312,21 @@ export const Prover: React.FC<{}> = (props) => {
           >
             Sign
           </button>
+
           <span>
-            <input
-              type="checkbox"
-              checked={enableSignerId}
-              onChange={(e) => setEnableSignerId(e.currentTarget.checked)}
-            />
-            <label>Secret ID</label>
+            <label>
+              <input
+                type="checkbox"
+                checked={enableSignerId}
+                onChange={(e) => setEnableSignerId(e.currentTarget.checked)}
+              />
+              Secret ID
+            </label>
           </span>
+
+          {enableSignerId && (
+            <LabeledTextArea label="Masked Identity" value={"?"} disabled />
+          )}
         </div>
         <div className="signaturePane">
           <LabeledTextArea
