@@ -122,8 +122,10 @@ template RSAPad(n, k) {
     }
 }
 
-// Verify an SSH signature, assuming the public exponent is 65537
+// Verify an SSH signature, assuming the public exponent is 65537.
 // Base message is the DER-encoded hashed message.
+// Assumes the modulus and base_message are well-formed and range-checked (or
+// otherwise trustworthy).
 template RSAVerify65537(n, k) {
     signal input signature[k];
     signal input modulus[k];
@@ -134,6 +136,17 @@ template RSAVerify65537(n, k) {
         padder.modulus[i] <== modulus[i];
         padder.base_message[i] <== base_message[i];
     }
+
+    // Check that the signature is in proper form and reduced mod modulus.
+    component signatureRangeCheck[k];
+    component bigLessThan = BigLessThan(n, k);
+    for (var i = 0; i < k; i++) {
+        signatureRangeCheck[i] = Num2Bits(n);
+        signatureRangeCheck[i].in <== signature[i];
+        bigLessThan.a[i] <== signature[i];
+        bigLessThan.b[i] <== modulus[i];
+    }
+    bigLessThan.out === 1;
 
     component bigPow = FpPow65537Mod(n, k);
     for (var i = 0; i < k; i++) {
