@@ -40,7 +40,7 @@ export function getRawSignature(signature: string) {
     .join("");
   const bytes = stringToBytes(atob(encodedPart));
   const strings = unpackSshBytes(bytes.slice(10), 5);
-  const [pubKeyEncoded, namespace, hash_algorithm, rawSignatureEncoded] =
+  const [pubKeyEncoded, namespace, , hash_algorithm, rawSignatureEncoded] =
     strings;
 
   // decrypt pub key https://github.dev/openssh/openssh-portable/blob/4bbe815ba974b4fd89cc3fc3e3ef1be847a0befe/sshsig.c#L203-L204
