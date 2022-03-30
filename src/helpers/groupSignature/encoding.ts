@@ -8,7 +8,7 @@ export function encodeGroupSignature(sig: IGroupSignature) {
   return (
     "----BEGIN DOUBLEBLIND.XYZ SIGNATURE----\n" +
     btoa(JSON.stringify(sig)) +
-    "----END DOUBLEBLIND.XYZ SIGNATURE----"
+    "\n----END DOUBLEBLIND.XYZ SIGNATURE----"
   );
 }
 
@@ -16,7 +16,7 @@ export function encodeIdentityRevealer(rev: IIdentityRevealer): string {
   return (
     "----BEGIN DOUBLEBLIND.XYZ REVEALER----\n" +
     btoa(JSON.stringify(rev)) +
-    "----END DOUBLEBLIND.XYZ REVEALER----"
+    "\n----END DOUBLEBLIND.XYZ REVEALER----"
   );
 }
 

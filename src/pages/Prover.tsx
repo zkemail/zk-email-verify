@@ -41,11 +41,33 @@ const LabeledTextArea: React.FC<{
   warning?: string;
   disabled?: boolean;
   disabledReason?: string;
+  link?: string;
   onChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
-}> = ({ style, warning, disabled, disabledReason, label, value, onChange }) => {
+}> = ({
+  style,
+  warning,
+  disabled,
+  disabledReason,
+  label,
+  value,
+  onChange,
+  link,
+}) => {
   return (
     <LabeledTextAreaContainer className="labeledTextAreaContainer">
-      <label>{label}</label>
+      <label>
+        {label}
+        {link && (
+          <a
+            style={{ color: "gray", marginLeft: 12 }}
+            rel="noreferrer"
+            target="_blank"
+            href={link}
+          >
+            Share Link
+          </a>
+        )}
+      </label>
       {warning && <span className="warning">{warning}</span>}
       <textarea
         style={style}
@@ -66,6 +88,8 @@ function decodeSearchParams(
   group_name?: string;
   topic?: string;
   enableSignerId: boolean;
+  groupSignatureText?: string;
+  identityRevealerText?: string;
 } {
   const searchParams: {
     message?: string;
@@ -73,6 +97,8 @@ function decodeSearchParams(
     topic?: string;
     group_members?: string;
     enableSignerId?: string;
+    groupSignatureText?: string;
+    identityRevealerText?: string;
   } = Object.fromEntries(urlSearchParams.entries());
   return {
     group_members:
@@ -82,6 +108,12 @@ function decodeSearchParams(
     group_name:
       searchParams.group_name && decodeURIComponent(searchParams.group_name),
     topic: searchParams.topic && decodeURIComponent(searchParams.topic),
+    groupSignatureText:
+      searchParams.groupSignatureText &&
+      decodeURIComponent(searchParams.groupSignatureText),
+    identityRevealerText:
+      searchParams.identityRevealerText &&
+      decodeURIComponent(searchParams.identityRevealerText),
     enableSignerId: !!searchParams.enableSignerId,
   };
 }
@@ -123,24 +155,34 @@ export const Prover: React.FC<{}> = (props) => {
   console.log(parsedSearchParams);
   // raw user inputs
   const [groupKeysString, setGroupKeysString] = useState<string>(
-    parsedSearchParams.group_members ??
+    parsedSearchParams.group_members ||
       DEFAULT_PUBLIC_KEY_1 + "\n" + DEFAULT_PUBLIC_KEY_2 + "\n"
   );
-  const [topic, setTopic] = useState("Cats vs Dogs");
-  const [groupSignatureText, setGroupSignatureText] = useState<string>(
-    `{"zkProof":{"pi_a":["6000829438682222660174117415926153560479766109615372223604045665744621230330","7828239351267593778556013466895745378909567573732704401138006895516830058152","1"],"pi_b":[["13393755824685159455751841687025013227537943368178214006637931063316219641717","2113090536437135750339716079669225728181430322424640234256971499571869487967"],["17727197276740648928663829528855876269602357580298062215812492563180713912174","18288078167044507149549045030332503038358185994393186712607545458965071966279"],["1","0"]],"pi_c":["5247133052745558326131157858776702895526545010037263288953019169823676425745","4235036826904824476318161255501712210660707701419836555689661404053631260107","1"],"protocol":"groth16","curve":"bn128"},"signerId":"0","groupMessage":{"topic":"Cats vs Dogs","enableSignerId":false,"message":"I like cats","groupName":"https://github.com/orgs/doubleblind-xyz/people","groupPublicKeys":["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDFYFqsui6PpLDN0A2blyBJ/ZVnTEYjnlnuRh9/Ns2DXMo4YRyEq078H68Q9Mdgw2FgcNHFe/5HdrfT8TupRs2ISGcpGnNupvARj9aD91JNAdze04ZsrP1ICoW2JrOjXsU6+eZLJVeXZhMUCOF0CCNArZljdk7o8GrAUI8cEzyxMPtRZsKy/Z6/6r4UBgB+8/oFlOJn2CltN3svzpDxR8ZVWGDAkZKCdqKq3DKahumbv39NiSmEvFWPPV9e7mseknA8vG9AzQ24siMPZ8O2kX2wl0AnwB0IcHgrFfZT/XFnhiXiVpJ9ceh8AqPBAXyRX3u60HSsE6NE7oiB9ziA8rAf stevenhao@Stevens-MacBook-Pro.local","ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDRvpOL7TZcYtHsSSz4lj8vTyIEuFSQnUqHTxhhsEWzAbq9LHMqYm4Whg1oRm430QvJF5xfOaLk+bmO6hN1g4Y9yJUj4uhaNSfSl3wGLBxu5OQNngnIDCbxTLjat4Jgz79ZiAo79c6bVq13xcfG0fjtFoC3FbZD0VEmqmwd/lYCLLVqtjccQur8B56O9Pj/giDMby0iQPFEe9vlpP8Wg3WVjFRQkwNOhGzvLNrlOBkJXpG9xty43O9T09qHJzKYobrAnlKeRTqYqppVfwmYI7rqr2rqTXF9mBB4s1zUCXJzTVrnqexzeH+Uv54KIaXxR2CAn3+DDtDBfJ4wqk/8OBNN"]}}`
+  const [topic, setTopic] = useState(
+    parsedSearchParams.topic || "Cats vs Dogs"
   );
-  const [identityRevealerText, setIdentityRevealerText] = useState<string>("");
-  const [message, setMessage] = useState("I like cats");
+  const [groupSignatureText, setGroupSignatureText] = useState<string>(
+    parsedSearchParams.groupSignatureText ||
+      `{"zkProof":{"pi_a":["6000829438682222660174117415926153560479766109615372223604045665744621230330","7828239351267593778556013466895745378909567573732704401138006895516830058152","1"],"pi_b":[["13393755824685159455751841687025013227537943368178214006637931063316219641717","2113090536437135750339716079669225728181430322424640234256971499571869487967"],["17727197276740648928663829528855876269602357580298062215812492563180713912174","18288078167044507149549045030332503038358185994393186712607545458965071966279"],["1","0"]],"pi_c":["5247133052745558326131157858776702895526545010037263288953019169823676425745","4235036826904824476318161255501712210660707701419836555689661404053631260107","1"],"protocol":"groth16","curve":"bn128"},"signerId":"0","groupMessage":{"topic":"Cats vs Dogs","enableSignerId":false,"message":"I like cats","groupName":"https://github.com/orgs/doubleblind-xyz/people","groupPublicKeys":["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDFYFqsui6PpLDN0A2blyBJ/ZVnTEYjnlnuRh9/Ns2DXMo4YRyEq078H68Q9Mdgw2FgcNHFe/5HdrfT8TupRs2ISGcpGnNupvARj9aD91JNAdze04ZsrP1ICoW2JrOjXsU6+eZLJVeXZhMUCOF0CCNArZljdk7o8GrAUI8cEzyxMPtRZsKy/Z6/6r4UBgB+8/oFlOJn2CltN3svzpDxR8ZVWGDAkZKCdqKq3DKahumbv39NiSmEvFWPPV9e7mseknA8vG9AzQ24siMPZ8O2kX2wl0AnwB0IcHgrFfZT/XFnhiXiVpJ9ceh8AqPBAXyRX3u60HSsE6NE7oiB9ziA8rAf stevenhao@Stevens-MacBook-Pro.local","ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDRvpOL7TZcYtHsSSz4lj8vTyIEuFSQnUqHTxhhsEWzAbq9LHMqYm4Whg1oRm430QvJF5xfOaLk+bmO6hN1g4Y9yJUj4uhaNSfSl3wGLBxu5OQNngnIDCbxTLjat4Jgz79ZiAo79c6bVq13xcfG0fjtFoC3FbZD0VEmqmwd/lYCLLVqtjccQur8B56O9Pj/giDMby0iQPFEe9vlpP8Wg3WVjFRQkwNOhGzvLNrlOBkJXpG9xty43O9T09qHJzKYobrAnlKeRTqYqppVfwmYI7rqr2rqTXF9mBB4s1zUCXJzTVrnqexzeH+Uv54KIaXxR2CAn3+DDtDBfJ4wqk/8OBNN"]}}`
+  );
+  const [identityRevealerText, setIdentityRevealerText] = useState<string>(
+    parsedSearchParams.identityRevealerText || ""
+  );
+  const [message, setMessage] = useState(
+    parsedSearchParams.message || "I like cats"
+  );
   const [groupName, setGroupName] = useState(
-    "https://github.com/orgs/doubleblind-xyz/people" // TODO merkle.club/github/orgs/doubleblind-xyz
+    parsedSearchParams.group_name ||
+      "https://github.com/orgs/doubleblind-xyz/people" // TODO merkle.club/github/orgs/doubleblind-xyz
   );
   const [doubleBlindKey, setDoubleBlindKey] = useState(
     localStorage.doubleBlindKey || ""
   );
   const [maskedIdentity, setMaskedIdentity] = useState<string>("");
   const [unmaskedIdentity, setUnmaskedIdentity] = useState<string>("");
-  const [enableSignerId, setEnableSignerId] = useState(false);
+  const [enableSignerId, setEnableSignerId] = useState(
+    parsedSearchParams.enableSignerId
+  );
   const groupMessage: IGroupMessage = useMemo(
     () => ({
       topic,
@@ -156,6 +198,8 @@ export const Prover: React.FC<{}> = (props) => {
 
   const messageShareLink = useMemo(() => {
     return (
+      window.location.protocol +
+      "//" +
       window.location.host +
       window.location.pathname +
       "?" +
@@ -171,6 +215,8 @@ export const Prover: React.FC<{}> = (props) => {
   console.log(messageShareLink, messageShareLink.length);
   const signatureShareLink = useMemo(() => {
     return (
+      window.location.protocol +
+      "//" +
       window.location.host +
       window.location.pathname +
       "?" +
@@ -179,6 +225,8 @@ export const Prover: React.FC<{}> = (props) => {
   }, [groupSignatureText]);
   const revealerShareLink = useMemo(() => {
     return (
+      window.location.protocol +
+      "//" +
       window.location.host +
       window.location.pathname +
       "?" +
@@ -228,6 +276,7 @@ export const Prover: React.FC<{}> = (props) => {
           <LabeledTextArea
             label="Message"
             value={message}
+            link={messageShareLink}
             onChange={(e) => {
               setMessage(e.currentTarget.value);
             }}
@@ -385,6 +434,7 @@ export const Prover: React.FC<{}> = (props) => {
         <div className="signaturePane">
           <LabeledTextArea
             label="Group Signature"
+            link={signatureShareLink}
             value={groupSignatureText}
             onChange={(e) => {
               setGroupSignatureText(e.currentTarget.value);
@@ -394,6 +444,7 @@ export const Prover: React.FC<{}> = (props) => {
           {enableSignerId && (
             <LabeledTextArea
               label="Identity Revealer"
+              link={revealerShareLink}
               value={identityRevealerText}
               onChange={(e) => {
                 setIdentityRevealerText(e.currentTarget.value);
