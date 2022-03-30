@@ -15,12 +15,9 @@ import {
   generateGroupSignature,
   getCircuitInputs,
 } from "../helpers/groupSignature/sign";
-import styled from "styled-components";
+import styled, { CSSProperties } from "styled-components";
 import { sshSignatureToPubKey } from "../helpers/sshFormat";
-import {
-  verifyGroupSignature,
-  verifyIdentityRevealer,
-} from "../helpers/groupSignature/verify";
+import { verifyGroupSignature } from "../helpers/groupSignature/verify";
 import { useSearchParams } from "react-router-dom";
 const DEFAULT_PUBLIC_KEY_1 =
   "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDFYFqsui6PpLDN0A2blyBJ/ZVnTEYjnlnuRh9/Ns2DXMo4YRyEq078H68Q9Mdgw2FgcNHFe/5HdrfT8TupRs2ISGcpGnNupvARj9aD91JNAdze04ZsrP1ICoW2JrOjXsU6+eZLJVeXZhMUCOF0CCNArZljdk7o8GrAUI8cEzyxMPtRZsKy/Z6/6r4UBgB+8/oFlOJn2CltN3svzpDxR8ZVWGDAkZKCdqKq3DKahumbv39NiSmEvFWPPV9e7mseknA8vG9AzQ24siMPZ8O2kX2wl0AnwB0IcHgrFfZT/XFnhiXiVpJ9ceh8AqPBAXyRX3u60HSsE6NE7oiB9ziA8rAf stevenhao@Stevens-MacBook-Pro.local";
@@ -28,18 +25,20 @@ const DEFAULT_PUBLIC_KEY_2 =
   "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDRvpOL7TZcYtHsSSz4lj8vTyIEuFSQnUqHTxhhsEWzAbq9LHMqYm4Whg1oRm430QvJF5xfOaLk+bmO6hN1g4Y9yJUj4uhaNSfSl3wGLBxu5OQNngnIDCbxTLjat4Jgz79ZiAo79c6bVq13xcfG0fjtFoC3FbZD0VEmqmwd/lYCLLVqtjccQur8B56O9Pj/giDMby0iQPFEe9vlpP8Wg3WVjFRQkwNOhGzvLNrlOBkJXpG9xty43O9T09qHJzKYobrAnlKeRTqYqppVfwmYI7rqr2rqTXF9mBB4s1zUCXJzTVrnqexzeH+Uv54KIaXxR2CAn3+DDtDBfJ4wqk/8OBNN";
 
 const LabeledTextArea: React.FC<{
+  style?: CSSProperties;
   label: string;
   value: string;
   warning?: string;
   disabled?: boolean;
   disabledReason?: string;
   onChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
-}> = ({ warning, disabled, disabledReason, label, value, onChange }) => {
+}> = ({ style, warning, disabled, disabledReason, label, value, onChange }) => {
   return (
     <LabeledTextAreaContainer className="labeledTextAreaContainer">
       <label>{label}</label>
       {warning && <span className="warning">{warning}</span>}
       <textarea
+        style={style}
         title={disabled ? disabledReason : ""}
         disabled={disabled}
         value={value}
@@ -129,6 +128,7 @@ export const Prover: React.FC<{}> = (props) => {
   const [doubleBlindKey, setDoubleBlindKey] = useState(
     localStorage.doubleBlindKey || ""
   );
+  const [maskedIdentity, setMaskedIdentity] = useState<string>("");
   const [unmaskedIdentity, setUnmaskedIdentity] = useState<string>("");
   const [enableSignerId, setEnableSignerId] = useState(false);
   const groupMessage: IGroupMessage = useMemo(
@@ -230,6 +230,7 @@ export const Prover: React.FC<{}> = (props) => {
             }}
           />
           <LabeledTextArea
+            style={{ whiteSpace: "pre" }}
             label="Group Public Keys"
             value={groupKeysString}
             onChange={(e) => {
@@ -249,14 +250,6 @@ export const Prover: React.FC<{}> = (props) => {
               onChange={(e) => {
                 setTopic(e.currentTarget.value);
               }}
-            />
-          )}
-
-          {unmaskedIdentity && (
-            <LabeledTextArea
-              label="Unmasked Identity"
-              disabled
-              value={unmaskedIdentity}
             />
           )}
         </div>
@@ -293,15 +286,17 @@ export const Prover: React.FC<{}> = (props) => {
                 console.log(
                   "wrote circuit input to window.cJson. Run copy(cJson)"
                 );
+                if (identityRevealer) {
+                  setMaskedIdentity(signerId!);
+                  setUnmaskedIdentity(sshPubKey);
+                  setIdentityRevealerText(JSON.stringify(identityRevealer));
+                }
                 const groupSignature = await generateGroupSignature(
                   circuitInputs,
                   groupMessage,
                   signerId!
                 );
                 setGroupSignatureText(JSON.stringify(groupSignature));
-                if (identityRevealer) {
-                  setIdentityRevealerText(JSON.stringify(identityRevealer));
-                }
               } catch (e) {
                 setGroupSignatureText("Error Computing ZK Proof...");
                 setIdentityRevealerText("");
@@ -325,7 +320,18 @@ export const Prover: React.FC<{}> = (props) => {
           </span>
 
           {enableSignerId && (
-            <LabeledTextArea label="Masked Identity" value={"?"} disabled />
+            <LabeledTextArea
+              label="Masked Identity"
+              value={maskedIdentity}
+              disabled
+            />
+          )}
+          {enableSignerId && (
+            <LabeledTextArea
+              label="Unmasked Identity"
+              value={unmaskedIdentity}
+              disabled
+            />
           )}
         </div>
         <div className="signaturePane">
