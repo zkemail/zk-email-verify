@@ -81,17 +81,17 @@ function decodeSearchParams(
   group_members?: string;
   message?: string;
   group_name?: string;
-  topic?: string;
   enableSignerId: boolean;
+  signerNamespace?: string;
   groupSignatureText?: string;
   identityRevealerText?: string;
 } {
   const searchParams: {
     message?: string;
     group_name?: string;
-    topic?: string;
     group_members?: string;
     enableSignerId?: string;
+    signerNamespace?: string;
     groupSignatureText?: string;
     identityRevealerText?: string;
   } = Object.fromEntries(urlSearchParams.entries());
@@ -102,7 +102,7 @@ function decodeSearchParams(
     message: searchParams.message && decodeURIComponent(searchParams.message),
     group_name:
       searchParams.group_name && decodeURIComponent(searchParams.group_name),
-    topic: searchParams.topic && decodeURIComponent(searchParams.topic),
+    signerNamespace: searchParams.signerNamespace && decodeURIComponent(searchParams.signerNamespace),
     groupSignatureText:
       searchParams.groupSignatureText &&
       decodeURIComponent(searchParams.groupSignatureText),
@@ -116,13 +116,13 @@ function decodeSearchParams(
 function encodeMessageSearchParams(
   message: string,
   group_name: string,
-  topic: string,
+  signerNamespace: string,
   group_members: string,
   enableSignerId: boolean
 ): string {
   const parts = _.compact([
     message && "message=" + encodeURIComponent(message),
-    topic && "topic=" + encodeURIComponent(topic),
+    signerNamespace && "signerNamespace=" + encodeURIComponent(signerNamespace),
     group_name && "group_name=" + encodeURIComponent(group_name),
     group_members &&
       encodeURIComponent(group_members).length < 6800 &&
@@ -152,7 +152,7 @@ export const Prover: React.FC<{}> = (props) => {
   const [groupKeysString, setGroupKeysString] = useState<string>(
     parsedSearchParams.group_members || ""
   );
-  const [topic, setTopic] = useState(parsedSearchParams.topic || "");
+  const [signerNamespace, setSignerNamespace] = useState(parsedSearchParams.signerNamespace || "");
   const [groupSignatureText, setGroupSignatureText] = useState<string>(
     parsedSearchParams.groupSignatureText ?? ""
   );
@@ -175,7 +175,7 @@ export const Prover: React.FC<{}> = (props) => {
   );
   const groupMessage: IGroupMessage = useMemo(
     () => ({
-      topic: enableSignerId ? topic : "",
+      signerNamespace: enableSignerId ? signerNamespace : "",
       enableSignerId,
       message,
       groupName,
@@ -183,7 +183,7 @@ export const Prover: React.FC<{}> = (props) => {
         _.compact(groupKeysString.split("\n").map((s) => s.trim()))
       ),
     }),
-    [enableSignerId, groupKeysString, groupName, message, topic]
+    [enableSignerId, groupKeysString, groupName, message, signerNamespace]
   );
 
   const messageShareLink = useMemo(() => {
@@ -196,12 +196,12 @@ export const Prover: React.FC<{}> = (props) => {
       encodeMessageSearchParams(
         message,
         groupName,
-        topic,
+        signerNamespace,
         groupKeysString,
         enableSignerId
       )
     );
-  }, [enableSignerId, groupKeysString, groupName, message, topic]);
+  }, [enableSignerId, groupKeysString, groupName, message, signerNamespace]);
   console.log(messageShareLink, messageShareLink.length);
   const signatureShareLink = useMemo(() => {
     return (
@@ -295,9 +295,9 @@ export const Prover: React.FC<{}> = (props) => {
           {enableSignerId && (
             <LabeledTextArea
               label="Identity Namespace"
-              value={topic}
+              value={signerNamespace}
               onChange={(e) => {
-                setTopic(e.currentTarget.value);
+                setSignerNamespace(e.currentTarget.value);
               }}
             />
           )}
@@ -316,7 +316,7 @@ export const Prover: React.FC<{}> = (props) => {
                     : null;
 
                 setEnableSignerId(groupSig.groupMessage.enableSignerId);
-                setTopic(groupSig.groupMessage.topic);
+                setSignerNamespace(groupSig.groupMessage.signerNamespace);
                 setMessage(groupSig.groupMessage.message);
                 setGroupName(groupSig.groupMessage.groupName);
                 setGroupKeysString(

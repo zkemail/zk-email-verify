@@ -21,10 +21,10 @@ import sshpk from "sshpk";
 
 interface ICircuitInputs {
   enableSignerId: string;
+  signerNamespace: string;
   modulus: string[];
   signature: string[];
   base_message: string[];
-  topic: string;
   payload: string;
   pathElements: (string | number)[];
   pathIndices: (string | number)[];
@@ -44,7 +44,7 @@ export async function getCircuitInputs(
   signerId?: string;
   identityRevealer?: IIdentityRevealer;
 }> {
-  const { topic, enableSignerId, message, groupName, groupPublicKeys } =
+  const { signerNamespace, enableSignerId, message, groupName, groupPublicKeys } =
     groupMessage;
   await initializePoseidon();
   let validSignatureFormat = true;
@@ -83,11 +83,12 @@ export async function getCircuitInputs(
       },
     };
   }
-  const topicBigint =
-    bytesToBigInt(await shaHash(stringToBytes(topic))) % CIRCOM_FIELD_MODULUS;
-  const palyoadBigint =
-    bytesToBigInt(await shaHash(stringToBytes(message + " -- " + groupName))) %
-    CIRCOM_FIELD_MODULUS;
+  const signerNamespaceBigint = (
+    enableSignerId ?
+      bytesToBigInt(await shaHash(stringToBytes(signerNamespace))) % CIRCOM_FIELD_MODULUS
+      : 0n
+  );
+  const palyoadBigint = bytesToBigInt(await shaHash(stringToBytes(message + " -- " + groupName))) % CIRCOM_FIELD_MODULUS;
 
   // modExp(bytesToBigInt(rawSignature), 65537, bytesToBigInt(data.modulusBytes))
 
@@ -100,7 +101,7 @@ export async function getCircuitInputs(
   /*
     component nullifierOpeningPoseidon = Poseidon(2);
     nullifierOpeningPoseidon.inputs[0] <== privPoseidonK.out;
-    nullifierOpeningPoseidon.inputs[1] <== topic;
+    nullifierOpeningPoseidon.inputs[1] <== signerNamespace;
     signerIdOpening <== nullifierOpeningPoseidon.out;
     log(signerIdOpening);
 
@@ -114,7 +115,7 @@ export async function getCircuitInputs(
   if (enableSignerId) {
     identityRevealer = {
       pubKey: sshSignatureToPubKey(sshSignature),
-      opener: poseidon([poseidonK(toCircomBigIntBytes(signatureBigInt)), topicBigint.toString()]),
+      opener: poseidon([poseidonK(toCircomBigIntBytes(signatureBigInt)), signerNamespaceBigint.toString()]),
     };
 
     signerId = poseidon([
@@ -137,7 +138,7 @@ export async function getCircuitInputs(
       modulus: toCircomBigIntBytes(modulusBigInt),
       signature: toCircomBigIntBytes(signatureBigInt),
       base_message: toCircomBigIntBytes(baseMessageBigInt),
-      topic: topicBigint.toString(),
+      signerNamespace: signerNamespaceBigint.toString(),
       payload: palyoadBigint.toString(),
       pathElements,
       pathIndices,
@@ -153,8 +154,8 @@ export async function generateGroupSignature(
   groupMessage: IGroupMessage,
   signerId: string,
 ): Promise<IGroupSignature> {
-  const wasmFile = "main.wasm";
-  const zkeyFile = "circuit_0000.zkey";
+  const wasmFile = "rsa_group_sig_verify.wasm";
+  const zkeyFile = "rsa_group_sig_verify_0000.zkey";
   const { proof, publicSignals } = await snarkjs.groth16.fullProve(
     circuitInputs,
     wasmFile,

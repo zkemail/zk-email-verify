@@ -4,7 +4,7 @@ export interface IGroupMessage {
   /**
    * Plaintext string message that, combined with sshSignature, determines the group signature nullifier
    */
-  topic: string;
+  signerNamespace: string;
   /**
    * If set to false, groupSig.publicSignals.nullifier will always be 0.
    * Otherwise, it will be Poseidon(PoseidonK(pubKey), opener), where opener = Poseidon(payload1, PoseidonK(priv)

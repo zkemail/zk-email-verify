@@ -24,7 +24,7 @@ export async function getPublicCircuitSignals(
   const {
     signerId,
     groupMessage: {
-      topic,
+      signerNamespace,
       enableSignerId,
       message,
       groupName,
@@ -34,11 +34,12 @@ export async function getPublicCircuitSignals(
 
   const baseMessageBigInt = MAGIC_DOUBLE_BLIND_BASE_MESSAGE;
 
-  const topicBigint =
-    bytesToBigInt(await shaHash(stringToBytes(topic))) % CIRCOM_FIELD_MODULUS;
-  const palyoadBigint =
-    bytesToBigInt(await shaHash(stringToBytes(message + " -- " + groupName))) %
-    CIRCOM_FIELD_MODULUS;
+  const signerNamespaceBigint = (
+    enableSignerId ?
+      bytesToBigInt(await shaHash(stringToBytes(signerNamespace))) % CIRCOM_FIELD_MODULUS
+      : 0n
+  );
+  const palyoadBigint = bytesToBigInt(await shaHash(stringToBytes(message + " -- " + groupName))) % CIRCOM_FIELD_MODULUS;
 
   const groupModulusBigInts = groupPublicKeys.map((key) =>
     bytesToBigInt(sshpk.parseKey(key, "ssh").parts[1].data)
@@ -49,7 +50,7 @@ export async function getPublicCircuitSignals(
     poseidon([
       poseidonK(toCircomBigIntBytes(baseMessageBigInt)),
       signerId,
-      topicBigint.toString(),
+      signerNamespaceBigint.toString(),
       palyoadBigint.toString(),
       root,
       enableSignerId ? "1" : "0",
@@ -61,11 +62,17 @@ export async function verifyGroupSignature(
   groupSignature: IGroupSignature
 ): Promise<boolean> {
   console.log("verifying");
+
+  if (!groupSignature.groupMessage.enableSignerId && groupSignature.groupMessage.signerNamespace !== "") {
+    console.log("No signer namespace is allowed");
+    return false;
+  }
+
   // reconstruct public signals from group signature metadata
   const signals = await getPublicCircuitSignals(groupSignature);
   console.log(signals);
 
-  const vKeyJson = await (await fetch("verification_key.json")).json();
+  const vKeyJson = await (await fetch("rsa_group_sig_verify_0000.vkey.json")).json();
   try {
     const res = await snarkjs.groth16.verify(
       vKeyJson,
