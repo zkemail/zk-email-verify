@@ -69,6 +69,15 @@ export async function getCircuitInputs(sshSignature: string, groupMessage: IGrou
     messageBigInt.toString(16)
   );
 
+  if (!validMessage || !validPublicKeyGroupMembership) {
+    return {
+      valid: {
+        validSignatureFormat,
+        validPublicKeyGroupMembership,
+        validMessage,
+      }
+    };
+  }
   const topicBigint =
     bytesToBigInt(await shaHash(stringToBytes(topic))) %
     CIRCOM_FIELD_MODULUS;

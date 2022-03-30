@@ -132,13 +132,17 @@ export const Prover: React.FC<{}> = (props) => {
         </div>
         <div className="buttonsPane">
           <button
-            disabled={!circuitInputs}
+            disabled={
+              !circuitInputs ||
+              groupSignatureText ===
+                "Computing ZK Proof... Please wait 30 seconds"
+            }
             onClick={async () => {
               if (!circuitInputs) return;
-              if (groupSignatureText === "Computing ZK Proof...") {
-                return;
-              }
-              setGroupSignatureText("Computing ZK Proof...");
+              console.time("zk");
+              setGroupSignatureText(
+                "Computing ZK Proof... Please wait 30 seconds"
+              );
               try {
                 (window as any).cJson = JSON.stringify(circuitInputs);
                 console.log(
@@ -153,6 +157,7 @@ export const Prover: React.FC<{}> = (props) => {
                 setGroupSignatureText("Error Computing ZK Proof...");
                 console.error(e);
               }
+              console.timeEnd("zk");
             }}
           >
             Sign
@@ -241,7 +246,7 @@ flex-direction: column;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
+    align-items: stretch;
     padding: 12px;
 
   }

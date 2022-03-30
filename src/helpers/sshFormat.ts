@@ -90,7 +90,11 @@ export function sshSignatureToPubKey(signature: string) {
     const pubSSHKeyStr: string = Array.prototype.map.call(pubKeyEncoded, function (ch) {
       return String.fromCharCode(ch);
     }).join('');
-    return new TextDecoder().decode(pubKeyParts[0]) + ' '+ btoa(pubSSHKeyStr);
+    const keytype = new TextDecoder().decode(pubKeyParts[0]);
+    if (keytype !== 'ssh-rsa') {
+      return 'ERROR GRR';
+    }
+    return keytype + ' '+ btoa(pubSSHKeyStr);
   } catch (e) {
     return '';
   }
