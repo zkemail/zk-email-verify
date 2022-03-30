@@ -55,6 +55,7 @@ export async function verifyGroupSignature(groupSignature: IGroupSignature): Pro
   console.log("verifying");
   // reconstruct public signals from group signature metadata
   const signals = await getPublicCircuitSignals(groupSignature);
+  console.log(signals);
 
   const vKeyJson = await (await fetch("verification_key.json")).json();
   try {
