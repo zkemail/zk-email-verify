@@ -18,3 +18,9 @@ remaining todos 3/29/22
 4. /docs, /about (instructions for ppl to verify the circuit / zkey)
 5. style the secret identity box differently from mundane boxes
 
+remaining todos pt 2
+
+0. hardcoded landing page DONE
+1. css
+2. docs page & readme
+3. batch verifier page

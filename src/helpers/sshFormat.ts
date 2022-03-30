@@ -1,4 +1,4 @@
-import {  stringToBytes } from "./binaryFormat";
+import { stringToBytes } from "./binaryFormat";
 
 function bytesToInt(bytes: Uint8Array) {
   return bytes[3] + 256 * (bytes[2] + 256 * (bytes[1] + 256 * bytes[0]));
@@ -40,23 +40,19 @@ export function getRawSignature(signature: string) {
     .join("");
   const bytes = stringToBytes(atob(encodedPart));
   const strings = unpackSshBytes(bytes.slice(10), 5);
-  const [
-    pubKeyEncoded,
-    namespace,
-    reserved,
-    hash_algorithm,
-    rawSignatureEncoded,
-  ] = strings;
+  const [pubKeyEncoded, namespace, hash_algorithm, rawSignatureEncoded] =
+    strings;
 
   // decrypt pub key https://github.dev/openssh/openssh-portable/blob/4bbe815ba974b4fd89cc3fc3e3ef1be847a0befe/sshsig.c#L203-L204
   // https://github.dev/openssh/openssh-portable/blob/4bbe815ba974b4fd89cc3fc3e3ef1be847a0befe/sshkey.c#L828-L829
   const pubKeyParts = unpackSshBytes(pubKeyEncoded, 3);
-  const pubSSHKeyStr = Array.prototype.map.call(pubKeyEncoded, function (ch) {
-    return String.fromCharCode(ch);
-  }).join('')
+  const pubSSHKeyStr = Array.prototype.map
+    .call(pubKeyEncoded, function (ch) {
+      return String.fromCharCode(ch);
+    })
+    .join("");
   // decrypt signature https://github.dev/openssh/openssh-portable/blob/4bbe815ba974b4fd89cc3fc3e3ef1be847a0befe/ssh-rsa.c#L223-L224
   const rawSigParts = unpackSshBytes(rawSignatureEncoded, 2);
-  const rawSignAlgorithm = rawSigParts[0];
   const rawSignature = rawSigParts[1];
   return {
     rawSignature,
@@ -65,9 +61,8 @@ export function getRawSignature(signature: string) {
     pubKeyEncoded,
     pubKeyParts,
     pubSSHKeyStr,
-   } as const;
+  } as const;
 }
-
 
 export function sshSignatureToPubKey(signature: string) {
   try {
@@ -79,23 +74,25 @@ export function sshSignatureToPubKey(signature: string) {
     const strings = unpackSshBytes(bytes.slice(10), 5);
     const [
       pubKeyEncoded,
-      namespace,
-      reserved,
-      hash_algorithm,
-      rawSignatureEncoded,
+      // namespace,
+      // reserved,
+      // hash_algorithm,
+      // rawSignatureEncoded,
     ] = strings;
 
     const pubKeyParts = unpackSshBytes(pubKeyEncoded, 3);
 
-    const pubSSHKeyStr: string = Array.prototype.map.call(pubKeyEncoded, function (ch) {
-      return String.fromCharCode(ch);
-    }).join('');
+    const pubSSHKeyStr: string = Array.prototype.map
+      .call(pubKeyEncoded, function (ch) {
+        return String.fromCharCode(ch);
+      })
+      .join("");
     const keytype = new TextDecoder().decode(pubKeyParts[0]);
-    if (keytype !== 'ssh-rsa') {
-      return 'ERROR GRR';
+    if (keytype !== "ssh-rsa") {
+      return "ERROR GRR";
     }
-    return keytype + ' '+ btoa(pubSSHKeyStr);
+    return keytype + " " + btoa(pubSSHKeyStr);
   } catch (e) {
-    return '';
+    return "";
   }
 }

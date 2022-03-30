@@ -1,9 +1,4 @@
-/* global BigInt */
-
-// @ts-ignore
-import React, { useMemo, useRef } from "react";
-// @ts-ignore
-import { useState } from "react";
+import React, { useRef, useState } from "react";
 import Dropzone from "react-dropzone";
 import { useAsync } from "react-use";
 import { isGroupSignature } from "../helpers/groupSignature/types";

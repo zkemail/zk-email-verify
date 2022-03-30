@@ -1,9 +1,8 @@
 // @ts-ignore
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useState } from "react";
 import { useAsync, useUpdateEffect } from "react-use";
 // @ts-ignore
-import sshpk from "sshpk";
 // @ts-ignore
 import _ from "lodash";
 // @ts-ignore
@@ -29,10 +28,6 @@ import {
   encodeGroupSignature,
   encodeIdentityRevealer,
 } from "../helpers/groupSignature/encoding";
-const DEFAULT_PUBLIC_KEY_1 =
-  "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDFYFqsui6PpLDN0A2blyBJ/ZVnTEYjnlnuRh9/Ns2DXMo4YRyEq078H68Q9Mdgw2FgcNHFe/5HdrfT8TupRs2ISGcpGnNupvARj9aD91JNAdze04ZsrP1ICoW2JrOjXsU6+eZLJVeXZhMUCOF0CCNArZljdk7o8GrAUI8cEzyxMPtRZsKy/Z6/6r4UBgB+8/oFlOJn2CltN3svzpDxR8ZVWGDAkZKCdqKq3DKahumbv39NiSmEvFWPPV9e7mseknA8vG9AzQ24siMPZ8O2kX2wl0AnwB0IcHgrFfZT/XFnhiXiVpJ9ceh8AqPBAXyRX3u60HSsE6NE7oiB9ziA8rAf stevenhao@Stevens-MacBook-Pro.local";
-const DEFAULT_PUBLIC_KEY_2 =
-  "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDRvpOL7TZcYtHsSSz4lj8vTyIEuFSQnUqHTxhhsEWzAbq9LHMqYm4Whg1oRm430QvJF5xfOaLk+bmO6hN1g4Y9yJUj4uhaNSfSl3wGLBxu5OQNngnIDCbxTLjat4Jgz79ZiAo79c6bVq13xcfG0fjtFoC3FbZD0VEmqmwd/lYCLLVqtjccQur8B56O9Pj/giDMby0iQPFEe9vlpP8Wg3WVjFRQkwNOhGzvLNrlOBkJXpG9xty43O9T09qHJzKYobrAnlKeRTqYqppVfwmYI7rqr2rqTXF9mBB4s1zUCXJzTVrnqexzeH+Uv54KIaXxR2CAn3+DDtDBfJ4wqk/8OBNN";
 
 const LabeledTextArea: React.FC<{
   style?: CSSProperties;
@@ -155,25 +150,18 @@ export const Prover: React.FC<{}> = (props) => {
   console.log(parsedSearchParams);
   // raw user inputs
   const [groupKeysString, setGroupKeysString] = useState<string>(
-    parsedSearchParams.group_members ||
-      DEFAULT_PUBLIC_KEY_1 + "\n" + DEFAULT_PUBLIC_KEY_2 + "\n"
+    parsedSearchParams.group_members || ""
   );
-  const [topic, setTopic] = useState(
-    parsedSearchParams.topic || "Cats vs Dogs"
-  );
+  const [topic, setTopic] = useState(parsedSearchParams.topic || "");
   const [groupSignatureText, setGroupSignatureText] = useState<string>(
-    parsedSearchParams.groupSignatureText ||
-      `{"zkProof":{"pi_a":["6000829438682222660174117415926153560479766109615372223604045665744621230330","7828239351267593778556013466895745378909567573732704401138006895516830058152","1"],"pi_b":[["13393755824685159455751841687025013227537943368178214006637931063316219641717","2113090536437135750339716079669225728181430322424640234256971499571869487967"],["17727197276740648928663829528855876269602357580298062215812492563180713912174","18288078167044507149549045030332503038358185994393186712607545458965071966279"],["1","0"]],"pi_c":["5247133052745558326131157858776702895526545010037263288953019169823676425745","4235036826904824476318161255501712210660707701419836555689661404053631260107","1"],"protocol":"groth16","curve":"bn128"},"signerId":"0","groupMessage":{"topic":"Cats vs Dogs","enableSignerId":false,"message":"I like cats","groupName":"https://github.com/orgs/doubleblind-xyz/people","groupPublicKeys":["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDFYFqsui6PpLDN0A2blyBJ/ZVnTEYjnlnuRh9/Ns2DXMo4YRyEq078H68Q9Mdgw2FgcNHFe/5HdrfT8TupRs2ISGcpGnNupvARj9aD91JNAdze04ZsrP1ICoW2JrOjXsU6+eZLJVeXZhMUCOF0CCNArZljdk7o8GrAUI8cEzyxMPtRZsKy/Z6/6r4UBgB+8/oFlOJn2CltN3svzpDxR8ZVWGDAkZKCdqKq3DKahumbv39NiSmEvFWPPV9e7mseknA8vG9AzQ24siMPZ8O2kX2wl0AnwB0IcHgrFfZT/XFnhiXiVpJ9ceh8AqPBAXyRX3u60HSsE6NE7oiB9ziA8rAf stevenhao@Stevens-MacBook-Pro.local","ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDRvpOL7TZcYtHsSSz4lj8vTyIEuFSQnUqHTxhhsEWzAbq9LHMqYm4Whg1oRm430QvJF5xfOaLk+bmO6hN1g4Y9yJUj4uhaNSfSl3wGLBxu5OQNngnIDCbxTLjat4Jgz79ZiAo79c6bVq13xcfG0fjtFoC3FbZD0VEmqmwd/lYCLLVqtjccQur8B56O9Pj/giDMby0iQPFEe9vlpP8Wg3WVjFRQkwNOhGzvLNrlOBkJXpG9xty43O9T09qHJzKYobrAnlKeRTqYqppVfwmYI7rqr2rqTXF9mBB4s1zUCXJzTVrnqexzeH+Uv54KIaXxR2CAn3+DDtDBfJ4wqk/8OBNN"]}}`
+    parsedSearchParams.groupSignatureText ?? ""
   );
   const [identityRevealerText, setIdentityRevealerText] = useState<string>(
     parsedSearchParams.identityRevealerText || ""
   );
-  const [message, setMessage] = useState(
-    parsedSearchParams.message || "I like cats"
-  );
+  const [message, setMessage] = useState(parsedSearchParams.message || "");
   const [groupName, setGroupName] = useState(
-    parsedSearchParams.group_name ||
-      "https://github.com/orgs/doubleblind-xyz/people" // TODO merkle.club/github/orgs/doubleblind-xyz
+    parsedSearchParams.group_name || ""
   );
   const [doubleBlindKey, setDoubleBlindKey] = useState(
     localStorage.doubleBlindKey || ""

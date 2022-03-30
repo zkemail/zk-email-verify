@@ -10,7 +10,6 @@ import {
 import { buildMerkleTree } from "../merkle";
 import { initializePoseidon, poseidon, poseidonK } from "../poseidonHash";
 import { shaHash } from "../shaHash";
-import { getRawSignature } from "../sshFormat";
 import { IGroupSignature, IIdentityRevealer } from "./types";
 // @ts-ignore
 import * as snarkjs from "snarkjs";
@@ -18,15 +17,20 @@ import * as snarkjs from "snarkjs";
 import sshpk from "sshpk";
 
 export async function getPublicCircuitSignals(
-  groupSignature: IGroupSignature,
+  groupSignature: IGroupSignature
 ): Promise<string[]> {
   await initializePoseidon();
 
   const {
     signerId,
-    groupMessage: { topic, enableSignerId, message, groupName, groupPublicKeys },
-  } =
-    groupSignature;
+    groupMessage: {
+      topic,
+      enableSignerId,
+      message,
+      groupName,
+      groupPublicKeys,
+    },
+  } = groupSignature;
 
   const baseMessageBigInt = MAGIC_DOUBLE_BLIND_BASE_MESSAGE;
 
@@ -41,17 +45,21 @@ export async function getPublicCircuitSignals(
   );
   const root = (await buildMerkleTree(groupModulusBigInts))[1];
 
-  return [poseidon([
-    poseidonK(toCircomBigIntBytes(baseMessageBigInt)),
-    signerId,
-    topicBigint.toString(),
-    palyoadBigint.toString(),
-    root,
-    enableSignerId ? "1" : "0",
-  ])];
+  return [
+    poseidon([
+      poseidonK(toCircomBigIntBytes(baseMessageBigInt)),
+      signerId,
+      topicBigint.toString(),
+      palyoadBigint.toString(),
+      root,
+      enableSignerId ? "1" : "0",
+    ]),
+  ];
 }
 
-export async function verifyGroupSignature(groupSignature: IGroupSignature): Promise<boolean> {
+export async function verifyGroupSignature(
+  groupSignature: IGroupSignature
+): Promise<boolean> {
   console.log("verifying");
   // reconstruct public signals from group signature metadata
   const signals = await getPublicCircuitSignals(groupSignature);
@@ -72,7 +80,18 @@ export async function verifyGroupSignature(groupSignature: IGroupSignature): Pro
   }
 }
 
-export async function verifyIdentityRevealer(identityRevealer: IIdentityRevealer, signerId: string): Promise<boolean> {
-  const modulusBigInt = bytesToBigInt(sshpk.parseKey(identityRevealer.pubKey, "ssh").parts[1].data);
-  return signerId === poseidon([poseidonK(toCircomBigIntBytes(modulusBigInt)), identityRevealer.opener]);
+export async function verifyIdentityRevealer(
+  identityRevealer: IIdentityRevealer,
+  signerId: string
+): Promise<boolean> {
+  const modulusBigInt = bytesToBigInt(
+    sshpk.parseKey(identityRevealer.pubKey, "ssh").parts[1].data
+  );
+  return (
+    signerId ===
+    poseidon([
+      poseidonK(toCircomBigIntBytes(modulusBigInt)),
+      identityRevealer.opener,
+    ])
+  );
 }
