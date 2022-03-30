@@ -5,9 +5,11 @@ import { initializePoseidon } from "../poseidonHash";
 import { verifyRSA } from "../rsa";
 import { shaHash } from "../shaHash";
 import { getRawSignature } from "../sshFormat";
-import { IGroupSignature } from "./types";
+import { IGroupMessage, IGroupSignature } from "./types";
 // @ts-ignore
 import * as snarkjs from "snarkjs";
+// @ts-ignore
+import sshpk from 'sshpk';
 
 interface ICircuitInputs {
   enableSignerId: string;
@@ -21,17 +23,38 @@ interface ICircuitInputs {
   root: string;
 }
 
-export async function getCircuitInputs(signature: string, payload1: string, payload2: string, groupKeys: any[]): Promise<{
-  circuitInputs: ICircuitInputs;
+export async function getCircuitInputs(sshSignature: string, groupMessage: IGroupMessage): Promise<{
+  circuitInputs?: ICircuitInputs;
   valid: {
-    validPublicKeyGroupMembership: boolean;
-    validMessage: boolean;
+    validSignatureFormat?: boolean;
+    validPublicKeyGroupMembership?: boolean;
+    validMessage?: boolean;
   }
 }> {
+  const {
+    topic,
+    enableSignerId,
+    message,
+    groupName,
+    groupPublicKeys,
+  } = groupMessage;
   await initializePoseidon();
-  const { rawSignature, pubKeyParts } = getRawSignature(signature);
-  const groupModulusBigInts = groupKeys.map((key) =>
-    bytesToBigInt(key.parts[1].data)
+  let validSignatureFormat = true;
+  let rawSignature: any, pubKeyParts: any;
+  try {
+    const rawSig = getRawSignature(sshSignature);
+    rawSignature = rawSig.rawSignature;
+    pubKeyParts = rawSig.pubKeyParts;
+  } catch (e) {
+    console.error(e);
+    return {
+      valid: {
+        validSignatureFormat: false,
+      }
+    }
+  }
+  const groupModulusBigInts = groupPublicKeys.map((key) =>
+    bytesToBigInt(sshpk.parseKey(key, "ssh").parts[1].data)
   );
   const modulusBigInt = bytesToBigInt(pubKeyParts[2]);
   const validPublicKeyGroupMembership = groupModulusBigInts.includes(
@@ -46,11 +69,11 @@ export async function getCircuitInputs(signature: string, payload1: string, payl
     messageBigInt.toString(16)
   );
 
-  const payload1HashBigInt =
-    bytesToBigInt(await shaHash(stringToBytes(payload1))) %
+  const topicBigint =
+    bytesToBigInt(await shaHash(stringToBytes(topic))) %
     CIRCOM_FIELD_MODULUS;
-  const payload2HashBigInt =
-    bytesToBigInt(await shaHash(stringToBytes(payload2))) %
+  const palyoadBigint =
+    bytesToBigInt(await shaHash(stringToBytes(message + ' -- ' + groupName))) %
     CIRCOM_FIELD_MODULUS;
 
   // modExp(bytesToBigInt(rawSignature), 65537, bytesToBigInt(data.modulusBytes))
@@ -62,16 +85,17 @@ export async function getCircuitInputs(signature: string, payload1: string, payl
   return {
     // parts: rsaKey.parts,
     valid: {
+      validSignatureFormat,
       validPublicKeyGroupMembership,
       validMessage,
     },
     circuitInputs: {
-      enableSignerId: "1",
+      enableSignerId: enableSignerId ? "1" : "0",
       modulus: toCircomBigIntBytes(modulusBigInt),
       signature: toCircomBigIntBytes(signatureBigInt),
       base_message: toCircomBigIntBytes(baseMessageBigInt),
-      topic: payload1HashBigInt.toString(),
-      payload: payload2HashBigInt.toString(),
+      topic: topicBigint.toString(),
+      payload: palyoadBigint.toString(),
       pathElements,
       pathIndices,
       root,
@@ -79,7 +103,7 @@ export async function getCircuitInputs(signature: string, payload1: string, payl
   };
 }
 
-export async function generateGroupSignature(circuitInputs: ICircuitInputs, groupKeys: string[]): Promise<IGroupSignature> {
+export async function generateGroupSignature(circuitInputs: ICircuitInputs, groupMessage: IGroupMessage): Promise<IGroupSignature> {
   const wasmFile = "main.wasm";
   const zkeyFile = "circuit_0000.zkey";
   const { proof, publicSignals } = await snarkjs.groth16.fullProve(
@@ -89,10 +113,7 @@ export async function generateGroupSignature(circuitInputs: ICircuitInputs, grou
   );
   console.log(publicSignals);
   return {
-    proof,
-    payload1: circuitInputs.topic,
-    payload2: circuitInputs.payload,
-    nullifier: publicSignals.nullifier,
-    groupKeys,
+    zkProof: proof,
+    groupMessage,
   };
 }

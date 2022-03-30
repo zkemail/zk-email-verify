@@ -7,6 +7,7 @@
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
     "@types/lodash": "^4.14.181",
+    "@types/styled-components": "^5.1.24",
     "circomlib": "^2.0.3",
     "circomlibjs": "^0.1.2",
     "lodash": "^4.17.21",
@@ -20,6 +21,7 @@
     "react-use": "^17.3.2",
     "snarkjs": "^0.4.15",
     "sshpk": "^1.17.0",
+    "styled-components": "^5.3.5",
     "typescript": "^4.6.3",
     "web-vitals": "^2.1.4"
   },
