@@ -68,7 +68,7 @@ not share the identity revealer unless you'd like to deanonymize your messages.
 
 Due to the nature of RSA signatures, in some cases, a malicious actor may
 construct a tampered RSA private key which allows them to sign
-two messages in the same identity namespace but two **different** masked
+two messages in the same identity namespace but with two **different** masked
 identities. Thus, DO NOT rely on masked identity for determining unique
 identities, e.g. for anonymous voting protocols. There is a planned protocol
 extension which will allow users to prove they do not have a tampered public
