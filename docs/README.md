@@ -56,14 +56,14 @@ identical contents may be identical). With masked identities, you are still
 anonymous, but two messages with the same masked identity must correspond to the
 same public key.
 
-Additionally, you can **reveal** your masked identity with an **identity
-revealer**. This will link your masked identity to your true public key, so do
-not share the identity revealer unless you'd like to deanonymize your messages.
-
 When generating masked identities, you need to specify an **identity
 namespace**. Multiple messages signed with the same namespace and same public
 key will produce the same masked identity, so you namespaces should be unique,
 long, random strings unless you're explicitly trying to link your messages.
+
+Additionally, you can **reveal** your masked identity with an **identity
+revealer**. This will link your masked identity to your true public key, so do
+not share the identity revealer unless you'd like to deanonymize your messages.
 
 Due to the nature of RSA signatures, in some cases, a malicious actor may
 construct a tampered RSA private key which allows them to sign
