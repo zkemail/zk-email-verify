@@ -17,7 +17,7 @@ import {
 } from "../helpers/groupSignature/sign";
 import styled from "styled-components";
 import { sshSignatureToPubKey } from "../helpers/sshFormat";
-import { verifyGroupSignature } from "../helpers/groupSignature/verify";
+import { verifyGroupSignature, verifyIdentityRevealer } from "../helpers/groupSignature/verify";
 import { useSearchParams } from "react-router-dom";
 const DEFAULT_PUBLIC_KEY_1 =
   "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDFYFqsui6PpLDN0A2blyBJ/ZVnTEYjnlnuRh9/Ns2DXMo4YRyEq078H68Q9Mdgw2FgcNHFe/5HdrfT8TupRs2ISGcpGnNupvARj9aD91JNAdze04ZsrP1ICoW2JrOjXsU6+eZLJVeXZhMUCOF0CCNArZljdk7o8GrAUI8cEzyxMPtRZsKy/Z6/6r4UBgB+8/oFlOJn2CltN3svzpDxR8ZVWGDAkZKCdqKq3DKahumbv39NiSmEvFWPPV9e7mseknA8vG9AzQ24siMPZ8O2kX2wl0AnwB0IcHgrFfZT/XFnhiXiVpJ9ceh8AqPBAXyRX3u60HSsE6NE7oiB9ziA8rAf stevenhao@Stevens-MacBook-Pro.local";

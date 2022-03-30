@@ -72,5 +72,6 @@ export async function verifyGroupSignature(groupSignature: IGroupSignature): Pro
 }
 
 export async function verifyIdentityRevealer(identityRevealer: IIdentityRevealer, signerId: string): Promise<boolean> {
-  return false;
+  const modulusBigInt = bytesToBigInt(sshpk.parseKey(identityRevealer.pubKey, "ssh").parts[1].data);
+  return signerId === poseidon([poseidonK(toCircomBigIntBytes(modulusBigInt)), identityRevealer.opener]);
 }
