@@ -28,7 +28,13 @@ export interface IGroupMessage {
 
 export interface IGroupSignature {
   zkProof: object;
+  signerId: string;
   groupMessage: IGroupMessage;
+}
+
+export interface IIdentityRevealer {
+  pubKey: string;
+  opener: string;
 }
 
 export const isGroupSignature = (o: object): o is IGroupSignature => {

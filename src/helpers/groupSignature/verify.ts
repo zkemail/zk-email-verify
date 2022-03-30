@@ -4,25 +4,57 @@ import {
   toCircomBigIntBytes,
 } from "../binaryFormat";
 import {
-  MAGIC_DOUBLE_BLIND_BASE_MESSAGE_HEX,
-  MAGIC_DOUBLE_BLIND_REGEX,
+  MAGIC_DOUBLE_BLIND_BASE_MESSAGE,
   CIRCOM_FIELD_MODULUS,
 } from "../constants";
-import { generateMerkleTreeInputs } from "../merkle";
-import { initializePoseidon } from "../poseidonHash";
-import { verifyRSA } from "../rsa";
+import { buildMerkleTree } from "../merkle";
+import { initializePoseidon, poseidon, poseidonK } from "../poseidonHash";
 import { shaHash } from "../shaHash";
 import { getRawSignature } from "../sshFormat";
-import { IGroupSignature } from "./types";
+import { IGroupSignature, IIdentityRevealer } from "./types";
 // @ts-ignore
 import * as snarkjs from "snarkjs";
+// @ts-ignore
+import sshpk from "sshpk";
 
-export async function verifyGroupSignature(groupSignature: IGroupSignature) {
+export async function getPublicCircuitSignals(
+  groupSignature: IGroupSignature,
+): Promise<string[]> {
+  await initializePoseidon();
+
+  const {
+    signerId,
+    groupMessage: { topic, enableSignerId, message, groupName, groupPublicKeys },
+  } =
+    groupSignature;
+
+  const baseMessageBigInt = MAGIC_DOUBLE_BLIND_BASE_MESSAGE;
+
+  const topicBigint =
+    bytesToBigInt(await shaHash(stringToBytes(topic))) % CIRCOM_FIELD_MODULUS;
+  const palyoadBigint =
+    bytesToBigInt(await shaHash(stringToBytes(message + " -- " + groupName))) %
+    CIRCOM_FIELD_MODULUS;
+
+  const groupModulusBigInts = groupPublicKeys.map((key) =>
+    bytesToBigInt(sshpk.parseKey(key, "ssh").parts[1].data)
+  );
+  const root = (await buildMerkleTree(groupModulusBigInts))[1];
+
+  return [poseidon([
+    poseidonK(toCircomBigIntBytes(baseMessageBigInt)),
+    signerId,
+    topicBigint.toString(),
+    palyoadBigint.toString(),
+    root,
+    enableSignerId ? "1" : "0",
+  ])];
+}
+
+export async function verifyGroupSignature(groupSignature: IGroupSignature): Promise<boolean> {
   console.log("verifying");
   // reconstruct public signals from group signature metadata
-  const signals: any[] = [
-    "13034038797458192704974609185426348888474874684599939316774554231816360076372",
-  ];
+  const signals = await getPublicCircuitSignals(groupSignature);
 
   const vKeyJson = await (await fetch("verification_key.json")).json();
   try {
@@ -32,7 +64,13 @@ export async function verifyGroupSignature(groupSignature: IGroupSignature) {
       groupSignature.zkProof
     );
     console.log(res);
+    return res;
   } catch (e) {
     debugger;
+    return false;
   }
+}
+
+export async function verifyIdentityRevealer(identityRevealer: IIdentityRevealer, signerId: string): Promise<boolean> {
+  return false;
 }

@@ -4,16 +4,16 @@ import {
   toCircomBigIntBytes,
 } from "../binaryFormat";
 import {
-  MAGIC_DOUBLE_BLIND_BASE_MESSAGE_HEX,
-  MAGIC_DOUBLE_BLIND_REGEX,
+  MAGIC_DOUBLE_BLIND_BASE_MESSAGE,
+  MAGIC_DOUBLE_BLIND_BASE_MESSAGE_LEN,
   CIRCOM_FIELD_MODULUS,
 } from "../constants";
 import { generateMerkleTreeInputs } from "../merkle";
 import { initializePoseidon, poseidon, poseidonK } from "../poseidonHash";
 import { verifyRSA } from "../rsa";
 import { shaHash } from "../shaHash";
-import { getRawSignature } from "../sshFormat";
-import { IGroupMessage, IGroupSignature } from "./types";
+import { getRawSignature, sshSignatureToPubKey } from "../sshFormat";
+import { IGroupMessage, IGroupSignature, IIdentityRevealer } from "./types";
 // @ts-ignore
 import * as snarkjs from "snarkjs";
 // @ts-ignore
@@ -35,12 +35,14 @@ export async function getCircuitInputs(
   sshSignature: string,
   groupMessage: IGroupMessage
 ): Promise<{
-  circuitInputs?: ICircuitInputs;
   valid: {
     validSignatureFormat?: boolean;
     validPublicKeyGroupMembership?: boolean;
     validMessage?: boolean;
   };
+  circuitInputs?: ICircuitInputs;
+  signerId?: string;
+  identityRevealer?: IIdentityRevealer;
 }> {
   const { topic, enableSignerId, message, groupName, groupPublicKeys } =
     groupMessage;
@@ -67,12 +69,11 @@ export async function getCircuitInputs(
     groupModulusBigInts.includes(modulusBigInt);
   const signatureBigInt = bytesToBigInt(rawSignature);
   const messageBigInt = verifyRSA(signatureBigInt, modulusBigInt);
-  const baseMessageBigInt =
-    messageBigInt &
-    ((1n << BigInt(MAGIC_DOUBLE_BLIND_BASE_MESSAGE_HEX.length * 4)) - 1n);
-  const validMessage = !!MAGIC_DOUBLE_BLIND_REGEX.exec(
-    messageBigInt.toString(16)
-  );
+  const baseMessageBigInt = MAGIC_DOUBLE_BLIND_BASE_MESSAGE;
+  const validMessage = (
+    messageBigInt & ((1n << BigInt(MAGIC_DOUBLE_BLIND_BASE_MESSAGE_LEN)) - 1n)
+  ) === baseMessageBigInt;
+
   if (!validMessage || !validPublicKeyGroupMembership) {
     return {
       valid: {
@@ -94,6 +95,36 @@ export async function getCircuitInputs(
     groupModulusBigInts,
     modulusBigInt
   );
+
+  // Compute identity revealer
+  /*
+    component nullifierOpeningPoseidon = Poseidon(2);
+    nullifierOpeningPoseidon.inputs[0] <== privPoseidonK.out;
+    nullifierOpeningPoseidon.inputs[1] <== topic;
+    signerIdOpening <== nullifierOpeningPoseidon.out;
+    log(signerIdOpening);
+
+    signal signerId;
+    component signerIdPoseidon = Poseidon(2);
+    signerIdPoseidon.inputs[0] <== leaf;
+    signerIdPoseidon.inputs[1] <== signerIdOpening;
+    signerId <== signerIdPoseidon.out * enableSignerId;
+    log(signerId);*/
+  let identityRevealer, signerId;
+  if (enableSignerId) {
+    identityRevealer = {
+      pubKey: sshSignatureToPubKey(sshSignature),
+      opener: poseidon([poseidonK(toCircomBigIntBytes(signatureBigInt)), topicBigint.toString()]),
+    };
+
+    signerId = poseidon([
+      poseidonK(toCircomBigIntBytes(modulusBigInt)),
+      identityRevealer.opener,
+    ]);
+  } else {
+    signerId = "0";
+  }
+
   return {
     // parts: rsaKey.parts,
     valid: {
@@ -112,12 +143,15 @@ export async function getCircuitInputs(
       pathIndices,
       root,
     },
+    identityRevealer: identityRevealer,
+    signerId: signerId,
   };
 }
 
 export async function generateGroupSignature(
   circuitInputs: ICircuitInputs,
-  groupMessage: IGroupMessage
+  groupMessage: IGroupMessage,
+  signerId: string,
 ): Promise<IGroupSignature> {
   const wasmFile = "main.wasm";
   const zkeyFile = "circuit_0000.zkey";
@@ -129,30 +163,8 @@ export async function generateGroupSignature(
   console.log(publicSignals);
   return {
     zkProof: proof,
+    signerId: signerId,
     groupMessage,
   };
 }
 
-export function computeIdentityRevealer(
-  circuitInputs: ICircuitInputs,
-  pubKey: string
-) {
-  /*
-
-    component nullifierOpeningPoseidon = Poseidon(2);
-    nullifierOpeningPoseidon.inputs[0] <== privPoseidonK.out;
-    nullifierOpeningPoseidon.inputs[1] <== topic;
-    signerIdOpening <== nullifierOpeningPoseidon.out;
-    log(signerIdOpening);
-
-    signal signerId;
-    component signerIdPoseidon = Poseidon(2);
-    signerIdPoseidon.inputs[0] <== leaf;
-    signerIdPoseidon.inputs[1] <== signerIdOpening;
-    signerId <== signerIdPoseidon.out * enableSignerId;
-    log(signerId);*/
-  return {
-    pubKey,
-    opener: poseidon([poseidonK(circuitInputs.signature), circuitInputs.topic]),
-  };
-}
