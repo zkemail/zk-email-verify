@@ -19,6 +19,7 @@ import {
 import styled from "styled-components";
 import { sshSignatureToPubKey } from "../helpers/sshFormat";
 import { verifyGroupSignature } from "../helpers/groupSignature/verify";
+import { useSearchParams } from "react-router-dom";
 const DEFAULT_PUBLIC_KEY_1 =
   "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDFYFqsui6PpLDN0A2blyBJ/ZVnTEYjnlnuRh9/Ns2DXMo4YRyEq078H68Q9Mdgw2FgcNHFe/5HdrfT8TupRs2ISGcpGnNupvARj9aD91JNAdze04ZsrP1ICoW2JrOjXsU6+eZLJVeXZhMUCOF0CCNArZljdk7o8GrAUI8cEzyxMPtRZsKy/Z6/6r4UBgB+8/oFlOJn2CltN3svzpDxR8ZVWGDAkZKCdqKq3DKahumbv39NiSmEvFWPPV9e7mseknA8vG9AzQ24siMPZ8O2kX2wl0AnwB0IcHgrFfZT/XFnhiXiVpJ9ceh8AqPBAXyRX3u60HSsE6NE7oiB9ziA8rAf stevenhao@Stevens-MacBook-Pro.local";
 const DEFAULT_PUBLIC_KEY_2 =
@@ -45,10 +46,61 @@ const LabeledTextArea: React.FC<{
     </LabeledTextAreaContainer>
   );
 };
+
+function decodeSearchParams(
+  urlSearchParams: URLSearchParams
+): {
+  group_members?: string;
+  message?: string;
+  group_name?: string;
+  topic?: string;
+  enableSignerId: boolean;
+} {
+  const searchParams: {
+    message?: string;
+    group_name?: string;
+    topic?: string;
+    group_members?: string;
+    enableSignerId?: string;
+  } = Object.fromEntries(urlSearchParams.entries());
+  return {
+    group_members:
+      searchParams.group_members &&
+      decodeURIComponent(searchParams.group_members),
+    message: searchParams.message && decodeURIComponent(searchParams.message),
+    group_name:
+      searchParams.group_name && decodeURIComponent(searchParams.group_name),
+    topic: searchParams.topic && decodeURIComponent(searchParams.topic),
+    enableSignerId: !!searchParams.enableSignerId,
+  };
+}
+
+function encodeSearchParams(
+  message: string,
+  group_name: string,
+  topic: string,
+  group_members: string,
+  enableSignerId: boolean
+): string {
+  const parts = _.compact([
+    message && "message=" + encodeURIComponent(message),
+    topic && "topic=" + encodeURIComponent(topic),
+    group_name && "group_name=" + encodeURIComponent(group_name),
+    group_members &&
+      encodeURIComponent(group_members).length < 6800 &&
+      "group_members=" + encodeURIComponent(group_members),
+    enableSignerId && "enableSignerId=1",
+  ]);
+  return parts.join("&");
+}
+
 export const Prover: React.FC<{}> = (props) => {
+  const parsedSearchParams = decodeSearchParams(useSearchParams()[0]);
+  console.log(parsedSearchParams);
   // raw user inputs
   const [groupKeysString, setGroupKeysString] = useState<string>(
-    DEFAULT_PUBLIC_KEY_1 + "\n" + DEFAULT_PUBLIC_KEY_2 + "\n"
+    parsedSearchParams.group_members ??
+      DEFAULT_PUBLIC_KEY_1 + "\n" + DEFAULT_PUBLIC_KEY_2 + "\n"
   );
   const [topic, setTopic] = useState("Cats vs Dogs");
   const [groupSignatureText, setGroupSignatureText] = useState<string>(
@@ -62,7 +114,7 @@ export const Prover: React.FC<{}> = (props) => {
   const [doubleBlindKey, setDoubleBlindKey] = useState(
     localStorage.doubleBlindKey || ""
   );
-  const [secretIdentity, setSecretIdentity] = useState<string>("");
+  const [unmaskedIdentity, setUnmaskedIdentity] = useState<string>("");
   const [enableSignerId, setEnableSignerId] = useState(false);
   const groupMessage: IGroupMessage = useMemo(
     () => ({
@@ -76,6 +128,24 @@ export const Prover: React.FC<{}> = (props) => {
     }),
     [enableSignerId, groupKeysString, groupName, message, topic]
   );
+
+  const shareLink = useMemo(() => {
+    return (
+      window.location.host +
+      window.location.pathname +
+      "?" +
+      encodeSearchParams(
+        message,
+        groupName,
+        topic,
+        groupKeysString,
+        enableSignerId
+      )
+    );
+  }, [enableSignerId, groupKeysString, groupName, message, topic]);
+  console.log(shareLink, shareLink.length);
+
+  // computed state
   const { value, error } = useAsync(async () => {
     try {
       const { circuitInputs, valid } = await getCircuitInputs(
@@ -87,6 +157,17 @@ export const Prover: React.FC<{}> = (props) => {
       return {};
     }
   }, [doubleBlindKey, groupMessage]);
+
+  const { circuitInputs, valid } = value || {};
+  console.log(circuitInputs);
+
+  // state purely for displaying to user; not read outside of jsx
+  const sshPubKey = useMemo(() => sshSignatureToPubKey(doubleBlindKey), [
+    doubleBlindKey,
+  ]);
+  const [verificationMessage, setVerificationMessage] = useState("I like cats");
+
+  // local storage stuff
   useUpdateEffect(() => {
     if (value?.circuitInputs) {
       if (localStorage.doubleBlindKey !== doubleBlindKey) {
@@ -95,20 +176,19 @@ export const Prover: React.FC<{}> = (props) => {
       }
     }
   }, [value]);
-  const { circuitInputs, valid } = value || {};
-  console.log(circuitInputs);
-  // state purely for displaying to user; not read outside of jsx
-  const sshPubKey = useMemo(() => sshSignatureToPubKey(doubleBlindKey), [
-    doubleBlindKey,
-  ]);
-  const [verificationMessage, setVerificationMessage] = useState("I like cats");
-
   if (error) console.error(error);
   return (
     <Container>
       <h2>Zero Knowledge RSA Group Signature Generator</h2>
       <div className="main">
         <div className="messagePane">
+          <LabeledTextArea
+            label="Topic"
+            value={topic}
+            onChange={(e) => {
+              setTopic(e.currentTarget.value);
+            }}
+          />
           <LabeledTextArea
             label="Message"
             value={message}
@@ -135,26 +215,12 @@ export const Prover: React.FC<{}> = (props) => {
                 : undefined
             }
           />
-          <LabeledTextArea
-            label="Topic"
-            value={topic}
-            onChange={(e) => {
-              setTopic(e.currentTarget.value);
-            }}
-          />
 
-          {enableSignerId && (
+          {unmaskedIdentity && (
             <LabeledTextArea
-              warning={
-                secretIdentity !== sshPubKey
-                  ? "Warning: Secret identity is not your public key"
-                  : undefined
-              }
-              label="Secret Identity"
-              value={secretIdentity}
-              onChange={(e) => {
-                setSecretIdentity(e.currentTarget.value);
-              }}
+              label="Unmasked Identity"
+              disabled
+              value={unmaskedIdentity}
             />
           )}
         </div>
@@ -181,11 +247,15 @@ export const Prover: React.FC<{}> = (props) => {
             onClick={async () => {
               if (!circuitInputs) return;
               console.time("zk");
-              setIdentityRevealerText(
-                JSON.stringify(
-                  computeIdentityRevealer(circuitInputs, sshPubKey)
-                )
-              );
+              if (enableSignerId) {
+                setIdentityRevealerText(
+                  JSON.stringify(
+                    computeIdentityRevealer(circuitInputs, sshPubKey)
+                  )
+                );
+              } else {
+                setIdentityRevealerText("");
+              }
               setGroupSignatureText(
                 "Computing ZK Proof... Please wait 30 seconds"
               );
@@ -275,11 +345,7 @@ export const Prover: React.FC<{}> = (props) => {
               : undefined
           }
         />
-        <LabeledTextArea
-          label="Your Secret Identity"
-          value={sshPubKey}
-          disabled
-        />
+        <LabeledTextArea label="Your Public Key" value={sshPubKey} disabled />
       </div>
     </Container>
   );

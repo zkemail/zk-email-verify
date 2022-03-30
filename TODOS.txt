@@ -6,6 +6,15 @@ TODOS
 2. Create verifier page
 2.5 enable csv upload in verifier page
 3. Enable query strings in prover page -- enableNullifier, group keys (base64 encoded), group metadata (base64 encoded)
-4. Redesign landing page to be like delim.co
-4. Create google form and test!
-5. Instructions for forking the google form & docs
+4. Redesign landing page to be like delim.co DONE
+5. Create google form and test!
+6. Instructions for forking the google form & docs
+
+remaining todos 3/29/22
+
+1. ----BEGIN DOUBLEBLIND.XYZ SIGNATURE---- / group name / base64 encoded
+2. css
+3. ----BEGIN DOUBLEBLIND.XYZ REVEALER----
+4. /docs, /about (instructions for ppl to verify the circuit / zkey)
+5. style the secret identity box differently from mundane boxes
+
