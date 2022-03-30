@@ -73,4 +73,30 @@ identities, e.g. for anonymous voting protocols. There is a planned protocol
 extension which will allow users to prove they do not have a tampered public
 key, which would make this safe.
 
-## Concepts
+## Underlying Concepts
+
+### ZK Proofs
+
+Double Blind is built using [Zero-Knowledge
+Proofs](https://en.wikipedia.org/wiki/Zero-knowledge_proof) (ZK proofs). ZK
+proofs are essentially signatures which require knowledge of a value satisfying
+a specific function in order to generate correctly (so they prove knowledge of
+the value); however, they do not reveal these values to any validator (so they
+are zero-knowledge). Surprisingly, ZK proofs can be constructed for *any*
+computable function.
+
+For Double Blind, the function we care about is
+```
+RSA_verify(YOUR_PUBLIC_SSH_KEY, YOUR_DOUBLE_BLIND_KEY, "E PLURIBUS UNUM; DO NOT SHARE") && GROUP.contains(YOUR_PUBLIC_SSH_KEY)
+```
+A ZK proof of this statement shows that you own your public ssh key and are part
+of the group, but does not reveal your public ssh key beyond that.
+
+In addition, for any fixed function, we can actually devise a scheme that
+produces a very short proof: it is the same size irrespective of the
+size/complexity of the function. Verification time is also constant; this
+requires a precomputed short "verification key" which cryptographically encodes
+the particular function. These **succinct** proofs are called zkSNARKs (Succinct
+Non-interactive ARguments of Knowledge). zkSNARKs can be verified very quickly,
+but signing (proving) a message still requires time proportional to the size of
+the function.
