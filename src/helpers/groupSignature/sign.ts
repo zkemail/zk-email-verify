@@ -9,7 +9,7 @@ import {
   CIRCOM_FIELD_MODULUS,
 } from "../constants";
 import { generateMerkleTreeInputs } from "../merkle";
-import { initializePoseidon } from "../poseidonHash";
+import { initializePoseidon, poseidon, poseidonK } from "../poseidonHash";
 import { verifyRSA } from "../rsa";
 import { shaHash } from "../shaHash";
 import { getRawSignature } from "../sshFormat";
@@ -73,7 +73,6 @@ export async function getCircuitInputs(
   const validMessage = !!MAGIC_DOUBLE_BLIND_REGEX.exec(
     messageBigInt.toString(16)
   );
-
   if (!validMessage || !validPublicKeyGroupMembership) {
     return {
       valid: {
@@ -131,5 +130,29 @@ export async function generateGroupSignature(
   return {
     zkProof: proof,
     groupMessage,
+  };
+}
+
+export function computeIdentityRevealer(
+  circuitInputs: ICircuitInputs,
+  pubKey: string
+) {
+  /*
+
+    component nullifierOpeningPoseidon = Poseidon(2);
+    nullifierOpeningPoseidon.inputs[0] <== privPoseidonK.out;
+    nullifierOpeningPoseidon.inputs[1] <== topic;
+    signerIdOpening <== nullifierOpeningPoseidon.out;
+    log(signerIdOpening);
+
+    signal signerId;
+    component signerIdPoseidon = Poseidon(2);
+    signerIdPoseidon.inputs[0] <== leaf;
+    signerIdPoseidon.inputs[1] <== signerIdOpening;
+    signerId <== signerIdPoseidon.out * enableSignerId;
+    log(signerId);*/
+  return {
+    pubKey,
+    opener: poseidon([poseidonK(circuitInputs.signature), circuitInputs.topic]),
   };
 }
