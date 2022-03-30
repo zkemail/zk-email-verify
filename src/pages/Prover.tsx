@@ -181,11 +181,13 @@ export const Prover: React.FC<{}> = (props) => {
   const [maskedIdentity, setMaskedIdentity] = useState<string>("");
   const [unmaskedIdentity, setUnmaskedIdentity] = useState<string>("");
   const [enableSignerId, setEnableSignerId] = useState(
-    parsedSearchParams.enableSignerId
+    parsedSearchParams.enableSignerId ||
+      !!identityRevealerText ||
+      maskedIdentity.length > 1
   );
   const groupMessage: IGroupMessage = useMemo(
     () => ({
-      topic,
+      topic: enableSignerId ? topic : "",
       enableSignerId,
       message,
       groupName,
@@ -314,16 +316,18 @@ export const Prover: React.FC<{}> = (props) => {
         </div>
         <div className="buttonsPane">
           <button
-            disabled={groupSignatureText.trim()[0] !== "="}
+            disabled={groupSignatureText.trim()[0] !== "-"}
             onClick={async () => {
               try {
                 const groupSig: IGroupSignature = decodeGroupSignature(
                   groupSignatureText
                 );
-                const identityRevealer: IIdentityRevealer | null = identityRevealerText
-                  ? decodeIdentityRevealer(identityRevealerText)
-                  : null;
+                const identityRevealer: IIdentityRevealer | null =
+                  groupSig.groupMessage.enableSignerId && identityRevealerText
+                    ? decodeIdentityRevealer(identityRevealerText)
+                    : null;
 
+                setEnableSignerId(groupSig.groupMessage.enableSignerId);
                 setTopic(groupSig.groupMessage.topic);
                 setMessage(groupSig.groupMessage.message);
                 setGroupName(groupSig.groupMessage.groupName);
@@ -333,6 +337,8 @@ export const Prover: React.FC<{}> = (props) => {
                 setMaskedIdentity(groupSig.signerId);
                 if (identityRevealer) {
                   setUnmaskedIdentity(identityRevealer.pubKey);
+                } else {
+                  setUnmaskedIdentity("");
                 }
 
                 let message = [];
