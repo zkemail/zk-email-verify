@@ -3,7 +3,8 @@
 Double Blind is an app for you to semi-anonymously sign messages for a group of
 people. Each message can be verified as sent from **someone** in the group, but the
 exact member cannot be identified (this is sometimes called a [group
-signature](http://en.wikipedia.org/wiki/Group_signature)).
+signature](http://en.wikipedia.org/wiki/Group_signature)). These can be use for
+anonymous feedback, forums, or many other semi-anonymous applications.
 
 Double Blind uses public SSH keys to identify people, so groups are just a list
 of public SSH keys. You can view public SSH keys from various places; for
