@@ -12,9 +12,9 @@ TODOS
 
 remaining todos 3/29/22
 
-1. ----BEGIN DOUBLEBLIND.XYZ SIGNATURE---- / group name / base64 encoded
+1. ----BEGIN DOUBLE-BLIND.XYZ SIGNATURE---- / group name / base64 encoded
 2. css
-3. ----BEGIN DOUBLEBLIND.XYZ REVEALER----
+3. ----BEGIN DOUBLE-BLIND.XYZ REVEALER----
 4. /docs, /about (instructions for ppl to verify the circuit / zkey)
 5. style the secret identity box differently from mundane boxes
 

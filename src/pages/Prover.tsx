@@ -448,10 +448,10 @@ export const Prover: React.FC<{}> = (props) => {
         </div>
       </div>
       <div className="bottom">
-        <h3>DoubleBlind Key</h3>
+        <h3>Double Blind Key</h3>
         <div>
           If you wish to generate group signatures, you must input your personal
-          DoubleBlind Key™.
+          Double Blind Key™.
           <br />
           This personal key is used by the generator to prove that you belong to
           the group.
@@ -467,12 +467,12 @@ export const Prover: React.FC<{}> = (props) => {
           to learn more.
           <pre>
             echo "E PLURIBUS UNUM; DO NOT SHARE" | ssh-keygen -Y sign -n
-            doubleblind.xyz -f ~/.ssh/id_rsa
+            double-blind.xyz -f ~/.ssh/id_rsa
           </pre>
         </div>
         <br />
         <LabeledTextArea
-          label="Your DoubleBlind Key"
+          label="Your Double Blind Key"
           value={doubleBlindKey}
           onChange={(e) => {
             setDoubleBlindKey(e.currentTarget.value);
@@ -481,7 +481,7 @@ export const Prover: React.FC<{}> = (props) => {
             valid && !valid.validSignatureFormat
               ? `Warning: Provided string is not an ssh-rsa signature`
               : valid && !valid.validMessage
-              ? `Warning: Provided SSH Signature is not a DoubleBlind Key.`
+              ? `Warning: Provided SSH Signature is not a Double Blind Key.`
               : undefined
           }
         />

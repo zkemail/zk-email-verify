@@ -6,17 +6,17 @@ export function decodeGroupSignature(sigstring: string): IGroupSignature {
 
 export function encodeGroupSignature(sig: IGroupSignature) {
   return (
-    "----BEGIN DOUBLEBLIND.XYZ SIGNATURE----\n" +
+    "----BEGIN DOUBLE-BLIND.XYZ SIGNATURE----\n" +
     btoa(JSON.stringify(sig)) +
-    "\n----END DOUBLEBLIND.XYZ SIGNATURE----"
+    "\n----END DOUBLE-BLIND.XYZ SIGNATURE----"
   );
 }
 
 export function encodeIdentityRevealer(rev: IIdentityRevealer): string {
   return (
-    "----BEGIN DOUBLEBLIND.XYZ REVEALER----\n" +
+    "----BEGIN DOUBLE-BLIND.XYZ REVEALER----\n" +
     btoa(JSON.stringify(rev)) +
-    "\n----END DOUBLEBLIND.XYZ REVEALER----"
+    "\n----END DOUBLE-BLIND.XYZ REVEALER----"
   );
 }
 

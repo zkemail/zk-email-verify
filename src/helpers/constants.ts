@@ -1,11 +1,13 @@
 // the numeric form of the payload1 passed into the primitive
 // corresponds to the openssh signature produced by the following command:
-// echo "E PLURIBUS UNUM; DO NOT SHARE" | ssh-keygen -Y sign -n do_not_share_this_signature@doubleblind.xyz -f ~/.ssh/id_rsa  | pbcopy
-export const MAGIC_DOUBLE_BLIND_BASE_MESSAGE = 0x003051300d0609608648016503040203050004403710c692cc2c46207b0c6f9369e709afe9fcdbe1f7097370c1fc7a55aeef8dd0aa9d0a084526dbe59eb24eee4a5320c1f053def2e404c5b45ade44f9b56143e9n;
+// echo "E PLURIBUS UNUM; DO NOT SHARE" | ssh-keygen -Y sign -n double-blind.xyz -f ~/.ssh/id_rsa | pbcopy
+export const MAGIC_DOUBLE_BLIND_BASE_MESSAGE =
+  14447023197094784173331616578829287000074783130802912942914027114823662617007553911501158244718575362051758829289159984830457466395841150324770159971462582912755545324694933673046215187947905307019469n;
 // Length in bits
 export const MAGIC_DOUBLE_BLIND_BASE_MESSAGE_LEN = 672;
 
-export const CIRCOM_FIELD_MODULUS = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
+export const CIRCOM_FIELD_MODULUS =
+  21888242871839275222246405745257275088548364400416034343698204186575808495617n;
 // circom constants from main.circom / https://zkrepl.dev/?gist=30d21c7a7285b1b14f608325f172417b
 // template RSAGroupSigVerify(n, k, levels) {
 // component main { public [ modulus ] } = RSAVerify(121, 17);
