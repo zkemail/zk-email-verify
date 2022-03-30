@@ -1,5 +1,13 @@
-import { bytesToBigInt, stringToBytes, toCircomBigIntBytes } from "../binaryFormat";
-import { MAGIC_DOUBLE_BLIND_BASE_MESSAGE_HEX, MAGIC_DOUBLE_BLIND_REGEX, CIRCOM_FIELD_MODULUS } from "../constants";
+import {
+  bytesToBigInt,
+  stringToBytes,
+  toCircomBigIntBytes,
+} from "../binaryFormat";
+import {
+  MAGIC_DOUBLE_BLIND_BASE_MESSAGE_HEX,
+  MAGIC_DOUBLE_BLIND_REGEX,
+  CIRCOM_FIELD_MODULUS,
+} from "../constants";
 import { generateMerkleTreeInputs } from "../merkle";
 import { initializePoseidon } from "../poseidonHash";
 import { verifyRSA } from "../rsa";
@@ -9,7 +17,7 @@ import { IGroupMessage, IGroupSignature } from "./types";
 // @ts-ignore
 import * as snarkjs from "snarkjs";
 // @ts-ignore
-import sshpk from 'sshpk';
+import sshpk from "sshpk";
 
 interface ICircuitInputs {
   enableSignerId: string;
@@ -18,26 +26,24 @@ interface ICircuitInputs {
   base_message: string[];
   topic: string;
   payload: string;
-  pathElements: (string|number)[];
-  pathIndices: (string|number)[];
+  pathElements: (string | number)[];
+  pathIndices: (string | number)[];
   root: string;
 }
 
-export async function getCircuitInputs(sshSignature: string, groupMessage: IGroupMessage): Promise<{
+export async function getCircuitInputs(
+  sshSignature: string,
+  groupMessage: IGroupMessage
+): Promise<{
   circuitInputs?: ICircuitInputs;
   valid: {
     validSignatureFormat?: boolean;
     validPublicKeyGroupMembership?: boolean;
     validMessage?: boolean;
-  }
+  };
 }> {
-  const {
-    topic,
-    enableSignerId,
-    message,
-    groupName,
-    groupPublicKeys,
-  } = groupMessage;
+  const { topic, enableSignerId, message, groupName, groupPublicKeys } =
+    groupMessage;
   await initializePoseidon();
   let validSignatureFormat = true;
   let rawSignature: any, pubKeyParts: any;
@@ -50,16 +56,15 @@ export async function getCircuitInputs(sshSignature: string, groupMessage: IGrou
     return {
       valid: {
         validSignatureFormat: false,
-      }
-    }
+      },
+    };
   }
   const groupModulusBigInts = groupPublicKeys.map((key) =>
     bytesToBigInt(sshpk.parseKey(key, "ssh").parts[1].data)
   );
   const modulusBigInt = bytesToBigInt(pubKeyParts[2]);
-  const validPublicKeyGroupMembership = groupModulusBigInts.includes(
-    modulusBigInt
-  );
+  const validPublicKeyGroupMembership =
+    groupModulusBigInts.includes(modulusBigInt);
   const signatureBigInt = bytesToBigInt(rawSignature);
   const messageBigInt = verifyRSA(signatureBigInt, modulusBigInt);
   const baseMessageBigInt =
@@ -75,14 +80,13 @@ export async function getCircuitInputs(sshSignature: string, groupMessage: IGrou
         validSignatureFormat,
         validPublicKeyGroupMembership,
         validMessage,
-      }
+      },
     };
   }
   const topicBigint =
-    bytesToBigInt(await shaHash(stringToBytes(topic))) %
-    CIRCOM_FIELD_MODULUS;
+    bytesToBigInt(await shaHash(stringToBytes(topic))) % CIRCOM_FIELD_MODULUS;
   const palyoadBigint =
-    bytesToBigInt(await shaHash(stringToBytes(message + ' -- ' + groupName))) %
+    bytesToBigInt(await shaHash(stringToBytes(message + " -- " + groupName))) %
     CIRCOM_FIELD_MODULUS;
 
   // modExp(bytesToBigInt(rawSignature), 65537, bytesToBigInt(data.modulusBytes))
@@ -112,7 +116,10 @@ export async function getCircuitInputs(sshSignature: string, groupMessage: IGrou
   };
 }
 
-export async function generateGroupSignature(circuitInputs: ICircuitInputs, groupMessage: IGroupMessage): Promise<IGroupSignature> {
+export async function generateGroupSignature(
+  circuitInputs: ICircuitInputs,
+  groupMessage: IGroupMessage
+): Promise<IGroupSignature> {
   const wasmFile = "main.wasm";
   const zkeyFile = "circuit_0000.zkey";
   const { proof, publicSignals } = await snarkjs.groth16.fullProve(

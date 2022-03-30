@@ -1,6 +1,6 @@
 import React from "react";
 import { Prover } from "./pages/Prover";
-import { Verifier } from "./pages/Verifier";
+import { BatchVerifier } from "./pages/BatchVerifier";
 import "./styles.css";
 import {
   BrowserRouter as Router,
@@ -15,12 +15,13 @@ const App = () => {
     <Router>
       <div>
         <nav>
-          <Link to={"/prove"}>Prover</Link> <Link to={"/verify"}>Verifier</Link>
+          <Link to={"/prove"}>Prover</Link>{" "}
+          <Link to={"/verify"}>BatchVerifier</Link>
         </nav>
 
         <Routes>
           <Route path="/prove" element={<Prover />} />
-          <Route path="/verify" element={<Verifier />} />
+          <Route path="/verify" element={<BatchVerifier />} />
           <Route path="/" element={<Navigate to="/prove" replace={true} />} />
         </Routes>
       </div>
