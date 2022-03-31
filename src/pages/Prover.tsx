@@ -102,7 +102,9 @@ function decodeSearchParams(
     message: searchParams.message && decodeURIComponent(searchParams.message),
     group_name:
       searchParams.group_name && decodeURIComponent(searchParams.group_name),
-    signerNamespace: searchParams.signerNamespace && decodeURIComponent(searchParams.signerNamespace),
+    signerNamespace:
+      searchParams.signerNamespace &&
+      decodeURIComponent(searchParams.signerNamespace),
     groupSignatureText:
       searchParams.groupSignatureText &&
       decodeURIComponent(searchParams.groupSignatureText),
@@ -152,7 +154,9 @@ export const Prover: React.FC<{}> = (props) => {
   const [groupKeysString, setGroupKeysString] = useState<string>(
     parsedSearchParams.group_members || ""
   );
-  const [signerNamespace, setSignerNamespace] = useState(parsedSearchParams.signerNamespace || "");
+  const [signerNamespace, setSignerNamespace] = useState(
+    parsedSearchParams.signerNamespace || ""
+  );
   const [groupSignatureText, setGroupSignatureText] = useState<string>(
     parsedSearchParams.groupSignatureText ?? ""
   );
@@ -260,7 +264,9 @@ export const Prover: React.FC<{}> = (props) => {
   if (error) console.error(error);
   return (
     <Container>
-      <h2>Zero Knowledge RSA Group Signature Generator</h2>
+      <div className="title">
+        <h1>Free RSA Group Signature Generator</h1>
+      </div>
       <div className="main">
         <div className="messagePane">
           <LabeledTextArea
@@ -494,6 +500,11 @@ export const Prover: React.FC<{}> = (props) => {
 const Container = styled.div`
 display: flex;
 flex-direction: column;
+& .title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 & .main {
   display: flex;
   & .messagePane {

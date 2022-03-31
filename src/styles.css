@@ -27,6 +27,10 @@ body {
   padding: 16px;
 }
 
+h1 {
+  font-weight: 300;
+  line-height: 1.1;
+}
 a {
   text-decoration: none;
   color: gray;
