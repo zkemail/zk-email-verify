@@ -1,6 +1,5 @@
 import React from "react";
 import { Prover } from "./pages/Prover";
-import { BatchVerifier } from "./pages/BatchVerifier";
 import "./styles.css";
 import {
   BrowserRouter as Router,
@@ -26,6 +25,7 @@ const App = () => {
             path="/"
             element={<Navigate to={proveLandingPage} replace={true} />}
           />
+          <Route element={<>Not found</>} />
         </Routes>
       </div>
     </Router>
