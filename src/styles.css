@@ -22,3 +22,16 @@
 textarea {
   /* white-space: pre; */
 }
+
+body {
+  padding: 16px;
+}
+
+a {
+  text-decoration: none;
+  color: gray;
+}
+
+a:hover {
+  text-decoration: underline;
+}
