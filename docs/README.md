@@ -110,3 +110,11 @@ constrain that two hidden "signals" add or multiply to another; signals can
 correspond to provided inputs or can be computed intermediates.
 
 ### Signer ID
+
+## How it works
+
+Circuit Diagram: https://excalidraw.com/#json=prlRhzCaDe1HEmrabvXs4,LSAmJLJh5JDf38Xh2g3i4g
+
+Circom: https://github.com/iden3/circom
+
+SnarkJS: https://github.com/iden3/snarkjs
