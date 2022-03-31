@@ -101,3 +101,12 @@ the particular function. These **succinct** proofs are called zkSNARKs (Succinct
 Non-interactive ARguments of Knowledge). zkSNARKs can be verified very quickly,
 but signing (proving) a message still requires time proportional to the size of
 the function.
+
+### ZK Proof Construction
+
+ZK proof protocols are generally specified as "arithmetic circuits" which
+enforce particular constraints on the inputs. These circuits allow you to
+constrain that two hidden "signals" add or multiply to another; signals can
+correspond to provided inputs or can be computed intermediates.
+
+### Signer ID
