@@ -113,8 +113,14 @@ correspond to provided inputs or can be computed intermediates.
 
 ## How it works
 
+RSA: https://en.wikipedia.org/wiki/RSA_(cryptosystem)
+
 Circuit Diagram: https://excalidraw.com/#json=prlRhzCaDe1HEmrabvXs4,LSAmJLJh5JDf38Xh2g3i4g
 
 Circom: https://github.com/iden3/circom
 
 SnarkJS: https://github.com/iden3/snarkjs
+
+SSHSIG: https://github.com/openssh/openssh-portable/blob/master/PROTOCOL.sshsig, https://github.com/openssh/openssh-portable/blob/master/ssh-keygen.c
+
+PKCS 1: https://datatracker.ietf.org/doc/html/rfc8017#section-9.2
