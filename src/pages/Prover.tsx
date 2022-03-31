@@ -31,6 +31,7 @@ import {
 
 const LabeledTextArea: React.FC<{
   style?: CSSProperties;
+  className?: string;
   label: string;
   value: string;
   warning?: string;
@@ -47,9 +48,12 @@ const LabeledTextArea: React.FC<{
   value,
   onChange,
   link,
+  className,
 }) => {
   return (
-    <LabeledTextAreaContainer className="labeledTextAreaContainer">
+    <LabeledTextAreaContainer
+      className={_.compact(["labeledTextAreaContainer", className]).join(" ")}
+    >
       <label>
         {label}
         {link && (
@@ -310,6 +314,50 @@ export const Prover: React.FC<{}> = (props) => {
         </div>
         <div className="buttonsPane">
           <button
+            disabled={
+              !circuitInputs ||
+              groupSignatureText ===
+                "Computing ZK Proof... Please wait 30 seconds"
+            }
+            onClick={async () => {
+              if (!circuitInputs) return;
+              console.time("zk");
+              setIdentityRevealerText("");
+              setUnmaskedIdentity("");
+              setGroupSignatureText(
+                "Computing ZK Proof... Please wait 30 seconds"
+              );
+              try {
+                (window as any).cJson = JSON.stringify(circuitInputs);
+                console.log(
+                  "wrote circuit input to window.cJson. Run copy(cJson)"
+                );
+                if (identityRevealer) {
+                  setMaskedIdentity(signerId!);
+                  setUnmaskedIdentity(sshPubKey);
+                  setIdentityRevealerText(
+                    encodeIdentityRevealer(identityRevealer)
+                  );
+                }
+                const groupSignature = await generateGroupSignature(
+                  circuitInputs,
+                  groupMessage,
+                  signerId!
+                );
+                setGroupSignatureText(encodeGroupSignature(groupSignature));
+              } catch (e) {
+                setGroupSignatureText("Error Computing ZK Proof...");
+                setIdentityRevealerText("");
+                console.error(e);
+              }
+              console.timeEnd("zk");
+            }}
+          >
+            Sign
+            <br />
+            {">>>"}
+          </button>
+          <button
             disabled={groupSignatureText.trim()[0] !== "-"}
             onClick={async () => {
               try {
@@ -361,50 +409,10 @@ export const Prover: React.FC<{}> = (props) => {
             }}
           >
             Verify
+            <br />
+            {"<<<"}
           </button>
-          <button
-            disabled={
-              !circuitInputs ||
-              groupSignatureText ===
-                "Computing ZK Proof... Please wait 30 seconds"
-            }
-            onClick={async () => {
-              if (!circuitInputs) return;
-              console.time("zk");
-              setIdentityRevealerText("");
-              setUnmaskedIdentity("");
-              setGroupSignatureText(
-                "Computing ZK Proof... Please wait 30 seconds"
-              );
-              try {
-                (window as any).cJson = JSON.stringify(circuitInputs);
-                console.log(
-                  "wrote circuit input to window.cJson. Run copy(cJson)"
-                );
-                if (identityRevealer) {
-                  setMaskedIdentity(signerId!);
-                  setUnmaskedIdentity(sshPubKey);
-                  setIdentityRevealerText(
-                    encodeIdentityRevealer(identityRevealer)
-                  );
-                }
-                const groupSignature = await generateGroupSignature(
-                  circuitInputs,
-                  groupMessage,
-                  signerId!
-                );
-                setGroupSignatureText(encodeGroupSignature(groupSignature));
-              } catch (e) {
-                setGroupSignatureText("Error Computing ZK Proof...");
-                setIdentityRevealerText("");
-                console.error(e);
-              }
-              console.timeEnd("zk");
-            }}
-          >
-            Sign
-          </button>
-
+          <b>Options</b>
           <span>
             <label>
               <input
@@ -415,9 +423,9 @@ export const Prover: React.FC<{}> = (props) => {
               Secret ID
             </label>
           </span>
-
           {enableSignerId && (
             <LabeledTextArea
+              className="small"
               label="Masked Identity"
               value={maskedIdentity}
               disabled
@@ -425,6 +433,7 @@ export const Prover: React.FC<{}> = (props) => {
           )}
           {enableSignerId && (
             <LabeledTextArea
+              className="small"
               label="Unmasked Identity"
               value={unmaskedIdentity}
               disabled
@@ -519,14 +528,21 @@ flex-direction: column;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: stretch;
+    align-items: center;
     padding: 12px;
+    & button {
+      margin-bottom: 16px;
+      width: 120px;
+    }
 
   }
   & .signaturePane {
     flex: 1;
     display: flex;
     flex-direction: column;
+    & > :first-child {
+      height: calc(30vh + 32px);
+    }
   }
 }
 
@@ -548,17 +564,30 @@ flex-direction: column;
 const LabeledTextAreaContainer = styled.div`
   display: flex;
   flex-direction: column;
+  height: 10vh;
   padding: 8px 24px;
+  align-items: center;
   & label {
-    align-self: center;
     font-size: 20px;
   }
   & textarea {
+    align-self: stretch;
     margin-top: 12px;
-    height: 70px;
+    flex: 1;
   }
   & .warning {
     color: #bd3333;
     font-size: 80%;
+  }
+  &.small {
+    label {
+      font-size: 16px;
+    }
+    height: 7vh;
+
+    textarea {
+      align-self: center;
+      width: 120px;
+    }
   }
 `;
