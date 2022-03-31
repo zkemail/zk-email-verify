@@ -17,7 +17,7 @@ const App = () => {
     <Router>
       <div>
         <nav>
-          <Link to={"/"}>App</Link> <Link to={"/docs"}>Docs</Link>{" "}
+          <Link to={"/"}>App</Link> <a href={"/docs/"}>Docs</a>{" "}
           <Link to={proveLandingPage}>Demo</Link>
         </nav>
 
