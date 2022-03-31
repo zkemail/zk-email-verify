@@ -296,7 +296,7 @@ export const Prover: React.FC<{}> = (props) => {
               setGroupKeysString(e.currentTarget.value);
             }}
             warning={
-              valid && !valid.validPublicKeyGroupMembership
+              valid && !valid.validPublicKeyGroupMembership && groupKeysString
                 ? `Error: Secret identity does not correspond with any public key in the group.`
                 : undefined
             }
