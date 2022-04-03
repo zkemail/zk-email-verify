@@ -40,6 +40,7 @@ const LabeledTextArea: React.FC<{
   disabled?: boolean;
   disabledReason?: string;
   link?: string;
+  secret?: boolean;
   onChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
 }> = ({
   style,
@@ -52,6 +53,7 @@ const LabeledTextArea: React.FC<{
   onChange,
   link,
   className,
+  secret,
 }) => {
   return (
     <LabeledTextAreaContainer
@@ -82,6 +84,8 @@ const LabeledTextArea: React.FC<{
         value={value}
         onChange={onChange}
       />
+
+      {secret && <div className="secret">Hover to reveal secret info</div>}
     </LabeledTextAreaContainer>
   );
 };
@@ -522,6 +526,7 @@ export const MainPage: React.FC<{}> = (props) => {
         <LabeledTextArea
           label="Your Double Blind Key"
           value={doubleBlindKey}
+          secret
           onChange={(e) => {
             setDoubleBlindKey(e.currentTarget.value);
           }}
@@ -599,6 +604,7 @@ const LabeledTextAreaContainer = styled.div`
   height: 10vh;
   padding: 8px 24px;
   align-items: center;
+  position: relative;
   & label {
     font-size: 20px;
   }
@@ -621,5 +627,22 @@ const LabeledTextAreaContainer = styled.div`
       align-self: center;
       width: 120px;
     }
+  }
+  .secret {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: white;
+    user-select: none;
+    pointer-events: none;
+    opacity: 0.95;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    transition: opacity 0.5s ease-in-out;
+  }
+  &:hover .secret,
+  & :focus + .secret {
+    opacity: 0;
   }
 `;
