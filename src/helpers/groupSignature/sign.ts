@@ -18,6 +18,7 @@ import { IGroupMessage, IGroupSignature, IIdentityRevealer } from "./types";
 import * as snarkjs from "snarkjs";
 // @ts-ignore
 import sshpk from "sshpk";
+import localforage from "localforage";
 
 interface ICircuitInputs {
   enableSignerId: string;
@@ -165,11 +166,17 @@ export async function generateGroupSignature(
   signerId: string
 ): Promise<IGroupSignature> {
   const wasmFile = "rsa_group_sig_verify.wasm";
-  const zkeyFile = "rsa_group_sig_verify_0000.zkey";
+  const zkeyBuff: ArrayBuffer | null = await localforage.getItem(
+    "rsa_group_sig_verify_0000.zkey"
+  );
+  if (!zkeyBuff) {
+    throw new Error("Must complete setup to generate signatures.");
+  }
+
   const { proof, publicSignals } = await snarkjs.groth16.fullProve(
     circuitInputs,
     wasmFile,
-    zkeyFile
+    new Uint8Array(zkeyBuff) // See https://github.dev/iden3/fastfile/blob/d02262bce0b74357e86aac143a0b6330a8ab0897/src/fastfile.js#L51-L52 for formats
   );
   console.log(publicSignals);
   return {

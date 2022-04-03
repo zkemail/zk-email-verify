@@ -1,7 +1,7 @@
 // @ts-ignore
 import React, { useMemo } from "react";
 import { useState } from "react";
-import { useAsync, useUpdateEffect } from "react-use";
+import { useAsync, useMount, useUpdateEffect } from "react-use";
 // @ts-ignore
 // @ts-ignore
 import _ from "lodash";
@@ -35,6 +35,7 @@ const LabeledTextArea: React.FC<{
   label: string;
   value: string;
   warning?: string;
+  warningColor?: string;
   disabled?: boolean;
   disabledReason?: string;
   link?: string;
@@ -42,6 +43,7 @@ const LabeledTextArea: React.FC<{
 }> = ({
   style,
   warning,
+  warningColor,
   disabled,
   disabledReason,
   label,
@@ -67,7 +69,11 @@ const LabeledTextArea: React.FC<{
           </a>
         )}
       </label>
-      {warning && <span className="warning">{warning}</span>}
+      {warning && (
+        <span className="warning" style={{ color: warningColor }}>
+          {warning}
+        </span>
+      )}
       <textarea
         style={style}
         title={disabled ? disabledReason : ""}
@@ -79,9 +85,7 @@ const LabeledTextArea: React.FC<{
   );
 };
 
-function decodeSearchParams(
-  urlSearchParams: URLSearchParams
-): {
+function decodeSearchParams(urlSearchParams: URLSearchParams): {
   group_members?: string;
   message?: string;
   group_name?: string;
@@ -151,7 +155,7 @@ function encodeSignatureSearchParams(
   return parts.join("&");
 }
 
-export const Prover: React.FC<{}> = (props) => {
+export const MainPage: React.FC<{}> = (props) => {
   const parsedSearchParams = decodeSearchParams(useSearchParams()[0]);
   console.log(parsedSearchParams);
   // raw user inputs
@@ -235,12 +239,8 @@ export const Prover: React.FC<{}> = (props) => {
   // computed state
   const { value, error } = useAsync(async () => {
     try {
-      const {
-        circuitInputs,
-        valid,
-        identityRevealer,
-        signerId,
-      } = await getCircuitInputs(doubleBlindKey, groupMessage);
+      const { circuitInputs, valid, identityRevealer, signerId } =
+        await getCircuitInputs(doubleBlindKey, groupMessage);
       return { circuitInputs, valid, identityRevealer, signerId };
     } catch (e) {
       return {};
@@ -251,10 +251,21 @@ export const Prover: React.FC<{}> = (props) => {
   console.log(circuitInputs);
 
   // state purely for displaying to user; not read outside of jsx
-  const sshPubKey = useMemo(() => sshSignatureToPubKey(doubleBlindKey), [
-    doubleBlindKey,
-  ]);
+  const sshPubKey = useMemo(
+    () => sshSignatureToPubKey(doubleBlindKey),
+    [doubleBlindKey]
+  );
   const [verificationMessage, setVerificationMessage] = useState("");
+  const [verificationPassed, setVerificationPassed] = useState(true);
+  const [lastAction, setLastAction] = useState<"" | "sign" | "verify">("");
+  useMount(() => {
+    function handleKeyDown() {
+      console.log("keydown");
+      setLastAction("");
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  });
 
   // local storage stuff
   useUpdateEffect(() => {
@@ -296,8 +307,11 @@ export const Prover: React.FC<{}> = (props) => {
               setGroupKeysString(e.currentTarget.value);
             }}
             warning={
-              valid && !valid.validPublicKeyGroupMembership && groupKeysString
-                ? `Error: Secret identity does not correspond with any public key in the group.`
+              valid &&
+              !valid.validPublicKeyGroupMembership &&
+              groupKeysString &&
+              lastAction !== "verify"
+                ? `Error: Your Double Dlind key does not correspond with any public key in the group.`
                 : undefined
             }
           />
@@ -322,6 +336,8 @@ export const Prover: React.FC<{}> = (props) => {
             onClick={async () => {
               if (!circuitInputs) return;
               console.time("zk");
+              setLastAction("sign");
+              setVerificationMessage("");
               setIdentityRevealerText("");
               setUnmaskedIdentity("");
               setGroupSignatureText(
@@ -361,13 +377,13 @@ export const Prover: React.FC<{}> = (props) => {
             disabled={groupSignatureText.trim()[0] !== "-"}
             onClick={async () => {
               try {
-                const groupSig: IGroupSignature = decodeGroupSignature(
-                  groupSignatureText
-                );
+                const groupSig: IGroupSignature =
+                  decodeGroupSignature(groupSignatureText);
                 const identityRevealer: IIdentityRevealer | null =
                   groupSig.groupMessage.enableSignerId && identityRevealerText
                     ? decodeIdentityRevealer(identityRevealerText)
                     : null;
+                setLastAction("verify");
 
                 setEnableSignerId(groupSig.groupMessage.enableSignerId);
                 setSignerNamespace(groupSig.groupMessage.signerNamespace);
@@ -383,11 +399,13 @@ export const Prover: React.FC<{}> = (props) => {
                   setUnmaskedIdentity("");
                 }
 
+                let ok = true;
                 let message = [];
                 if (await verifyGroupSignature(groupSig)) {
                   message.push("Signature is valid.");
                 } else {
                   message.push("Error: Signature is invalid.");
+                  ok = false;
                 }
 
                 if (identityRevealer) {
@@ -400,11 +418,14 @@ export const Prover: React.FC<{}> = (props) => {
                     message.push("Identity revealer is valid.");
                   } else {
                     message.push("Error: Identity revealer is invalid.");
+                    ok = false;
                   }
                 }
                 setVerificationMessage(message.join("\n"));
+                setVerificationPassed(ok);
               } catch (er: any) {
                 setVerificationMessage("Failed to verify " + er.toString());
+                setVerificationPassed(false);
               }
             }}
           >
@@ -449,6 +470,7 @@ export const Prover: React.FC<{}> = (props) => {
               setGroupSignatureText(e.currentTarget.value);
             }}
             warning={verificationMessage}
+            warningColor={verificationPassed ? "green" : "red"}
           />
           {enableSignerId && (
             <LabeledTextArea
@@ -493,9 +515,9 @@ export const Prover: React.FC<{}> = (props) => {
             setDoubleBlindKey(e.currentTarget.value);
           }}
           warning={
-            valid && !valid.validSignatureFormat
+            valid && doubleBlindKey && !valid.validSignatureFormat
               ? `Warning: Provided string is not an ssh-rsa signature`
-              : valid && !valid.validMessage
+              : valid && doubleBlindKey && !valid.validMessage
               ? `Warning: Provided SSH Signature is not a Double Blind Key.`
               : undefined
           }
@@ -507,58 +529,57 @@ export const Prover: React.FC<{}> = (props) => {
 };
 
 const Container = styled.div`
-display: flex;
-flex-direction: column;
-& .title {
   display: flex;
   flex-direction: column;
-  align-items: center;
-}
-& .main {
-  display: flex;
-  & .messagePane {
-    flex: 1;
+  & .title {
     display: flex;
     flex-direction: column;
-    & > .div {
-      display: flex;
-    }
-  }
-  & .buttonsPane {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
     align-items: center;
-    padding: 12px;
-    & button {
-      margin-bottom: 16px;
-      width: 120px;
-    }
-
   }
-  & .signaturePane {
-    flex: 1;
+  & .main {
+    display: flex;
+    & .messagePane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      & > .div {
+        display: flex;
+      }
+    }
+    & .buttonsPane {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 12px;
+      & button {
+        margin-bottom: 16px;
+        width: 120px;
+      }
+    }
+    & .signaturePane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      & > :first-child {
+        height: calc(30vh + 32px);
+      }
+    }
+  }
+
+  & .bottom {
     display: flex;
     flex-direction: column;
-    & > :first-child {
-      height: calc(30vh + 32px);
+    align-items: center;
+    & p {
+      text-align: center;
+    }
+    & .labeledTextAreaContainer {
+      align-self: center;
+      max-width: 50vw;
+      width: 500px;
     }
   }
-}
-
-& .bottom {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  & p {
-    text-align: center;
-  }
-  & .labeledTextAreaContainer {
-    align-self: center;
-    max-width: 50vw;
-    width: 500px;
-  }
-}
 `;
 
 const LabeledTextAreaContainer = styled.div`
