@@ -16,8 +16,7 @@ export const SetupPage: React.FC = () => {
     <Container>
       <h1>Double Blind Setup</h1>
       <p>
-        Because Double Blind is a static web application hosted on netlify, some
-        of the assets required for full functionality are not served do their
+        Some of the assets required by Double Blind are not served due to their
         large file size.
         <br />
         <br />

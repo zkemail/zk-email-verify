@@ -341,7 +341,7 @@ export const MainPage: React.FC<{}> = (props) => {
               ));
               if (!setupCompleted) {
                 alert(
-                  'You must complete setup. Opening setup page in new window..."'
+                  "You must complete setup. Opening setup page in new window..."
                 );
                 window.open("/setup");
                 return;
