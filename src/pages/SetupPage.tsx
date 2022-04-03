@@ -28,7 +28,7 @@ export const SetupPage: React.FC = () => {
             Dropbox Mirror
           </a>
         </b>{" "}
-        (300 MB)
+        (278 MB)
         <h3>Step 2</h3>
         Import the file into the application by dragging it into the box below.
       </p>
