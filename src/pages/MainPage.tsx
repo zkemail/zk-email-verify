@@ -290,7 +290,7 @@ export const MainPage: React.FC<{}> = (props) => {
       <div className="title">
         <h1>Free RSA Group Signature Generator</h1>
         <div>
-          <Link to={"/"}>Reset</Link> <Link to={demoUrl}>Demo</Link>{" "}
+          <Link to={"/"}>Reset</Link> | <Link to={demoUrl}>Demo</Link>{" "}
         </div>
       </div>
       <div className="main">

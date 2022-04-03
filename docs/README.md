@@ -14,7 +14,9 @@ Currently, only RSA keys are supported.
 
 ## Registering your SSH identity
 Before signing a message, you first need to have an SSH RSA keypair, e.g. `~/.ssh/id_rsa.pub`.
-Rest assured, your SSH private key never leaves your machine. If you don't already have an SSH RSA keypair, you can generate a new one like so: ```
+Rest assured, your SSH private key never leaves your machine. If you don't already have an SSH RSA keypair, you can generate a new one like so: 
+
+```
 ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
 ```
 
