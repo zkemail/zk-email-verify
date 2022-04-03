@@ -36,8 +36,7 @@ you're signing for, and a list of SSH keys for the members of the group. You can
 directly ask for SSH keys, or you can look them up on GitHub at
 <https://github.com/ecnerwala.keys>. Only RSA keys are supported for now.
 
-Now, sign the message using the `Sign` button. This process might take
-a little bit. Then, you can use the `Share Link` button next to the group
+Now, sign the message using the `Sign` button and wait up to a minute for it to compute. Then, you can use the `Share Link` button next to the group
 signature to get a sendable link with the group signature filled in. You can
 also use the `Share Link` button next to the message to get a prefilled message,
 if you'd like to share it with others to sign as well.
@@ -61,7 +60,7 @@ same public key.
 
 When generating masked identities, you need to specify an **identity
 namespace**. Multiple messages signed with the same namespace and same public
-key will produce the same masked identity, so you namespaces should be unique,
+key will produce the same masked identity, so your namespaces should be unique,
 long, random strings unless you're explicitly trying to link your messages.
 
 Additionally, you can **reveal** your masked identity with an **identity
@@ -74,7 +73,7 @@ two messages in the same identity namespace but with two **different** masked
 identities. Thus, DO NOT rely on masked identity for determining unique
 identities, e.g. for anonymous voting protocols. There is a planned protocol
 extension which will allow users to prove they do not have a tampered public
-key, which would make this safe. See secret identity.
+key, which would make this safe.
 
 ## Underlying Concepts
 
@@ -113,11 +112,11 @@ correspond to provided inputs or can be computed intermediates.
 
 ### RSA Public Key Tampering
 
-It is theoretically possible for a malicious signer to generate an invalid RSA keypair. In particular, the proper RSA keypair generation algorithms guarantee that an RSA public key (modulus n, exponent e) satisfies:
+It is theoretically possible for a malicious signer to generate an invalid RSA keypair. In particular, proper RSA keypair generation algorithms guarantee that an RSA public key (modulus n, exponent e) satisfies:
 1. n = p * q is semiprime
 2. e is relatively prime to p-1 and q-1
 
-When these conditions are met, each (`message, public_key`) pairs maps to a unique signature, and nullifiers are unique as well. However, if the second condition is violated (i.e., if e is not relatively prime to p-1 and q-1), then the signature is non-unique. 
+When these conditions are met, each (`message, public_key`) pairs maps to a unique signature, and nullifiers are unique as well. However, if the second condition is violated (i.e., if e is not relatively prime to p-1 and q-1), then the signature is non-unique. Thus, it is theoretically possible for malicious users to construct "tampered SSH keypairs" that would allow the user to produce multiple Double Blind Keys corresponding to a single public SSH key. This would allow them, e.g., multiple votes in an anonymous group voting system.
 
 The Double Blind team is working on a tool that allows users to prove that their public key hasn't been tampered with. This scheme relies on the fact that a random message is unlikely to be signable by a tampered-with public key.
 
