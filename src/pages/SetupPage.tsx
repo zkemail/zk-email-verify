@@ -1,8 +1,8 @@
-import styled, { CSSProperties } from "styled-components";
+import styled from "styled-components";
 import Dropzone from "react-dropzone";
 import { shaHash } from "../helpers/shaHash";
 import { useState } from "react";
-import { fromHex, toHex } from "../helpers/binaryFormat";
+import { toHex } from "../helpers/binaryFormat";
 import localforage from "localforage";
 import { useAsync } from "react-use";
 
@@ -134,8 +134,4 @@ const Container = styled.div`
   p {
     width: 50vw;
   }
-`;
-
-const Bold = styled.span`
-  font-style: italic;
 `;
