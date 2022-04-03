@@ -12,12 +12,9 @@ example, you can view someone's GitHub keys at <https://github.com/stevenhao.key
 
 Currently, only RSA keys are supported.
 
-## Signing Messages
-
-To sign a message, you first need to have an SSH RSA key, e.g. `~/.ssh/id_rsa`.
-(Rest assured, your SSH private key never leaves your machine.) To generate a
-new one, use
-```
+## Registering your SSH identity
+Before signing a message, you first need to have an SSH RSA keypair, e.g. `~/.ssh/id_rsa.pub`.
+Rest assured, your SSH private key never leaves your machine. If you don't already have an SSH RSA keypair, you can generate a new one like so: ```
 ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
 ```
 
@@ -29,7 +26,10 @@ echo "E PLURIBUS UNUM; DO NOT SHARE" | ssh-keygen -Y sign -n double-blind.xyz -f
 DO NOT share this output with anyone; Double Blind uses it as your proof of
 identity.
 
-Then, fill in the message you'd like to sign, a group name to mark which group
+Treat your SSH Public key as your "username", and your Double Blind key (which is an SSH signature) as your "password". Anyone who has access to your Double Blind key will be able to construct signatures and revealers on your behalf.
+
+## Signing Messages
+After registering, you can begin the process of signing by filling in the message you'd like to sign, a group name to mark which group
 you're signing for, and a list of SSH keys for the members of the group. You can
 directly ask for SSH keys, or you can look them up on GitHub at
 <https://github.com/ecnerwala.keys>. Only RSA keys are supported for now.
@@ -47,9 +47,9 @@ the right hand side and click the `Verify` button. The Message, Group Name, and
 Group Public Keys will be populated from the signature, but they may not be
 truthful if the signature verification fails.
 
-## Advanced Feature - Signer IDs
+## Advanced Feature - Secret Identity
 
-Double Blind supports an additional mode which allows you to sign messages with
+Double Blind supports an additional mode called `Secret Identity` which allows you to sign messages with
 a randomly generated **masked signer identity**. (You can enable this with the
 `Secret ID` toggle.) In the default mode, group signatures are completely
 anonymous beyond group membership (though beware, two group signatures with
@@ -72,7 +72,7 @@ two messages in the same identity namespace but with two **different** masked
 identities. Thus, DO NOT rely on masked identity for determining unique
 identities, e.g. for anonymous voting protocols. There is a planned protocol
 extension which will allow users to prove they do not have a tampered public
-key, which would make this safe.
+key, which would make this safe. See secret identity.
 
 ## Underlying Concepts
 
@@ -109,9 +109,19 @@ enforce particular constraints on the inputs. These circuits allow you to
 constrain that two hidden "signals" add or multiply to another; signals can
 correspond to provided inputs or can be computed intermediates.
 
-### Signer ID
+### RSA Public Key Tampering
 
-## How it works
+It is theoretically possible for a malicious signer to generate an invalid RSA keypair. In particular, the proper RSA keypair generation algorithms guarantee that an RSA public key (modulus n, exponent e) satisfies:
+1. n = p * q is semiprime
+2. e is relatively prime to p-1 and q-1
+
+When these conditions are met, each (`message, public_key`) pairs maps to a unique signature, and nullifiers are unique as well. However, if the second condition is violated (i.e., if e is not relatively prime to p-1 and q-1), then the signature is non-unique. 
+
+The Double Blind team is working on a tool that allows users to prove that their public key hasn't been tampered with. This scheme relies on the fact that a random message is unlikely to be signable by a tampered-with public key.
+
+## Additional Reading
+
+Github Repo for double-blind: https://github.com/doubleblind-xyz/double-blind
 
 RSA: https://en.wikipedia.org/wiki/RSA_(cryptosystem)
 
@@ -124,3 +134,11 @@ SnarkJS: https://github.com/iden3/snarkjs
 SSHSIG: https://github.com/openssh/openssh-portable/blob/master/PROTOCOL.sshsig, https://github.com/openssh/openssh-portable/blob/master/ssh-keygen.c
 
 PKCS 1: https://datatracker.ietf.org/doc/html/rfc8017#section-9.2
+
+## Related Work
+
+https://semaphore.appliedzkp.org/
+
+https://stealthdrop.xyz/
+
+https://github.com/0xPARC/cabal

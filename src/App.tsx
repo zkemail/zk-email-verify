@@ -10,12 +10,13 @@ import {
 } from "react-router-dom";
 import { useLocation } from "react-use";
 import { SetupPage } from "./pages/SetupPage";
+import styled from "styled-components";
 
 const App = () => {
   return (
     <Router>
       <div>
-        <Nav />
+        <NavSection />
 
         <Routes>
           <Route
@@ -43,11 +44,11 @@ const Main: React.FC = () => {
   return <MainPage key={search} />;
 };
 
-const Nav: React.FC = () => {
+const NavSection: React.FC = () => {
   const { pathname } = useLocation();
 
   return (
-    <nav>
+    <Nav>
       <Link className={pathname === "/" ? "current_page" : "off"} to={"/"}>
         App
       </Link>{" "}
@@ -72,6 +73,15 @@ const Nav: React.FC = () => {
           Docs
         </a>
       </button>
-    </nav>
+    </Nav>
   );
 };
+
+const Nav = styled.nav`
+  display: flex;
+  margin: 12px;
+  & > a {
+    margin-left: 8px;
+    font-size: 24px;
+  }
+`;

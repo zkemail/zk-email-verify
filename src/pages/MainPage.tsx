@@ -510,13 +510,10 @@ export const MainPage: React.FC<{}> = (props) => {
         <div>
           If you wish to generate group signatures, you must input your personal
           Double Blind Key™.
-          <br />
-          This personal key is used by the generator to prove that you belong to
-          the group.
           <br /> Generate the key from your personal SSH private key using
           following command.
           <br />
-          NEVER share this key or your SSH private key with anyone. See{" "}
+          Read our docs or{" "}
           <code>
             <a href="https://man7.org/linux/man-pages/man1/ssh-keygen.1.html">
               man ssh-keygen
