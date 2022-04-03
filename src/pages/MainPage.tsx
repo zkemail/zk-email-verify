@@ -28,6 +28,7 @@ import {
   encodeGroupSignature,
   encodeIdentityRevealer,
 } from "../helpers/groupSignature/encoding";
+import localforage from "localforage";
 
 const LabeledTextArea: React.FC<{
   style?: CSSProperties;
@@ -258,9 +259,9 @@ export const MainPage: React.FC<{}> = (props) => {
   const [verificationMessage, setVerificationMessage] = useState("");
   const [verificationPassed, setVerificationPassed] = useState(true);
   const [lastAction, setLastAction] = useState<"" | "sign" | "verify">("");
+
   useMount(() => {
     function handleKeyDown() {
-      console.log("keydown");
       setLastAction("");
     }
     window.addEventListener("keydown", handleKeyDown);
@@ -335,6 +336,16 @@ export const MainPage: React.FC<{}> = (props) => {
             }
             onClick={async () => {
               if (!circuitInputs) return;
+              const setupCompleted = !!(await localforage.getItem(
+                "rsa_group_sig_verify_0000.zkey"
+              ));
+              if (!setupCompleted) {
+                alert(
+                  'You must complete setup. Opening setup page in new window..."'
+                );
+                window.open("/setup");
+                return;
+              }
               console.time("zk");
               setLastAction("sign");
               setVerificationMessage("");
