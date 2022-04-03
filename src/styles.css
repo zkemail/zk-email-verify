@@ -39,3 +39,7 @@ a {
 a:hover {
   text-decoration: underline;
 }
+
+a.current_page {
+  color: black;
+}
