@@ -112,7 +112,7 @@ correspond to provided inputs or can be computed intermediates.
 
 ### RSA Public Key Tampering
 
-It is theoretically possible for a malicious signer to generate an invalid RSA keypair. In particular, proper RSA keypair generation algorithms guarantee that an RSA public key (modulus n, exponent e) satisfies:
+It is theoretically possible for a malicious signer to generate an invalid RSA keypair that allows them to create multiple Double Blind keys corresponding to the same public RSA key. In particular, proper RSA keypair generation algorithms guarantee that an RSA public key (modulus n, exponent e) satisfies:
 1. n = p * q is semiprime
 2. e is relatively prime to p-1 and q-1
 
