@@ -18,7 +18,7 @@ import * as snarkjs from "snarkjs";
 // @ts-ignore
 import sshpk from "sshpk";
 import localforage from "localforage";
-import { resolveGroupIdentifier } from "./resolveGroupIdentifier";
+import { resolveGroupIdentifierTree } from "./resolveGroupIdentifier";
 import { getMerkleProof } from "../merkle";
 
 interface ICircuitInputs {
@@ -51,7 +51,7 @@ export async function getCircuitInputs(
     enableSignerId,
     message,
     groupName,
-    groupPublicKeys,
+    groupIdentifier: groupPublicKeys,
   } = groupMessage;
   await initializePoseidon();
   let validSignatureFormat = true;
@@ -68,7 +68,7 @@ export async function getCircuitInputs(
       },
     };
   }
-  const merkleTree = await resolveGroupIdentifier(groupPublicKeys);
+  const merkleTree = await resolveGroupIdentifierTree(groupPublicKeys);
   const modulusBigInt = bytesToBigInt(pubKeyParts[2]);
   const hashedPubKey = poseidonK(toCircomBigIntBytes(modulusBigInt));
   const validPublicKeyGroupMembership = merkleTree.includes(hashedPubKey);

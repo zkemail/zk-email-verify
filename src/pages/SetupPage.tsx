@@ -117,7 +117,7 @@ export const SetupPage: React.FC = () => {
           </section>
         )}
       </Dropzone>
-      {setupCompleted && (
+      {setupCompleted.value && (
         <>
           You have completed setup! Please return to the main app to begin
           creating Double Blind Group Signatures.

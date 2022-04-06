@@ -20,10 +20,10 @@ export interface IGroupMessage {
    */
   groupName: string;
   /**
-   * SSH public keys of members the group (may be a subset).
+   * Either a merkleroots.xyz url, or a newline-separated list of SSH public keys of members the group
    * Note: Does not need to be pre-sorted as it will be sorted as part of prove & verify functions.
    */
-  groupPublicKeys: string;
+  groupIdentifier: string;
 }
 
 export interface IGroupSignature {

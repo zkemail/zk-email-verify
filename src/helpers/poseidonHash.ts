@@ -18,7 +18,7 @@ export const poseidonK = (ar: (number | bigint | string)[]): string => {
       cur = [poseidon(cur)];
     }
   }
-  if (cur.length === 1) return cur[0];
+  if (cur.length === 1) return `${cur[0]}`;
   while (cur.length < 16) cur.push(0);
   return poseidon(cur);
 };

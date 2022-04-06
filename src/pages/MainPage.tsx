@@ -167,7 +167,7 @@ export const MainPage: React.FC<{}> = (props) => {
   const parsedSearchParams = decodeSearchParams(useSearchParams()[0]);
   console.log(parsedSearchParams);
   // raw user inputs
-  const [groupKeysString, setGroupKeysString] = useState<string>(
+  const [groupIdentifier, setGroupIdentifier] = useState<string>(
     parsedSearchParams.group_members || ""
   );
   const [signerNamespace, setSignerNamespace] = useState(
@@ -199,9 +199,9 @@ export const MainPage: React.FC<{}> = (props) => {
       enableSignerId,
       message,
       groupName,
-      groupPublicKeys: groupKeysString,
+      groupIdentifier,
     }),
-    [enableSignerId, groupKeysString, groupName, message, signerNamespace]
+    [enableSignerId, groupIdentifier, groupName, message, signerNamespace]
   );
 
   const messageShareLink = useMemo(() => {
@@ -215,11 +215,11 @@ export const MainPage: React.FC<{}> = (props) => {
         message,
         groupName,
         signerNamespace,
-        groupKeysString,
+        groupIdentifier,
         enableSignerId
       )
     );
-  }, [enableSignerId, groupKeysString, groupName, message, signerNamespace]);
+  }, [enableSignerId, groupIdentifier, groupName, message, signerNamespace]);
   console.log(messageShareLink, messageShareLink.length);
   const signatureShareLink = useMemo(() => {
     return (
@@ -311,14 +311,14 @@ export const MainPage: React.FC<{}> = (props) => {
           <LabeledTextArea
             style={{ whiteSpace: "pre" }}
             label="Group Public Keys"
-            value={groupKeysString}
+            value={groupIdentifier}
             onChange={(e) => {
-              setGroupKeysString(e.currentTarget.value);
+              setGroupIdentifier(e.currentTarget.value);
             }}
             warning={
               valid &&
               !valid.validPublicKeyGroupMembership &&
-              groupKeysString &&
+              groupIdentifier &&
               lastAction !== "verify"
                 ? `Error: Your Double Dlind key does not correspond with any public key in the group.`
                 : undefined
@@ -408,7 +408,7 @@ export const MainPage: React.FC<{}> = (props) => {
                 setSignerNamespace(groupSig.groupMessage.signerNamespace);
                 setMessage(groupSig.groupMessage.message);
                 setGroupName(groupSig.groupMessage.groupName);
-                setGroupKeysString(groupSig.groupMessage.groupPublicKeys);
+                setGroupIdentifier(groupSig.groupMessage.groupIdentifier);
                 setMaskedIdentity(groupSig.signerId);
                 if (identityRevealer) {
                   setUnmaskedIdentity(identityRevealer.pubKey);
