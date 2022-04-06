@@ -8,7 +8,6 @@ import {
   MAGIC_DOUBLE_BLIND_BASE_MESSAGE_LEN,
   CIRCOM_FIELD_MODULUS,
 } from "../constants";
-import { generateMerkleTreeInputs } from "../merkle";
 import { initializePoseidon, poseidon, poseidonK } from "../poseidonHash";
 import { verifyRSA } from "../rsa";
 import { shaHash } from "../shaHash";
@@ -19,6 +18,8 @@ import * as snarkjs from "snarkjs";
 // @ts-ignore
 import sshpk from "sshpk";
 import localforage from "localforage";
+import { resolveGroupIdentifier } from "./resolveGroupIdentifier";
+import { getMerkleProof } from "../merkle";
 
 interface ICircuitInputs {
   enableSignerId: string;
@@ -67,12 +68,10 @@ export async function getCircuitInputs(
       },
     };
   }
-  const groupModulusBigInts = groupPublicKeys.map((key) =>
-    bytesToBigInt(sshpk.parseKey(key, "ssh").parts[1].data)
-  );
+  const merkleTree = await resolveGroupIdentifier(groupPublicKeys);
   const modulusBigInt = bytesToBigInt(pubKeyParts[2]);
-  const validPublicKeyGroupMembership =
-    groupModulusBigInts.includes(modulusBigInt);
+  const hashedPubKey = poseidonK(toCircomBigIntBytes(modulusBigInt));
+  const validPublicKeyGroupMembership = merkleTree.includes(hashedPubKey);
   const signatureBigInt = bytesToBigInt(rawSignature);
   const messageBigInt = verifyRSA(signatureBigInt, modulusBigInt);
   const baseMessageBigInt = MAGIC_DOUBLE_BLIND_BASE_MESSAGE;
@@ -98,27 +97,12 @@ export async function getCircuitInputs(
     bytesToBigInt(await shaHash(stringToBytes(message + " -- " + groupName))) %
     CIRCOM_FIELD_MODULUS;
 
-  // modExp(bytesToBigInt(rawSignature), 65537, bytesToBigInt(data.modulusBytes))
-
-  const { pathElements, pathIndices, root } = await generateMerkleTreeInputs(
-    groupModulusBigInts,
-    modulusBigInt
+  const { pathElements, pathIndices, root } = await getMerkleProof(
+    merkleTree,
+    hashedPubKey
   );
 
   // Compute identity revealer
-  /*
-    component nullifierOpeningPoseidon = Poseidon(2);
-    nullifierOpeningPoseidon.inputs[0] <== privPoseidonK.out;
-    nullifierOpeningPoseidon.inputs[1] <== signerNamespace;
-    signerIdOpening <== nullifierOpeningPoseidon.out;
-    log(signerIdOpening);
-
-    signal signerId;
-    component signerIdPoseidon = Poseidon(2);
-    signerIdPoseidon.inputs[0] <== leaf;
-    signerIdPoseidon.inputs[1] <== signerIdOpening;
-    signerId <== signerIdPoseidon.out * enableSignerId;
-    log(signerId);*/
   let identityRevealer, signerId;
   if (enableSignerId) {
     identityRevealer = {

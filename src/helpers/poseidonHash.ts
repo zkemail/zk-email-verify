@@ -7,9 +7,10 @@ export async function initializePoseidon() {
     poseidonHasher = await buildPoseidon();
   }
 }
-export const poseidon = (arr: (number | bigint | string)[]) =>
+export const poseidon = (arr: (number | bigint | string)[]): string =>
   poseidonHasher.F.toString(poseidonHasher(arr));
-export const poseidonK = (ar: (number | bigint | string)[]) => {
+
+export const poseidonK = (ar: (number | bigint | string)[]): string => {
   let cur: (number | bigint | string)[] = [];
   for (const elt of ar) {
     cur.push(elt);

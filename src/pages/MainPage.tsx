@@ -199,9 +199,7 @@ export const MainPage: React.FC<{}> = (props) => {
       enableSignerId,
       message,
       groupName,
-      groupPublicKeys: _.sortBy(
-        _.compact(groupKeysString.split("\n").map((s) => s.trim()))
-      ),
+      groupPublicKeys: groupKeysString,
     }),
     [enableSignerId, groupKeysString, groupName, message, signerNamespace]
   );
@@ -410,9 +408,7 @@ export const MainPage: React.FC<{}> = (props) => {
                 setSignerNamespace(groupSig.groupMessage.signerNamespace);
                 setMessage(groupSig.groupMessage.message);
                 setGroupName(groupSig.groupMessage.groupName);
-                setGroupKeysString(
-                  groupSig.groupMessage.groupPublicKeys.join("\n")
-                );
+                setGroupKeysString(groupSig.groupMessage.groupPublicKeys);
                 setMaskedIdentity(groupSig.signerId);
                 if (identityRevealer) {
                   setUnmaskedIdentity(identityRevealer.pubKey);
