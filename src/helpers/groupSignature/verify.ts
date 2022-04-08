@@ -7,7 +7,6 @@ import {
   MAGIC_DOUBLE_BLIND_BASE_MESSAGE,
   CIRCOM_FIELD_MODULUS,
 } from "../constants";
-import { buildMerkleTree } from "../merkle";
 import { initializePoseidon, poseidon, poseidonK } from "../poseidonHash";
 import { shaHash } from "../shaHash";
 import { IGroupSignature, IIdentityRevealer } from "./types";

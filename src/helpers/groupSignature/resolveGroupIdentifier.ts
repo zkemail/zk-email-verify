@@ -23,8 +23,8 @@ export async function resolveGroupIdentifierTree(
     const response = await (
       await fetch(`https://api.merkleroots.xyz/tree/${root}`)
     ).json();
-    const json = (await response.json()).nodes; // returns array of hashes
-    return json;
+    const nodes = response.nodes; // returns array of hashes
+    return nodes;
   }
 
   const leaves = _.sortBy(
@@ -36,6 +36,8 @@ export async function resolveGroupIdentifierTree(
       )
     )
   );
+  console.log("leaves are", leaves); // todo button to post to merkleroots.xyz
+
   return buildMerkleTree(leaves);
 }
 

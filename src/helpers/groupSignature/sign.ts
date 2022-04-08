@@ -15,8 +15,6 @@ import { getRawSignature, sshSignatureToPubKey } from "../sshFormat";
 import { IGroupMessage, IGroupSignature, IIdentityRevealer } from "./types";
 // @ts-ignore
 import * as snarkjs from "snarkjs";
-// @ts-ignore
-import sshpk from "sshpk";
 import localforage from "localforage";
 import { resolveGroupIdentifierTree } from "./resolveGroupIdentifier";
 import { getMerkleProof } from "../merkle";
