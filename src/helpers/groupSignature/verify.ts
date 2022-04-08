@@ -7,7 +7,6 @@ import {
   MAGIC_DOUBLE_BLIND_BASE_MESSAGE,
   CIRCOM_FIELD_MODULUS,
 } from "../constants";
-import { buildMerkleTree } from "../merkle";
 import { initializePoseidon, poseidon, poseidonK } from "../poseidonHash";
 import { shaHash } from "../shaHash";
 import { IGroupSignature, IIdentityRevealer } from "./types";
@@ -15,6 +14,7 @@ import { IGroupSignature, IIdentityRevealer } from "./types";
 import * as snarkjs from "snarkjs";
 // @ts-ignore
 import sshpk from "sshpk";
+import { resolveGroupIdentifierRoot } from "./resolveGroupIdentifier";
 
 export async function getPublicCircuitSignals(
   groupSignature: IGroupSignature
@@ -28,23 +28,21 @@ export async function getPublicCircuitSignals(
       enableSignerId,
       message,
       groupName,
-      groupPublicKeys,
+      groupIdentifier: groupPublicKeys,
     },
   } = groupSignature;
 
   const baseMessageBigInt = MAGIC_DOUBLE_BLIND_BASE_MESSAGE;
 
-  const signerNamespaceBigint = (
-    enableSignerId ?
-      bytesToBigInt(await shaHash(stringToBytes(signerNamespace))) % CIRCOM_FIELD_MODULUS
-      : 0n
-  );
-  const palyoadBigint = bytesToBigInt(await shaHash(stringToBytes(message + " -- " + groupName))) % CIRCOM_FIELD_MODULUS;
+  const signerNamespaceBigint = enableSignerId
+    ? bytesToBigInt(await shaHash(stringToBytes(signerNamespace))) %
+      CIRCOM_FIELD_MODULUS
+    : 0n;
+  const palyoadBigint =
+    bytesToBigInt(await shaHash(stringToBytes(message + " -- " + groupName))) %
+    CIRCOM_FIELD_MODULUS;
 
-  const groupModulusBigInts = groupPublicKeys.map((key) =>
-    bytesToBigInt(sshpk.parseKey(key, "ssh").parts[1].data)
-  );
-  const root = (await buildMerkleTree(groupModulusBigInts))[1];
+  const root = await resolveGroupIdentifierRoot(groupPublicKeys);
 
   return [
     poseidon([
@@ -63,7 +61,10 @@ export async function verifyGroupSignature(
 ): Promise<boolean> {
   console.log("verifying");
 
-  if (!groupSignature.groupMessage.enableSignerId && groupSignature.groupMessage.signerNamespace !== "") {
+  if (
+    !groupSignature.groupMessage.enableSignerId &&
+    groupSignature.groupMessage.signerNamespace !== ""
+  ) {
     console.log("No signer namespace is allowed");
     return false;
   }
@@ -72,7 +73,9 @@ export async function verifyGroupSignature(
   const signals = await getPublicCircuitSignals(groupSignature);
   console.log(signals);
 
-  const vKeyJson = await (await fetch("rsa_group_sig_verify_0000.vkey.json")).json();
+  const vKeyJson = await (
+    await fetch("rsa_group_sig_verify_0000.vkey.json")
+  ).json();
   try {
     const res = await snarkjs.groth16.verify(
       vKeyJson,
