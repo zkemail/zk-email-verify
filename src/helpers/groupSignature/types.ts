@@ -8,7 +8,7 @@ export interface IGroupMessage {
   /**
    * If set to false, groupSig.publicSignals.nullifier will always be 0.
    * Otherwise, it will be Poseidon(PoseidonK(pubKey), opener), where opener = Poseidon(payload1, PoseidonK(priv)
-   * Practically, nullifier equalling 0 means that 
+   * Practically, nullifier equalling 0 means that
    */
   enableSignerId: boolean;
   /**
@@ -20,10 +20,10 @@ export interface IGroupMessage {
    */
   groupName: string;
   /**
-   * SSH public keys of members the group (may be a subset).
+   * Either a merkleroots.xyz url, or a newline-separated list of SSH public keys of members the group
    * Note: Does not need to be pre-sorted as it will be sorted as part of prove & verify functions.
    */
-  groupPublicKeys: string[];
+  groupIdentifier: string;
 }
 
 export interface IGroupSignature {
@@ -38,5 +38,9 @@ export interface IIdentityRevealer {
 }
 
 export const isGroupSignature = (o: object): o is IGroupSignature => {
-return _.every(['payload1', 'payload2', 'groupKeys', 'proof', 'nullifier'].map(k => k in o));
-}
+  return _.every(
+    ["payload1", "payload2", "groupKeys", "proof", "nullifier"].map(
+      (k) => k in o
+    )
+  );
+};
