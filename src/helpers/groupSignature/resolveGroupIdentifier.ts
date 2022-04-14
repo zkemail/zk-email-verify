@@ -5,7 +5,7 @@ import { bytesToBigInt, toCircomBigIntBytes } from "../binaryFormat";
 import { poseidonK } from "../poseidonHash";
 import { buildMerkleTree } from "../merkle";
 
-export async function resolveGroupIdentifierTree(
+async function _resolveGroupIdentifierTree(
   groupIdentifier: string
 ): Promise<string[]> {
   // groupIdentifier can either be a newline separated list of SSH keys, or a link of the form
@@ -41,7 +41,7 @@ export async function resolveGroupIdentifierTree(
   return buildMerkleTree(leaves);
 }
 
-export async function resolveGroupIdentifierRoot(
+async function _resolveGroupIdentifierRoot(
   groupIdentifier: string
 ): Promise<string> {
   // groupIdentifier can either be a newline separated list of SSH keys, or a link of the form
@@ -70,3 +70,9 @@ export async function resolveGroupIdentifierRoot(
   );
   return buildMerkleTree(leaves)[1];
 }
+export const resolveGroupIdentifierTree = _.memoize(
+  _resolveGroupIdentifierTree
+);
+export const resolveGroupIdentifierRoot = _.memoize(
+  _resolveGroupIdentifierRoot
+);
