@@ -320,7 +320,7 @@ export const MainPage: React.FC<{}> = (props) => {
               !valid.validPublicKeyGroupMembership &&
               groupIdentifier &&
               lastAction !== "verify"
-                ? `Error: Your Double Dlind key does not correspond with any public key in the group.`
+                ? `Error: Your Double Blind key does not correspond with any public key in the group.`
                 : undefined
             }
           />
