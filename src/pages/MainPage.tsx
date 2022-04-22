@@ -301,13 +301,13 @@ export const MainPage: React.FC<{}> = (props) => {
               setMessage(e.currentTarget.value);
             }}
           />
-          <LabeledTextArea
+          {/* <LabeledTextArea
             label="Group Name"
             value={groupName}
             onChange={(e) => {
               setGroupName(e.currentTarget.value);
             }}
-          />
+          /> */}
           <LabeledTextArea
             style={{ whiteSpace: "pre" }}
             label="Group Public Keys"
