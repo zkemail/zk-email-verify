@@ -577,7 +577,7 @@ const Container = styled.div`
       display: flex;
       flex-direction: column;
       & > :first-child {
-        height: calc(30vh + 32px);
+        height: calc(30vh + 24px);
       }
     }
   }
@@ -600,7 +600,7 @@ const Container = styled.div`
 const LabeledTextAreaContainer = styled.div`
   display: flex;
   flex-direction: column;
-  height: 10vh;
+  height: 15vh;
   padding: 8px 24px;
   align-items: center;
   position: relative;
