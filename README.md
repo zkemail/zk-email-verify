@@ -1,3 +1,12 @@
+# The App
+The application is located at https://double-blind.xyz.
+
+The documentation for the app is located at https://double-blind.xyz/docs
+
+# Development Instructions.
+
+(this section is under construction)
+
 ## CIRCOM BUILD STEPS
 
 ```
