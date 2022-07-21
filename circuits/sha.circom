@@ -34,7 +34,7 @@ template EmailVerify(num_bytes, n, k) {
     for (var i = 0; i < num_bytes; i++) {
         sha.in[i] <== in[i];
     }
-    
+
     var msg_len = (256+n)\n;
     component base_msg[msg_len];
     for (var i = 0; i < msg_len; i++) {
