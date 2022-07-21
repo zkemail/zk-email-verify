@@ -31,6 +31,12 @@ and when the circuit doesn't change,
 yarn compile rsa true skip-recompile
 ```
 
+If you want to generate a new email/set of inputs, edit the src/constants.ts file and run
+```
+ts-node circuits/scripts/generate_input.ts
+```
+then manually paste the outputted json in console into your inputs/input_[circuitname].json file.
+
 For production, make sure to set a beacon in .env.
 
 Double blind circuit:
