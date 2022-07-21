@@ -76,9 +76,10 @@ for (let circuitName of circuitsList.split(",")) {
     }
     execSync(`node --max-old-space-size=614400 ./../node_modules/snarkjs r1cs info ${circuitNamePrimary}.r1cs`, { stdio: "inherit" });
     execSync(`cp ${circuitNamePrimary}_js/${circuitNamePrimary}.wasm circuit.wasm`, { stdio: "inherit" });
-    execSync(`node ${circuitNamePrimary}_js/generate_witness.js circuit.wasm inputs/input_rsa.json witness.wtns`, {
+    execSync(`node ${circuitNamePrimary}_js/generate_witness.js circuit.wasm inputs/input_${circuitNamePrimary}.json witness.wtns`, {
       stdio: "inherit",
     });
+    continue;
     console.log("starting beefy boy");
     let zkeyOutputName = "circuit";
     if (contributingExtraRandomness) {
@@ -99,7 +100,7 @@ for (let circuitName of circuitsList.split(",")) {
         });
       }
     }
-    execSync(`node --max-old-space-size=614400 ${snarkJSPath} zkey verify ${circuitNamePrimary}.r1cs ../../powersoftau/powersOfTau28_hez_final_24.ptau circuit.zkey`, {
+    execSync(`node --max-old-space-size=614400 ${snarkJSPath} zkey verify ${circuitNamePrimary}.r1cs ../../powersoftau/powersOfTau28_hez_final_21.ptau circuit.zkey`, {
       stdio: "inherit",
     });
     execSync(`node --max-old-space-size=614400 ${snarkJSPath} zkey export verificationkey circuit.zkey keys/verification_key.json`, {
