@@ -68,7 +68,7 @@ for (let circuitName of circuitsList.split(",")) {
 
   try {
     let circuitNamePrimary = circuitName.split("/").pop();
-    let snarkJSPath = "./../node_modules/snarkjs";
+    let snarkJSPath = "./../node_modules/.bin/snarkjs";
     if (process.argv.length >= 4 && process.argv[4] === "skip-recompile") {
       console.log("Skipping recompile to r1cs and wasm");
     } else {
@@ -79,7 +79,7 @@ for (let circuitName of circuitsList.split(",")) {
     execSync(`node ${circuitNamePrimary}_js/generate_witness.js circuit.wasm inputs/input_${circuitNamePrimary}.json witness.wtns`, {
       stdio: "inherit",
     });
-    continue;
+    // continue;
     console.log("starting beefy boy");
     let zkeyOutputName = "circuit";
     if (contributingExtraRandomness) {
