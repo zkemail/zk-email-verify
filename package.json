@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^13.5.0",
     "@types/lodash": "^4.14.181",
     "@types/styled-components": "^5.1.24",
+    "atob": "^2.1.2",
     "circomlib": "^2.0.3",
     "circomlibjs": "^0.1.2",
     "localforage": "^1.10.0",
@@ -34,7 +35,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "compile": "node circuits/scripts/compile.js"
   },
   "eslintConfig": {
     "extends": [
@@ -55,5 +57,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/atob": "^2.1.2"
   }
 }

@@ -2,6 +2,7 @@ pragma circom 2.0.3;
 
 include "../merkle.circom";
 include "../group_sig.circom";
+include "../node_modules/circomlib/circuits/sha256/sha256.circom";
 
 template RSAVerifySignerModulusMain(n, k) {
     signal input modulus[k];
