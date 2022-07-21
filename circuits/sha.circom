@@ -1,11 +1,12 @@
 pragma circom 2.0.3;
 
 include "../node_modules/circomlib/circuits/bitify.circom";
-include "../node_modules/circomlib/circuits/sha256/sha256.circom";
+include "./sha256.circom";
 include "./rsa.circom";
 
 template Sha256Bytes(num_bytes) {
     signal input in[num_bytes];
+    signal input in_len;
     signal output out[256];
 
     var num_bits = num_bytes * 8;
@@ -19,6 +20,7 @@ template Sha256Bytes(num_bytes) {
             sha.in[i*8+j] <== bytes[i].out[7-j];
         }
     }
+    sha.in_len <== in_len;
 
     for (var i = 0; i < 256; i++) {
         out[i] <== sha.out[i];
@@ -26,14 +28,16 @@ template Sha256Bytes(num_bytes) {
 }
 
 template EmailVerify(num_bytes, n, k) {
-    signal input in[num_bytes];
-    signal input modulus[k];
+    signal input in[num_bytes]; // prehashed email data, potentially padded with lots of 0s at end
+    signal input modulus[k]; // rsa pubkey, verified with smart contract + optional oracle
     signal input signature[k];
+    signal input in_len; // length of in email data, corresponding to sha256 block length
 
     component sha = Sha256Bytes(num_bytes);
     for (var i = 0; i < num_bytes; i++) {
         sha.in[i] <== in[i];
     }
+    sha.in_len <== in_len;
 
     var msg_len = (256+n)\n;
     component base_msg[msg_len];
