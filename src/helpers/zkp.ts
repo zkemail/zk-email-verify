@@ -37,7 +37,7 @@ export async function generateProof(input: any, filename: string) {
   // TODO: figure out how to generate this s.t. it passes build
   console.log("generating proof for input");
   console.log(input);
-  const { proof, publicSignals } = await snarkjs.groth16.fullProve(input, `../${filename}.wasm`, `${filename}.zkey`);
+  const { proof, publicSignals } = await snarkjs.groth16.fullProve(input, `https://zkemail-zkey-chunks.s3.amazonaws.com/${filename}.wasm`, `${filename}.zkey`);
   console.log(`Generated proof ${JSON.stringify(proof)}`);
 
   return {
