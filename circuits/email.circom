@@ -59,4 +59,8 @@ template EmailVerify(max_num_bytes, n, k) {
         log(reveal_from[i]);
     }
 }
-component main { public [ in_padded, modulus, signature, in_len_padded_bytes ] } = EmailVerify(512, 121, 17);
+
+// In circom, all output signals of the main component are public (and cannot be made private), the input signals of the main component are private if not stated otherwise using the keyword public as above. The rest of signals are all private and cannot be made public.
+// This makes modulus and reveal_from public. Signature can optionally be made public, but is not recommended since it allows the mailserver to trace who the offender is.
+
+component main { public [ modulus ] } = EmailVerify(512, 121, 17);
