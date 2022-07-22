@@ -1,7 +1,7 @@
 # The App
-The application is located at https://double-blind.xyz.
+The application is located at https://zk-email.xyz.
 
-The documentation for the app is located at https://double-blind.xyz/docs
+The documentation for the app is located at https://zk-email.xyz/docs
 
 # Development Instructions.
 
@@ -20,8 +20,6 @@ Notes about email providers: tl;dr: view headers in a non-gmail client.
 
 Gmail self-emails censor the signature of the mailserver, so it is unclear if it is generated. .edu domain, hotmail, custom domain, and outlook domain self-emails have the signatures. In fact, Gmail-sent self-emails using the .edu domain, viewed in a non-gmail client, are not censored -- it seems to be just a property of the gmail viewer to not show signatures on self emails (but it has signatures on every other recieved email).
 
-
-
 ## CIRCOM BUILD STEPS
 Install circom2 via the following steps, according to: https://docs.circom.io/getting-started/installation/
 ```
@@ -31,6 +29,7 @@ git clone https://github.com/iden3/circom.git
 cd circom
 cargo build --release
 cargo install --path circom
+sudo apt-get install nlohmann-json3-dev libgmp-dev nasm
 ```
 
 If no yarn, do
@@ -50,6 +49,12 @@ To do a chunked zkey, run the following:
 yarn install snarkjs@git+https://github.com/vb7401/snarkjs.git#fae4fe381bdad2da13eee71010dfe477fc694ac1
 cd dizkus-scripts/
 ./1_compile.sh
+./2_...
+./2_...
+./2_...
+./2_...
+./2_...
+
 ```
 
 To do a non-chunked zkey for non-browser running,
@@ -90,5 +95,8 @@ snarkjs zkey new ./rsa_group_sig_verify.r1cs pot21_final.ptau public/rsa_group_s
 snarkjs zkey export verificationkey public/rsa_group_sig_verify_0000.zkey public/rsa_group_sig_verify_0000.vkey.json
 cp rsa_group_sig_verify_js/rsa_group_sig_verify.wasm public
 ```
+
+This leaks the number of characters in the username of someone who sent you an email, iff the first field in the email serialization format is from (effectively irrelevant)
 ## Stats
 Just RSA + SHA (without masking or regex proofs) for arbitrary message length <= 512 bytes is 402802 constraints, and the zkey took 42 minutes to generate.
+RSA + SHA + Regex + Masking with up to 1024 byte message lengths is 1392219 constraints, and the chunked zkey took 9 + 15 + 15 + 2 minutes to generate.
