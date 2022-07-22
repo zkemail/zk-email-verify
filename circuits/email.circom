@@ -3,6 +3,7 @@ pragma circom 2.0.3;
 include "../node_modules/circomlib/circuits/bitify.circom";
 include "./sha.circom";
 include "./rsa.circom";
+include "./regex_from.circom";
 
 template EmailVerify(max_num_bytes, n, k) {
     // max_num_bytes must be a multiple of 64
@@ -10,6 +11,8 @@ template EmailVerify(max_num_bytes, n, k) {
     signal input modulus[k]; // rsa pubkey, verified with smart contract + optional oracle
     signal input signature[k];
     signal input in_len_padded_bytes; // length of in email data including the padding, which will inform the sha256 block length
+
+    signal output reveal_from[max_num_bytes];
 
     component sha = Sha256Bytes(max_num_bytes);
     for (var i = 0; i < max_num_bytes; i++) {
@@ -41,6 +44,19 @@ template EmailVerify(max_num_bytes, n, k) {
     }
     for (var i = 0; i < k; i++) {
         rsa.signature[i] <== signature[i];
+    }
+
+    component regex_from = RegexFrom(max_num_bytes);
+    for (var i = 0; i < max_num_bytes; i++) {
+        regex_from.msg[i] <== in_padded[i];
+    }
+    regex_from.out === 1;
+    for (var i = 0; i < max_num_bytes; i++) {
+        reveal_from[i] <== regex_from.reveal[i+1];
+    }
+
+    for (var i = 0; i < max_num_bytes; i++) {
+        log(reveal_from[i]);
     }
 }
 component main { public [ in_padded, modulus, signature, in_len_padded_bytes ] } = EmailVerify(512, 121, 17);
