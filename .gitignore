@@ -27,3 +27,5 @@ circuits/*_js/*
 *.sym
 *.wasm
 *.ptau
+circuits/inputs/*old.json
+circuits/inputs/*test.json

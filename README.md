@@ -20,22 +20,28 @@ wget https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_21.ptau
 mv powersOfTau28_hez_final_21.ptau powersoftau/powersOfTau28_hez_final_21.ptau
 ```
 
-To do the steps in https://github.com/iden3/snarkjs#7-prepare-phase-2 automatically, do
-
-```
-yarn compile rsa true
-```
-
-and when the circuit doesn't change,
-```
-yarn compile rsa true skip-recompile
-```
-
-If you want to generate a new email/set of inputs, edit the src/constants.ts file and run
+If you want to generate a new email/set of inputs, edit the src/constants.ts file with your constants.
+In generate_input.ts, change the circuitType to match what circom file you are running, then run
 ```
 ts-node circuits/scripts/generate_input.ts
 ```
-then manually paste the outputted json in console into your inputs/input_[circuitname].json file.
+which will autowrite input_<circuitName>.json to the inputs folder.
+
+To do the steps in https://github.com/iden3/snarkjs#7-prepare-phase-2 automatically, do
+```
+yarn compile email true
+```
+and you can swap `email` for `sha` or `rsa` or any other circuit name that matches your generate_input type.
+
+and when the circuit doesn't change,
+```
+yarn compile email true skip-r1cswasm
+```
+
+and when the zkey doesn't change,
+```
+yarn compile email true skip-r1cswasm skip-zkey
+```
 
 For production, make sure to set a beacon in .env.
 

@@ -9,7 +9,10 @@ include "./sha_utils.circom";
 template Sha256General(maxBitsPadded) {
     // maxBitsPadded must be a multiple of 512, and the bit circuits in this file are limited to 15 so must be raised if the message is longer.
     assert(maxBitsPadded % 512 == 0);
-    assert(2 ** 15 > maxBitsPadded);
+    var maxBitsPaddedBits = 15;
+    var maxBitsPaddedBitsBits = 4;
+    assert(2 ** maxBitsPaddedBits > maxBitsPadded);
+    assert(2 ** maxBitsPaddedBitsBits >= maxBitsPaddedBits);
 
     // Note that maxBitsPadded = maxBits + 64
     signal input paddedIn[maxBitsPadded];
@@ -24,21 +27,22 @@ template Sha256General(maxBitsPadded) {
     var maxBlocksBits;
     var bitsLastBlock;
     maxBlocks = (maxBitsPadded\512);
-    inBlockIndex <-- in_len_padded_bits >> 9 + 1;
+    inBlockIndex <-- (in_len_padded_bits >> 9);
+    in_len_padded_bits === inBlockIndex * 512;
 
     // These verify the unconstrained floor calculation is the uniquely correct integer that represents the floor
-    component floorVerifierUnder = LessEqThan(15); // todo verify the length passed in is less than nbits, reduce 15/make it a fn of maxbits
-    floorVerifierUnder.in[0] <== (inBlockIndex - 1)*512;
-    floorVerifierUnder.in[1] <== in_len_padded_bits;
-    floorVerifierUnder.out === 1;
+    // component floorVerifierUnder = LessEqThan(maxBitsPaddedBits); // todo verify the length passed in is less than nbits. note that maxBitsPaddedBits can likely be lowered or made it a fn of maxbits
+    // floorVerifierUnder.in[0] <== (inBlockIndex)*512;
+    // floorVerifierUnder.in[1] <== in_len_padded_bits;
+    // floorVerifierUnder.out === 1;
 
-    component floorVerifierOver = GreaterThan(15);
-    floorVerifierOver.in[0] <== (inBlockIndex)*512;
-    floorVerifierOver.in[1] <== in_len_padded_bits;
-    floorVerifierOver.out === 1;
+    // component floorVerifierOver = GreaterThan(maxBitsPaddedBits);
+    // floorVerifierOver.in[0] <== (inBlockIndex+1)*512;
+    // floorVerifierOver.in[1] <== in_len_padded_bits;
+    // floorVerifierOver.out === 1;
 
     // These verify we pass in a valid number of bits to the SHA256 compression circuit.
-    component bitLengthVerifier = LessEqThan(15); // todo verify the length passed in is less than nbits, reduce 15/make it a fn of maxbits
+    component bitLengthVerifier = LessEqThan(maxBitsPaddedBits); // todo verify the length passed in is less than nbits. note that maxBitsPaddedBits can likely be lowered or made it a fn of maxbits
     bitLengthVerifier.in[0] <== in_len_padded_bits;
     bitLengthVerifier.in[1] <== maxBitsPadded;
     bitLengthVerifier.out === 1;
@@ -104,8 +108,10 @@ template Sha256General(maxBitsPadded) {
 
     // Select the correct compression output for the given length, instead of just the last one.
     component arraySelectors[256];
+    log(maxBlocks);
+    log(inBlockIndex);
     for (k=0; k<256; k++) {
-        arraySelectors[k] = QuinSelector(maxBlocks, 15);
+        arraySelectors[k] = QuinSelector(maxBlocks, maxBitsPaddedBitsBits);
         for (j=0; j<maxBlocks; j++) {
             arraySelectors[k].in[j] <== sha256compression[j].out[k];
         }
