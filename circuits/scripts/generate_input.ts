@@ -147,7 +147,7 @@ async function generate_inputs(email) {
 
 import fs from "fs";
 async function do_generate() {
-  const email = fs.readFileSync('../email_verify/msg.eml');
+  const email = fs.readFileSync('./msg.eml');
   console.log(JSON.stringify(await generate_inputs(email)));
 }
 
