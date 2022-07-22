@@ -23,7 +23,7 @@
     "react-router-dom": "^6.2.2",
     "react-scripts": "^4",
     "react-use": "^17.3.2",
-    "snarkjs": "^0.4.15",
+    "snarkjs": "git+https://github.com/vb7401/snarkjs.git#fae4fe381bdad2da13eee71010dfe477fc694ac1",
     "sshpk": "^1.17.0",
     "styled-components": "^5.3.5",
     "typescript": "^4.6.3",
