@@ -117,7 +117,7 @@ export async function getCircuitInputs(
 
   // Perform conversions
   const prehashBytesUnpadded = stringToBytes(prehash_message_string);
-  const postShaBigintUnpadded = bytesToBigInt(stringToBytes(await shaHash(prehash_message_string))) % CIRCOM_FIELD_MODULUS;
+  const postShaBigintUnpadded = bytesToBigInt(stringToBytes((await shaHash(prehashBytesUnpadded)).toString())) % CIRCOM_FIELD_MODULUS;
   const messageBigInt = verifyRSA(signatureBigInt, modulusBigInt);
   const validMessage =
     messageBigInt === postShaBigint &&
