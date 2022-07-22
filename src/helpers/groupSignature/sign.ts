@@ -91,7 +91,7 @@ export async function getCircuitInputs(
     ? bytesToBigInt(await shaHash(stringToBytes(signerNamespace))) %
       CIRCOM_FIELD_MODULUS
     : 0n;
-  const palyoadBigint =
+  const payloadBigint =
     bytesToBigInt(await shaHash(stringToBytes(message + " -- " + groupName))) %
     CIRCOM_FIELD_MODULUS;
 
@@ -132,7 +132,7 @@ export async function getCircuitInputs(
       signature: toCircomBigIntBytes(signatureBigInt),
       base_message: toCircomBigIntBytes(baseMessageBigInt),
       signerNamespace: signerNamespaceBigint.toString(),
-      payload: palyoadBigint.toString(),
+      payload: payloadBigint.toString(),
       pathElements,
       pathIndices,
       root,
