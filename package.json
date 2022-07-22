@@ -36,7 +36,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "compile": "node circuits/scripts/compile.js"
+    "compile": "node circuits/scripts/compile.js",
+    "compile-all": "ts-node circuits/scripts/generate_input.ts && yarn compile email true"
   },
   "eslintConfig": {
     "extends": [

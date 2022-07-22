@@ -43,4 +43,4 @@ template EmailVerify(max_num_bytes, n, k) {
         rsa.signature[i] <== signature[i];
     }
 }
-component main { public [ in_padded, modulus, signature, in_len_padded_bytes ] } = EmailVerify(448, 121, 17);
+component main { public [ in_padded, modulus, signature, in_len_padded_bytes ] } = EmailVerify(512, 121, 17);
