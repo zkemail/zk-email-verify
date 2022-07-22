@@ -115,7 +115,6 @@ template Sha256General(maxBitsPadded) {
         }
         arraySelectors[k].index <== inBlockIndex - 1; // The index is 0 indexed and the block numbers are 1 indexed.
         out[k] <== arraySelectors[k].out;
-        log(out[k]);
     }
 
     // for (k=0; k<256; k++) {

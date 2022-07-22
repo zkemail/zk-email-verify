@@ -28,5 +28,5 @@ export const MAX_SHA_INPUT_LENGTH_PADDED_BYTES = 448; // todo: this must be the 
 // component main { public [ modulus ] } = RSAVerify(121, 17);
 // component main { public [ root, payload1 ] } = RSAGroupSigVerify(121, 17, 30);
 export const CIRCOM_BIGINT_N = 121;
-export const CIRCOM_BIGINT_K = 34;
+export const CIRCOM_BIGINT_K = 17;
 export const CIRCOM_LEVELS = 30;
