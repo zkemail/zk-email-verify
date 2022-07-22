@@ -33,14 +33,30 @@ cargo build --release
 cargo install --path circom
 ```
 
-
+If no yarn, do
 ```
-wget https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_20.ptau
+sudo npm i -g yarn
+```
+
+To get the ptau, do
+```
+wget https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_21.ptau
 # shasum pot21_final.ptau: e0ef07ede5c01b1f7ddabb14b60c0b740b357f70
-mv powersOfTau28_hez_final_20.ptau powersoftau/powersOfTau28_hez_final_20.ptau
+mv powersOfTau28_hez_final_21.ptau powersoftau/powersOfTau28_hez_final_21.ptau
+```
+
+To do a chunked zkey, run the following:
+```
+yarn install snarkjs@git+https://github.com/vb7401/snarkjs.git#fae4fe381bdad2da13eee71010dfe477fc694ac1
+cd dizkus-scripts/
+./1_compile.sh
+```
+
+To do a non-chunked zkey for non-browser running,
+```
 yarn compile-all
 ```
-If you want bespoke compiling instead of compile-all, you can use the following:
+If you want to compile subcircuits instead of the whole thing, you can use the following:
 
     If you want to generate a new email/set of inputs, edit the src/constants.ts file with your constants.
     In generate_input.ts, change the circuitType to match what circom file you are running, then run
