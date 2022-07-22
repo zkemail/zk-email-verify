@@ -23,6 +23,16 @@ Gmail self-emails censor the signature of the mailserver, so it is unclear if it
 
 
 ## CIRCOM BUILD STEPS
+Install circom2 via the following steps, according to: https://docs.circom.io/getting-started/installation/
+```
+curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
+source "$HOME/.cargo/env"
+git clone https://github.com/iden3/circom.git
+cd circom
+cargo build --release
+cargo install --path circom
+```
+
 
 ```
 wget https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_20.ptau
