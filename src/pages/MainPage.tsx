@@ -482,7 +482,7 @@ export const MainPage: React.FC<{}> = (props) => {
         </div>
         <div className="signaturePane">
           <LabeledTextArea
-            label="Group Signature"
+            label="Proof Output"
             link={signatureShareLink}
             value={groupSignatureText}
             onChange={(e) => {
