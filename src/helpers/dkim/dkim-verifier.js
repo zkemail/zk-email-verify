@@ -1,4 +1,4 @@
-const LOCAL = false;
+const LOCAL = true;
 
 const { getSigningHeaderLines, getPublicKey, parseDkimHeaders, formatAuthHeaderRow, getAlignment } = require('./tools');
 const { MessageParser } = require('./message-parser');
