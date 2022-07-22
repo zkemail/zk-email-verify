@@ -144,6 +144,9 @@ contract VerifiedEmail is ERC721Enumerable, Verifier {
 
         // 512 public signals are the masked message bytes, 17 are the modulus.
         // Get domain
+        for uint256 i = 0; i < 512; i++ {
+            domain[i] = signals[i];
+        }
 
         uint256 tokenId = tokenCounter.current() + 1;
         _mint(msg.sender, tokenId);
