@@ -25,9 +25,9 @@ Gmail self-emails censor the signature of the mailserver, so it is unclear if it
 ## CIRCOM BUILD STEPS
 
 ```
-wget https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_21.ptau
+wget https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_20.ptau
 # shasum pot21_final.ptau: e0ef07ede5c01b1f7ddabb14b60c0b740b357f70
-mv powersOfTau28_hez_final_21.ptau powersoftau/powersOfTau28_hez_final_21.ptau
+mv powersOfTau28_hez_final_20.ptau powersoftau/powersOfTau28_hez_final_20.ptau
 yarn compile-all
 ```
 If you want bespoke compiling instead of compile-all, you can use the following:

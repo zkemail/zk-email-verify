@@ -90,7 +90,7 @@ for (let circuitName of circuitsList.split(",")) {
         zkeyOutputName = "circuit_0";
       }
       execSync(
-        `node --max-old-space-size=614400 ${snarkJSPath} groth16 setup ${circuitNamePrimary}.r1cs ../../powersoftau/powersOfTau28_hez_final_21.ptau ${zkeyOutputName}.zkey`,
+        `node --max-old-space-size=614400 ${snarkJSPath} groth16 setup ${circuitNamePrimary}.r1cs ../../powersoftau/powersOfTau28_hez_final_20.ptau ${zkeyOutputName}.zkey`,
         {
           stdio: "inherit",
         }
@@ -107,7 +107,7 @@ for (let circuitName of circuitsList.split(",")) {
           });
         }
       }
-      execSync(`node --max-old-space-size=614400 ${snarkJSPath} zkey verify ${circuitNamePrimary}.r1cs ../../powersoftau/powersOfTau28_hez_final_21.ptau circuit.zkey`, {
+      execSync(`node --max-old-space-size=614400 ${snarkJSPath} zkey verify ${circuitNamePrimary}.r1cs ../../powersoftau/powersOfTau28_hez_final_20.ptau circuit.zkey`, {
         stdio: "inherit",
       });
       execSync(`node --max-old-space-size=614400 ${snarkJSPath} zkey export verificationkey circuit.zkey ${circuitName}/keys/verification_key.json`, {
