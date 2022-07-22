@@ -83,7 +83,7 @@ function sigToRSArrays(sig: string) {
   return [rArr, sArr];
 }
 
-export function buildInput(address: string, pubkey: string, msghash: string, sig: string) {
+export function buildInput(pubkey: string, msghash: string, sig: string) {
   const [r, s] = sigToRSArrays(sig);
 
   return {
