@@ -146,10 +146,10 @@ const formatSignatureHeaderLine = (type, values, folded) => {
       break;
 
     case "ARC":
-      throw "err";
+      throw new Error("err");
 
     case "AS":
-      throw "err";
+      throw new Error("err");
 
     default:
       throw new Error("Unknown Signature type");
