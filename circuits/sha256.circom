@@ -1,36 +1,62 @@
+pragma circom 2.0.3;
 
 include "../node_modules/circomlib/circuits/sha256/constants.circom";
 include "../node_modules/circomlib/circuits/sha256/sha256compression.circom";
 include "../node_modules/circomlib/circuits/comparators.circom";
+include "./sha_utils.circom";
 
 // A modified version of the SHA256 circuit that allows specified length messages up to a max to all work via array indexing on the SHA256 compression circuit.
-template Sha256(maxBits) {
-    signal input in[maxBits];
+template Sha256General(maxBitsPadded) {
+    // maxBitsPadded must be a multiple of 512, and the bit circuits in this file are limited to 15 so must be raised if the message is longer.
+    assert(maxBitsPadded % 512 == 0);
+    assert(2 ** 15 > maxBitsPadded);
+
+    // Note that maxBitsPadded = maxBits + 64
+    signal input paddedIn[maxBitsPadded];
     signal output out[256];
-    // signal input in_len;
+    signal input in_len_padded_bits; // This is the padded length of the message pre-hash.
+    signal inBlockIndex;
 
     var i;
     var k;
+    var j;
     var maxBlocks;
+    var maxBlocksBits;
     var bitsLastBlock;
+    maxBlocks = (maxBitsPadded\512);
+    inBlockIndex <-- in_len_padded_bits >> 9 + 1;
 
-    // var in_block_index = ((in_len + 64)/512)*512;
-    maxBlocks = ((maxBits + 64)\512)+1;
+    // These verify the unconstrained floor calculation is the uniquely correct integer that represents the floor
+    component floorVerifierUnder = LessEqThan(15); // todo verify the length passed in is less than nbits, reduce 15/make it a fn of maxbits
+    floorVerifierUnder.in[0] <== (inBlockIndex - 1)*512;
+    floorVerifierUnder.in[1] <== in_len_padded_bits;
+    floorVerifierUnder.out === 1;
 
-    signal paddedIn[maxBlocks*512];
+    component floorVerifierOver = GreaterThan(15);
+    floorVerifierOver.in[0] <== (inBlockIndex)*512;
+    floorVerifierOver.in[1] <== in_len_padded_bits;
+    floorVerifierOver.out === 1;
 
-    for (k=0; k<maxBits; k++) {
-        paddedIn[k] <== in[k];
-    }
-    paddedIn[maxBits] <== 1;
+    // These verify we pass in a valid number of bits to the SHA256 compression circuit.
+    component bitLengthVerifier = LessEqThan(15); // todo verify the length passed in is less than nbits, reduce 15/make it a fn of maxbits
+    bitLengthVerifier.in[0] <== in_len_padded_bits;
+    bitLengthVerifier.in[1] <== maxBitsPadded;
+    bitLengthVerifier.out === 1;
 
-    for (k=maxBits+1; k<maxBlocks*512-64; k++) {
-        paddedIn[k] <== 0;
-    }
+    // Note that we can no longer do padded verification efficiently inside the SHA because it requires non deterministic array indexing.
+    // We can do it if we add a constraint, but since guessing a valid SHA2 preimage is hard anyways, we'll just do it outside the circuit.
 
-    for (k = 0; k< 64; k++) {
-        paddedIn[maxBlocks*512 - k -1] <== (maxBits >> k)&1;
-    }
+    // signal paddedIn[maxBlocks*512];
+    // for (k=0; k<maxBits; k++) {
+    //     paddedIn[k] <== in[k];
+    // }
+    // paddedIn[maxBits] <== 1;
+    // for (k=maxBits+1; k<maxBlocks*512-64; k++) {
+    //     paddedIn[k] <== 0;
+    // }
+    // for (k = 0; k< 64; k++) {
+    //     paddedIn[maxBlocks*512 - k -1] <== (maxBits >> k)&1;
+    // }
 
     component ha0 = H(0);
     component hb0 = H(1);
@@ -76,8 +102,18 @@ template Sha256(maxBits) {
         }
     }
 
+    // Select the correct compression output for the given length, instead of just the last one.
+    component arraySelectors[256];
     for (k=0; k<256; k++) {
-        out[k] <== sha256compression[maxBlocks-1].out[k];
+        arraySelectors[k] = QuinSelector(maxBlocks, 15);
+        for (j=0; j<maxBlocks; j++) {
+            arraySelectors[k].in[j] <== sha256compression[j].out[k];
+        }
+        arraySelectors[k].index <== inBlockIndex - 1; // The index is 0 indexed and the block numbers are 1 indexed.
+        out[k] <== arraySelectors[k].out;
     }
 
+    // for (k=0; k<256; k++) {
+    //     out[k] <== sha256compression[maxBlocks-1].out[k];
+    // }
 }

@@ -59,6 +59,9 @@
     ]
   },
   "devDependencies": {
-    "@types/atob": "^2.1.2"
+    "@types/atob": "^2.1.2",
+    "@types/node": "^18.0.6",
+    "nodemon": "^2.0.19",
+    "ts-node-dev": "^2.0.0"
   }
 }

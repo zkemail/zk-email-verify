@@ -14,7 +14,10 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "module": "CommonJS"
+    "module": "CommonJS",
+    "types": [
+      "node"
+    ]
   },
   "include": ["src"]
 }
