@@ -12,6 +12,16 @@ circuits/
     inputs/ # Test inputs for example witness generation for compilation
     scripts/ # Run snarkjs ceremony to generate zkey with yarn compile
 ```
+# Getting email headers
+
+In outlook, turn on plain text mode. Send an email to yourself, and copy paste the full email details into the textbox on the (only client side!) webpage.
+
+Notes about email providers: tl;dr: view headers in a non-gmail client.
+
+Gmail self-emails censor the signature of the mailserver, so it is unclear if it is generated. .edu domain, hotmail, custom domain, and outlook domain self-emails have the signatures. In fact, Gmail-sent self-emails using the .edu domain, viewed in a non-gmail client, are not censored -- it seems to be just a property of the gmail viewer to not show signatures on self emails (but it has signatures on every other recieved email).
+
+
+
 ## CIRCOM BUILD STEPS
 
 ```
