@@ -1,10 +1,10 @@
 pragma circom 2.0.3;
 
 include "../node_modules/circomlib/circuits/bitify.circom";
-include "./sha256.circom";
+include "./sha256general.circom";
 
 template Sha256Bytes(max_num_bytes) {
-    signal input in[max_num_bytes];
+    signal input in_padded[max_num_bytes];
     signal input in_len_padded_bytes;
     signal output out[256];
 
@@ -14,7 +14,7 @@ template Sha256Bytes(max_num_bytes) {
     component bytes[max_num_bytes];
     for (var i = 0; i < max_num_bytes; i++) {
         bytes[i] = Num2Bits(8);
-        bytes[i].in <== in[i];
+        bytes[i].in <== in_padded[i];
         for (var j = 0; j < 8; j++) {
             sha.paddedIn[i*8+j] <== bytes[i].out[7-j];
         }
@@ -26,4 +26,4 @@ template Sha256Bytes(max_num_bytes) {
     }
 }
 
-component main { public [ in, in_len_padded_bytes ] } = Sha256Bytes(448);
+// component main { public [ in_padded, in_len_padded_bytes ] } = Sha256Bytes(448);

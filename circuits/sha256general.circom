@@ -108,8 +108,6 @@ template Sha256General(maxBitsPadded) {
 
     // Select the correct compression output for the given length, instead of just the last one.
     component arraySelectors[256];
-    log(maxBlocks);
-    log(inBlockIndex);
     for (k=0; k<256; k++) {
         arraySelectors[k] = QuinSelector(maxBlocks, maxBitsPaddedBitsBits);
         for (j=0; j<maxBlocks; j++) {
@@ -117,6 +115,7 @@ template Sha256General(maxBitsPadded) {
         }
         arraySelectors[k].index <== inBlockIndex - 1; // The index is 0 indexed and the block numbers are 1 indexed.
         out[k] <== arraySelectors[k].out;
+        log(out[k]);
     }
 
     // for (k=0; k<256; k++) {
