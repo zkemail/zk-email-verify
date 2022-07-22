@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.6.0 <0.9.0;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
@@ -12,28 +12,62 @@ contract VerifiedEmail is ERC721Enumerable, Verifier {
 
     Counters.Counter private tokenCounter;
 
-    mapping(string => uint256[16]) public verifiedMailserverKeys;
+    mapping(string => uint256[17]) public verifiedMailserverKeys;
 
     constructor() ERC721("VerifiedEmail", "VerifiedEmail") {
         // Do dig TXT outgoing._domainkey.mit.edu to verify these.
         // This is the base 2^121 representation of that key.
-        verifiedMailserverKeys["mit.edu"][0] = 1362844382337595676288966927845048755
-        verifiedMailserverKeys["mit.edu"][1] = 2051232190029042874602123094057641579
-        verifiedMailserverKeys["mit.edu"][2] = 82180903948917831722803326838373315
-        verifiedMailserverKeys["mit.edu"][3] = 2138065713701593539261187725956930213
-        verifiedMailserverKeys["mit.edu"][4] = 2610113944250628639012720369418287474
-        verifiedMailserverKeys["mit.edu"][5] = 947386626577810308124082119170513710
-        verifiedMailserverKeys["mit.edu"][6] = 536038387946359789768371937196825655
-        verifiedMailserverKeys["mit.edu"][7] = 2153576889316081585234167235144487709
-        verifiedMailserverKeys["mit.edu"][8] = 1287226415982257719800023032828811922
-        verifiedMailserverKeys["mit.edu"][9] = 1018106194828336360857712078662978863
-        verifiedMailserverKeys["mit.edu"][10] = 2182121972991273871088583422676257732
-        verifiedMailserverKeys["mit.edu"][11] = 824080356450773094427801032134768781
-        verifiedMailserverKeys["mit.edu"][12] = 2160330005857484633191775197216017274
-        verifiedMailserverKeys["mit.edu"][13] = 2447512561136956201144186872280764330
-        verifiedMailserverKeys["mit.edu"][14] = 3006152463941257314249890518041106
-        verifiedMailserverKeys["mit.edu"][15] = 820607402446306410974305086636012205
-        verifiedMailserverKeys["mit.edu"][16] = 343542034344264361438243465247009
+        verifiedMailserverKeys["mit.edu"][
+            0
+        ] = 1362844382337595676288966927845048755;
+        verifiedMailserverKeys["mit.edu"][
+            1
+        ] = 2051232190029042874602123094057641579;
+        verifiedMailserverKeys["mit.edu"][
+            2
+        ] = 82180903948917831722803326838373315;
+        verifiedMailserverKeys["mit.edu"][
+            3
+        ] = 2138065713701593539261187725956930213;
+        verifiedMailserverKeys["mit.edu"][
+            4
+        ] = 2610113944250628639012720369418287474;
+        verifiedMailserverKeys["mit.edu"][
+            5
+        ] = 947386626577810308124082119170513710;
+        verifiedMailserverKeys["mit.edu"][
+            6
+        ] = 536038387946359789768371937196825655;
+        verifiedMailserverKeys["mit.edu"][
+            7
+        ] = 2153576889316081585234167235144487709;
+        verifiedMailserverKeys["mit.edu"][
+            8
+        ] = 1287226415982257719800023032828811922;
+        verifiedMailserverKeys["mit.edu"][
+            9
+        ] = 1018106194828336360857712078662978863;
+        verifiedMailserverKeys["mit.edu"][
+            10
+        ] = 2182121972991273871088583422676257732;
+        verifiedMailserverKeys["mit.edu"][
+            11
+        ] = 824080356450773094427801032134768781;
+        verifiedMailserverKeys["mit.edu"][
+            12
+        ] = 2160330005857484633191775197216017274;
+        verifiedMailserverKeys["mit.edu"][
+            13
+        ] = 2447512561136956201144186872280764330;
+        verifiedMailserverKeys["mit.edu"][
+            14
+        ] = 3006152463941257314249890518041106;
+        verifiedMailserverKeys["mit.edu"][
+            15
+        ] = 820607402446306410974305086636012205;
+        verifiedMailserverKeys["mit.edu"][
+            16
+        ] = 343542034344264361438243465247009;
     }
 
     // function getDesc(
@@ -89,11 +123,10 @@ contract VerifiedEmail is ERC721Enumerable, Verifier {
                 string(
                     abi.encodePacked(
                         '{"domain": "',
-                        abi.encodePacked(originAddress[tokenId]),
-                        '", "owner": "',
-                        abi.encodePacked(sinkAddress[tokenId]),
-                        '", "degree": "',
-                        degree[tokenId],
+                        "mit.edu",
+                        '", "tokenId": ',
+                        toString(tokenId),
+                        "}",
                         '", "description": "VerifiedEmails are ZK verified proofs of email ownership on Ethereum. They only reveal your email domain, nothing about your identity. We can construct both goods like Glassdoor and Blind, and terrible tragedy of the commons scenarios where instituition reputation is slowly spent by its members. VerifiedEmail uses ZK SNARKs to insinuate this social dynamic.", "image": "data:image/svg+xml;base64,',
                         Base64.encode(bytes(output)),
                         '"}'
@@ -140,31 +173,53 @@ contract VerifiedEmail is ERC721Enumerable, Verifier {
         uint256[529] memory signals
     ) public {
         // require(signals[0] == 1337, "invalid signals"); // TODO no invalid signal check yet, which is fine since the zk proof does it
-        require(verifyProof(a, b, c, signals), "Invalid Proof"); // TODO checks effects iteractions, this should come first
         require(signals[0] == 0, "Invalid starting message character");
-
         // 512 public signals are the masked message bytes, 17 are the modulus.
         // Get domain
-        string fromString = "";
-        string toString = "";
+        string memory domain = "mit.edu";
+        uint32 fromPointer = 0;
+        uint32 toPointer = 0;
+        uint32 domainLength = 0;
         uint8 state = 0;
-        for (uint256 i = 1; i < 512; i++) {
-            if (signals[i] == 0){
-                if (signals[i-1] != 0) {
+        // Set domain pointers
+        for (uint32 i = 1; i < 512; i++) {
+            if (signals[i] == 0) {
+                if (signals[i - 1] != 0) {
                     state += 1;
+                    if (state == 2) {
+                        domainLength = i - fromPointer;
+                    } else if (state == 4) {
+                        require(
+                            domainLength == i - toPointer,
+                            "Invalid domain length"
+                        );
+                    }
                 }
                 continue;
-            } else if (signals[i-1] == 0) {
+            } else if (signals[i - 1] == 0) {
                 // transition state
                 state += 1;
                 require(state <= 4, "Invalid state transition"); // 0 is the start, 1 is from, 2 is between from and to, 3 is to, 4 is after the to
                 if (state == 1) {
-                    fromString
-                } else if (state == 2) {
-
+                    fromPointer = i;
+                } else if (state == 3) {
+                    toPointer = i;
                 }
             }
         }
+        for (uint32 i = 0; i < domainLength; i++) {
+            require(
+                signals[fromPointer + i] == signals[toPointer + i],
+                "Invalid domain unmatched"
+            );
+        }
+        for (uint32 i = 512; i < 529; i++) {
+            require(
+                signals[i] == verifiedMailserverKeys[domain][i],
+                "Invalid modulus not matched"
+            );
+        }
+        require(verifyProof(a, b, c, signals), "Invalid Proof"); // checks effects iteractions, this should come first
 
         uint256 tokenId = tokenCounter.current() + 1;
         _mint(msg.sender, tokenId);
