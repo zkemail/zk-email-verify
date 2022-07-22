@@ -294,35 +294,12 @@ export const MainPage: React.FC<{}> = (props) => {
       <div className="main">
         <div className="messagePane">
           <LabeledTextArea
-            label="Message"
+            label="Email Header"
             value={message}
             link={messageShareLink}
             onChange={(e) => {
               setMessage(e.currentTarget.value);
             }}
-          />
-          {/* <LabeledTextArea
-            label="Group Name"
-            value={groupName}
-            onChange={(e) => {
-              setGroupName(e.currentTarget.value);
-            }}
-          /> */}
-          <LabeledTextArea
-            style={{ whiteSpace: "pre" }}
-            label="Group Public Keys"
-            value={groupIdentifier}
-            onChange={(e) => {
-              setGroupIdentifier(e.currentTarget.value);
-            }}
-            warning={
-              valid &&
-              !valid.validPublicKeyGroupMembership &&
-              groupIdentifier &&
-              lastAction !== "verify"
-                ? `Error: Your Double Blind key does not correspond with any public key in the group.`
-                : undefined
-            }
           />
 
           {enableSignerId && (
@@ -502,28 +479,17 @@ export const MainPage: React.FC<{}> = (props) => {
         </div>
       </div>
       <div className="bottom">
-        <h3>Double Blind Key</h3>
+        <h3>ZK Email</h3>
         <div>
-          If you wish to generate group signatures, you must input your personal
-          Double Blind Key™.
-          <br /> Generate the key from your personal SSH private key using
-          following command.
+          If you wish to generate a ZK proof for proof of email ownership, you must input a max 512-byte email header
+          of an email to yourself. Gmail doesn't display this information, but Outlook and most other clients do. Website
+          taken from double-blind.xyz by ecnerwala and stevenkplus.
           <br />
-          Read our docs or{" "}
-          <code>
-            <a href="https://man7.org/linux/man-pages/man1/ssh-keygen.1.html">
-              man ssh-keygen
-            </a>
-          </code>{" "}
-          to learn more.
-          <pre>
-            echo "E PLURIBUS UNUM; DO NOT SHARE" | ssh-keygen -Y sign -n
-            double-blind.xyz -f ~/.ssh/id_rsa
-          </pre>
+          Read our <a href="zkemail.xyz/docs"> docs </a> to learn more.
         </div>
         <br />
         <LabeledTextArea
-          label="Your Double Blind Key"
+          label="..."
           value={doubleBlindKey}
           secret
           onChange={(e) => {
@@ -537,7 +503,6 @@ export const MainPage: React.FC<{}> = (props) => {
               : undefined
           }
         />
-        <LabeledTextArea label="Your Public Key" value={sshPubKey} disabled />
       </div>
     </Container>
   );
