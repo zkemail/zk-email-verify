@@ -98,5 +98,5 @@ cp rsa_group_sig_verify_js/rsa_group_sig_verify.wasm public
 
 This leaks the number of characters in the username of someone who sent you an email, iff the first field in the email serialization format is from (effectively irrelevant)
 ## Stats
-Just RSA + SHA (without masking or regex proofs) for arbitrary message length <= 512 bytes is 402802 constraints, and the zkey took 42 minutes to generate.
-RSA + SHA + Regex + Masking with up to 1024 byte message lengths is 1392219 constraints, and the chunked zkey took 9 + 15 + 15 + 2 minutes to generate.
+Just RSA + SHA (without masking or regex proofs) for arbitrary message length <= 512 bytes is 402802 constraints, and the zkey took 42 minutes to generate on an intel mac.
+RSA + SHA + Regex + Masking with up to 1024 byte message lengths is 1392219 constraints, and the chunked zkey took 9 + 15 + 15 + 2 minutes to generate on a machine with 32 cores.
