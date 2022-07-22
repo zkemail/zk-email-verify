@@ -25,7 +25,8 @@ yarn-error.log*
 circuits/*_js/*
 *.r1cs
 *.sym
-*.wasm
+circuits/*.wasm
 *.ptau
+*.zkey
 circuits/inputs/*old.json
 circuits/inputs/*test.json
