@@ -21,6 +21,8 @@ export const AAYUSH_POSTHASH_MESSAGE_PADDED_INT =
   null;
 
 export const CIRCOM_FIELD_MODULUS = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
+export const MAX_SHA_INPUT_LENGTH_PADDED_BYTES = 448; // todo: this must be the same as the first arg in the sha in main args circom
+
 // circom constants from main.circom / https://zkrepl.dev/?gist=30d21c7a7285b1b14f608325f172417b
 // template RSAGroupSigVerify(n, k, levels) {
 // component main { public [ modulus ] } = RSAVerify(121, 17);

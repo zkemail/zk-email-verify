@@ -4,40 +4,41 @@ include "../node_modules/circomlib/circuits/bitify.circom";
 include "./sha256.circom";
 include "./rsa.circom";
 
-template Sha256Bytes(num_bytes) {
-    signal input in[num_bytes];
-    signal input in_len;
+template Sha256Bytes(max_num_bytes) {
+    signal input in[max_num_bytes];
+    signal input in_len_padded_bytes;
     signal output out[256];
 
-    var num_bits = num_bytes * 8;
-    component sha = Sha256(num_bits);
+    var num_bits = max_num_bytes * 8;
+    component sha = Sha256General(num_bits);
 
-    component bytes[num_bytes];
-    for (var i = 0; i < num_bytes; i++) {
+    component bytes[max_num_bytes];
+    for (var i = 0; i < max_num_bytes; i++) {
         bytes[i] = Num2Bits(8);
         bytes[i].in <== in[i];
         for (var j = 0; j < 8; j++) {
-            sha.in[i*8+j] <== bytes[i].out[7-j];
+            sha.paddedIn[i*8+j] <== bytes[i].out[7-j];
         }
     }
-    sha.in_len <== in_len;
+    sha.in_len_padded_bits <== in_len_padded_bytes * 8;
 
     for (var i = 0; i < 256; i++) {
         out[i] <== sha.out[i];
     }
 }
 
-template EmailVerify(num_bytes, n, k) {
-    signal input in[num_bytes]; // prehashed email data, potentially padded with lots of 0s at end
+template EmailVerify(max_num_bytes, n, k) {
+    // max_num_bytes must be a multiple of 64
+    signal input in[max_num_bytes]; // prehashed email data, includes up to 512 + 64? bytes of padding pre SHA256, and padded with lots of 0s at end after the length
     signal input modulus[k]; // rsa pubkey, verified with smart contract + optional oracle
     signal input signature[k];
-    signal input in_len; // length of in email data, corresponding to sha256 block length
+    signal input in_len_padded_bytes; // length of in email data including the padding, which will inform the sha256 block length
 
-    component sha = Sha256Bytes(num_bytes);
-    for (var i = 0; i < num_bytes; i++) {
+    component sha = Sha256Bytes(max_num_bytes);
+    for (var i = 0; i < max_num_bytes; i++) {
         sha.in[i] <== in[i];
     }
-    sha.in_len <== in_len;
+    sha.in_len_padded_bytes <== in_len_padded_bytes;
 
     var msg_len = (256+n)\n;
     component base_msg[msg_len];
@@ -66,4 +67,5 @@ template EmailVerify(num_bytes, n, k) {
     }
 }
 
-component main { public [ in, modulus, signature ] } = EmailVerify(350, 121, 17);
+// todo move to sha256 padding to js
+component main { public [ in, modulus, signature, in_len_padded_bytes ] } = EmailVerify(448, 121, 17);
