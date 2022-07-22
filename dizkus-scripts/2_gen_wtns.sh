@@ -1,7 +1,7 @@
 #!/bin/bash
 
 CIRCUIT_NAME=email
-BUILD_DIR="../circuits/$CIRCUIT_NAME"
+BUILD_DIR="../build/$CIRCUIT_NAME"
 
 echo "****GENERATING WITNESS FOR SAMPLE INPUT****"
 start=`date +%s`
