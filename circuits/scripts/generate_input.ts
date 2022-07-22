@@ -23,8 +23,8 @@ import fs from "fs";
 // import { getMerkleProof } from "../merkle";
 
 interface ICircuitInputs {
-  modulus: string[];
-  signature: string[];
+  modulus?: string[];
+  signature?: string[];
   base_message?: string[];
   in?: string[];
   in_len_padded_bytes?: string;
@@ -34,6 +34,7 @@ enum CircuitType {
   RSA = "rsa",
   SHA = "sha",
   TEST = "test",
+  EMAIL = "email",
 }
 
 // Works only on 32 bit sha text lengths
@@ -135,10 +136,15 @@ export async function getCircuitInputs(
       signature: toCircomBigIntBytes(AAYUSH_EMAIL_SIG),
       base_message: toCircomBigIntBytes(postShaBigintUnpadded),
     };
-  } else if (circuit === CircuitType.SHA) {
+  } else if (circuit === CircuitType.EMAIL) {
     circuitInputs = {
       modulus: toCircomBigIntBytes(modulusBigInt),
       signature: toCircomBigIntBytes(AAYUSH_EMAIL_SIG),
+      in: Array.from(messagePadded).map((x) => x.toString()),
+      in_len_padded_bytes: messagePadded.length.toString(),
+    };
+  } else if (circuit === CircuitType.SHA) {
+    circuitInputs = {
       in: Array.from(messagePadded).map((x) => x.toString()),
       in_len_padded_bytes: messagePadded.length.toString(),
     };
@@ -161,5 +167,5 @@ let circuitType = CircuitType.SHA;
 getCircuitInputs(sig, message, circuitType).then((result) => {
   let json_result = JSON.stringify(result.circuitInputs);
   console.log(json_result);
-  fs.writeFileSync("./circuits/inputs/input_test.json", json_result);
+  fs.writeFileSync(`./circuits/inputs/input_${circuitType}.json`, json_result, { flag: "w" });
 });
