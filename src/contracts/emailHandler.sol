@@ -140,7 +140,7 @@ contract VerifiedEmail is ERC721Enumerable, Verifier {
         uint256[529] memory signals
     ) public {
         // require(signals[0] == 1337, "invalid signals"); // TODO no invalid signal check yet, which is fine since the zk proof does it
-        require(verifyProof(a, b, c, signals), "Invalid Proof");
+        require(verifyProof(a, b, c, signals), "Invalid Proof"); // TODO checks effects iteractions, this should come first
 
         // 512 public signals are the masked message bytes, 17 are the modulus.
         // Get domain
