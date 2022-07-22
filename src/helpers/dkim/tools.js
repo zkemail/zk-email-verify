@@ -1,6 +1,6 @@
 /* eslint no-control-regex: 0 */
 
-const LOCAL = false;
+const LOCAL = true;
 
 const punycode = require('punycode/');
 const libmime = require('libmime');
