@@ -125,10 +125,8 @@ export async function getCircuitInputs(
     toCircomBigIntBytes(messageBigInt)[1] === toCircomBigIntBytes(postShaBigintUnpadded)[1];
   const [messagePadded, messagePaddedLen] = await sha256Pad(prehashBytesUnpadded, maxShaBytes);
 
-  console.log(messageBigInt, postShaBigint);
   // Compute identity revealer
   let pubKey = sshSignatureToPubKey(sshSignature);
-  console.log("pubKey", pubKey);
   let circuitInputs;
   let modulus = toCircomBigIntBytes(modulusBigInt);
   let signature = toCircomBigIntBytes(signatureBigInt);
@@ -172,6 +170,5 @@ let circuitType = CircuitType.EMAIL;
 
 getCircuitInputs(sig, message, circuitType).then((result) => {
   let json_result = JSON.stringify(result.circuitInputs);
-  console.log(json_result);
   fs.writeFileSync(`./circuits/inputs/input_${circuitType}.json`, json_result, { flag: "w" });
 });
