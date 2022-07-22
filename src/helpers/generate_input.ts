@@ -7,9 +7,9 @@ import {
   AAYUSH_PREHASH_MESSAGE_STRING,
   CIRCOM_FIELD_MODULUS,
   MAX_SHA_INPUT_LENGTH_PADDED_BYTES,
-} from "../../src/helpers/constants";
-import { shaHash } from "../../src/helpers/shaHash";
-import { dkimVerify } from "../../src/helpers/dkim";
+} from "./constants";
+import { shaHash } from "./shaHash";
+import { dkimVerify } from "./dkim";
 const pki = require('node-forge').pki;
 
 interface ICircuitInputs {
@@ -70,9 +70,9 @@ async function sha256Pad(prehash_prepad_m: Uint8Array, maxShaBytes: number): Pro
 }
 
 export async function getCircuitInputs(
-  rsa_signature: BigInt,
-  rsa_modulus: BigInt,
-  message: string,
+  rsa_signature: bigint,
+  rsa_modulus: bigint,
+  message: Buffer,
   circuit: CircuitType
 ): Promise<{
   valid: {
@@ -129,7 +129,7 @@ export async function getCircuitInputs(
   };
 }
 
-async function generate_inputs(email) {
+export async function generate_inputs(email: Buffer) {
   // console.log(email);
   const result = await dkimVerify(email);
 
@@ -145,10 +145,10 @@ async function generate_inputs(email) {
   // fs.writeFileSync(`./circuits/inputs/input_${circuitType}.json`, json_result, { flag: "w" });
 }
 
-import fs from "fs";
+/*import fs from "fs";
 async function do_generate() {
   const email = fs.readFileSync('../email_verify/msg.eml');
   console.log(JSON.stringify(await generate_inputs(email)));
-}
+}*/
 
-do_generate();
+// do_generate();
