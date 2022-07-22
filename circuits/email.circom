@@ -6,14 +6,14 @@ include "./rsa.circom";
 
 template EmailVerify(max_num_bytes, n, k) {
     // max_num_bytes must be a multiple of 64
-    signal input in[max_num_bytes]; // prehashed email data, includes up to 512 + 64? bytes of padding pre SHA256, and padded with lots of 0s at end after the length
+    signal input in_padded[max_num_bytes]; // prehashed email data, includes up to 512 + 64? bytes of padding pre SHA256, and padded with lots of 0s at end after the length
     signal input modulus[k]; // rsa pubkey, verified with smart contract + optional oracle
     signal input signature[k];
     signal input in_len_padded_bytes; // length of in email data including the padding, which will inform the sha256 block length
 
     component sha = Sha256Bytes(max_num_bytes);
     for (var i = 0; i < max_num_bytes; i++) {
-        sha.in[i] <== in[i];
+        sha.in_padded[i] <== in_padded[i];
     }
     sha.in_len_padded_bytes <== in_len_padded_bytes;
 
@@ -43,4 +43,4 @@ template EmailVerify(max_num_bytes, n, k) {
         rsa.signature[i] <== signature[i];
     }
 }
-component main { public [ in, modulus, signature, in_len_padded_bytes ] } = EmailVerify(448, 121, 17);
+component main { public [ in_padded, modulus, signature, in_len_padded_bytes ] } = EmailVerify(448, 121, 17);
