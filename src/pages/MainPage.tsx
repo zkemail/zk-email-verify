@@ -288,7 +288,7 @@ export const MainPage: React.FC<{}> = (props) => {
   return (
     <Container>
       <div className="title">
-        <h1>Free RSA Group Signature Generator</h1>
+        <h1>ZK Email Ownership Proof Generator From Header</h1>
         <div>
           <Link to={"/"}>Reset</Link> | <Link to={demoUrl}>Demo</Link>{" "}
         </div>

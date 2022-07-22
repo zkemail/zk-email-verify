@@ -1,13 +1,5 @@
-import {
-  bytesToBigInt,
-  stringToBytes,
-  toCircomBigIntBytes,
-} from "../binaryFormat";
-import {
-  MAGIC_DOUBLE_BLIND_BASE_MESSAGE,
-  MAGIC_DOUBLE_BLIND_BASE_MESSAGE_LEN,
-  CIRCOM_FIELD_MODULUS,
-} from "../constants";
+import { bytesToBigInt, stringToBytes, toCircomBigIntBytes } from "../binaryFormat";
+import { MAGIC_DOUBLE_BLIND_BASE_MESSAGE, MAGIC_DOUBLE_BLIND_BASE_MESSAGE_LEN, CIRCOM_FIELD_MODULUS } from "../constants";
 import { initializePoseidon, poseidon, poseidonK } from "../poseidonHash";
 import { verifyRSA } from "../rsa";
 import { shaHash } from "../shaHash";
@@ -44,13 +36,7 @@ export async function getCircuitInputs(
   signerId?: string;
   identityRevealer?: IIdentityRevealer;
 }> {
-  const {
-    signerNamespace,
-    enableSignerId,
-    message,
-    groupName,
-    groupIdentifier: groupPublicKeys,
-  } = groupMessage;
+  const { signerNamespace, enableSignerId, message, groupName, groupIdentifier: groupPublicKeys } = groupMessage;
   await initializePoseidon();
   let validSignatureFormat = true;
   let rawSignature: any, pubKeyParts: any;
@@ -73,10 +59,7 @@ export async function getCircuitInputs(
   const signatureBigInt = bytesToBigInt(rawSignature);
   const messageBigInt = verifyRSA(signatureBigInt, modulusBigInt);
   const baseMessageBigInt = MAGIC_DOUBLE_BLIND_BASE_MESSAGE;
-  const validMessage =
-    (messageBigInt &
-      ((1n << BigInt(MAGIC_DOUBLE_BLIND_BASE_MESSAGE_LEN)) - 1n)) ===
-    baseMessageBigInt;
+  const validMessage = (messageBigInt & ((1n << BigInt(MAGIC_DOUBLE_BLIND_BASE_MESSAGE_LEN)) - 1n)) === baseMessageBigInt;
 
   if (!validMessage || !validPublicKeyGroupMembership) {
     return {
@@ -87,34 +70,20 @@ export async function getCircuitInputs(
       },
     };
   }
-  const signerNamespaceBigint = enableSignerId
-    ? bytesToBigInt(await shaHash(stringToBytes(signerNamespace))) %
-      CIRCOM_FIELD_MODULUS
-    : 0n;
-  const payloadBigint =
-    bytesToBigInt(await shaHash(stringToBytes(message + " -- " + groupName))) %
-    CIRCOM_FIELD_MODULUS;
+  const signerNamespaceBigint = enableSignerId ? bytesToBigInt(stringToBytes((await shaHash(stringToBytes(signerNamespace))).toString())) % CIRCOM_FIELD_MODULUS : 0n;
+  const payloadBigint = bytesToBigInt(stringToBytes((await shaHash(stringToBytes(message + " -- " + groupName))).toString())) % CIRCOM_FIELD_MODULUS;
 
-  const { pathElements, pathIndices, root } = await getMerkleProof(
-    merkleTree,
-    hashedPubKey
-  );
+  const { pathElements, pathIndices, root } = await getMerkleProof(merkleTree, hashedPubKey);
 
   // Compute identity revealer
   let identityRevealer, signerId;
   if (enableSignerId) {
     identityRevealer = {
       pubKey: sshSignatureToPubKey(sshSignature),
-      opener: poseidon([
-        poseidonK(toCircomBigIntBytes(signatureBigInt)),
-        signerNamespaceBigint.toString(),
-      ]),
+      opener: poseidon([poseidonK(toCircomBigIntBytes(signatureBigInt)), signerNamespaceBigint.toString()]),
     };
 
-    signerId = poseidon([
-      poseidonK(toCircomBigIntBytes(modulusBigInt)),
-      identityRevealer.opener,
-    ]);
+    signerId = poseidon([poseidonK(toCircomBigIntBytes(modulusBigInt)), identityRevealer.opener]);
   } else {
     signerId = "0";
   }
@@ -142,15 +111,9 @@ export async function getCircuitInputs(
   };
 }
 
-export async function generateGroupSignature(
-  circuitInputs: ICircuitInputs,
-  groupMessage: IGroupMessage,
-  signerId: string
-): Promise<IGroupSignature> {
+export async function generateGroupSignature(circuitInputs: ICircuitInputs, groupMessage: IGroupMessage, signerId: string): Promise<IGroupSignature> {
   const wasmFile = "rsa_group_sig_verify.wasm";
-  const zkeyBuff: ArrayBuffer | null = await localforage.getItem(
-    "rsa_group_sig_verify_0000.zkey"
-  );
+  const zkeyBuff: ArrayBuffer | null = await localforage.getItem("rsa_group_sig_verify_0000.zkey");
   if (!zkeyBuff) {
     throw new Error("Must complete setup to generate signatures.");
   }
