@@ -14,7 +14,7 @@ export const SetupPage: React.FC = () => {
   }, [status]);
   return (
     <Container>
-      <h1>Double Blind Setup</h1>
+      <h1>ZK Email Setup</h1>
       <p>
         Some of the assets required by Double Blind are not served due to their
         large file size.

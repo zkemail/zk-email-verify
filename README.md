@@ -64,3 +64,5 @@ snarkjs zkey new ./rsa_group_sig_verify.r1cs pot21_final.ptau public/rsa_group_s
 snarkjs zkey export verificationkey public/rsa_group_sig_verify_0000.zkey public/rsa_group_sig_verify_0000.vkey.json
 cp rsa_group_sig_verify_js/rsa_group_sig_verify.wasm public
 ```
+## Stats
+Just RSA + SHA (without masking or regex proofs) for arbitrary message length <= 512 bytes is 402802 constraints, and the zkey took 42 minutes to generate.
