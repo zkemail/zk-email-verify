@@ -60,4 +60,4 @@ template EmailVerify(max_num_bytes, n, k) {
         log(reveal[i]);
     }
 }
-component main { public [ in_padded, modulus, signature, in_len_padded_bytes ] } = EmailVerify(512, 121, 17);
+component main { public [ modulus ] } = EmailVerify(512, 121, 17);
