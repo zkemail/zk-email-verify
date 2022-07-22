@@ -198,6 +198,7 @@ class DkimVerifier extends MessageParser {
                             let ver_result = ver.verify({'key': publicKey.toString(), 'format': 'pem'}, Buffer.from(signatureHeader.parsed?.b?.value, 'base64'));
 
                             status.signature_header = canonicalizedHeader;
+                            status.signature_value = signatureHeader.parsed?.b?.value;
 
                             status.result = ver_result
                                 ? 'pass'
