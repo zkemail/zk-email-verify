@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CIRCUIT_NAME=dizkus_64_4_30
+CIRCUIT_NAME=email
 BUILD_DIR="../build/$CIRCUIT_NAME"
 R1CS_FILE="$BUILD_DIR/$CIRCUIT_NAME.r1cs"
 PHASE1=../circuits/pot21_final.ptau

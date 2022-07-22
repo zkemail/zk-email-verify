@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CIRCUIT_NAME=dizkus_64_4_30
+CIRCUIT_NAME=email
 BUILD_DIR="../build/$CIRCUIT_NAME"
 
 echo "****GENERATING PROOF FOR SAMPLE INPUT****"

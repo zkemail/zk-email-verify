@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CIRCUIT_NAME=dizkus_64_4_30
+CIRCUIT_NAME=email
 BUILD_DIR="../build/$CIRCUIT_NAME"
 
 if [ ! -d "$BUILD_DIR" ]; then
@@ -11,7 +11,7 @@ fi
 echo '****COMPILING CIRCUIT****'
 start=`date +%s`
 set -x
-circom "$CIRCUIT_NAME".circom --r1cs --wasm --sym --c --wat --output "$BUILD_DIR"
+circom "../circuits/$CIRCUIT_NAME".circom --r1cs --wasm --sym --c --wat --output "$BUILD_DIR"
 { set +x; } 2>/dev/null
 end=`date +%s`
 echo "DONE ($((end-start))s)"
