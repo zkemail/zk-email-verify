@@ -109,3 +109,4 @@ RSA + SHA + Regex + Masking with up to 1024 byte message lengths is 1392219 cons
 - Make a general method to get formatted signatures and bodies from all email clients
 - Make versions for different size RSA keys
 - Add root cert DNS in snark, to allow anyone to add a website's RSA key
+- Design the NFT/POAP to have the user's domain/verified quantity on it
