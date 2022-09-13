@@ -30,7 +30,8 @@ git clone https://github.com/iden3/circom.git
 cd circom
 cargo build --release
 cargo install --path circom
-sudo apt-get install nlohmann-json3-dev libgmp-dev nasm
+sudo apt-get install nlohmann-json3-dev libgmp-dev nasm # Ubuntu
+brew install nlohmann-json gmp nasm # OSX
 ```
 
 If no yarn, do
