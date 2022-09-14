@@ -103,3 +103,26 @@ template Modulo(divisor_bits) {
     remainderUpper.in[1] <== divisor;
     remainderUpper.out === 1;
 }
+
+// Written by us
+// n bytes per signal, n = 31 usually
+template bytify(n){
+    signal input in; // < 2 ^ (8 * 31)
+    signal output out[n]; // each out is < 64
+    // Rangecheck in and out
+    // Constrain bits
+    component nbytes = Num2Bits(8 * n);
+    nbytes.in <== in;
+    component bytes[n];
+    // witness gen out
+
+    // constrain
+    for (var k = 0; k < n; k++){
+        out[k] <-- (in >> (k * 256)) % 256;
+        bytes[k] = Num2Bits(8);
+        bytes[k].in <== out[k];
+        for (var j = 0; j < 8; j++) {
+            nbytes.out[k * 8 + j] === bytes[k].out[j];
+        }
+    }
+}
