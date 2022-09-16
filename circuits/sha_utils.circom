@@ -106,21 +106,54 @@ template Modulo(divisor_bits) {
 
 // Written by us
 // n bytes per signal, n = 31 usually
-template bytify(n){
+template Packed2Bytes(n){
     signal input in; // < 2 ^ (8 * 31)
     signal output out[n]; // each out is < 64
-    // Rangecheck in and out
+    // Rangecheck in and out?
+
     // Constrain bits
     component nbytes = Num2Bits(8 * n);
     nbytes.in <== in;
     component bytes[n];
-    // witness gen out
 
-    // constrain
     for (var k = 0; k < n; k++){
+        // Witness gen out
         out[k] <-- (in >> (k * 256)) % 256;
+
+        // Constrain bits to match
         bytes[k] = Num2Bits(8);
         bytes[k].in <== out[k];
+        for (var j = 0; j < 8; j++) {
+            nbytes.out[k * 8 + j] === bytes[k].out[j];
+        }
+    }
+}
+
+// Written by us
+// n bytes per signal, n = 31 usually
+template Bytes2Packed(n){
+    signal input in[n]; // each in is < 64
+    signal pow2[n+1]; // [k] is 2^k
+    signal in_prefix_sum[n+1]; // each [k] is in[0] + 2^8 in[1]... 2^{8k-8} in[k-1]. cont.
+    // [0] is 0. [1] is in[0]. [n+1] is out.
+    signal output out; // < 2 ^ (8 * 31)
+    // Rangecheck in and out?
+
+    // Witness gen out
+    in_prefix_sum[0] <-- 0;
+    for (var k = 0; k < n; k++){
+        in_prefix_sum[k+1] <-- in_prefix_sum[k] + in[k] * (2 ** (k * 8));
+    }
+    out <-- in_prefix_sum[n];
+
+    // Constrain out bits
+    component nbytes = Num2Bits(8 * n);
+    nbytes.in <== out;
+    component bytes[n];
+
+    for (var k = 0; k < n; k++){
+        bytes[k] = Num2Bits(8);
+        bytes[k].in <== in[k];
         for (var j = 0; j < 8; j++) {
             nbytes.out[k * 8 + j] === bytes[k].out[j];
         }
