@@ -10,7 +10,8 @@ import {
 } from "./constants";
 import { shaHash } from "./shaHash";
 import { dkimVerify } from "./dkim";
-const pki = require('node-forge').pki;
+import { assert } from "console";
+const pki = require("node-forge").pki;
 
 interface ICircuitInputs {
   modulus?: string[];
@@ -69,6 +70,19 @@ async function sha256Pad(prehash_prepad_m: Uint8Array, maxShaBytes: number): Pro
   return [prehash_prepad_m, messageLen];
 }
 
+function packBytesIntoNBytes(messagePadded: Uint8Array, n = 7): Array<number> {
+  let output: Array<number> = [];
+  for (let i = 0; i < messagePadded.length; i++) {
+    if (i % n === 0) {
+      output.push(0);
+    }
+    const j = (i / n) | 0;
+    console.assert(j == output.length, "Packing loop invariants bug!");
+    output[j] = messagePadded[i] >> i % n;
+  }
+  return output;
+}
+
 export async function getCircuitInputs(
   rsa_signature: bigint,
   rsa_modulus: bigint,
@@ -84,7 +98,7 @@ export async function getCircuitInputs(
   // Derive modulus from signature
   // const modulusBigInt = bytesToBigInt(pubKeyParts[2]);
   const modulusBigInt = rsa_modulus;
-  const prehash_message_string = message
+  const prehash_message_string = message;
   const baseMessageBigInt = AAYUSH_PREHASH_MESSAGE_INT; // bytesToBigInt(stringToBytes(message)) ||
   const postShaBigint = AAYUSH_POSTHASH_MESSAGE_PADDED_INT;
   const signatureBigInt = rsa_signature;
@@ -101,6 +115,7 @@ export async function getCircuitInputs(
   let signature = toCircomBigIntBytes(signatureBigInt);
   let in_len_padded_bytes = messagePaddedLen.toString();
   let in_padded = Array.from(messagePadded).map((x) => x.toString());
+  let in_padded_n_bytes = packBytesIntoNBytes(in_padded, 7);
   let base_message = toCircomBigIntBytes(postShaBigintUnpadded);
 
   if (circuit === CircuitType.RSA) {
@@ -113,19 +128,18 @@ export async function getCircuitInputs(
     circuitInputs = {
       modulus,
       signature,
-      in_padded,
+      in_padded_n_bytes,
       in_len_padded_bytes,
     };
   } else if (circuit === CircuitType.SHA) {
     circuitInputs = {
-      in_padded,
+      in_padded_n_bytes,
       in_len_padded_bytes,
     };
   }
   return {
     circuitInputs,
-    valid: {
-    },
+    valid: {},
   };
 }
 
@@ -133,9 +147,9 @@ export async function generate_inputs(email: Buffer) {
   // console.log(email);
   const result = await dkimVerify(email);
 
-  let sig = BigInt('0x' + Buffer.from(result.results[0].signature, 'base64').toString('hex'));
+  let sig = BigInt("0x" + Buffer.from(result.results[0].signature, "base64").toString("hex"));
   let message = result.results[0].status.signature_header;
-  let circuitType = CircuitType.EMAIL;
+  let circuitType = CircuitType.SHA;
 
   let pubkey = result.results[0].publicKey;
   const pubKeyData = pki.publicKeyFromPem(pubkey.toString());
