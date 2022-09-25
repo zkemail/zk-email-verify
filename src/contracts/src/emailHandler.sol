@@ -170,19 +170,20 @@ contract VerifiedEmail is ERC721Enumerable, Verifier {
         uint256[2] memory a,
         uint256[2][2] memory b,
         uint256[2] memory c,
-        uint256[529] memory signals
+        uint256[163] memory signals
     ) public {
         // require(signals[0] == 1337, "invalid signals"); // TODO no invalid signal check yet, which is fine since the zk proof does it
         require(signals[0] == 0, "Invalid starting message character");
-        // 512 public signals are the masked message bytes, 17 are the modulus.
+        // 163-17 public signals are the masked message bytes, 17 are the modulus.
         // Get domain
         string memory domain = "mit.edu";
         uint32 fromPointer = 0;
         uint32 toPointer = 0;
         uint32 domainLength = 0;
         uint8 state = 0;
+        uint16 message_len = 163;
         // Set domain pointers
-        for (uint32 i = 1; i < 512; i++) {
+        for (uint32 i = 1; i < message_len - 17; i++) {
             if (signals[i] == 0) {
                 if (signals[i - 1] != 0) {
                     state += 1;
@@ -213,7 +214,7 @@ contract VerifiedEmail is ERC721Enumerable, Verifier {
                 "Invalid domain unmatched"
             );
         }
-        for (uint32 i = 512; i < 529; i++) {
+        for (uint32 i = message_len - 17; i < message_len; i++) {
             require(
                 signals[i] == verifiedMailserverKeys[domain][i],
                 "Invalid modulus not matched"

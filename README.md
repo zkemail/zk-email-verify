@@ -4,15 +4,19 @@ The application is located at https://zk-email.xyz.
 
 The documentation for the app is located at https://zk-email.xyz/docs (to-do)
 
-# Development Instructions.
+# Development Instructions
 
-(this section is under construction)
+Incomplete description of folders:
 
 ```
 circuits/
     inputs/ # Test inputs for example witness generation for compilation
     scripts/ # Run snarkjs ceremony to generate zkey with yarn compile
 ```
+
+## Regex to Circom
+
+Modify the `let regex = ` in lexical.js and then run `python3 gen.py`
 
 ## Getting email headers
 
@@ -22,7 +26,7 @@ Notes about email providers: tl;dr: view headers in a non-gmail client.
 
 Gmail self-emails censor the signature of the mailserver, so it is unclear if it is generated. .edu domain, hotmail, custom domain, and outlook domain self-emails have the signatures. In fact, Gmail-sent self-emails using the .edu domain, viewed in a non-gmail client, are not censored -- it seems to be just a property of the gmail viewer to not show signatures on self emails (but it has signatures on every other recieved email).
 
-## Circuit Build Steps
+## Email Circuit Build Steps
 
 Install rust/circom2 via the following steps, according to: https://docs.circom.io/getting-started/installation/
 
@@ -35,6 +39,7 @@ cd circom
 cargo build --release
 cargo install --path circom
 sudo apt-get install nlohmann-json3-dev libgmp-dev nasm # Packages needed for C-based witness generator
+brew install nlohmann-json gmp nasm # OSX
 ```
 
 Inside `zk-email-verify` folder, do
@@ -63,6 +68,14 @@ cd dizkus-scripts/
 ./4_...
 ./5_...
 ./6_...
+```
+
+Note that there's no .zkeya file, only .zkeyb ... .zkeyk.
+
+You use [zkp.ts](https://github.com/personaelabs/heyanon/blob/main/lib/zkp.ts) to load into localforage. In the browser, to read off of localforage, you have to do:
+
+```
+yarn install snarkjs@git+https://github.com/vb7401/snarkjs.git#53e86631b5e409e5bd30300611b495ca469503bc
 ```
 
 To do a non-chunked zkey for non-browser running,
@@ -108,6 +121,17 @@ cp rsa_group_sig_verify_js/rsa_group_sig_verify.wasm public
 ```
 
 This leaks the number of characters in the username of someone who sent you an email, iff the first field in the email serialization format is from (effectively irrelevant)
+
+## Testing
+
+To deploy contract to forked mainnet, do
+
+```
+anvil --fork-url https://eth-mainnet.alchemyapi.io/v2/***REMOVED*** --port 8547 # Run in tmux
+export ETH_RPC_URL=http://localhost:8547
+forge create --rpc-url $ETH_RPC_URL src/contracts/src/emailVerifier.sol:Verifier --private-key  0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+
+```
 
 ## Stats
 
