@@ -5,7 +5,8 @@ const fs = require("fs");
 
 let circuitsList = process.argv[2];
 const deterministic = false;
-const contributingExtraRandomness = true;
+const contributingExtraRandomness = false;
+const ptau_size = 21;
 // process.argv[3] === "true" || process.argv[3] === undefined;
 
 // TODO: add an option to generate with entropy for production keys
@@ -89,28 +90,26 @@ for (let circuitName of circuitsList.split(",")) {
       if (contributingExtraRandomness) {
         zkeyOutputName = "circuit_0";
       }
-      execSync(
-        `node --max-old-space-size=614400 ${snarkJSPath} groth16 setup ${circuitNamePrimary}.r1cs ../../powersoftau/powersOfTau28_hez_final_20.ptau ${zkeyOutputName}.zkey`,
-        {
-          stdio: "inherit",
-        }
-      );
+      let command = `node --max-old-space-size=614400 ${snarkJSPath} groth16 setup ${circuitNamePrimary}.r1cs ../../powersoftau/powersOfTau28_hez_final_${ptau_size}.ptau ${zkeyOutputName}.zkey`;
+      console.log(command);
+      execSync(command, { stdio: "inherit" });
       console.log("Done first zkey step!");
       if (contributingExtraRandomness) {
         if (deterministic) {
-          execSync(`node --max-old-space-size=614400 ${snarkJSPath} zkey beacon circuit_0.zkey circuit.zkey ` + beacon + " 10", {
-            stdio: "inherit",
-          });
+          let command = `node --max-old-space-size=614400 ${snarkJSPath} zkey beacon ${zkeyOutputName}.zkey circuit.zkey ${beacon} 10`;
+          console.log(command);
+          execSync(command, { stdio: "inherit" });
         } else {
-          execSync(`node --max-old-space-size=614400 ${snarkJSPath} zkey contribute circuit_0.zkey circuit.zkey ` + `-e="${Date.now()}"`, {
-            stdio: "inherit",
-          });
+          let command = `node --max-old-space-size=614400 ${snarkJSPath} zkey contribute ${zkeyOutputName}.zkey circuit.zkey -e="${Date.now()}"`;
+          console.log(command);
+          execSync(command, { stdio: "inherit" });
         }
       }
-      execSync(`node --max-old-space-size=614400 ${snarkJSPath} zkey verify ${circuitNamePrimary}.r1cs ../../powersoftau/powersOfTau28_hez_final_20.ptau circuit.zkey`, {
+      execSync(`node --max-old-space-size=614400 ${snarkJSPath} zkey verify ${circuitNamePrimary}.r1cs ../../powersoftau/powersOfTau28_hez_final_${ptau_size}.ptau circuit.zkey`, {
         stdio: "inherit",
       });
-      execSync(`node --max-old-space-size=614400 ${snarkJSPath} zkey export verificationkey circuit.zkey ${circuitName}/keys/verification_key.json`, {
+      execSync(`mkdir -p ${cwd}/circuits/${circuitNamePrimary}/keys/`, { stdio: "inherit" });
+      execSync(`node --max-old-space-size=614400 ${snarkJSPath} zkey export verificationkey circuit.zkey ${circuitNamePrimary}/keys/verification_key.json`, {
         stdio: "inherit",
       });
       execSync(
@@ -118,22 +117,22 @@ for (let circuitName of circuitsList.split(",")) {
         { stdio: "inherit" }
       );
       execSync(
-        `node --max-old-space-size=614400 ${snarkJSPath} groth16 verify ${circuitName}/keys/verification_key.json ${circuitNamePrimary}_public.json ${circuitNamePrimary}_proof.json`,
+        `node --max-old-space-size=614400 ${snarkJSPath} groth16 verify ${circuitNamePrimary}/keys/verification_key.json ${circuitNamePrimary}_public.json ${circuitNamePrimary}_proof.json`,
         { stdio: "inherit" }
       );
 
-      execSync(`mkdir -p ${cwd}/circuits/${circuitName}/compiled/`, { stdio: "inherit" });
-      execSync(`mkdir -p ${cwd}/circuits/${circuitName}/keys/`, { stdio: "inherit" });
+      execSync(`mkdir -p ${cwd}/circuits/${circuitNamePrimary}/compiled/`, { stdio: "inherit" });
+      execSync(`mkdir -p ${cwd}/circuits/${circuitNamePrimary}/keys/`, { stdio: "inherit" });
 
-      execSync(`cp ${circuitNamePrimary}.wasm ${cwd}/circuits/${circuitName}/compiled/circuit.wasm`, { stdio: "inherit" });
-      execSync(`cp circuit.zkey ${cwd}/circuits/${circuitName}/keys/circuit_final.zkey`, { stdio: "inherit" });
-      // fs.copyFileSync("circuit.wasm", cwd + "/circuits/" + circuitName + "/compiled/circuit.wasm");
+      execSync(`cp ${circuitNamePrimary}.wasm ${cwd}/circuits/${circuitNamePrimary}/compiled/circuit.wasm`, { stdio: "inherit" });
+      execSync(`cp circuit.zkey ${cwd}/circuits/${circuitNamePrimary}/keys/circuit_final.zkey`, { stdio: "inherit" });
+      // fs.copyFileSync("circuit.wasm", cwd + "/circuits/" + circuitNamePrimary + "/compiled/circuit.wasm");
       // fs.unlinkSync("circuit.wasm");
-      // fs.copyFileSync("circuit.zkey", cwd + "/circuits/" + circuitName + "/keys/circuit_final.zkey");
+      // fs.copyFileSync("circuit.zkey", cwd + "/circuits/" + circuitNamePrimary + "/keys/circuit_final.zkey");
       // fs.unlinkSync("circuit.zkey");
     }
     execSync(
-      `node --max-old-space-size=614400 ${snarkJSPath} zkey export solidityverifier ${cwd}/circuits/${circuitName}/keys/circuit_final.zkey ${cwd}/circuits/contracts/verifier.sol`,
+      `node --max-old-space-size=614400 ${snarkJSPath} zkey export solidityverifier ${cwd}/circuits/${circuitNamePrimary}/keys/circuit_final.zkey ${cwd}/circuits/contracts/verifier.sol`,
       {
         stdio: "inherit",
       }
@@ -142,10 +141,10 @@ for (let circuitName of circuitsList.split(",")) {
 
     execSync(`mkdir -p ${cwd}/src/circuits/`, { stdio: "inherit" });
     execSync(`mkdir -p ${cwd}/src/contracts/`, { stdio: "inherit" });
-    fs.copyFileSync(`${cwd}/circuits/contracts/verifier.sol`, `${cwd}/src/contracts/${circuitName}Verifier.sol`);
-    fs.copyFileSync(`${cwd}/circuits/${circuitName}/compiled/circuit.wasm`, `${cwd}/src/circuits/${circuitName}_circuit.wasm`);
-    fs.copyFileSync(`${cwd}/circuits/${circuitName}/keys/circuit_final.zkey`, `${cwd}/src/circuits/${circuitName}_circuit_final.zkey`);
-    fs.copyFileSync(`${cwd}/circuits/${circuitName}/keys/verification_key.json`, `${cwd}/src/circuits/${circuitName}_verification_key.json`);
+    fs.copyFileSync(`${cwd}/circuits/contracts/verifier.sol`, `${cwd}/src/contracts/src/${circuitNamePrimary}Verifier.sol`);
+    fs.copyFileSync(`${cwd}/circuits/${circuitNamePrimary}/compiled/circuit.wasm`, `${cwd}/src/circuits/${circuitNamePrimary}_circuit.wasm`);
+    fs.copyFileSync(`${cwd}/circuits/${circuitNamePrimary}/keys/circuit_final.zkey`, `${cwd}/src/circuits/${circuitNamePrimary}_circuit_final.zkey`);
+    fs.copyFileSync(`${cwd}/circuits/${circuitNamePrimary}/keys/verification_key.json`, `${cwd}/src/circuits/${circuitNamePrimary}_verification_key.json`);
   } catch (error) {
     console.log(error);
     process.exit(1);

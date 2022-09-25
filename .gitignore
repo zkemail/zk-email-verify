@@ -26,6 +26,8 @@ circuits/*_js/*
 *.r1cs
 *.sym
 circuits/*.wasm
+circuits/*.wtns
+src/circuits/*.wasm
 *.ptau
 *.zkey
 circuits/inputs/*old.json

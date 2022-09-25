@@ -10,7 +10,8 @@ import {
 } from "../../src/helpers/constants";
 import { shaHash } from "../../src/helpers/shaHash";
 import { dkimVerify } from "../../src/helpers/dkim";
-const pki = require('node-forge').pki;
+import fs from "fs";
+const pki = require("node-forge").pki;
 
 interface ICircuitInputs {
   modulus?: string[];
@@ -84,14 +85,14 @@ export async function getCircuitInputs(
   // Derive modulus from signature
   // const modulusBigInt = bytesToBigInt(pubKeyParts[2]);
   const modulusBigInt = rsa_modulus;
-  const prehash_message_string = message
+  const prehash_message_string = message;
   const baseMessageBigInt = AAYUSH_PREHASH_MESSAGE_INT; // bytesToBigInt(stringToBytes(message)) ||
   const postShaBigint = AAYUSH_POSTHASH_MESSAGE_PADDED_INT;
   const signatureBigInt = rsa_signature;
   const maxShaBytes = MAX_SHA_INPUT_LENGTH_PADDED_BYTES;
 
   // Perform conversions
-  const prehashBytesUnpadded = Uint8Array.from(prehash_message_string);
+  const prehashBytesUnpadded = new TextEncoder().encode(prehash_message_string);
   const postShaBigintUnpadded = bytesToBigInt(stringToBytes((await shaHash(prehashBytesUnpadded)).toString())) % CIRCOM_FIELD_MODULUS;
   const [messagePadded, messagePaddedLen] = await sha256Pad(prehashBytesUnpadded, maxShaBytes);
 
@@ -100,6 +101,7 @@ export async function getCircuitInputs(
   let modulus = toCircomBigIntBytes(modulusBigInt);
   let signature = toCircomBigIntBytes(signatureBigInt);
   let in_len_padded_bytes = messagePaddedLen.toString();
+  console.log("Padded message bytes first 16:", messagePadded.slice(0, 16));
   let in_padded = Array.from(messagePadded).map((x) => x.toString());
   let base_message = toCircomBigIntBytes(postShaBigintUnpadded);
 
@@ -124,16 +126,15 @@ export async function getCircuitInputs(
   }
   return {
     circuitInputs,
-    valid: {
-    },
+    valid: {},
   };
 }
 
-async function generate_inputs(email) {
+async function generate_inputs(email: any) {
   // console.log(email);
   const result = await dkimVerify(email);
 
-  let sig = BigInt('0x' + Buffer.from(result.results[0].signature, 'base64').toString('hex'));
+  let sig = BigInt("0x" + Buffer.from(result.results[0].signature, "base64").toString("hex"));
   let message = result.results[0].status.signature_header;
   let circuitType = CircuitType.EMAIL;
 
@@ -145,9 +146,8 @@ async function generate_inputs(email) {
   // fs.writeFileSync(`./circuits/inputs/input_${circuitType}.json`, json_result, { flag: "w" });
 }
 
-import fs from "fs";
 async function do_generate() {
-  const email = fs.readFileSync('./msg.eml');
+  const email = fs.readFileSync("./msg.eml");
   console.log(JSON.stringify(await generate_inputs(email)));
 }
 

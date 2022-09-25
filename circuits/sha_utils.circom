@@ -148,7 +148,7 @@ template Bytes2Packed(n){
 
     // Constrain out bits
     component nbytes = Num2Bits(8 * n);
-    nbytes.in <== out;
+    nbytes.in <== out; // I think this auto-rangechecks out to be < 8*n bits.
     component bytes[n];
 
     for (var k = 0; k < n; k++){
