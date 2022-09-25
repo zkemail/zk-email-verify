@@ -124,19 +124,19 @@ This leaks the number of characters in the username of someone who sent you an e
 
 ## Testing
 
-To deploy contract to forked mainnet, do
+To deploy contract to forked mainnet, do:
 
 ```
 anvil --fork-url https://eth-mainnet.alchemyapi.io/v2/_0H4h-q3niV2xTE3HmLOcZamI3plIeEd --port 8547 # Run in tmux
 export ETH_RPC_URL=http://localhost:8547
-forge create --rpc-url $ETH_RPC_URL src/contracts/src/emailVerifier.sol:Verifier --private-key  0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
-
+forge create --rpc-url $ETH_RPC_URL src/contracts/src/emailVerifier.sol:Verifier --private-key  0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 # Public anvil sk
 ```
 
 ## Stats
 
 Just RSA + SHA (without masking or regex proofs) for arbitrary message length <= 512 bytes is 402802 constraints, and the zkey took 42 minutes to generate on an intel mac.
-RSA + SHA + Regex + Masking with up to 1024 byte message lengths is 1392219 constraints, and the chunked zkey took 9 + 15 + 15 + 2 minutes to generate on a machine with 32 cores.
+RSA + SHA + Regex + Masking with up to 1024 byte message lengths is 1,392,219 constraints, and the chunked zkey took 9 + 15 + 15 + 2 minutes to generate on a machine with 32 cores.
+The full email circuit above with the 7-byte packing into signals is 1,408,571 constraints, with 163 public signals, and the verifier script fits in the 24kb contract limit.
 
 ## To-Do
 
