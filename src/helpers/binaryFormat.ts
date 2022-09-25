@@ -1,7 +1,13 @@
 import { CIRCOM_BIGINT_N, CIRCOM_BIGINT_K } from "./constants";
 
 export function stringToBytes(str: string) {
-  return Uint8Array.from(str, (x) => x.charCodeAt(0));
+  const encodedText = new TextEncoder().encode(str);
+  const toReturn = Uint8Array.from(str, (x) => x.charCodeAt(0));
+  if (encodedText[0] === toReturn[0] && encodedText[3] === toReturn[3]) {
+    return toReturn;
+  } else {
+    throw "TextEncoder does not match string2bytes function";
+  }
 }
 
 export function bytesToBigInt(bytes: Uint8Array) {
