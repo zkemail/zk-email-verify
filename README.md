@@ -124,6 +124,13 @@ This leaks the number of characters in the username of someone who sent you an e
 
 ## Testing
 
+To constraint count, do
+
+```
+cd circuits
+node --max-old-space-size=614400 ./../node_modules/.bin/snarkjs r1cs info email.r1cs
+```
+
 To deploy contract to forked mainnet, do:
 
 ```
