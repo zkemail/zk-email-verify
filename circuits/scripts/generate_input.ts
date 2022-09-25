@@ -11,7 +11,7 @@ import {
 import { shaHash } from "../../src/helpers/shaHash";
 import { dkimVerify } from "../../src/helpers/dkim";
 import { assert } from "console";
-import fs from "fs";
+import * as fs from "fs";
 const pki = require("node-forge").pki;
 
 interface ICircuitInputs {

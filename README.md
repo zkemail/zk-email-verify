@@ -89,7 +89,8 @@ If you want to compile subcircuits instead of the whole thing, you can use the f
     If you want to generate a new email/set of inputs, edit the src/constants.ts file with your constants.
     In generate_input.ts, change the circuitType to match what circom file you are running, then run
     ```
-    ts-node circuits/scripts/generate_input.ts
+    npm install typscript ts-node -g
+    npx tsc --moduleResolution node --target esnext circuits/scripts/generate_input.ts
     ```
     which will autowrite input_<circuitName>.json to the inputs folder.
 
