@@ -72,20 +72,6 @@ async function sha256Pad(prehash_prepad_m: Uint8Array, maxShaBytes: number): Pro
   return [prehash_prepad_m, messageLen];
 }
 
-function packBytesIntoNBytes(messagePaddedRaw: Uint8Array | string, n = 7): Array<number> {
-  const messagePadded: Uint8Array = typeof messagePaddedRaw === "string" ? stringToBytes(messagePaddedRaw) : messagePaddedRaw;
-  let output: Array<number> = [];
-  for (let i = 0; i < messagePadded.length; i++) {
-    if (i % n === 0) {
-      output.push(0);
-    }
-    const j = (i / n) | 0;
-    console.assert(j === output.length, "Packing loop invariants bug!");
-    output[j] = messagePadded[i] >> i % n;
-  }
-  return output;
-}
-
 export async function getCircuitInputs(
   rsa_signature: BigInt,
   rsa_modulus: BigInt,
@@ -117,10 +103,10 @@ export async function getCircuitInputs(
   let modulus = toCircomBigIntBytes(modulusBigInt);
   let signature = toCircomBigIntBytes(signatureBigInt);
   let in_len_padded_bytes = messagePaddedLen.toString();
-  let in_padded_n_bytes = packBytesIntoNBytes(messagePadded, 7).map((x) => x.toString()); // Packed  into 7 byte signals
-  console.log("Padded message bytes first 16:", messagePadded.slice(0, 16));
-  console.log("in_padded_n_bytes first 16:", in_padded_n_bytes.slice(0, 16));
-  // let in_padded = Array.from(messagePadded).map((x) => x.toString()); // Packed into 1 byte signals
+  // let in_padded_n_bytes = packBytesIntoNBytes(messagePadded, 7).map((x) => x.toString()); // Packed  into 7 byte signals
+  // console.log("Padded message bytes first 16:", messagePadded.slice(0, 16));
+  // console.log("in_padded_n_bytes first 16:", in_padded_n_bytes.slice(0, 16));
+  let in_padded = Array.from(messagePadded).map((x) => x.toString()); // Packed into 1 byte signals
   let base_message = toCircomBigIntBytes(postShaBigintUnpadded);
 
   if (circuit === CircuitType.RSA) {
@@ -133,12 +119,12 @@ export async function getCircuitInputs(
     circuitInputs = {
       modulus,
       signature,
-      in_padded_n_bytes,
+      in_padded,
       in_len_padded_bytes,
     };
   } else if (circuit === CircuitType.SHA) {
     circuitInputs = {
-      in_padded_n_bytes,
+      in_padded,
       in_len_padded_bytes,
     };
   }
@@ -164,9 +150,9 @@ export async function generate_inputs(email: Buffer) {
   // fs.writeFileSync(`./circuits/inputs/input_${circuitType}.json`, json_result, { flag: "w" });
 }
 
-// async function do_generate() {
-//   const email = fs.readFileSync("./msg.eml");
-//   console.log(JSON.stringify(await generate_inputs(email)));
-// }
+async function do_generate() {
+  const email = fs.readFileSync("./msg.eml");
+  console.log(JSON.stringify(await generate_inputs(email)));
+}
 
-// do_generate();
+do_generate();

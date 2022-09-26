@@ -118,7 +118,7 @@ template Packed2Bytes(n){
 
     for (var k = 0; k < n; k++){
         // Witness gen out
-        out[k] <-- (in >> (k * 256)) % 256;
+        out[k] <-- (in >> (k * 8)) % 256;
 
         // Constrain bits to match
         bytes[k] = Num2Bits(8);
