@@ -24,6 +24,8 @@ class SimpleHash {
         this.maxBodyLength = maxBodyLength;
 
         this.lastNewline = false;
+
+        this.fullBody = Buffer.alloc(0);
     }
 
     _updateBodyHash(chunk) {
@@ -44,6 +46,7 @@ class SimpleHash {
 
         this.bodyHashedBytes += chunk.length;
         this.bodyHash.update(chunk);
+        this.fullBody = Buffer.concat([this.fullBody, chunk]);
 
         //process.stdout.write(chunk);
     }
