@@ -18,6 +18,7 @@ export const AAYUSH_PREHASH_MESSAGE_HEX =
 export const AAYUSH_PREHASH_MESSAGE_STRING =
   'from:Aayush Gupta <***REMOVED***>\r\ndate:Wed, 20 Jul 2022 23:55:06 -0400\r\nsubject:desperately trying to make it to chain\r\nto:"***REMOVED***" <***REMOVED***>\r\ndkim-signature:v=1; a=rsa-sha256; c=relaxed/relaxed; d=mit.edu; s=outgoing; t=1658375719; bh=W+/***REMOVED***+w=; h=From:Date:Subject:To; b=';
 export const AAYUSH_POSTHASH_MESSAGE_PADDED_INT =
+
   null;
 
 export const CIRCOM_FIELD_MODULUS = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;

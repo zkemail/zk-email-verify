@@ -34,6 +34,8 @@ class RelaxedHash {
         this.maxSizeReached = false;
 
         this.emptyLinesQueue = [];
+
+        this.fullBody = Buffer.alloc(0);
     }
 
     _updateBodyHash(chunk) {
@@ -60,6 +62,7 @@ class RelaxedHash {
 
         this.bodyHashedBytes += chunk.length;
         this.bodyHash.update(chunk);
+        this.fullBody = Buffer.concat([this.fullBody, chunk]);
 
         //process.stdout.write(chunk);
     }
