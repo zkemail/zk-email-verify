@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2020",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -18,13 +14,8 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "module": "esnext",
-    "types": [
-      "node"
-    ]
+    "module": "commonjs",
+    "types": ["node"]
   },
-  "include": [
-    "src",
-    "circuits/scripts/"
-  ]
+  "include": ["src", "circuits/scripts/"]
 }

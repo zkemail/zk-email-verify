@@ -82,6 +82,7 @@ for (let circuitName of circuitsList.split(",")) {
         stdio: "inherit",
       });
     }
+
     if (process.argv.length >= 5 && process.argv[5] === "skip-zkey" && process.argv[4] === "skip-r1cswasm") {
       console.log("Skipping initial re generation of zkey");
     } else {

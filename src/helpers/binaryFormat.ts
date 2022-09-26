@@ -1,13 +1,30 @@
 import { CIRCOM_BIGINT_N, CIRCOM_BIGINT_K } from "./constants";
 
+export function bytesToString(bytes: Uint8Array): string {
+  return new TextDecoder().decode(bytes);
+}
+
 export function stringToBytes(str: string) {
   const encodedText = new TextEncoder().encode(str);
   const toReturn = Uint8Array.from(str, (x) => x.charCodeAt(0));
-  if (encodedText[0] === toReturn[0] && encodedText[3] === toReturn[3]) {
-    return toReturn;
-  } else {
-    throw "TextEncoder does not match string2bytes function";
-  }
+  const buf = Buffer.from(str, "utf8");
+  return toReturn;
+  // TODO: Check encoding mismatch if the proof doesnt work
+  // Note that our custom encoding function maps (239, 191, 189) -> (253)
+  // Note that our custom encoding function maps (207, 181) -> (245)
+  // throw Error(
+  //   "TextEncoder does not match string2bytes function" +
+  //     "\n" +
+  //     str +
+  //     "\n" +
+  //     buf +
+  //     "\n" +
+  //     Uint8Array.from(buf) +
+  //     "\n" +
+  //     JSON.stringify(encodedText) +
+  //     "\n" +
+  //     JSON.stringify(toReturn)
+  // );
 }
 
 export function bytesToBigInt(bytes: Uint8Array) {
@@ -78,3 +95,29 @@ export function fromHex(hexString: string): Uint8Array {
   }
   return i === bytes.length ? bytes : bytes.slice(0, i);
 }
+
+export function packedNBytesToString(packedBytes: bigint[], n: number = 7): string {
+  let chars: number[] = [];
+  for (let i = 0; i < packedBytes.length; i++) {
+    for (var k = 0n; k < n; k++) {
+      chars.push(Number((packedBytes[i] >> (k * 8n)) % 256n));
+    }
+  }
+  return bytesToString(Uint8Array.from(chars));
+}
+
+export function packBytesIntoNBytes(messagePaddedRaw: Uint8Array | string, n = 7): Array<bigint> {
+  const messagePadded: Uint8Array = typeof messagePaddedRaw === "string" ? stringToBytes(messagePaddedRaw) : messagePaddedRaw;
+  let output: Array<bigint> = [];
+  for (let i = 0; i < messagePadded.length; i++) {
+    if (i % n === 0) {
+      output.push(0n);
+    }
+    const j = (i / n) | 0;
+    console.assert(j === output.length - 1, "Not editing the index of the last element -- packing loop invariants bug!");
+    output[j] += BigInt(messagePadded[i]) << BigInt((i % n) * 8);
+  }
+  return output;
+}
+
+console.log(packedNBytesToString([30680772461461504n, 129074054722665n, 30794022159122432n, 30803244232763745n]));

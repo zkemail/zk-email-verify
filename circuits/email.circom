@@ -7,7 +7,7 @@ include "./regex.circom";
 
 template EmailVerify(max_num_bytes, n, k) {
     // max_num_bytes must be a multiple of 64
-    var max_packed_bytes = max_num_bytes \ 7;
+    var max_packed_bytes = (max_num_bytes - 1) \ 7 + 1; // ceil(max_num_bytes / 7)
     signal input in_padded[max_num_bytes]; // prehashed email data, includes up to 512 + 64? bytes of padding pre SHA256, and padded with lots of 0s at end after the length
     signal input modulus[k]; // rsa pubkey, verified with smart contract + optional oracle
     signal input signature[k];
