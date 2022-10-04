@@ -12,7 +12,9 @@ import { shaHash } from "../../src/helpers/shaHash";
 import { dkimVerify } from "../../src/helpers/dkim";
 import { assert } from "console";
 import * as fs from "fs";
+var Cryo = require('cryo');
 const pki = require("node-forge").pki;
+
 
 interface ICircuitInputs {
   modulus?: string[];
@@ -135,8 +137,17 @@ export async function getCircuitInputs(
 }
 
 export async function generate_inputs(email: Buffer) {
-  // console.log(email);
-  const result = await dkimVerify(email);
+  var result;
+  try {
+    result = await dkimVerify(email);
+    const _ = result.results[0].publicKey.toString();
+    var frozen = Cryo.stringify(result);
+    fs.writeFileSync(`./email_cache.json`, frozen, { flag: "w" });
+  } catch (e) {
+    console.log("Reading cached email instead!")
+    let frozen = fs.readFileSync(`./email_cache.json`, { encoding: "utf-8" });
+    result = Cryo.parse(frozen);
+  }
 
   let sig = BigInt("0x" + Buffer.from(result.results[0].signature, "base64").toString("hex"));
   let message = result.results[0].status.signature_header;
