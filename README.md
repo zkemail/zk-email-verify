@@ -11,7 +11,14 @@ Incomplete description of folders:
 ```
 circuits/
     inputs/ # Test inputs for example witness generation for compilation
+        input_email_domain.json # Standard input for from/to mit.edu domain matching, for use with circuit without body checks
+        input_email_packed.json # Same as above but has useless packed input -- is private so irrelevant, this file could be deleted.
     scripts/ # Run snarkjs ceremony to generate zkey with yarn compile
+contracts/
+    src/
+        emailHandlerBase.sol # Build new verifiers by forking this
+        twitterEmailHandler.sol # Verifies Twitter usernames and issues a badge
+        domainEmailHandler.sol # Verifies email domain and issues a badge
 ```
 
 ## Regex to Circom
