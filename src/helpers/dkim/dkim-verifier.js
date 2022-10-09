@@ -177,7 +177,8 @@ class DkimVerifier extends MessageParser {
                     status.aligned = this.headerFrom?.length ? getAlignment(this.headerFrom[0].split('@').pop(), [signatureHeader.signingDomain]) : false;
                 }
 
-                let bodyHash = this.bodyHashes.get(signatureHeader.bodyHashKey)?.hash;
+                let bodyHashObj = this.bodyHashes.get(signatureHeader.bodyHashKey);
+                let bodyHash = bodyHashObj?.hash;
                 if (signatureHeader.parsed?.bh?.value !== bodyHash) {
                     status.result = 'neutral';
                     status.comment = `body hash did not verify`;
@@ -279,6 +280,7 @@ class DkimVerifier extends MessageParser {
                     format: signatureHeader.parsed?.c?.value,
                     bodyHash,
                     bodyHashExpecting: signatureHeader.parsed?.bh?.value,
+                    body: bodyHashObj?.fullBody,
                     signingHeaders,
                     status
                 };

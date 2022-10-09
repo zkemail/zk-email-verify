@@ -21,6 +21,8 @@ interface ICircuitInputs {
   signature?: string[];
   base_message?: string[];
   in_padded?: string[];
+  in_body_padded?: string[];
+  in_body_len_padded_bytes?: string[];
   in_padded_n_bytes?: string[];
   in_len_padded_bytes?: string;
 }
@@ -77,7 +79,9 @@ async function sha256Pad(prehash_prepad_m: Uint8Array, maxShaBytes: number): Pro
 export async function getCircuitInputs(
   rsa_signature: BigInt,
   rsa_modulus: BigInt,
-  message: string | Buffer,
+  message: Buffer,
+  body: Buffer,
+  body_hash: string,
   circuit: CircuitType
 ): Promise<{
   valid: {
@@ -100,15 +104,17 @@ export async function getCircuitInputs(
   const postShaBigintUnpadded = bytesToBigInt(stringToBytes((await shaHash(prehashBytesUnpadded)).toString())) % CIRCOM_FIELD_MODULUS;
   const [messagePadded, messagePaddedLen] = await sha256Pad(prehashBytesUnpadded, maxShaBytes);
 
+  const [bodyPadded, bodyPaddedLen] = await sha256Pad(body, maxShaBytes);
+
   // Compute identity revealer
   let circuitInputs;
   let modulus = toCircomBigIntBytes(modulusBigInt);
   let signature = toCircomBigIntBytes(signatureBigInt);
   let in_len_padded_bytes = messagePaddedLen.toString();
-  // let in_padded_n_bytes = packBytesIntoNBytes(messagePadded, 7).map((x) => x.toString()); // Packed  into 7 byte signals
-  // console.log("Padded message bytes first 16:", messagePadded.slice(0, 16));
-  // console.log("in_padded_n_bytes first 16:", in_padded_n_bytes.slice(0, 16));
   let in_padded = Array.from(messagePadded).map((x) => x.toString()); // Packed into 1 byte signals
+  let in_body_len_padded_bytes = bodyPaddedLen.toString();
+  let in_body_padded = Array.from(bodyPadded).map((x) => x.toString());
+  let in_body_hash = Array.from(Buffer.from(body_hash)).map((x) => x.toString());
   let base_message = toCircomBigIntBytes(postShaBigintUnpadded);
 
   if (circuit === CircuitType.RSA) {
@@ -123,6 +129,9 @@ export async function getCircuitInputs(
       signature,
       in_padded,
       in_len_padded_bytes,
+      in_body_padded,
+      in_body_len_padded_bytes,
+      in_body_hash
     };
   } else if (circuit === CircuitType.SHA) {
     circuitInputs = {
@@ -151,12 +160,14 @@ export async function generate_inputs(email: Buffer) {
 
   let sig = BigInt("0x" + Buffer.from(result.results[0].signature, "base64").toString("hex"));
   let message = result.results[0].status.signature_header;
+  let body = result.results[0].body;
+  let body_hash = result.results[0].bodyHash;
   let circuitType = CircuitType.EMAIL;
 
   let pubkey = result.results[0].publicKey;
   const pubKeyData = pki.publicKeyFromPem(pubkey.toString());
   let modulus = BigInt(pubKeyData.n.toString());
-  let fin_result = await getCircuitInputs(sig, modulus, message, circuitType);
+  let fin_result = await getCircuitInputs(sig, modulus, message, body, body_hash, circuitType);
   return fin_result.circuitInputs;
   // fs.writeFileSync(`./circuits/inputs/input_${circuitType}.json`, json_result, { flag: "w" });
 }
