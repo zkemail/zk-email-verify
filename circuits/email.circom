@@ -4,6 +4,7 @@ include "../node_modules/circomlib/circuits/bitify.circom";
 include "./sha.circom";
 include "./rsa.circom";
 include "./regex.circom";
+include "./base64.circom";
 
 template EmailVerify(max_num_bytes, n, k) {
     // max_num_bytes must be a multiple of 64
@@ -12,6 +13,12 @@ template EmailVerify(max_num_bytes, n, k) {
     signal input modulus[k]; // rsa pubkey, verified with smart contract + optional oracle
     signal input signature[k];
     signal input in_len_padded_bytes; // length of in email data including the padding, which will inform the sha256 block length
+
+    // Next 3 signals are only needed if we are doing in-body verification
+    signal input in_body_padded[max_num_bytes];
+    signal input in_body_len_padded_bytes;
+    signal input in_body_hash[44];     // ceil(32/3) * 4, should be automatically calculated.
+
     signal reveal[max_num_bytes]; // bytes to reveal
     signal output reveal_packed[max_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
 
@@ -20,6 +27,25 @@ template EmailVerify(max_num_bytes, n, k) {
         sha.in_padded[i] <== in_padded[i];
     }
     sha.in_len_padded_bytes <== in_len_padded_bytes;
+
+    component sha_body = Sha256Bytes(max_num_bytes);
+    for (var i = 0; i < max_num_bytes; i++) {
+        sha_body.in_padded[i] <== in_body_padded[i];
+    }
+    sha_body.in_len_padded_bytes <== in_body_len_padded_bytes;
+
+    component sha_b64 = Base64Decode(32);
+    for (var i = 0; i < 44; i++) {
+        sha_b64.in[i] <== in_body_hash[i];
+    }
+    component sha_body_bytes[32];
+    for (var i = 0; i < 32; i++) {
+        sha_body_bytes[i] = Bits2Num(8);
+        for (var j = 0; j < 8; j++) {
+            sha_body_bytes[i].in[7-j] <== sha_body.out[i*8+j];
+        }
+        sha_body_bytes[i].out === sha_b64.out[i];
+    }
 
     var msg_len = (256+n)\n;
     component base_msg[msg_len];

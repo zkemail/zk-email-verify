@@ -106,6 +106,7 @@ export function packedNBytesToString(packedBytes: bigint[], n: number = 7): stri
   return bytesToString(Uint8Array.from(chars));
 }
 
+
 export function packBytesIntoNBytes(messagePaddedRaw: Uint8Array | string, n = 7): Array<bigint> {
   const messagePadded: Uint8Array = typeof messagePaddedRaw === "string" ? stringToBytes(messagePaddedRaw) : messagePaddedRaw;
   let output: Array<bigint> = [];
@@ -119,5 +120,6 @@ export function packBytesIntoNBytes(messagePaddedRaw: Uint8Array | string, n = 7
   }
   return output;
 }
+// Usage: let in_padded_n_bytes = packBytesIntoNBytes(messagePadded, 7).map((x) => x.toString()); // Packed into 7 byte signals
 
 console.log(packedNBytesToString([30680772461461504n, 129074054722665n, 30794022159122432n, 30803244232763745n]));

@@ -38,7 +38,7 @@ git clone https://github.com/iden3/circom.git
 cd circom
 cargo build --release
 cargo install --path circom
-sudo apt-get install nlohmann-json3-dev libgmp-dev nasm # Packages needed for C-based witness generator
+sudo apt-get install nlohmann-json3-dev libgmp-dev nasm # Ubuntu packages needed for C-based witness generator
 brew install nlohmann-json gmp nasm # OSX
 ```
 
