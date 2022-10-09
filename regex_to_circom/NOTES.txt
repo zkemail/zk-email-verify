@@ -1,0 +1,3 @@
+states[i+1][j] means that there was a character at msg[i] which led to the transition to state j
+
+this means that reveal for index i should be looking at state of index i+1
