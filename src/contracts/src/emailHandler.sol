@@ -166,24 +166,48 @@ contract VerifiedEmail is ERC721Enumerable, Verifier {
         return string(str);
     }
 
-    function mint(
-        uint256[2] memory a,
-        uint256[2][2] memory b,
-        uint256[2] memory c,
-        uint256[163] memory signals
-    ) public {
-        // require(signals[0] == 1337, "invalid signals"); // TODO no invalid signal check yet, which is fine since the zk proof does it
-        require(signals[0] == 0, "Invalid starting message character");
-        // 163-17 public signals are the masked message bytes, 17 are the modulus.
-        // Get domain
+    uint16 public constant msg_len = 163;
+    // Unpacks uint256s into bytes and then extracts the non-zero characters
+    // Only extracts contiguous non-zero characters and ensures theres only 1 such state
+    function convert7PackedBytesToBytes(uint256[msg_len] memory packedBytes) public pure returns (uint8 memory unpackedBytes) {
+        uint8[] memory nonzeroBytes;
+        uint8 state = 0;
+        // bytes: 0 0 0 0 y u s h _ g 0 0 0
+        // state: 0 0 0 0 1 1 1 1 1 1 2 2 2
+        for (uint16 i = 0; i < msg_len - 17; i++) {
+            uint256 memory packedByte = packedBytes[i];
+            for (uint256 j = 0; j < 7; j++) {
+                uint8 memory unpackedByte = packedByte & 0xff;
+                if(unpackedByte != 0) {
+                    nonzeroBytes.push(unpackedByte);
+                    if(state % 2 == 0) {
+                        state += 1;
+                    }
+                } else {
+                    if(state % 2 == 1) {
+                        state += 1;
+                    }
+                }
+                packedByte = packedByte >> 8;
+            }
+        }
+        // Have to end at the end of the email -- state cannot be 1 since there should be an email footer
+        require(state == 2, "Invalid states in packed bytes in email");
+        return nonzeroBytes;
+    }
+
+    // Unpacks uint256s into bytes and then extracts the non-zero characters
+    // Only extracts contiguous non-zero characters and ensures theres only 2 such states, and they are identical
+    function convert7PackedBytesToDupedBytes(uint256[msg_len] memory packedByte) public pure returns (uint8 memory unpackedBytes) {
         string memory domain = "mit.edu";
         uint32 fromPointer = 0;
         uint32 toPointer = 0;
         uint32 domainLength = 0;
         uint8 state = 0;
-        uint16 message_len = 163;
-        // Set domain pointers
-        for (uint32 i = 1; i < message_len - 17; i++) {
+        // bytes: 0 0 0 0 m i t . e d u 0 0 0 m i t . e d u 0 0 0
+        // state: 0 0 0 0 1 1 1 1 1 1 1 2 2 2 3 3 3 3 3 3 3 4 4 4
+        // Set domain pointers, not including the mailserver key
+        for (uint32 i = 1; i < msg_len - 17; i++) {
             if (signals[i] == 0) {
                 if (signals[i - 1] != 0) {
                     state += 1;
@@ -208,13 +232,28 @@ contract VerifiedEmail is ERC721Enumerable, Verifier {
                 }
             }
         }
+        // Check domains match
+        bytes memory b = bytes(domain);
         for (uint32 i = 0; i < domainLength; i++) {
             require(
                 signals[fromPointer + i] == signals[toPointer + i],
-                "Invalid domain unmatched"
+                "Invalid: domains do not match"
             );
+            require(signals[fromPointer + i] == domain[i], "Invalid: domain bytes don't match the string");
         }
-        for (uint32 i = message_len - 17; i < message_len; i++) {
+    }
+
+    function mint(
+        uint256[2] memory a,
+        uint256[2][2] memory b,
+        uint256[2] memory c,
+        uint256[msg_len] memory signals
+    ) public {
+        // require(signals[0] == 1337, "invalid signals"); // TODO no invalid signal check yet, which is fine since the zk proof does it
+        require(signals[0] == 0, "Invalid starting message character");
+        // msg_len-17 public signals are the masked message bytes, 17 are the modulus.
+        uint8[] memory message = convert7PackedBytesToBytes(signals);
+        for (uint32 i = msg_len - 17; i < msg_len; i++) {
             require(
                 signals[i] == verifiedMailserverKeys[domain][i],
                 "Invalid modulus not matched"
