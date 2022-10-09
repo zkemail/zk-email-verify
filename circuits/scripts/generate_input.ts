@@ -106,6 +106,7 @@ export async function getCircuitInputs(
   let in_body_padded = Array.from(bodyPadded).map((x) => x.toString());
   let in_body_hash = Array.from(Buffer.from(body_hash)).map((x) => x.toString());
   let base_message = toCircomBigIntBytes(postShaBigintUnpadded);
+  let body_hash_idx = 278;
 
   if (circuit === CircuitType.RSA) {
     circuitInputs = {
@@ -121,7 +122,7 @@ export async function getCircuitInputs(
       in_len_padded_bytes,
       in_body_padded,
       in_body_len_padded_bytes,
-      in_body_hash
+      body_hash_idx
     };
   } else if (circuit === CircuitType.SHA) {
     circuitInputs = {

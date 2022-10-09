@@ -3,7 +3,8 @@ pragma circom 2.0.3;
 include "../node_modules/circomlib/circuits/bitify.circom";
 include "./sha.circom";
 include "./rsa.circom";
-include "./regex.circom";
+include "./dkim_header_regex.circom";
+include "./body_hash_regex.circom";
 include "./base64.circom";
 
 template EmailVerify(max_num_bytes, n, k) {
@@ -13,9 +14,13 @@ template EmailVerify(max_num_bytes, n, k) {
     signal input signature[k];
     signal input in_len_padded_bytes; // length of in email data including the padding, which will inform the sha256 block length
 
+    var LEN_SHA_B64 = 44;     // ceil(32/3) * 4, should be automatically calculated.
+
     signal input in_body_padded[max_num_bytes];
     signal input in_body_len_padded_bytes;
-    signal input in_body_hash[44];     // ceil(32/3) * 4, should be automatically calculated.
+
+    signal input body_hash_idx;
+    signal body_hash[LEN_SHA_B64][max_num_bytes];
 
     signal output reveal[max_num_bytes];
 
@@ -24,25 +29,6 @@ template EmailVerify(max_num_bytes, n, k) {
         sha.in_padded[i] <== in_padded[i];
     }
     sha.in_len_padded_bytes <== in_len_padded_bytes;
-
-    component sha_body = Sha256Bytes(max_num_bytes);
-    for (var i = 0; i < max_num_bytes; i++) {
-        sha_body.in_padded[i] <== in_body_padded[i];
-    }
-    sha_body.in_len_padded_bytes <== in_body_len_padded_bytes;
-
-    component sha_b64 = Base64Decode(32);
-    for (var i = 0; i < 44; i++) {
-        sha_b64.in[i] <== in_body_hash[i];
-    }
-    component sha_body_bytes[32];
-    for (var i = 0; i < 32; i++) {
-        sha_body_bytes[i] = Bits2Num(8);
-        for (var j = 0; j < 8; j++) {
-            sha_body_bytes[i].in[7-j] <== sha_body.out[i*8+j];
-        }
-        sha_body_bytes[i].out === sha_b64.out[i];
-    }
 
     var msg_len = (256+n)\n;
     component base_msg[msg_len];
@@ -70,19 +56,61 @@ template EmailVerify(max_num_bytes, n, k) {
         rsa.signature[i] <== signature[i];
     }
 
-    component regex = Regex(max_num_bytes);
+/*
+    component dkim_header_regex = DKIMHeaderRegex(max_num_bytes);
     for (var i = 0; i < max_num_bytes; i++) {
-        regex.msg[i] <== in_padded[i];
+        dkim_header_regex.msg[i] <== in_padded[i];
     }
-    regex.out === 2;
+    dkim_header_regex.out === 2;
     for (var i = 0; i < max_num_bytes; i++) {
-        reveal[i] <== regex.reveal[i+1];
+        reveal[i] <== dkim_header_regex.reveal[i+1];
+    }
+    log(dkim_header_regex.out);
+*/
+
+    component body_hash_regex = BodyHashRegex(max_num_bytes);
+    for (var i = 0; i < max_num_bytes; i++) {
+        body_hash_regex.msg[i] <== in_padded[i];
+    }
+    body_hash_regex.out === 1;
+    log(body_hash_regex.out);
+    /*
+    for (var i = 0; i < max_num_bytes; i++) {
+        log(body_hash_regex.reveal[i]);
+    }
+    */
+    component body_hash_eq[max_num_bytes];
+    for (var i = 0; i < max_num_bytes; i++) {
+        body_hash_eq[i] = IsEqual();
+        body_hash_eq[i].in[0] <== i;
+        body_hash_eq[i].in[1] <== body_hash_idx;
     }
 
-    log(regex.out);
-    // for (var i = 0; i < max_num_bytes; i++) {
-    //     log(reveal[i]);
-    // }
+    for (var j = 0; j < 44; j++) {
+        body_hash[j][j] <== body_hash_eq[j].out * body_hash_regex.reveal[j];
+        for (var i = j + 1; i < max_num_bytes; i++) {
+            body_hash[j][i] <== body_hash[j][i - 1] + body_hash_eq[i-j].out * body_hash_regex.reveal[i];
+        }
+    }
+
+    component sha_body = Sha256Bytes(max_num_bytes);
+    for (var i = 0; i < max_num_bytes; i++) {
+        sha_body.in_padded[i] <== in_body_padded[i];
+    }
+    sha_body.in_len_padded_bytes <== in_body_len_padded_bytes;
+
+    component sha_b64 = Base64Decode(32);
+    for (var i = 0; i < 44; i++) {
+        sha_b64.in[i] <== body_hash[i][max_num_bytes - 1];
+    }
+    component sha_body_bytes[32];
+    for (var i = 0; i < 32; i++) {
+        sha_body_bytes[i] = Bits2Num(8);
+        for (var j = 0; j < 8; j++) {
+            sha_body_bytes[i].in[7-j] <== sha_body.out[i*8+j];
+        }
+        sha_body_bytes[i].out === sha_b64.out[i];
+    }
 }
 
 // In circom, all output signals of the main component are public (and cannot be made private), the input signals of the main component are private if not stated otherwise using the keyword public as above. The rest of signals are all private and cannot be made public.
