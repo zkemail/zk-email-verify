@@ -6,7 +6,8 @@ import {
   AAYUSH_PREHASH_MESSAGE_INT,
   AAYUSH_PREHASH_MESSAGE_STRING,
   CIRCOM_FIELD_MODULUS,
-  MAX_SHA_INPUT_LENGTH_PADDED_BYTES,
+  MAX_HEADER_PADDED_BYTES,
+  MAX_BODY_PADDED_BYTES,
 } from "../../src/helpers/constants";
 import { shaHash } from "../../src/helpers/shaHash";
 import { dkimVerify } from "../../src/helpers/dkim";
@@ -87,14 +88,13 @@ export async function getCircuitInputs(
   // const modulusBigInt = bytesToBigInt(pubKeyParts[2]);
   const modulusBigInt = rsa_modulus;
   const signatureBigInt = rsa_signature;
-  const maxShaBytes = MAX_SHA_INPUT_LENGTH_PADDED_BYTES;
 
   // Perform conversions
   const prehashBytesUnpadded = Uint8Array.from(message);
   const postShaBigintUnpadded = bytesToBigInt(stringToBytes((await shaHash(prehashBytesUnpadded)).toString())) % CIRCOM_FIELD_MODULUS;
-  const [messagePadded, messagePaddedLen] = await sha256Pad(prehashBytesUnpadded, maxShaBytes);
+  const [messagePadded, messagePaddedLen] = await sha256Pad(prehashBytesUnpadded, MAX_HEADER_PADDED_BYTES);
 
-  const [bodyPadded, bodyPaddedLen] = await sha256Pad(body, maxShaBytes);
+  const [bodyPadded, bodyPaddedLen] = await sha256Pad(body, MAX_BODY_PADDED_BYTES);
 
   // Compute identity revealer
   let circuitInputs;
@@ -104,9 +104,8 @@ export async function getCircuitInputs(
   let in_padded = Array.from(messagePadded).map((x) => x.toString());
   let in_body_len_padded_bytes = bodyPaddedLen.toString();
   let in_body_padded = Array.from(bodyPadded).map((x) => x.toString());
-  let in_body_hash = Array.from(Buffer.from(body_hash)).map((x) => x.toString());
   let base_message = toCircomBigIntBytes(postShaBigintUnpadded);
-  let body_hash_idx = 399;
+  let body_hash_idx = message.indexOf(Buffer.from(body_hash));
 
   if (circuit === CircuitType.RSA) {
     circuitInputs = {
@@ -147,20 +146,17 @@ async function generate_inputs(email) {
   let body_hash = result.results[0].bodyHash;
   let circuitType = CircuitType.EMAIL;
 
-  console.log(message.length);
-  console.log(body.length);
-
   let pubkey = result.results[0].publicKey;
   const pubKeyData = pki.publicKeyFromPem(pubkey.toString());
   let modulus = BigInt(pubKeyData.n.toString());
   let fin_result = await getCircuitInputs(sig, modulus, message, body, body_hash, circuitType);
-  // return fin_result.circuitInputs;
+  return fin_result.circuitInputs;
   // fs.writeFileSync(`./circuits/inputs/input_${circuitType}.json`, json_result, { flag: "w" });
 }
 
 import fs from "fs";
 async function do_generate() {
-  const email = fs.readFileSync('./msg2.eml');
+  const email = fs.readFileSync('./msg.eml');
   console.log(JSON.stringify(await generate_inputs(email)));
 }
 
