@@ -19,23 +19,25 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
   constructor() ERC721("VerifiedEmail", "VerifiedEmail") {
     // Do dig TXT outgoing._domainkey.twitter.com to verify these.
     // This is the base 2^121 representation of that key.
-    verifiedMailserverKeys["twitter.com"][0] = 1362844382337595676288966927845048755;
-    verifiedMailserverKeys["twitter.com"][1] = 2051232190029042874602123094057641579;
-    verifiedMailserverKeys["twitter.com"][2] = 82180903948917831722803326838373315;
-    verifiedMailserverKeys["twitter.com"][3] = 2138065713701593539261187725956930213;
-    verifiedMailserverKeys["twitter.com"][4] = 2610113944250628639012720369418287474;
-    verifiedMailserverKeys["twitter.com"][5] = 947386626577810308124082119170513710;
-    verifiedMailserverKeys["twitter.com"][6] = 536038387946359789768371937196825655;
-    verifiedMailserverKeys["twitter.com"][7] = 2153576889316081585234167235144487709;
-    verifiedMailserverKeys["twitter.com"][8] = 1287226415982257719800023032828811922;
-    verifiedMailserverKeys["twitter.com"][9] = 1018106194828336360857712078662978863;
-    verifiedMailserverKeys["twitter.com"][10] = 2182121972991273871088583422676257732;
-    verifiedMailserverKeys["twitter.com"][11] = 824080356450773094427801032134768781;
-    verifiedMailserverKeys["twitter.com"][12] = 2160330005857484633191775197216017274;
-    verifiedMailserverKeys["twitter.com"][13] = 2447512561136956201144186872280764330;
-    verifiedMailserverKeys["twitter.com"][14] = 3006152463941257314249890518041106;
-    verifiedMailserverKeys["twitter.com"][15] = 820607402446306410974305086636012205;
-    verifiedMailserverKeys["twitter.com"][16] = 343542034344264361438243465247009;
+    // Circom bigint: represent a = a[0] + a[1] * 2**n + .. + a[k - 1] * 2**(n * k)
+
+    verifiedMailserverKeys["twitter.com"][0] = 1634582323953821262989958727173988295;
+    verifiedMailserverKeys["twitter.com"][1] = 1938094444722442142315201757874145583;
+    verifiedMailserverKeys["twitter.com"][2] = 375300260153333632727697921604599470;
+    verifiedMailserverKeys["twitter.com"][3] = 1369658125109277828425429339149824874;
+    verifiedMailserverKeys["twitter.com"][4] = 1589384595547333389911397650751436647;
+    verifiedMailserverKeys["twitter.com"][5] = 1428144289938431173655248321840778928;
+    verifiedMailserverKeys["twitter.com"][6] = 1919508490085653366961918211405731923;
+    verifiedMailserverKeys["twitter.com"][7] = 2358009612379481320362782200045159837;
+    verifiedMailserverKeys["twitter.com"][8] = 518833500408858308962881361452944175;
+    verifiedMailserverKeys["twitter.com"][9] = 1163210548821508924802510293967109414;
+    verifiedMailserverKeys["twitter.com"][10] = 1361351910698751746280135795885107181;
+    verifiedMailserverKeys["twitter.com"][11] = 1445969488612593115566934629427756345;
+    verifiedMailserverKeys["twitter.com"][12] = 2457340995040159831545380614838948388;
+    verifiedMailserverKeys["twitter.com"][13] = 2612807374136932899648418365680887439;
+    verifiedMailserverKeys["twitter.com"][14] = 16021263889082005631675788949457422;
+    verifiedMailserverKeys["twitter.com"][15] = 299744519975649772895460843780023483;
+    verifiedMailserverKeys["twitter.com"][16] = 3933359104846508935112096715593287;
   }
 
   // function getDesc(

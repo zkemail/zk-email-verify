@@ -2,7 +2,7 @@
 
 The application is located at https://zk-email.xyz.
 
-The documentation for the app is located at https://zk-email.xyz/docs (to-do)
+The documentation for the app is located at https://zk-email.xyz/docs (to-do). Made by [@yush_g](https://twitter.com/yush_g) and [@sampriti0](https://twitter.com/sampriti0) at [@0xparc](https://twitter.com/0xparc) and [@personae_labs](https://twitter.com/personae_labs), dm if interested in usage.
 
 # Development Instructions
 
@@ -31,7 +31,7 @@ In outlook, turn on plain text mode. Send an email to yourself, and copy paste t
 
 Notes about email providers: tl;dr: view headers in a non-gmail client.
 
-Gmail self-emails censor the signature of the mailserver, so it is unclear if it is generated. .edu domain, hotmail, custom domain, and outlook domain self-emails have the signatures. In fact, Gmail-sent self-emails using the .edu domain, viewed in a non-gmail client, are not censored -- it seems to be just a property of the gmail viewer to not show signatures on self emails (but it has signatures on every other recieved email).
+Gmail self-emails censor the signature of the mailserver, and unless you use google apps script, it is not generated. .edu domain, hotmail, custom domain, and outlook domain self-emails have the signatures. In fact, Gmail-sent self-emails using the .edu domain, viewed in a non-gmail client, are not censored -- it seems to be just a property of the gmail viewer to not show signatures on self emails (but it has signatures on every other recieved email).
 
 ## Email Circuit Build Steps
 
@@ -77,13 +77,17 @@ cd dizkus-scripts/
 ./6_...
 ```
 
-Note that there's no .zkeya file, only .zkeyb ... .zkeyk.
+Note that there's no .zkeya file, only .zkeyb ... .zkeyk. Load into s3.
 
 You use [zkp.ts](https://github.com/personaelabs/heyanon/blob/main/lib/zkp.ts) to load into localforage. In the browser, to read off of localforage, you have to do:
 
 ```
 yarn install snarkjs@git+https://github.com/vb7401/snarkjs.git#53e86631b5e409e5bd30300611b495ca469503bc
 ```
+
+Change s3 address to your bucket.
+
+Put the email into ...*eml. Edit generate_input.json to import it. Manually copy paste the modulus in the resulting generated file into solidity verified mailserver keys.
 
 To do a non-chunked zkey for non-browser running,
 

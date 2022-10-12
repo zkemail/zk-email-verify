@@ -17,6 +17,7 @@ contract VerifiedEmail is ERC721Enumerable, Verifier {
   constructor() ERC721("VerifiedEmail", "VerifiedEmail") {
     // Do dig TXT outgoing._domainkey.mit.edu to verify these.
     // This is the base 2^121 representation of that key.
+    // Circom bigint: represent a = a[0] + a[1] * 2**n + .. + a[k - 1] * 2**(n * k)
     verifiedMailserverKeys["mit.edu"][0] = 1362844382337595676288966927845048755;
     verifiedMailserverKeys["mit.edu"][1] = 2051232190029042874602123094057641579;
     verifiedMailserverKeys["mit.edu"][2] = 82180903948917831722803326838373315;
