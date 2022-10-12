@@ -32,3 +32,11 @@ src/circuits/*.wasm
 *.zkey
 circuits/inputs/*old.json
 circuits/inputs/*test.json
+
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

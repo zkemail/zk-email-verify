@@ -40,7 +40,7 @@ function parseRegex(text) {
                     if (last === 0 && i === text.length) {
                         return parseSub(text, begin + last, begin + i, false);
                     }
-                    sub = parseSub(text.substr(last, i - last), begin + last, begin + i, true);
+                    sub = parseSub(text.slice(last, i), begin + last, begin + i, true);
                     if (typeof sub === 'string') {
                         return sub;
                     }
@@ -75,7 +75,7 @@ function parseRegex(text) {
                         return 'Error: missing right bracket for ' + (begin + last) + '.';
                     }
                     i -= 1;
-                    sub = parseSub(text.substr(last, i - last), begin + last, begin + i, true);
+                    sub = parseSub(text.slice(last, i), begin + last, begin + i, true);
                     if (typeof sub === 'string') {
                         return sub;
                     }
@@ -116,6 +116,11 @@ function parseRegex(text) {
                     tempNode = {'begin': begin + i, 'end': begin + i + 1};
                     tempNode.type = 'empty';
                     parts.push(tempNode);
+                } else if (Array.isArray(text[i])) {
+                    tempNode = {'begin': begin + i, 'end': begin + i + 1};
+                    tempNode.type = 'text';
+                    tempNode.text = text[i][0];
+                    parts.push(tempNode);
                 } else {
                     tempNode = {'begin': begin + i, 'end': begin + i + 1};
                     tempNode.type = 'text';
@@ -131,7 +136,19 @@ function parseRegex(text) {
         }
         return node;
     }
-    return parseSub(text, 0, text.length, true);
+
+    let new_text = [];
+    let i = 0;
+    while (i < text.length) {
+        if (text[i] == '\\') {
+            new_text.push([text[i+1]])
+            i += 2;
+        } else {
+            new_text.push(text[i]);
+            i += 1;
+        }
+    }
+    return parseSub(new_text, 0, new_text.length, true);
 }
 
 /**
@@ -481,7 +498,7 @@ function minDfa(dfa) {
         });
         Object.keys(edges).forEach(function (from) {
             Object.keys(edges[from]).forEach(function (to) {
-                symbol = Object.keys(edges[from][to]).sort().join(',');
+                symbol = JSON.stringify(Object.keys(edges[from][to]).sort());
                 nodes[from].symbols.push(symbol);
                 nodes[from].edges.push([symbol, nodes[to]]);
                 nodes[from].trans[symbol] = nodes[to];
@@ -513,12 +530,23 @@ function toNature(col) {
 }
 
 // '(\r\n|\x80)(to|from):([A-Za-z0-9 _."@-]+<)?[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.]+>?\r\n';
-let regex = '(\r\n|\x80)(to|from):((a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|0|1|2|3|4|5|6|7|8|9| |_|.|"|@|-)+<)?(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|0|1|2|3|4|5|6|7|8|9|_|.|-)+@(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|0|1|2|3|4|5|6|7|8|9|_|.|-)+>?\r\n';
+// let regex = '(\r\n|\x80)(to|from):((a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|0|1|2|3|4|5|6|7|8|9| |_|.|"|@|-)+<)?(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|0|1|2|3|4|5|6|7|8|9|_|.|-)+@(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|0|1|2|3|4|5|6|7|8|9|_|.|-)+>?\r\n';
+
+const key_chars = '(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)';
+const catch_all = '(0|1|2|3|4|5|6|7|8|9|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|!|"|#|$|%|&|\'|\\(|\\)|\\*|\\+|,|-|.|/|:|;|<|=|>|\\?|@|[|\\\\|]|^|_|`|{|\\||}|~| |\t|\n|\r|\x0b|\x0c)';
+const catch_all_without_semicolon = '(0|1|2|3|4|5|6|7|8|9|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|!|"|#|$|%|&|\'|\\(|\\)|\\*|\\+|,|-|.|/|:|<|=|>|\\?|@|[|\\\\|]|^|_|`|{|\\||}|~| |\t|\n|\r|\x0b|\x0c)';
+const base_64 = '(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|0|1|2|3|4|5|6|7|8|9|\\+|/|=)';
+const word_char = '(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|0|1|2|3|4|5|6|7|8|9|_)';
+
+// let regex = `\r\ndkim-signature:(${key_chars}=${catch_all_without_semicolon}+; )+bh=${base_64}+; `;
+
+let regex = `password reset for ${word_char}+`;
+// console.log(regex);
+// console.log(Buffer.from(regex).toString('base64'));
 
 // let regex = 'hello(0|1|2|3|4|5|6|7|8|9)+world';
 let nfa = regexToNfa(regex);
 let dfa = minDfa(nfaToDfa(nfa));
-// console.log(dfa);
 
 var i,
     j,

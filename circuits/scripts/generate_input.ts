@@ -8,7 +8,7 @@ import {
   CIRCOM_FIELD_MODULUS,
   MAX_HEADER_PADDED_BYTES,
   MAX_BODY_PADDED_BYTES,
-  STRING_PRESELECTOR
+  STRING_PRESELECTOR,
 } from "../../src/helpers/constants";
 import { shaHash } from "../../src/helpers/shaHash";
 import { dkimVerify } from "../../src/helpers/dkim";
@@ -162,10 +162,10 @@ export async function getCircuitInputs(
   const in_padded = await Uint8ArrayToCharArray(messagePadded); // Packed into 1 byte signals
   const in_body_len_padded_bytes = await Uint8ArrayToCharArray(stringToBytes(bodyPaddedLen.toString()));
   const in_body_padded = await Uint8ArrayToCharArray(bodyPadded);
-  const in_body_hash = await Uint8ArrayToCharArray(Buffer.from(body_hash));
   const base_message = toCircomBigIntBytes(postShaBigintUnpadded);
   const precomputed_sha = toCircomBigIntBytes(bodyShaPrecompute);
-
+  let body_hash_idx = message.indexOf(Buffer.from(body_hash));
+  
   if (circuit === CircuitType.RSA) {
     circuitInputs = {
       modulus,
@@ -180,8 +180,8 @@ export async function getCircuitInputs(
       in_len_padded_bytes,
       in_body_padded,
       in_body_len_padded_bytes,
-      in_body_hash,
       precomputed_sha
+      body_hash_idx
     };
   } else if (circuit === CircuitType.SHA) {
     circuitInputs = {
