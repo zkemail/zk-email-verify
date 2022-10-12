@@ -8,10 +8,12 @@ import {
   CIRCOM_FIELD_MODULUS,
   MAX_HEADER_PADDED_BYTES,
   MAX_BODY_PADDED_BYTES,
+  STRING_PRESELECTOR
 } from "../../src/helpers/constants";
 import { shaHash } from "../../src/helpers/shaHash";
 import { dkimVerify } from "../../src/helpers/dkim";
 import { assert } from "console";
+import { Hash } from "./fast-sha256"
 import * as fs from "fs";
 var Cryo = require('cryo');
 const pki = require("node-forge").pki;
@@ -26,6 +28,7 @@ interface ICircuitInputs {
   in_padded_n_bytes?: string[];
   in_len_padded_bytes?: string[];
   in_body_hash?: string[];
+  precomputed_sha?: string[];
 }
 
 enum CircuitType {
@@ -83,6 +86,10 @@ async function Uint8ArrayToCharArray(a: Uint8Array): Promise<string[]> {
   return Array.from(a).map((x) => x.toString());
 }
 
+async function Uint8ArrayToString(a: Uint8Array): Promise<string> {
+  return Array.from(a).map((x) => x.toString()).join(";");
+}
+
 async function findSelector(a: Uint8Array, selector: number[]): Promise<number> {
   let i = 0;
   let j = 0;
@@ -98,6 +105,11 @@ async function findSelector(a: Uint8Array, selector: number[]): Promise<number> 
     i++;
   }
   return -1;
+}
+
+async function partialSha(msg:Uint8Array, msgLen: number): Promise<Uint8Array> {
+  const shaGadget = new Hash();
+  return await shaGadget.update(msg, msgLen).cacheState()
 }
 
 export async function getCircuitInputs(
@@ -125,27 +137,34 @@ export async function getCircuitInputs(
   // Perform conversions
   const prehashBytesUnpadded = typeof prehash_message_string == "string" ? new TextEncoder().encode(prehash_message_string) : Uint8Array.from(prehash_message_string);
   const postShaBigintUnpadded = bytesToBigInt(stringToBytes((await shaHash(prehashBytesUnpadded)).toString())) % CIRCOM_FIELD_MODULUS;
+
   // Sha add padding
   const [messagePadded, messagePaddedLen] = await sha256Pad(prehashBytesUnpadded, MAX_HEADER_PADDED_BYTES);
   const [bodyPadded, bodyPaddedLen] = await sha256Pad(body, MAX_BODY_PADDED_BYTES);
 
   // Precompute SHA prefix
-  const selector = 'meant for @'.split('').map(char => char.charCodeAt(0))
+  const selector = STRING_PRESELECTOR.split('').map(char => char.charCodeAt(0))
   console.log(await findSelector(bodyPadded, selector));
   let shaCutoffIndex = Math.floor(((await findSelector(bodyPadded, selector)) / 512)) * 512;
-  const bodyShaPrecompute = bytesToBigInt(stringToBytes((await shaHash(bodyPadded.slice())).toString())) % CIRCOM_FIELD_MODULUS;
+  const precomputeText = bodyPadded.slice(0, shaCutoffIndex);
+  const bodyShaPrecompute = bytesToBigInt(stringToBytes((await partialSha(precomputeText, shaCutoffIndex)).toString())) % CIRCOM_FIELD_MODULUS;
+  console.log(bodyShaPrecompute);
 
+  // Ensure SHA manual unpadded is running the correct function
+  const shaOut = await partialSha(messagePadded, messagePaddedLen);
+  assert(await Uint8ArrayToString(shaOut) === await Uint8ArrayToString(Uint8Array.from(await shaHash(prehashBytesUnpadded))), "SHA256 calculation did not match!");
 
   // Compute identity revealer
   let circuitInputs;
-  let modulus = toCircomBigIntBytes(modulusBigInt);
-  let signature = toCircomBigIntBytes(signatureBigInt);
-  let in_len_padded_bytes = await Uint8ArrayToCharArray(stringToBytes(messagePaddedLen.toString()));
-  let in_padded = await Uint8ArrayToCharArray(messagePadded); // Packed into 1 byte signals
-  let in_body_len_padded_bytes = await Uint8ArrayToCharArray(stringToBytes(bodyPaddedLen.toString()));
-  let in_body_padded = await Uint8ArrayToCharArray(bodyPadded);
-  let in_body_hash = await Uint8ArrayToCharArray(Buffer.from(body_hash));
-  let base_message = toCircomBigIntBytes(postShaBigintUnpadded);
+  const modulus = toCircomBigIntBytes(modulusBigInt);
+  const signature = toCircomBigIntBytes(signatureBigInt);
+  const in_len_padded_bytes = await Uint8ArrayToCharArray(stringToBytes(messagePaddedLen.toString()));
+  const in_padded = await Uint8ArrayToCharArray(messagePadded); // Packed into 1 byte signals
+  const in_body_len_padded_bytes = await Uint8ArrayToCharArray(stringToBytes(bodyPaddedLen.toString()));
+  const in_body_padded = await Uint8ArrayToCharArray(bodyPadded);
+  const in_body_hash = await Uint8ArrayToCharArray(Buffer.from(body_hash));
+  const base_message = toCircomBigIntBytes(postShaBigintUnpadded);
+  const precomputed_sha = toCircomBigIntBytes(bodyShaPrecompute);
 
   if (circuit === CircuitType.RSA) {
     circuitInputs = {
@@ -161,12 +180,14 @@ export async function getCircuitInputs(
       in_len_padded_bytes,
       in_body_padded,
       in_body_len_padded_bytes,
-      in_body_hash
+      in_body_hash,
+      precomputed_sha
     };
   } else if (circuit === CircuitType.SHA) {
     circuitInputs = {
       in_padded,
       in_len_padded_bytes,
+      precomputed_sha
     };
   }
   return {
