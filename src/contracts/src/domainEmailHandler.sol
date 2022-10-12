@@ -37,34 +37,23 @@ contract VerifiedEmail is ERC721Enumerable, Verifier {
     verifiedMailserverKeys["mit.edu"][16] = 343542034344264361438243465247009;
   }
 
-  // function getDesc(
-  //     address origin,
-  //     address sink,
-  //     uint256 degree
-  // ) private view returns (string memory) {
-  //     // convert address to string
-  //     string memory originStr = toString(origin);
-  //     string memory sinkStr = toString(sink);
-  //     // concatenate strings
-  //     string memory result = string(
-  //         abi.encodePacked(
-  //             sinkStr,
-  //             "is ",
-  //             toString(degree),
-  //             "th degree friends with ",
-  //             originStr
-  //         )
-  //     );
+  function getDesc(
+    address origin,
+    address sink,
+    uint256 degree
+  ) private view returns (string memory) {
+    // convert address to string
+    string memory originStr = toString(origin);
+    string memory sinkStr = toString(sink);
+    // concatenate strings
+    string memory result = string(abi.encodePacked(sinkStr, "is ", toString(degree), "th degree friends with ", originStr));
 
-  //     return result;
-  // }
+    return result;
+  }
 
-  // function tokenDesc(uint256 tokenId) public view returns (string memory) {
-  //     address origin = originAddress[tokenId];
-  //     address sink = sinkAddress[tokenId];
-  //     uint256 degree = degree[tokenId];
-  //     return getDesc(origin, sink, degree);
-  // }
+  function tokenDesc(uint256 tokenId) public view returns (string memory) {
+    return string(abi.encodePacked(toString(tokenId)));
+  }
 
   function tokenURI(uint256 tokenId) public view override returns (string memory) {
     string[3] memory parts;
@@ -87,7 +76,7 @@ contract VerifiedEmail is ERC721Enumerable, Verifier {
             '", "tokenId": ',
             toString(tokenId),
             "}",
-            '", "description": "VerifiedEmails are ZK verified proofs of email ownership on Ethereum. They only reveal your email domain, nothing about your identity. We can construct both goods like Glassdoor and Blind, and terrible tragedy of the commons scenarios where instituition reputation is slowly spent by its members. VerifiedEmail uses ZK SNARKs to insinuate this social dynamic.", "image": "data:image/svg+xml;base64,',
+            '", "description": "VerifiedEmailIDs are ZK verified proofs of email ownership on Ethereum. They only reveal your email domain, nothing about your identity. We can usee this to create trustless oracles, decentralized anonymous KYC, permission-free integration with every company, and secret three letter spying org leaks. VerifiedEmailIDs use ZK SNARKs to insinuate this debauchery. @personae_labs on Twitter for more alpha.", "image": "data:image/svg+xml;base64,',
             Base64.encode(bytes(output)),
             '"}'
           )
@@ -203,6 +192,8 @@ contract VerifiedEmail is ERC721Enumerable, Verifier {
     for (uint32 i = msg_len - 17; i < msg_len; i++) {
       require(signals[i] == verifiedMailserverKeys[domain][i], "Invalid modulus not matched");
     }
+
+    // ENSURE THE FOLLOWING IS UNCOMMENTED
     require(verifyProof(a, b, c, signals), "Invalid Proof"); // checks effects iteractions, this should come first
 
     uint256 tokenId = tokenCounter.current() + 1;

@@ -40,3 +40,4 @@ circuits/inputs/*test.json
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+out/
