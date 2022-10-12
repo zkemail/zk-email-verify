@@ -6788,6 +6788,7 @@ __metadata:
     circomlib: ^2.0.3
     circomlibjs: ^0.1.2
     cryo: ^0.0.6
+    forge-std: ^1.1.2
     libmime: ^5.1.0
     localforage: ^1.10.0
     lodash: ^4.17.21
@@ -6804,6 +6805,7 @@ __metadata:
     react-router-dom: ^6.2.2
     react-scripts: ^4
     react-use: ^17.3.2
+    readline: ^1.3.0
     snarkjs: ^0.5.0
     sshpk: ^1.17.0
     styled-components: ^5.3.5
@@ -8124,6 +8126,13 @@ __metadata:
   version: 1.0.2
   resolution: "for-in@npm:1.0.2"
   checksum: 09f4ae93ce785d253ac963d94c7f3432d89398bf25ac7a24ed034ca393bf74380bdeccc40e0f2d721a895e54211b07c8fad7132e8157827f6f7f059b70b4043d
+  languageName: node
+  linkType: hard
+
+"forge-std@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "forge-std@npm:1.1.2"
+  checksum: d5b36b909269a39dd30b619ac09a78e59b1a65e7887872ef99304298c4ffe2aa16f5dc5238c77e481a5e615582191b446401098a2ed567283d7df87e099a9d3c
   languageName: node
   linkType: hard
 
@@ -14205,6 +14214,13 @@ __metadata:
   dependencies:
     picomatch: ^2.2.1
   checksum: 1ced032e6e45670b6d7352d71d21ce7edf7b9b928494dcaba6f11fba63180d9da6cd7061ebc34175ffda6ff529f481818c962952004d273178acd70f7059b320
+  languageName: node
+  linkType: hard
+
+"readline@npm:^1.3.0":
+  version: 1.3.0
+  resolution: "readline@npm:1.3.0"
+  checksum: dfaf8e6ac20408ea00d650e95f7bb47f77c4c62dd12ed7fb51731ee84532a2f3675fcdc4cab4923dc1eef227520a2e082a093215190907758bea9f585b19438e
   languageName: node
   linkType: hard
 
