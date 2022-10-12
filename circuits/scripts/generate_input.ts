@@ -6,7 +6,8 @@ import {
   AAYUSH_PREHASH_MESSAGE_INT,
   AAYUSH_PREHASH_MESSAGE_STRING,
   CIRCOM_FIELD_MODULUS,
-  MAX_SHA_INPUT_LENGTH_PADDED_BYTES,
+  MAX_HEADER_PADDED_BYTES,
+  MAX_BODY_PADDED_BYTES,
 } from "../../src/helpers/constants";
 import { shaHash } from "../../src/helpers/shaHash";
 import { dkimVerify } from "../../src/helpers/dkim";
@@ -14,7 +15,6 @@ import { assert } from "console";
 import * as fs from "fs";
 var Cryo = require('cryo');
 const pki = require("node-forge").pki;
-
 
 interface ICircuitInputs {
   modulus?: string[];
@@ -59,7 +59,9 @@ function mergeUInt8Arrays(a1: Uint8Array, a2: Uint8Array): Uint8Array {
   return mergedArray;
 }
 
+// Puts an end selector, a bunch of 0s, then the length, then fill the rest with 0s.
 async function sha256Pad(prehash_prepad_m: Uint8Array, maxShaBytes: number): Promise<[Uint8Array, number]> {
+
   let length_bits = prehash_prepad_m.length * 8; // bytes to bits
   let length_in_bytes = int32toBytes(length_bits);
   prehash_prepad_m = mergeUInt8Arrays(prehash_prepad_m, int8toBytes(2 ** 7));
@@ -75,6 +77,27 @@ async function sha256Pad(prehash_prepad_m: Uint8Array, maxShaBytes: number): Pro
   console.assert(prehash_prepad_m.length === maxShaBytes, "Padding to max length did not complete properly!");
 
   return [prehash_prepad_m, messageLen];
+}
+
+async function Uint8ArrayToCharArray(a: Uint8Array): Promise<string[]> {
+  return Array.from(a).map((x) => x.toString());
+}
+
+async function findSelector(a: Uint8Array, selector: number[]): Promise<number> {
+  let i = 0;
+  let j = 0;
+  while (i < a.length) {
+    if (a[i] === selector[j]) {
+      j++;
+      if (j === selector.length) {
+        return i - j + 1;
+      }
+    } else {
+      j = 0;
+    }
+    i++;
+  }
+  return -1;
 }
 
 export async function getCircuitInputs(
@@ -98,18 +121,20 @@ export async function getCircuitInputs(
   const baseMessageBigInt = AAYUSH_PREHASH_MESSAGE_INT; // bytesToBigInt(stringToBytes(message)) ||
   const postShaBigint = AAYUSH_POSTHASH_MESSAGE_PADDED_INT;
   const signatureBigInt = rsa_signature;
-  const maxShaBytes = MAX_SHA_INPUT_LENGTH_PADDED_BYTES;
 
   // Perform conversions
   const prehashBytesUnpadded = typeof prehash_message_string == "string" ? new TextEncoder().encode(prehash_message_string) : Uint8Array.from(prehash_message_string);
   const postShaBigintUnpadded = bytesToBigInt(stringToBytes((await shaHash(prehashBytesUnpadded)).toString())) % CIRCOM_FIELD_MODULUS;
-  const [messagePadded, messagePaddedLen] = await sha256Pad(prehashBytesUnpadded, maxShaBytes);
+  // Sha add padding
+  const [messagePadded, messagePaddedLen] = await sha256Pad(prehashBytesUnpadded, MAX_HEADER_PADDED_BYTES);
+  const [bodyPadded, bodyPaddedLen] = await sha256Pad(body, MAX_BODY_PADDED_BYTES);
 
-  const [bodyPadded, bodyPaddedLen] = await sha256Pad(body, maxShaBytes);
+  // Precompute SHA prefix
+  const selector = 'meant for @'.split('').map(char => char.charCodeAt(0))
+  console.log(await findSelector(bodyPadded, selector));
+  let shaCutoffIndex = Math.floor(((await findSelector(bodyPadded, selector)) / 512)) * 512;
+  const bodyShaPrecompute = bytesToBigInt(stringToBytes((await shaHash(bodyPadded.slice())).toString())) % CIRCOM_FIELD_MODULUS;
 
-  async function Uint8ArrayToCharArray(a: Uint8Array): Promise<string[]> {
-    return Array.from(a).map((x) => x.toString());
-  }
 
   // Compute identity revealer
   let circuitInputs;
