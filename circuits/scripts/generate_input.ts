@@ -24,7 +24,8 @@ interface ICircuitInputs {
   in_body_padded?: string[];
   in_body_len_padded_bytes?: string[];
   in_padded_n_bytes?: string[];
-  in_len_padded_bytes?: string;
+  in_len_padded_bytes?: string[];
+  in_body_hash?: string[];
 }
 
 enum CircuitType {
@@ -106,15 +107,19 @@ export async function getCircuitInputs(
 
   const [bodyPadded, bodyPaddedLen] = await sha256Pad(body, maxShaBytes);
 
+  async function Uint8ArrayToCharArray(a: Uint8Array): Promise<string[]> {
+    return Array.from(a).map((x) => x.toString());
+  }
+
   // Compute identity revealer
   let circuitInputs;
   let modulus = toCircomBigIntBytes(modulusBigInt);
   let signature = toCircomBigIntBytes(signatureBigInt);
-  let in_len_padded_bytes = messagePaddedLen.toString();
-  let in_padded = Array.from(messagePadded).map((x) => x.toString()); // Packed into 1 byte signals
-  let in_body_len_padded_bytes = bodyPaddedLen.toString();
-  let in_body_padded = Array.from(bodyPadded).map((x) => x.toString());
-  let in_body_hash = Array.from(Buffer.from(body_hash)).map((x) => x.toString());
+  let in_len_padded_bytes = await Uint8ArrayToCharArray(stringToBytes(messagePaddedLen.toString()));
+  let in_padded = await Uint8ArrayToCharArray(messagePadded); // Packed into 1 byte signals
+  let in_body_len_padded_bytes = await Uint8ArrayToCharArray(stringToBytes(bodyPaddedLen.toString()));
+  let in_body_padded = await Uint8ArrayToCharArray(bodyPadded);
+  let in_body_hash = await Uint8ArrayToCharArray(Buffer.from(body_hash));
   let base_message = toCircomBigIntBytes(postShaBigintUnpadded);
 
   if (circuit === CircuitType.RSA) {
@@ -168,12 +173,12 @@ export async function generate_inputs(email: Buffer) {
   const pubKeyData = pki.publicKeyFromPem(pubkey.toString());
   let modulus = BigInt(pubKeyData.n.toString());
   let fin_result = await getCircuitInputs(sig, modulus, message, body, body_hash, circuitType);
+  fs.writeFileSync(`./circuits/inputs/input_twitter.json`, JSON.stringify(fin_result.circuitInputs), { flag: "w" });
   return fin_result.circuitInputs;
-  // fs.writeFileSync(`./circuits/inputs/input_${circuitType}.json`, json_result, { flag: "w" });
 }
 
 async function do_generate() {
-  const email = fs.readFileSync("./msg.eml");
+  const email = fs.readFileSync("./twitter_msg.eml");
   console.log(JSON.stringify(await generate_inputs(email)));
 }
 
