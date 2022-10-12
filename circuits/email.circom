@@ -21,7 +21,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     signal input in_body_padded[max_body_bytes];
     signal input in_body_len_padded_bytes;
 
-    signal reveal[max-max_header_bytes]; // bytes to reveal
+    signal reveal[max_header_bytes]; // bytes to reveal
     signal output reveal_packed[max_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
 
     signal input body_hash_idx;
@@ -94,7 +94,12 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     for (var i = 0; i < max_packed_bytes; i++) {
         packed_output[i] = Bytes2Packed(chunks);
         for (var j = 0; j < chunks; j++) {
-            packed_output[i].in[j] <== reveal[i * chunks + j];
+            var reveal_idx = i * chunks + j;
+            if (reveal_idx < max_header_bytes) {
+                packed_output[i].in[j] <== reveal[i * chunks + j];
+            } else {
+                packed_output[i].in[j] <== 0;
+            }
         }
         reveal_packed[i] <== packed_output[i].out;
     }
