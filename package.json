@@ -38,7 +38,6 @@
     "web-vitals": "^2.1.4"
   },
   "resolutions": {
-    "//": "See https://github.com/facebook/create-react-app/issues/11773",
     "react-error-overlay": "6.0.9"
   },
   "scripts": {
@@ -74,5 +73,6 @@
     "@types/node": "^18.0.6",
     "nodemon": "^2.0.19",
     "ts-node-dev": "^2.0.0"
-  }
+  },
+  "packageManager": "yarn@3.2.3"
 }

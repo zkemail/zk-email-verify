@@ -37,7 +37,7 @@ assert 0 not in accept_nodes
 for i in range(1, N):
     outputs = []
     for k, prev_i in rev_graph[i]:
-        vals = k.split(",")
+        vals = json.loads(k)
         eq_outputs = []
 
         uppercase = set(string.ascii_uppercase)
