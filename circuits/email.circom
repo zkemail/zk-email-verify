@@ -5,6 +5,7 @@ include "./sha.circom";
 include "./rsa.circom";
 include "./dkim_header_regex.circom";
 include "./body_hash_regex.circom";
+include "./twitter_reset_regex.circom";
 include "./base64.circom";
 
 template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
@@ -56,7 +57,6 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         rsa.signature[i] <== signature[i];
     }
 
-/*
     component dkim_header_regex = DKIMHeaderRegex(max_header_bytes);
     for (var i = 0; i < max_header_bytes; i++) {
         dkim_header_regex.msg[i] <== in_padded[i];
@@ -66,7 +66,6 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         reveal[i] <== dkim_header_regex.reveal[i+1];
     }
     log(dkim_header_regex.out);
-*/
 
     component body_hash_regex = BodyHashRegex(max_header_bytes);
     for (var i = 0; i < max_header_bytes; i++) {
@@ -111,9 +110,16 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         }
         sha_body_bytes[i].out === sha_b64.out[i];
     }
+
+    component twitter_regex = TwitterResetRegex(max_body_bytes);
+    for (var i = 0; i < max_header_bytes; i++) {
+        twitter_regex.msg[i] <== in_body_padded[i];
+    }
+    log(twitter_regex.out);
+    // twitter_regex.out === 1;
 }
 
 // In circom, all output signals of the main component are public (and cannot be made private), the input signals of the main component are private if not stated otherwise using the keyword public as above. The rest of signals are all private and cannot be made public.
 // This makes modulus and reveal_from public. Signature can optionally be made public, but is not recommended since it allows the mailserver to trace who the offender is.
 
-component main { public [ modulus ] } = EmailVerify(1024, 4096, 121, 17);
+component main { public [ modulus ] } = EmailVerify(1024, 1024, 121, 17);
