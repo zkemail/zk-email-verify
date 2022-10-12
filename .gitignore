@@ -40,4 +40,10 @@ circuits/inputs/*test.json
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Added by yush
 out/
+circuits/circuit*zkey*
+circuits/email/
+cache/
+test.log
