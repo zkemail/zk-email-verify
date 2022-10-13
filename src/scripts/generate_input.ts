@@ -18,6 +18,8 @@ import { ConditionalExpression } from "typescript";
 var Cryo = require('cryo');
 const pki = require("node-forge").pki;
 
+console.log("began")
+
 interface ICircuitInputs {
   modulus?: string[];
   signature?: string[];
@@ -30,6 +32,7 @@ interface ICircuitInputs {
   in_body_hash?: string[];
   precomputed_sha?: string[];
   body_hash_idx?: number;
+  addressParts?: string[];
 }
 
 enum CircuitType {
@@ -125,6 +128,7 @@ export async function getCircuitInputs(
   message: Buffer,
   body: Buffer,
   body_hash: string,
+  eth_address: string,
   circuit: CircuitType
 ): Promise<{
   valid: {
@@ -133,6 +137,7 @@ export async function getCircuitInputs(
   };
   circuitInputs?: ICircuitInputs;
 }> {
+  console.log("Starting processing of inputs")
   // Derive modulus from signature
   // const modulusBigInt = bytesToBigInt(pubKeyParts[2]);
   const modulusBigInt = rsa_modulus;
@@ -172,6 +177,8 @@ export async function getCircuitInputs(
   const base_message = toCircomBigIntBytes(postShaBigintUnpadded);
   const precomputed_sha = toCircomBigIntBytes(bodyShaPrecompute);
   const body_hash_idx = message.indexOf(Buffer.from(body_hash));
+  const address = parseInt(eth_address, 16);
+  const addressParts = [(address % 4).toString(), (address >> 2).toString()];
 
   if (circuit === CircuitType.RSA) {
     circuitInputs = {
@@ -188,7 +195,8 @@ export async function getCircuitInputs(
       in_body_padded,
       in_body_len_padded_bytes,
       precomputed_sha,
-      body_hash_idx
+      body_hash_idx,
+      addressParts
     };
   } else if (circuit === CircuitType.SHA) {
     circuitInputs = {
@@ -203,11 +211,14 @@ export async function getCircuitInputs(
   };
 }
 
-export async function generate_inputs(email: Buffer) {
+export async function generate_inputs(email: Buffer, eth_address: string) {
   var result;
   try {
+    throw Error("No internet")
+    console.log("DKIM verification starting");
     result = await dkimVerify(email);
     const _ = result.results[0].publicKey.toString();
+    console.log("DKIM verification successful");
     var frozen = Cryo.stringify(result);
     fs.writeFileSync(`./email_cache.json`, frozen, { flag: "w" });
   } catch (e) {
@@ -215,7 +226,6 @@ export async function generate_inputs(email: Buffer) {
     let frozen = fs.readFileSync(`./email_cache.json`, { encoding: "utf-8" });
     result = Cryo.parse(frozen);
   }
-
   let sig = BigInt("0x" + Buffer.from(result.results[0].signature, "base64").toString("hex"));
   let message = result.results[0].status.signature_header;
   let body = result.results[0].body;
@@ -225,19 +235,20 @@ export async function generate_inputs(email: Buffer) {
   let pubkey = result.results[0].publicKey;
   const pubKeyData = pki.publicKeyFromPem(pubkey.toString());
   let modulus = BigInt(pubKeyData.n.toString());
-  let fin_result = await getCircuitInputs(sig, modulus, message, body, body_hash, circuitType);
+  let fin_result = await getCircuitInputs(sig, modulus, message, body, body_hash, eth_address, circuitType);
+  console.log("Writing to file...")
   fs.writeFileSync(`./circuits/inputs/input_twitter.json`, JSON.stringify(fin_result.circuitInputs), { flag: "w" });
   return fin_result.circuitInputs;
 }
 
 async function do_generate() {
   const email = fs.readFileSync("./twitter_msg.eml");
-  console.log(JSON.stringify(await generate_inputs(email)));
+  console.log(JSON.stringify(await generate_inputs(email, "0x0000000000000000000000000000000000000000")));
 }
 
 async function gen_test() {
   console.log(packBytesIntoNBytes(Uint8Array.from([0,121, 117, 115, 104, 95, 103, 10 ,0,0,0,0,0,0,0,0,0,0,0,0,0,0])))
 }
 
-// do_generate();
-gen_test();
+do_generate();
+// gen_test();

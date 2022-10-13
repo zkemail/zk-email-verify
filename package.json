@@ -32,6 +32,7 @@
     "react-scripts": "^4",
     "react-use": "^17.3.2",
     "readline": "^1.3.0",
+    "serve": "^14.0.1",
     "snarkjs": "^0.5.0",
     "sshpk": "^1.17.0",
     "styled-components": "^5.3.5",
@@ -44,7 +45,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && yarn add serve && serve -s build && next build",
+    "build": "react-scripts build && serve -s build && next build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "compile": "node circuits/scripts/compile.js",
