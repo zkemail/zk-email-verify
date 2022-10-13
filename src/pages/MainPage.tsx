@@ -227,12 +227,16 @@ export const MainPage: React.FC<{}> = (props) => {
               // const input = buildInput(pubkey, msghash, sig);
               // console.log(JSON.stringify(input, (k, v) => (typeof v == "bigint" ? v.toString() : v), 2));
 
+              console.time("zk-dl");
               alert("Downloading proving key");
               await downloadProofFiles(filename);
               alert("Done downloading proving key");
+              console.timeEnd("zk-dl");
 
+              console.time("zk-gen");
               // alert("Generating proof, will fail due to input");
               const { proof, publicSignals } = await generateProof(input, filename);
+              console.timeEnd("zk-gen");
 
               alert("Done generating proof");
               setProof(proof);
@@ -240,17 +244,6 @@ export const MainPage: React.FC<{}> = (props) => {
 
 
               if (!circuitInputs) return;
-              const setupCompleted = !!(await localforage.getItem(
-                "rsa_group_sig_verify_0000.zkey"
-              ));
-              if (!setupCompleted) {
-                alert(
-                  "You must complete setup. Opening setup page in new window..."
-                );
-                window.open("/setup");
-                return;
-              }
-              console.time("zk");
               setLastAction("sign");
               setDisplayMessage(
                 "Computing ZK Proof... Please wait 45 seconds"
@@ -263,7 +256,6 @@ export const MainPage: React.FC<{}> = (props) => {
               } catch (e) {
                 console.error(e);
               }
-              console.timeEnd("zk");
             }}
           >
             Prove

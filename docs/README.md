@@ -1,4 +1,4 @@
-# Double Blind
+# ZK Email
 
 ZK Email is an app for you to anonymously verifiy email signatures yet mask whatever
 data you would like. Each email can either be verified to be to/from specific domains
@@ -33,7 +33,7 @@ Because all web2 data is centralized to some extent, note that the Twitter mails
 or database may know other identifying metadata about you just from your username.
 
 Becaause we do not currently have a nullifier, email addresses can generate an infinite
-number of password reset emails and thus Twitter badges corresponding to their credentials.
+number of password reset emails and thus Twitter badges corresponding to their username, meaning their credentials are safe if their Ethereum account is hijacked.
 
 ### ZK Proofs
 
@@ -47,10 +47,11 @@ computable function.
 
 For ZK Email, the function we care about is
 ```
-DKIM = RSA_verify(hash(header | sha(body)), pk)
+DKIM = RSA_verify(sha_hash(header | sha_hash(body)), pk)
 ```
 A ZK proof of this statement shows that you own your public ssh key and are part
-of the group, but does not reveal your public ssh key beyond that.
+of the group, but does not reveal your public ssh key beyond that. The pk is on
+the DNS record of the mail sending website.
 
 In addition, for any fixed function, we can actually devise a scheme that
 produces a very short proof: it is the same size irrespective of the
@@ -67,16 +68,6 @@ ZK proof protocols are generally specified as "arithmetic circuits" which
 enforce particular constraints on the inputs. These circuits allow you to
 constrain that two hidden "signals" add or multiply to another; signals can
 correspond to provided inputs or can be computed intermediates.
-
-### RSA Public Key Tampering
-
-It is theoretically possible for a malicious signer to generate an invalid RSA keypair that allows them to create multiple Double Blind keys corresponding to the same public RSA key. In particular, proper RSA keypair generation algorithms guarantee that an RSA public key (modulus n, exponent e) satisfies:
-1. n = p * q is semiprime
-2. e is relatively prime to p-1 and q-1
-
-When these conditions are met, each (`message, public_key`) pairs maps to a unique signature, and nullifiers are unique as well. However, if the second condition is violated (i.e., if e is not relatively prime to p-1 and q-1), then the signature is non-unique. Thus, it is theoretically possible for malicious users to construct "tampered SSH keypairs" that would allow the user to produce multiple Double Blind Keys corresponding to a single public SSH key. This would allow them, e.g., multiple votes in an anonymous group voting system.
-
-The Double Blind team is working on a tool that allows users to prove that their public key hasn't been tampered with. This scheme relies on the fact that a random message is unlikely to be signable by a tampered-with public key.
 
 ## Additional Reading
 

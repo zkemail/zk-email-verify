@@ -16,21 +16,7 @@ export const SetupPage: React.FC = () => {
     <Container>
       <h1>ZK Email Setup</h1>
       <p>
-        Some of the assets required by ZK Email are not served due to their
-        large file size.
-        <br />
-        <br />
-        Please follow these steps to enable full functionality, which includes{" "}
-        <b>Generating Group Signatures</b>. <h3>Step 1</h3>
-        Download <code>rsa_group_sig_verify_0000.zkey</code> from the{" "}
-        <b>
-          <a href="https://www.dropbox.com/s/xsjli37cr44o82a/rsa_group_sig_verify_0000.zkey?dl=0">
-            Dropbox Mirror
-          </a>
-        </b>{" "}
-        (278 MB)
-        <h3>Step 2</h3>
-        Import the file into the application by dragging it into the box below.
+        There is no extra setup required. Ignore the following box.
       </p>
       <Dropzone
         // accept={"zkey"}
@@ -120,7 +106,7 @@ export const SetupPage: React.FC = () => {
       {setupCompleted.value && (
         <>
           You have completed setup! Please return to the main app to begin
-          creating Double Blind Group Signatures.
+          creating ZK Email Signatures.
         </>
       )}
     </Container>
