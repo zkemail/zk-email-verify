@@ -222,8 +222,9 @@ export const MainPage: React.FC<{}> = (props) => {
               // Due to a quirk in carriage return parsing in JS, we need to manually edit carriage returns to match DKIM parsing
               console.log("formattedArray", formattedArray);
               console.log("buffFormArray", Buffer.from(formattedArray));
+              console.log("buffFormArray", formattedArray.toString());
               console.log("ethereumAddress", ethereumAddress);
-              const input = await generate_input.generate_inputs(Buffer.from(formattedArray), ethereumAddress);
+              const input = await generate_input.generate_inputs(formattedArray.buffer, ethereumAddress);
               console.log(JSON.stringify(input));
 
               // Insert input structuring code here
