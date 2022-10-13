@@ -254,8 +254,6 @@ export async function generate_inputs(email: Buffer, eth_address: string): Promi
   const pubKeyData = pki.publicKeyFromPem(pubkey.toString());
   let modulus = BigInt(pubKeyData.n.toString());
   let fin_result = await getCircuitInputs(sig, modulus, message, body, body_hash, eth_address, circuitType);
-  console.log("Writing to file...")
-  fs.writeFileSync(`./circuits/inputs/input_twitter.json`, JSON.stringify(fin_result.circuitInputs), { flag: "w" });
   return fin_result.circuitInputs;
 }
 
@@ -264,6 +262,7 @@ async function do_generate() {
   console.log(email);
   const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000");
   console.log(JSON.stringify(gen_inputs));
+  return gen_inputs;
 }
 
 async function gen_test() {
@@ -293,7 +292,9 @@ async function debug_file() {
 
 // If main
 if (typeof require !== 'undefined' && require.main === module) {
-  debug_file();
+  // debug_file();
+  const circuitInputs = do_generate();
+  console.log("Writing to file...")
+  fs.writeFileSync(`./circuits/inputs/input_twitter.json`, JSON.stringify(circuitInputs), { flag: "w" });
+  // gen_test();
 }
-do_generate();
-// gen_test();

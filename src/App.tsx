@@ -11,6 +11,25 @@ import {
 import { useLocation } from "react-use";
 import { SetupPage } from "./pages/SetupPage";
 import styled from "styled-components";
+import {
+  WagmiConfig,
+  createClient,
+  configureChains,
+  defaultChains,
+  chain
+} from 'wagmi'
+import { publicProvider } from 'wagmi/providers/public'
+
+const { chains, provider, webSocketProvider } = configureChains(
+  [chain.mainnet, chain.polygon],
+  [publicProvider()],
+)
+
+const client = createClient({
+  autoConnect: true,
+  provider,
+  webSocketProvider,
+})
 
 const App = () => {
   return (
@@ -22,7 +41,9 @@ const App = () => {
           <Route
             path="/"
             element={
-              <Main/>
+              <WagmiConfig client={client}>
+                <Main/>
+              </WagmiConfig>
             }
           />
           <Route path="/setup" element={<SetupPage />} />
