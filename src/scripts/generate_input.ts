@@ -182,8 +182,8 @@ export async function getCircuitInputs(
   const body_hash_idx = ((bufferToString(message)).indexOf(body_hash)).toString();
   const remainder_text_body = await Uint8ArrayToCharArray(bodyPadded.slice(shaCutoffIndex)); // This is the remaining part of the sha that actually gets hashed
 
-  const address = bytesToBigInt(fromHex(eth_address));
-  const addressPlusOne = bytesToBigInt(fromHex(eth_address)) + 1n;
+  const address = bytesToBigInt(fromHex(eth_address)).toString();
+  const address_plus_one = (bytesToBigInt(fromHex(eth_address)) + 1n).toString();
 
   if (circuit === CircuitType.RSA) {
     circuitInputs = {
@@ -203,7 +203,7 @@ export async function getCircuitInputs(
       remainder_text_body,
       body_hash_idx,
       address,
-      addressPlusOne
+      address_plus_one
     };
   } else if (circuit === CircuitType.SHA) {
     circuitInputs = {

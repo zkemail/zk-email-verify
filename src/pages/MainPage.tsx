@@ -505,9 +505,15 @@ export const MainPage: React.FC<{}> = (props) => {
       <div className="bottom">
         <h3>ZK Email</h3>
         <div>
-          If you wish to generate a ZK proof for proof of email ownership, you must input a max 512-byte email header
-          of an email to yourself. Gmail doesn't display this information, but Outlook and most other clients do. Website
-          taken from double-blind.xyz by ecnerwala and stevenkplus. Note that it is completely client side and open source, and you are not trusting us with any private information.
+          If you wish to generate a ZK proof of Twitter badge, you must do these:
+
+          1) send yourself a password reset email.
+          2) in your email, find the email from Twitter and download headers
+          3) Copy paste the entire contents of the file into the box below
+          4) Paste in your sending Ethereum key
+          5) Click "Generate Proof"
+
+          Note that it is completely client side and open source, and you are not trusting us with any private information.
           <br />
           Read our <a href="https://zkemail.xyz/docs"> docs </a> to learn more.
         </div>
