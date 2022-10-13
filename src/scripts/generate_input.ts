@@ -153,16 +153,24 @@ export async function getCircuitInputs(
 
   // Sha add padding
   const [messagePadded, messagePaddedLen] = await sha256Pad(prehashBytesUnpadded, MAX_HEADER_PADDED_BYTES);
-  const [bodyPadded, bodyPaddedLen] = await sha256Pad(bufferToUint8Array(body), MAX_BODY_PADDED_BYTES);
+  const calc_length = Math.floor((body.length + 63)/64) * 64;
+  const [bodyPadded, bodyPaddedLen] = await sha256Pad(body, Math.max(MAX_BODY_PADDED_BYTES, calc_length));
 
   // Precompute SHA prefix
   const selector = STRING_PRESELECTOR.split('').map(char => char.charCodeAt(0))
-
-  console.log("Body selector found at: ", await findSelector(bodyPadded, selector));
-  let shaCutoffIndex = Math.floor(((await findSelector(bodyPadded, selector)) / 512)) * 512;
+  const selector_loc = await findSelector(bodyPadded, selector);
+  console.log("Body selector found at: ", selector_loc);
+  let shaCutoffIndex = Math.floor(((await findSelector(bodyPadded, selector)) / 64)) * 64;
   const precomputeText = bodyPadded.slice(0, shaCutoffIndex);
-  const bodyShaPrecompute = bytesToBigInt(stringToBytes((await partialSha(precomputeText, shaCutoffIndex)).toString())) % CIRCOM_FIELD_MODULUS;
-  console.log("Precomputed sha:", bodyShaPrecompute);
+  let bodyRemaining = bodyPadded.slice(shaCutoffIndex);
+  const bodyRemainingLen = (bodyPaddedLen - precomputeText.length);
+  assert(bodyRemainingLen < MAX_BODY_PADDED_BYTES, "Invalid slice");
+  while (bodyRemaining.length < MAX_BODY_PADDED_BYTES) {
+    bodyRemaining = mergeUInt8Arrays(bodyRemaining, int32toBytes(0))
+  }
+  assert(bodyRemaining.length === MAX_BODY_PADDED_BYTES, "Invalid slice");
+
+  const bodyShaPrecompute = await partialSha(precomputeText, shaCutoffIndex);
 
   // Ensure SHA manual unpadded is running the correct function
   const shaOut = await partialSha(messagePadded, messagePaddedLen);
@@ -173,12 +181,12 @@ export async function getCircuitInputs(
   const modulus = toCircomBigIntBytes(modulusBigInt);
   const signature = toCircomBigIntBytes(signatureBigInt);
 
-  const in_len_padded_bytes = await Uint8ArrayToCharArray(stringToBytes(messagePaddedLen.toString()));
+  const in_len_padded_bytes = messagePaddedLen.toString();
   const in_padded = await Uint8ArrayToCharArray(messagePadded); // Packed into 1 byte signals
-  const in_body_len_padded_bytes = await Uint8ArrayToCharArray(stringToBytes(bodyPaddedLen.toString()));
-  const in_body_padded = await Uint8ArrayToCharArray(bodyPadded);
+  const in_body_len_padded_bytes = bodyRemainingLen.toString();
+  const in_body_padded = await Uint8ArrayToCharArray(bodyRemaining);
   const base_message = toCircomBigIntBytes(postShaBigintUnpadded);
-  const precomputed_sha = toCircomBigIntBytes(bodyShaPrecompute);
+  const precomputed_sha = await Uint8ArrayToCharArray(bodyShaPrecompute);
   const body_hash_idx = ((bufferToString(message)).indexOf(body_hash)).toString();
   const remainder_text_body = await Uint8ArrayToCharArray(bodyPadded.slice(shaCutoffIndex)); // This is the remaining part of the sha that actually gets hashed
 
