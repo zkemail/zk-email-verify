@@ -17,15 +17,15 @@ import * as fs from "fs";
 var Cryo = require('cryo');
 const pki = require("node-forge").pki;
 
-interface ICircuitInputs {
+export interface ICircuitInputs {
   modulus?: string[];
   signature?: string[];
   base_message?: string[];
   in_padded?: string[];
   in_body_padded?: string[];
-  in_body_len_padded_bytes?: string[];
+  in_body_len_padded_bytes?: string;
   in_padded_n_bytes?: string[];
-  in_len_padded_bytes?: string[];
+  in_len_padded_bytes?: string;
   in_body_hash?: string[];
   precomputed_sha?: string[];
   body_hash_idx?: string;
@@ -135,7 +135,7 @@ export async function getCircuitInputs(
     validSignatureFormat?: boolean;
     validMessage?: boolean;
   };
-  circuitInputs?: ICircuitInputs;
+  circuitInputs: ICircuitInputs;
 }> {
   console.log("Starting processing of inputs")
   // Derive modulus from signature
@@ -216,7 +216,8 @@ export async function getCircuitInputs(
       address_plus_one,
       twitter_username_idx
     };
-  } else if (circuit === CircuitType.SHA) {
+  } else {
+    assert(circuit === CircuitType.SHA, "Invalid circuit type");
     circuitInputs = {
       in_padded,
       in_len_padded_bytes,
@@ -229,15 +230,15 @@ export async function getCircuitInputs(
   };
 }
 
-export async function generate_inputs(email: Buffer, eth_address: string) {
+export async function generate_inputs(email: Buffer, eth_address: string): Promise<ICircuitInputs> {
   var result;
   // try {
   console.log("DKIM verification starting");
   result = await dkimVerify(email);
   const _ = result.results[0].publicKey.toString();
   console.log("DKIM verification successful");
-  var frozen = Cryo.stringify(result);
-  fs.writeFileSync(`./email_cache.json`, frozen, { flag: "w" });
+  // var frozen = Cryo.stringify(result);
+  // fs.writeFileSync(`./email_cache.json`, frozen, { flag: "w" });
   // } catch (e) {
   //   console.log("Reading cached email instead!")
   //   let frozen = fs.readFileSync(`./email_cache.json`, { encoding: "utf-8" });
@@ -260,13 +261,39 @@ export async function generate_inputs(email: Buffer, eth_address: string) {
 
 async function do_generate() {
   const email = fs.readFileSync("./twitter_msg.eml");
+  console.log(email);
   const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000");
-  // console.log(JSON.stringify(gen_inputs));
+  console.log(JSON.stringify(gen_inputs));
 }
 
 async function gen_test() {
   console.log(packBytesIntoNBytes(Uint8Array.from([0,121, 117, 115, 104, 95, 103, 10 ,0,0,0,0,0,0,0,0,0,0,0,0,0,0])))
 }
 
+export async function insert13Before10(a: Uint8Array): Promise<Uint8Array> {
+  let ret = new Uint8Array(a.length + 1000);
+  let j = 0;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] === 10) {
+      ret[j] = 13;
+      j++;
+    }
+    ret[j] = a[i];
+    j++;
+  }
+  return ret.slice(0, j);
+}
+
+async function debug_file() {
+  // const email = fs.readFileSync("./test_email.txt");
+  const email = fs.readFileSync("./twitter_msg.eml");
+  console.log(Uint8Array.from(email));
+  // Key difference: file load has 13 10, web version has just 10
+}
+
+// If main
+if (typeof require !== 'undefined' && require.main === module) {
+  debug_file();
+}
 do_generate();
 // gen_test();

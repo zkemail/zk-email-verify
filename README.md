@@ -100,9 +100,12 @@ yarn compile-all
 If you want to compile subcircuits instead of the whole thing, you can use the following:
 
     If you want to generate a new email/set of inputs, edit the src/constants.ts file with your constants.
-    In generate_input.ts, change the circuitType to match what circom file you are running, then run
+    In generate_input.ts, change the circuitType variable inside to match what circom file you are running, then run
     ```
     npm install typescript ts-node -g
+    # uncomment do_generate function call at end of file
+    # go to tsconfig.json and change esnext to CommonJS
+    # if weird things dont work with this and yarn start, go go node_modules/react-scripts/config/webpack.config.ts and add/cut `target: 'node',` after like 793 after `node:`.
     npx tsc --moduleResolution node --target esnext circuits/scripts/generate_input.ts
     ```
     which will autowrite input_<circuitName>.json to the inputs folder.
