@@ -62,7 +62,7 @@ class RelaxedHash {
 
         this.bodyHashedBytes += chunk.length;
         this.bodyHash.update(chunk);
-        this.fullBody = Buffer.concat([this.fullBody, chunk]);
+        this.fullBody = Buffer.concat([this.fullBody, Buffer.from(chunk)]);
 
         //process.stdout.write(chunk);
     }
