@@ -5,7 +5,7 @@ const snarkjs = require("snarkjs");
 
 const loadURL = "https://zkemail-zkey-chunks.s3.amazonaws.com/";
 
-async function downloadFromFilename(filename: string) {
+export async function downloadFromFilename(filename: string) {
   const link = loadURL + filename;
   try {
     const zkeyResp = await fetch(link, {
