@@ -1,4 +1,4 @@
-import { bytesToBigInt, stringToBytes, toCircomBigIntBytes, packBytesIntoNBytes } from "../../src/helpers/binaryFormat";
+import { bytesToBigInt, stringToBytes, fromHex, toCircomBigIntBytes, packBytesIntoNBytes } from "../../src/helpers/binaryFormat";
 import {
   AAYUSH_EMAIL_SIG,
   AAYUSH_EMAIL_MODULUS,
@@ -68,6 +68,7 @@ function mergeUInt8Arrays(a1: Uint8Array, a2: Uint8Array): Uint8Array {
   // sum of individual array lengths
   var mergedArray = new Uint8Array(a1.length + a2.length);
   mergedArray.set(a1);
+  console.log(a1.length, a2.length)
   mergedArray.set(a2, a1.length);
   return mergedArray;
 }
@@ -156,6 +157,7 @@ export async function getCircuitInputs(
 
   // Precompute SHA prefix
   const selector = STRING_PRESELECTOR.split('').map(char => char.charCodeAt(0))
+
   console.log(await findSelector(bodyPadded, selector));
   let shaCutoffIndex = Math.floor(((await findSelector(bodyPadded, selector)) / 512)) * 512;
   const precomputeText = bodyPadded.slice(0, shaCutoffIndex);
@@ -177,8 +179,9 @@ export async function getCircuitInputs(
   const base_message = toCircomBigIntBytes(postShaBigintUnpadded);
   const precomputed_sha = toCircomBigIntBytes(bodyShaPrecompute);
   const body_hash_idx = message.indexOf(Buffer.from(body_hash));
-  const address = parseInt(eth_address, 16);
-  const addressParts = [(address % 4).toString(), (address >> 2).toString()];
+  const address = bytesToBigInt(fromHex(eth_address));
+  const remainderText = bodyPadded.slice(shaCutoffIndex);
+  const addressParts = toCircomBigIntBytes(address);
 
   if (circuit === CircuitType.RSA) {
     circuitInputs = {
