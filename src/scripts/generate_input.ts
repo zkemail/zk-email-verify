@@ -17,8 +17,6 @@ import * as fs from "fs";
 var Cryo = require('cryo');
 const pki = require("node-forge").pki;
 
-console.log("began")
-
 interface ICircuitInputs {
   modulus?: string[];
   signature?: string[];
@@ -158,11 +156,11 @@ export async function getCircuitInputs(
   // Precompute SHA prefix
   const selector = STRING_PRESELECTOR.split('').map(char => char.charCodeAt(0))
 
-  console.log(await findSelector(bodyPadded, selector));
+  console.log("Body selector found at: ", await findSelector(bodyPadded, selector));
   let shaCutoffIndex = Math.floor(((await findSelector(bodyPadded, selector)) / 512)) * 512;
   const precomputeText = bodyPadded.slice(0, shaCutoffIndex);
   const bodyShaPrecompute = bytesToBigInt(stringToBytes((await partialSha(precomputeText, shaCutoffIndex)).toString())) % CIRCOM_FIELD_MODULUS;
-  console.log(bodyShaPrecompute);
+  console.log("Precomputed sha:", bodyShaPrecompute);
 
   // Ensure SHA manual unpadded is running the correct function
   const shaOut = await partialSha(messagePadded, messagePaddedLen);
@@ -183,7 +181,6 @@ export async function getCircuitInputs(
   const remainder_text_body = await Uint8ArrayToCharArray(bodyPadded.slice(shaCutoffIndex)); // This is the remaining part of the sha that actually gets hashed
 
   const address = bytesToBigInt(fromHex(eth_address));
-  console.log(address)
   const addressParts = toCircomBigIntBytes(address);
 
   if (circuit === CircuitType.RSA) {
