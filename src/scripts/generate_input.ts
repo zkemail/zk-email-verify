@@ -250,13 +250,39 @@ export async function generate_inputs(email: Buffer, eth_address: string): Promi
 
 async function do_generate() {
   const email = fs.readFileSync("./twitter_msg.eml");
+  console.log(email);
   const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000");
-  // console.log(JSON.stringify(gen_inputs));
+  console.log(JSON.stringify(gen_inputs));
 }
 
 async function gen_test() {
   console.log(packBytesIntoNBytes(Uint8Array.from([0,121, 117, 115, 104, 95, 103, 10 ,0,0,0,0,0,0,0,0,0,0,0,0,0,0])))
 }
 
-do_generate();
+export async function insert13Before10(a: Uint8Array): Promise<Uint8Array> {
+  let ret = new Uint8Array(a.length + 1000);
+  let j = 0;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] === 10) {
+      ret[j] = 13;
+      j++;
+    }
+    ret[j] = a[i];
+    j++;
+  }
+  return ret.slice(0, j);
+}
+
+async function debug_file() {
+  // const email = fs.readFileSync("./test_email.txt");
+  const email = fs.readFileSync("./twitter_msg.eml");
+  console.log(Uint8Array.from(email));
+  // Key difference: file load has 13 10, web version has just 10
+}
+
+// If main
+if (typeof require !== 'undefined' && require.main === module) {
+  debug_file();
+}
+// do_generate();
 // gen_test();
