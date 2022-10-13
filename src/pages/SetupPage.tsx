@@ -16,7 +16,7 @@ export const SetupPage: React.FC = () => {
     <Container>
       <h1>ZK Email Setup</h1>
       <p>
-        Some of the assets required by Double Blind are not served due to their
+        Some of the assets required by ZK Email are not served due to their
         large file size.
         <br />
         <br />

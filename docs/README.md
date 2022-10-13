@@ -1,81 +1,39 @@
 # Double Blind
 
-Double Blind is an app for you to semi-anonymously sign messages for a group of
-people. Each message can be verified as sent from **someone** in the group, but the
-exact member cannot be identified (this is sometimes called a [group
-signature](http://en.wikipedia.org/wiki/Group_signature)). These can be use for
-anonymous feedback, forums, or many other semi-anonymous applications.
+ZK Email is an app for you to anonymously verifiy email signatures yet mask whatever
+data you would like. Each email can either be verified to be to/from specific domains
+or subsets of domains, or have some specific text in the body. These can be used for
+web2 interoperability, decentralized anonymous KYC, or interesting on-chain anonymity
+sets.
+## Registering your email identity
 
-Double Blind uses public SSH keys to identify people, so groups are just a list
-of public SSH keys. You can view public SSH keys from various places; for
-example, you can view someone's GitHub keys at <https://github.com/stevenhao.keys>.
+If you wish to generate a ZK proof of Twitter badge, you must do these:
 
-Currently, only RSA keys are supported.
+1) Send yourself a password reset email from Twitter in incognito.
+2) In your inbox, find the email from Twitter and download headers (three dots, then download message).
+3) Copy paste the entire contents of the file into the box below
+4) Paste in your sending Ethereum key
+5) Click "Generate Proof"
 
-## Registering your SSH identity
-Before signing a message, you first need to have an SSH RSA keypair, e.g. `~/.ssh/id_rsa.pub`.
-Rest assured, your SSH private key never leaves your machine. If you don't already have an SSH RSA keypair, you can generate a new one like so: 
-
-```
-ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
-```
-
-Then, to prove you own the key, sign the message `E PLURIBUS UNUM; DO NOT SHARE`
-and paste the output in the `Your Double Blind Key` box:
-```
-echo "E PLURIBUS UNUM; DO NOT SHARE" | ssh-keygen -Y sign -n double-blind.xyz -f ~/.ssh/id_rsa
-```
-DO NOT share this output with anyone; Double Blind uses it as your proof of
-identity.
-
-Treat your SSH Public key as your "username", and your Double Blind key (which is an SSH signature) as your "password". Anyone who has access to your Double Blind key will be able to construct signatures and revealers on your behalf.
-
-## Signing Messages
-After registering, you can begin the process of signing by filling in the message you'd like to sign, a group name to mark which group
-you're signing for, and a list of SSH keys for the members of the group. You can
-directly ask for SSH keys, or you can look them up on GitHub at
-<https://github.com/ecnerwala.keys>. Only RSA keys are supported for now.
-
-Now, sign the message using the `Sign` button and wait up to a minute for it to compute. Then, you can use the `Share Link` button next to the group
-signature to get a sendable link with the group signature filled in. You can
-also use the `Share Link` button next to the message to get a prefilled message,
-if you'd like to share it with others to sign as well.
+Note that it is completely client side and open source, and you are not trusting us with any private information.
 
 ## Verifying Signatures
 
-To verify a group signature, simply paste the group signature into the box on
-the right hand side and click the `Verify` button. The Message, Group Name, and
-Group Public Keys will be populated from the signature, but they may not be
-truthful if the signature verification fails.
+To verify a group signature, simply paste the resulting proof on the right hand
+side and click the `Verify` button. We will try to populate some signals.
 
-## Advanced Feature - Secret Identity
+## Advanced Understanding
 
-Double Blind supports an additional mode called `Secret Identity` which allows you to sign messages with
-a randomly generated **masked signer identity**. (You can enable this with the
-`Secret ID` toggle.) In the default mode, group signatures are completely
-anonymous beyond group membership (though beware, two group signatures with
-identical contents may be identical). With masked identities, you are still
-anonymous, but two messages with the same masked identity must correspond to the
-same public key.
+Because you put your Ethereum key into the proof, it operates as a commitment
+such that no one else can steal your proof on chain. If you in the future decide to
+shift your Twitter badge to a new Ethereum address, you can do so by just generating a
+proof like this again.
 
-When generating masked identities, you need to specify an **identity
-namespace**. Multiple messages signed with the same namespace and same public
-key will produce the same masked identity, so your namespaces should be unique,
-long, random strings unless you're explicitly trying to link your messages.
+Because all web2 data is centralized to some extent, note that the Twitter mailserver
+or database may know other identifying metadata about you just from your username.
 
-Additionally, you can **reveal** your masked identity with an **identity
-revealer**. This will link your masked identity to your true public key, so do
-not share the identity revealer unless you'd like to deanonymize your messages.
-
-Due to the nature of RSA signatures, in some cases, a malicious actor may
-construct a tampered RSA private key which allows them to sign
-two messages in the same identity namespace but with two **different** masked
-identities. Thus, DO NOT rely on masked identity for determining unique
-identities, e.g. for anonymous voting protocols. There is a planned protocol
-extension which will allow users to prove they do not have a tampered public
-key, which would make this safe.
-
-## Underlying Concepts
+Becaause we do not currently have a nullifier, email addresses can generate an infinite
+number of password reset emails and thus Twitter badges corresponding to their credentials.
 
 ### ZK Proofs
 
@@ -87,9 +45,9 @@ the value); however, they do not reveal these values to any validator (so they
 are zero-knowledge). Surprisingly, ZK proofs can be constructed for *any*
 computable function.
 
-For Double Blind, the function we care about is
+For ZK Email, the function we care about is
 ```
-RSA_verify(YOUR_PUBLIC_SSH_KEY, YOUR_DOUBLE_BLIND_KEY, "E PLURIBUS UNUM; DO NOT SHARE") && GROUP.contains(YOUR_PUBLIC_SSH_KEY)
+DKIM = RSA_verify(hash(header | sha(body)), pk)
 ```
 A ZK proof of this statement shows that you own your public ssh key and are part
 of the group, but does not reveal your public ssh key beyond that.

@@ -17,6 +17,10 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
   mapping(uint256 => string) public tokenToName;
   string constant domain = "twitter.com";
 
+  uint16 public constant msg_len = 163; // header + body
+  uint256 public constant header_len = 50; // FIX CONSTANT
+  uint256 public constant addressIndexInSignals = 163; // FIX CONSTANT
+
   constructor() ERC721("VerifiedEmail", "VerifiedEmail") {
     // Do dig TXT outgoing._domainkey.twitter.com to verify these.
     // This is the base 2^121 representation of that key.
@@ -128,9 +132,6 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
     return string(str);
   }
 
-  uint16 public constant msg_len = 163;
-  uint256 public constant header_len = 50; // FIX CONSTANT
-
   // Unpacks uint256s into bytes and then extracts the non-zero characters
   // Only extracts contiguous non-zero characters and ensures theres only 1 such state
   // Note that unpackedLen may be more than packedBytes.length * 8 since there may be 0s
@@ -195,8 +196,11 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
     for (uint256 i = header_len; i < msg_len; i++) {
       bodySignals[i] = signals[i];
     }
-    string memory messageBytes = convert7PackedBytesToBytes(headerSignals);
-    string memory senderBytes = convert7PackedBytesToBytes(bodySignals);
+    address currAddress = address(uint160(signals[addressIndexInSignals]));
+    require(currAddress == msg.sender, "Invalid address");
+
+    string memory senderBytes = convert7PackedBytesToBytes(headerSignals);
+    string memory messageBytes = convert7PackedBytesToBytes(bodySignals);
     string memory domainString = "verify@twitter.com";
     require(keccak256(abi.encodePacked(senderBytes)) == keccak256(abi.encodePacked(domainString)), "Invalid domain");
 

@@ -10,106 +10,107 @@ import * as snarkjs from "snarkjs";
 import localforage from "localforage";
 import { resolveGroupIdentifierTree } from "./resolveGroupIdentifier";
 import { getMerkleProof } from "../merkle";
+import { ICircuitInputs } from "../../scripts/generate_input"
 
-interface ICircuitInputs {
-  enableSignerId: string;
-  signerNamespace: string;
-  modulus: string[];
-  signature: string[];
-  base_message: string[];
-  payload: string;
-  pathElements: (string | number)[];
-  pathIndices: (string | number)[];
-  root: string;
-}
+// interface ICircuitInputs {
+//   enableSignerId: string;
+//   signerNamespace: string;
+//   modulus: string[];
+//   signature: string[];
+//   base_message: string[];
+//   payload: string;
+//   pathElements: (string | number)[];
+//   pathIndices: (string | number)[];
+//   root: string;
+// }
 
-export async function getCircuitInputs(
-  sshSignature: string,
-  groupMessage: IGroupMessage
-): Promise<{
-  valid: {
-    validSignatureFormat?: boolean;
-    validPublicKeyGroupMembership?: boolean;
-    validMessage?: boolean;
-  };
-  circuitInputs?: ICircuitInputs;
-  signerId?: string;
-  identityRevealer?: IIdentityRevealer;
-}> {
-  const { signerNamespace, enableSignerId, message, groupName, groupIdentifier: groupPublicKeys } = groupMessage;
-  await initializePoseidon();
-  let validSignatureFormat = true;
-  let rawSignature: any, pubKeyParts: any;
-  try {
-    const rawSig = getRawSignature(sshSignature);
-    rawSignature = rawSig.rawSignature;
-    pubKeyParts = rawSig.pubKeyParts;
-  } catch (e) {
-    console.error(e);
-    return {
-      valid: {
-        validSignatureFormat: false,
-      },
-    };
-  }
-  const merkleTree = await resolveGroupIdentifierTree(groupPublicKeys);
-  const modulusBigInt = bytesToBigInt(pubKeyParts[2]);
-  const hashedPubKey = poseidonK(toCircomBigIntBytes(modulusBigInt));
-  const validPublicKeyGroupMembership = merkleTree.includes(hashedPubKey);
-  const signatureBigInt = bytesToBigInt(rawSignature);
-  const messageBigInt = verifyRSA(signatureBigInt, modulusBigInt);
-  const baseMessageBigInt = MAGIC_DOUBLE_BLIND_BASE_MESSAGE;
-  const validMessage = (messageBigInt & ((1n << BigInt(MAGIC_DOUBLE_BLIND_BASE_MESSAGE_LEN)) - 1n)) === baseMessageBigInt;
+// export async function getCircuitInputs(
+//   sshSignature: string,
+//   groupMessage: IGroupMessage
+// ): Promise<{
+//   valid: {
+//     validSignatureFormat?: boolean;
+//     validPublicKeyGroupMembership?: boolean;
+//     validMessage?: boolean;
+//   };
+//   circuitInputs?: ICircuitInputs;
+//   signerId?: string;
+//   identityRevealer?: IIdentityRevealer;
+// }> {
+//   const { signerNamespace, enableSignerId, message, groupName, groupIdentifier: groupPublicKeys } = groupMessage;
+//   await initializePoseidon();
+//   let validSignatureFormat = true;
+//   let rawSignature: any, pubKeyParts: any;
+//   try {
+//     const rawSig = getRawSignature(sshSignature);
+//     rawSignature = rawSig.rawSignature;
+//     pubKeyParts = rawSig.pubKeyParts;
+//   } catch (e) {
+//     console.error(e);
+//     return {
+//       valid: {
+//         validSignatureFormat: false,
+//       },
+//     };
+//   }
+//   const merkleTree = await resolveGroupIdentifierTree(groupPublicKeys);
+//   const modulusBigInt = bytesToBigInt(pubKeyParts[2]);
+//   const hashedPubKey = poseidonK(toCircomBigIntBytes(modulusBigInt));
+//   const validPublicKeyGroupMembership = merkleTree.includes(hashedPubKey);
+//   const signatureBigInt = bytesToBigInt(rawSignature);
+//   const messageBigInt = verifyRSA(signatureBigInt, modulusBigInt);
+//   const baseMessageBigInt = MAGIC_DOUBLE_BLIND_BASE_MESSAGE;
+//   const validMessage = (messageBigInt & ((1n << BigInt(MAGIC_DOUBLE_BLIND_BASE_MESSAGE_LEN)) - 1n)) === baseMessageBigInt;
 
-  if (!validMessage || !validPublicKeyGroupMembership) {
-    return {
-      valid: {
-        validSignatureFormat,
-        validPublicKeyGroupMembership,
-        validMessage,
-      },
-    };
-  }
-  const signerNamespaceBigint = enableSignerId ? bytesToBigInt(stringToBytes((await shaHash(stringToBytes(signerNamespace))).toString())) % CIRCOM_FIELD_MODULUS : 0n;
-  const payloadBigint = bytesToBigInt(stringToBytes((await shaHash(stringToBytes(message + " -- " + groupName))).toString())) % CIRCOM_FIELD_MODULUS;
+//   if (!validMessage || !validPublicKeyGroupMembership) {
+//     return {
+//       valid: {
+//         validSignatureFormat,
+//         validPublicKeyGroupMembership,
+//         validMessage,
+//       },
+//     };
+//   }
+//   const signerNamespaceBigint = enableSignerId ? bytesToBigInt(stringToBytes((await shaHash(stringToBytes(signerNamespace))).toString())) % CIRCOM_FIELD_MODULUS : 0n;
+//   const payloadBigint = bytesToBigInt(stringToBytes((await shaHash(stringToBytes(message + " -- " + groupName))).toString())) % CIRCOM_FIELD_MODULUS;
 
-  const { pathElements, pathIndices, root } = await getMerkleProof(merkleTree, hashedPubKey);
+//   const { pathElements, pathIndices, root } = await getMerkleProof(merkleTree, hashedPubKey);
 
-  // Compute identity revealer
-  let identityRevealer, signerId;
-  if (enableSignerId) {
-    identityRevealer = {
-      pubKey: sshSignatureToPubKey(sshSignature),
-      opener: poseidon([poseidonK(toCircomBigIntBytes(signatureBigInt)), signerNamespaceBigint.toString()]),
-    };
+//   // Compute identity revealer
+//   let identityRevealer, signerId;
+//   if (enableSignerId) {
+//     identityRevealer = {
+//       pubKey: sshSignatureToPubKey(sshSignature),
+//       opener: poseidon([poseidonK(toCircomBigIntBytes(signatureBigInt)), signerNamespaceBigint.toString()]),
+//     };
 
-    signerId = poseidon([poseidonK(toCircomBigIntBytes(modulusBigInt)), identityRevealer.opener]);
-  } else {
-    signerId = "0";
-  }
+//     signerId = poseidon([poseidonK(toCircomBigIntBytes(modulusBigInt)), identityRevealer.opener]);
+//   } else {
+//     signerId = "0";
+//   }
 
-  return {
-    // parts: rsaKey.parts,
-    valid: {
-      validSignatureFormat,
-      validPublicKeyGroupMembership,
-      validMessage,
-    },
-    circuitInputs: {
-      enableSignerId: enableSignerId ? "1" : "0",
-      modulus: toCircomBigIntBytes(modulusBigInt),
-      signature: toCircomBigIntBytes(signatureBigInt),
-      base_message: toCircomBigIntBytes(baseMessageBigInt),
-      signerNamespace: signerNamespaceBigint.toString(),
-      payload: payloadBigint.toString(),
-      pathElements,
-      pathIndices,
-      root,
-    },
-    identityRevealer: identityRevealer,
-    signerId: signerId,
-  };
-}
+//   return {
+//     // parts: rsaKey.parts,
+//     valid: {
+//       validSignatureFormat,
+//       validPublicKeyGroupMembership,
+//       validMessage,
+//     },
+//     circuitInputs: {
+//       enableSignerId: enableSignerId ? "1" : "0",
+//       modulus: toCircomBigIntBytes(modulusBigInt),
+//       signature: toCircomBigIntBytes(signatureBigInt),
+//       base_message: toCircomBigIntBytes(baseMessageBigInt),
+//       signerNamespace: signerNamespaceBigint.toString(),
+//       payload: payloadBigint.toString(),
+//       pathElements,
+//       pathIndices,
+//       root,
+//     },
+//     identityRevealer: identityRevealer,
+//     signerId: signerId,
+//   };
+// }
 
 export async function generateGroupSignature(circuitInputs: ICircuitInputs, groupMessage: IGroupMessage, signerId: string): Promise<IGroupSignature> {
   const wasmFile = "rsa_group_sig_verify.wasm";

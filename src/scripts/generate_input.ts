@@ -17,7 +17,7 @@ import * as fs from "fs";
 var Cryo = require('cryo');
 const pki = require("node-forge").pki;
 
-interface ICircuitInputs {
+export interface ICircuitInputs {
   modulus?: string[];
   signature?: string[];
   base_message?: string[];
@@ -135,7 +135,7 @@ export async function getCircuitInputs(
     validSignatureFormat?: boolean;
     validMessage?: boolean;
   };
-  circuitInputs?: ICircuitInputs;
+  circuitInputs: ICircuitInputs;
 }> {
   console.log("Starting processing of inputs")
   // Derive modulus from signature
@@ -205,7 +205,8 @@ export async function getCircuitInputs(
       address,
       address_plus_one
     };
-  } else if (circuit === CircuitType.SHA) {
+  } else {
+    assert(circuit === CircuitType.SHA, "Invalid circuit type");
     circuitInputs = {
       in_padded,
       in_len_padded_bytes,
@@ -218,15 +219,15 @@ export async function getCircuitInputs(
   };
 }
 
-export async function generate_inputs(email: Buffer, eth_address: string) {
+export async function generate_inputs(email: Buffer, eth_address: string): Promise<ICircuitInputs> {
   var result;
   // try {
   console.log("DKIM verification starting");
   result = await dkimVerify(email);
   const _ = result.results[0].publicKey.toString();
   console.log("DKIM verification successful");
-  var frozen = Cryo.stringify(result);
-  fs.writeFileSync(`./email_cache.json`, frozen, { flag: "w" });
+  // var frozen = Cryo.stringify(result);
+  // fs.writeFileSync(`./email_cache.json`, frozen, { flag: "w" });
   // } catch (e) {
   //   console.log("Reading cached email instead!")
   //   let frozen = fs.readFileSync(`./email_cache.json`, { encoding: "utf-8" });
@@ -242,8 +243,8 @@ export async function generate_inputs(email: Buffer, eth_address: string) {
   const pubKeyData = pki.publicKeyFromPem(pubkey.toString());
   let modulus = BigInt(pubKeyData.n.toString());
   let fin_result = await getCircuitInputs(sig, modulus, message, body, body_hash, eth_address, circuitType);
-  console.log("Writing to file...")
-  fs.writeFileSync(`./circuits/inputs/input_twitter.json`, JSON.stringify(fin_result.circuitInputs), { flag: "w" });
+  // console.log("Writing to file...")
+  // fs.writeFileSync(`./circuits/inputs/input_twitter.json`, JSON.stringify(fin_result.circuitInputs), { flag: "w" });
   return fin_result.circuitInputs;
 }
 
