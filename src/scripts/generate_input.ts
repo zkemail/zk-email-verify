@@ -30,9 +30,9 @@ interface ICircuitInputs {
   precomputed_sha?: string[];
   body_hash_idx?: string;
   addressParts?: string[];
-  remainder_text_body?: string[];
   address?: string;
   address_plus_one?: string;
+  twitter_username_idx?: string;
 }
 
 enum CircuitType {
@@ -188,10 +188,13 @@ export async function getCircuitInputs(
   const base_message = toCircomBigIntBytes(postShaBigintUnpadded);
   const precomputed_sha = await Uint8ArrayToCharArray(bodyShaPrecompute);
   const body_hash_idx = ((bufferToString(message)).indexOf(body_hash)).toString();
-  const remainder_text_body = await Uint8ArrayToCharArray(bodyPadded.slice(shaCutoffIndex)); // This is the remaining part of the sha that actually gets hashed
 
   const address = bytesToBigInt(fromHex(eth_address)).toString();
   const address_plus_one = (bytesToBigInt(fromHex(eth_address)) + 1n).toString();
+
+  const USERNAME_SELECTOR = Buffer.from('email was meant for @');
+  const twitter_username_idx = (Buffer.from(bodyRemaining).indexOf(USERNAME_SELECTOR) + USERNAME_SELECTOR.length).toString();
+  console.log("Twitter Username idx: ", twitter_username_idx);
 
   if (circuit === CircuitType.RSA) {
     circuitInputs = {
@@ -208,10 +211,10 @@ export async function getCircuitInputs(
       in_body_padded,
       in_body_len_padded_bytes,
       precomputed_sha,
-      remainder_text_body,
       body_hash_idx,
       address,
-      address_plus_one
+      address_plus_one,
+      twitter_username_idx
     };
   } else if (circuit === CircuitType.SHA) {
     circuitInputs = {

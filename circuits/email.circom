@@ -25,6 +25,13 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     signal reveal[max_header_bytes]; // bytes to reveal
     signal output reveal_packed[max_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
 
+    var max_twitter_len = 21;
+    var max_twitter_packed_bytes = (max_twitter_len - 1) \ 7 + 1; // ceil(max_num_bytes / 7)
+
+    signal input twitter_username_idx;
+    signal reveal_twitter[max_twitter_len][max_body_bytes];
+    signal output reveal_twitter_packed[max_twitter_packed_bytes];
+
     signal input address;
     signal input address_plus_one;
 
@@ -80,33 +87,12 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     }
     body_hash_regex.out === 1;
     log(body_hash_regex.out);
-    /*
-    for (var i = 0; i < max_header_bytes; i++) {
-        log(body_hash_regex.reveal[i]);
-    }
-    */
+
     component body_hash_eq[max_header_bytes];
     for (var i = 0; i < max_header_bytes; i++) {
         body_hash_eq[i] = IsEqual();
         body_hash_eq[i].in[0] <== i;
         body_hash_eq[i].in[1] <== body_hash_idx;
-    }
-
-    // Pack output for solidity verifier to be < 24kb size limit
-    // chunks = 7 is the number of bytes that can fit into a 255ish bit signal
-    var chunks = 7;
-    component packed_output[max_packed_bytes];
-    for (var i = 0; i < max_packed_bytes; i++) {
-        packed_output[i] = Bytes2Packed(chunks);
-        for (var j = 0; j < chunks; j++) {
-            var reveal_idx = i * chunks + j;
-            if (reveal_idx < max_header_bytes) {
-                packed_output[i].in[j] <== reveal[i * chunks + j];
-            } else {
-                packed_output[i].in[j] <== 0;
-            }
-        }
-        reveal_packed[i] <== packed_output[i].out;
     }
 
     for (var j = 0; j < 44; j++) {
@@ -142,8 +128,57 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     for (var i = 0; i < max_body_bytes; i++) {
         twitter_regex.msg[i] <== in_body_padded[i];
     }
+    component found_twitter = IsZero();
+    found_twitter.in <== twitter_regex.out;
+    found_twitter.out === 0;
+
     log(twitter_regex.out);
-    // twitter_regex.out === 1;
+
+    component twitter_eq[max_body_bytes];
+    for (var i = 0; i < max_body_bytes; i++) {
+        twitter_eq[i] = IsEqual();
+        twitter_eq[i].in[0] <== i;
+        twitter_eq[i].in[1] <== twitter_username_idx;
+    }
+
+    for (var j = 0; j < max_twitter_len; j++) {
+        reveal_twitter[j][j] <== twitter_eq[j].out * twitter_regex.reveal[j];
+        for (var i = j + 1; i < max_body_bytes; i++) {
+            reveal_twitter[j][i] <== reveal_twitter[j][i - 1] + twitter_eq[i-j].out * twitter_regex.reveal[i];
+        }
+    }
+
+    // Pack output for solidity verifier to be < 24kb size limit
+    // chunks = 7 is the number of bytes that can fit into a 255ish bit signal
+    var chunks = 7;
+    component packed_twitter_output[max_twitter_packed_bytes];
+    for (var i = 0; i < max_twitter_packed_bytes; i++) {
+        packed_twitter_output[i] = Bytes2Packed(chunks);
+        for (var j = 0; j < chunks; j++) {
+            var reveal_idx = i * chunks + j;
+            if (reveal_idx < max_body_bytes) {
+                packed_twitter_output[i].in[j] <== reveal_twitter[i * chunks + j][max_body_bytes - 1];
+            } else {
+                packed_twitter_output[i].in[j] <== 0;
+            }
+        }
+        reveal_twitter_packed[i] <== packed_twitter_output[i].out;
+        log(reveal_twitter_packed[i]);
+    }
+
+    component packed_output[max_packed_bytes];
+    for (var i = 0; i < max_packed_bytes; i++) {
+        packed_output[i] = Bytes2Packed(chunks);
+        for (var j = 0; j < chunks; j++) {
+            var reveal_idx = i * chunks + j;
+            if (reveal_idx < max_header_bytes) {
+                packed_output[i].in[j] <== reveal[i * chunks + j];
+            } else {
+                packed_output[i].in[j] <== 0;
+            }
+        }
+        reveal_packed[i] <== packed_output[i].out;
+    }
 }
 
 // In circom, all output signals of the main component are public (and cannot be made private), the input signals of the main component are private if not stated otherwise using the keyword public as above. The rest of signals are all private and cannot be made public.
