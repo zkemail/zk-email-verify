@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "forge-std/console.sol";
 import "./base64.sol";
 import "./emailVerifier.sol";
 
@@ -132,27 +133,29 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
 
   // Unpacks uint256s into bytes and then extracts the non-zero characters
   // Only extracts contiguous non-zero characters and ensures theres only 1 such state
-  function convert7PackedBytesToBytes(uint256[] memory packedBytes, uint256 packedLen) public pure returns (string memory extractedString) {
+  // Note that unpackedLen may be more than packedBytes.length * 8 since there may be 0s
+  function convert7PackedBytesToBytes(uint256[] memory packedBytes) public view returns (string memory extractedString) {
     uint8 state = 0;
     // bytes: 0 0 0 0 y u s h _ g 0 0 0
     // state: 0 0 0 0 1 1 1 1 1 1 2 2 2
     bytes memory nonzeroBytesArray = new bytes(packedBytes.length * 7);
     uint256 nonzeroBytesArrayIndex = 0;
-    for (uint16 i = 0; i < msg_len - 17; i++) {
+    for (uint16 i = 0; i < packedBytes.length; i++) {
       uint256 packedByte = packedBytes[i];
       uint8[7] memory unpackedBytes = [
-        uint8(packedByte >> 48),
-        uint8(packedByte >> 40),
-        uint8(packedByte >> 32),
-        uint8(packedByte >> 24),
-        uint8(packedByte >> 16),
+        uint8(packedByte),
         uint8(packedByte >> 8),
-        uint8(packedByte)
+        uint8(packedByte >> 16),
+        uint8(packedByte >> 24),
+        uint8(packedByte >> 32),
+        uint8(packedByte >> 40),
+        uint8(packedByte >> 48)
       ];
       for (uint256 j = 0; j < 7; j++) {
-        uint8 unpackedByte = unpackedBytes[j];
+        uint256 unpackedByte = unpackedBytes[j]; //unpackedBytes[j];
+        console.log(i, j, state, unpackedByte);
         if (unpackedByte != 0) {
-          nonzeroBytesArray[nonzeroBytesArrayIndex] = bytes1(unpackedByte);
+          nonzeroBytesArray[nonzeroBytesArrayIndex] = bytes1(uint8(unpackedByte));
           nonzeroBytesArrayIndex++;
           if (state % 2 == 0) {
             state += 1;
@@ -165,8 +168,10 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
         packedByte = packedByte >> 8;
       }
     }
-    string memory returnValue = toString(nonzeroBytesArray);
-    require(state == 2, "Invalid states in packed bytes in email");
+    string memory returnValue = string(nonzeroBytesArray);
+    // require(state == 2, string(state));
+    require(state == 2, "Invalid final state of packed bytes in email");
+    require(nonzeroBytesArrayIndex <= 15, "Twitter username more than 15 chars!");
     return returnValue;
     // Have to end at the end of the email -- state cannot be 1 since there should be an email footer
   }
@@ -190,8 +195,8 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
     for (uint256 i = header_len; i < msg_len; i++) {
       bodySignals[i] = signals[i];
     }
-    string memory messageBytes = convert7PackedBytesToBytes(headerSignals, header_len);
-    string memory senderBytes = convert7PackedBytesToBytes(bodySignals, body_len);
+    string memory messageBytes = convert7PackedBytesToBytes(headerSignals);
+    string memory senderBytes = convert7PackedBytesToBytes(bodySignals);
     string memory domainString = "verify@twitter.com";
     require(keccak256(abi.encodePacked(senderBytes)) == keccak256(abi.encodePacked(domainString)), "Invalid domain");
 

@@ -56,6 +56,8 @@ sudo npm i -g yarn # If don't have yarn
 yarn install
 ```
 
+```
+
 To get the ptau, do
 
 ```
@@ -141,6 +143,13 @@ To constraint count, do
 ```
 cd circuits
 node --max-old-space-size=614400 ./../node_modules/.bin/snarkjs r1cs info email.r1cs
+```
+
+To test solidity,
+```
+cp node_modules/forge-std src/contracts/lib/forge-std
+cd src/contracts
+forge test
 ```
 
 To deploy contract to forked mainnet, do:

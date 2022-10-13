@@ -1,4 +1,4 @@
-import { bytesToBigInt, stringToBytes, toCircomBigIntBytes } from "../../src/helpers/binaryFormat";
+import { bytesToBigInt, stringToBytes, toCircomBigIntBytes, packBytesIntoNBytes } from "../../src/helpers/binaryFormat";
 import {
   AAYUSH_EMAIL_SIG,
   AAYUSH_EMAIL_MODULUS,
@@ -235,4 +235,9 @@ async function do_generate() {
   console.log(JSON.stringify(await generate_inputs(email)));
 }
 
-do_generate();
+async function gen_test() {
+  console.log(packBytesIntoNBytes(Uint8Array.from([0,121, 117, 115, 104, 95, 103, 10 ,0,0,0,0,0,0,0,0,0,0,0,0,0,0])))
+}
+
+// do_generate();
+gen_test();

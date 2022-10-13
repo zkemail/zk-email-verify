@@ -47,3 +47,4 @@ circuits/circuit*zkey*
 circuits/email/
 cache/
 test.log
+src/contracts/out/

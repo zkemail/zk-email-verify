@@ -22,9 +22,7 @@ const App = () => {
           <Route
             path="/"
             element={
-              <Main>
-                <MainPage />
-              </Main>
+              <Main/>
             }
           />
           <Route path="/setup" element={<SetupPage />} />
