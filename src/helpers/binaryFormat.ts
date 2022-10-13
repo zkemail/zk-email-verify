@@ -27,6 +27,20 @@ export function stringToBytes(str: string) {
   // );
 }
 
+export function bufferToUint8Array(buf: Buffer): Uint8Array {
+  const ab = new ArrayBuffer(buf.length);
+  const view = new Uint8Array(ab);
+  for (let i = 0; i < buf.length; ++i) {
+      view[i] = buf[i];
+  }
+  return Uint8Array.from(view);
+}
+
+export function bufferToString(buf: Buffer): String {
+  let intermediate = bufferToUint8Array(buf);
+  return bytesToString(intermediate);
+}
+
 export function bytesToBigInt(bytes: Uint8Array) {
   let res = 0n;
   for (let i = 0; i < bytes.length; ++i) {
@@ -83,11 +97,15 @@ export function toHex(bytes: Uint8Array): string {
 // Stops on first non-hex string and returns
 // https://github.com/nodejs/node/blob/v14.18.1/src/string_bytes.cc#L246-L261
 export function fromHex(hexString: string): Uint8Array {
-  const bytes = new Uint8Array(Math.floor((hexString || "").length / 2));
+  let hexStringTrimmed: string = hexString;
+  if(hexString[0] === "0" && hexString[1] === "x") {
+    hexStringTrimmed = hexString.slice(2);
+  }
+  const bytes = new Uint8Array(Math.floor((hexStringTrimmed || "").length / 2));
   let i;
   for (i = 0; i < bytes.length; i++) {
-    const a = MAP_HEX[hexString[i * 2] as keyof typeof MAP_HEX];
-    const b = MAP_HEX[hexString[i * 2 + 1] as keyof typeof MAP_HEX];
+    const a = MAP_HEX[hexStringTrimmed[i * 2] as keyof typeof MAP_HEX];
+    const b = MAP_HEX[hexStringTrimmed[i * 2 + 1] as keyof typeof MAP_HEX];
     if (a === undefined || b === undefined) {
       break;
     }

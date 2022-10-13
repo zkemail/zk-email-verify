@@ -1,4 +1,4 @@
-import { bytesToBigInt, stringToBytes, fromHex, toCircomBigIntBytes, packBytesIntoNBytes } from "../../src/helpers/binaryFormat";
+import { bytesToBigInt, stringToBytes, fromHex, toCircomBigIntBytes, packBytesIntoNBytes, bufferToUint8Array, bufferToString } from "../helpers/binaryFormat";
 import {
   AAYUSH_EMAIL_SIG,
   AAYUSH_EMAIL_MODULUS,
@@ -14,7 +14,6 @@ import { shaHash } from "../../src/helpers/shaHash";
 import { dkimVerify } from "../../src/helpers/dkim";
 import { Hash } from "./fast-sha256"
 import * as fs from "fs";
-import { ConditionalExpression } from "typescript";
 var Cryo = require('cryo');
 const pki = require("node-forge").pki;
 
@@ -31,8 +30,9 @@ interface ICircuitInputs {
   in_len_padded_bytes?: string[];
   in_body_hash?: string[];
   precomputed_sha?: string[];
-  body_hash_idx?: number;
+  body_hash_idx?: string;
   addressParts?: string[];
+  remainder_text_body?: string[];
 }
 
 enum CircuitType {
@@ -68,7 +68,6 @@ function mergeUInt8Arrays(a1: Uint8Array, a2: Uint8Array): Uint8Array {
   // sum of individual array lengths
   var mergedArray = new Uint8Array(a1.length + a2.length);
   mergedArray.set(a1);
-  console.log(a1.length, a2.length)
   mergedArray.set(a2, a1.length);
   return mergedArray;
 }
@@ -142,6 +141,7 @@ export async function getCircuitInputs(
   // Derive modulus from signature
   // const modulusBigInt = bytesToBigInt(pubKeyParts[2]);
   const modulusBigInt = rsa_modulus;
+  // Message is the email header with the body hash
   const prehash_message_string = message;
   const baseMessageBigInt = AAYUSH_PREHASH_MESSAGE_INT; // bytesToBigInt(stringToBytes(message)) ||
   const postShaBigint = AAYUSH_POSTHASH_MESSAGE_PADDED_INT;
@@ -153,7 +153,7 @@ export async function getCircuitInputs(
 
   // Sha add padding
   const [messagePadded, messagePaddedLen] = await sha256Pad(prehashBytesUnpadded, MAX_HEADER_PADDED_BYTES);
-  const [bodyPadded, bodyPaddedLen] = await sha256Pad(body, MAX_BODY_PADDED_BYTES);
+  const [bodyPadded, bodyPaddedLen] = await sha256Pad(bufferToUint8Array(body), MAX_BODY_PADDED_BYTES);
 
   // Precompute SHA prefix
   const selector = STRING_PRESELECTOR.split('').map(char => char.charCodeAt(0))
@@ -172,15 +172,18 @@ export async function getCircuitInputs(
   let circuitInputs;
   const modulus = toCircomBigIntBytes(modulusBigInt);
   const signature = toCircomBigIntBytes(signatureBigInt);
+
   const in_len_padded_bytes = await Uint8ArrayToCharArray(stringToBytes(messagePaddedLen.toString()));
   const in_padded = await Uint8ArrayToCharArray(messagePadded); // Packed into 1 byte signals
   const in_body_len_padded_bytes = await Uint8ArrayToCharArray(stringToBytes(bodyPaddedLen.toString()));
   const in_body_padded = await Uint8ArrayToCharArray(bodyPadded);
   const base_message = toCircomBigIntBytes(postShaBigintUnpadded);
   const precomputed_sha = toCircomBigIntBytes(bodyShaPrecompute);
-  const body_hash_idx = message.indexOf(Buffer.from(body_hash));
+  const body_hash_idx = ((bufferToString(message)).indexOf(body_hash)).toString();
+  const remainder_text_body = await Uint8ArrayToCharArray(bodyPadded.slice(shaCutoffIndex)); // This is the remaining part of the sha that actually gets hashed
+
   const address = bytesToBigInt(fromHex(eth_address));
-  const remainderText = bodyPadded.slice(shaCutoffIndex);
+  console.log(address)
   const addressParts = toCircomBigIntBytes(address);
 
   if (circuit === CircuitType.RSA) {
@@ -198,6 +201,7 @@ export async function getCircuitInputs(
       in_body_padded,
       in_body_len_padded_bytes,
       precomputed_sha,
+      remainder_text_body,
       body_hash_idx,
       addressParts
     };
@@ -216,19 +220,18 @@ export async function getCircuitInputs(
 
 export async function generate_inputs(email: Buffer, eth_address: string) {
   var result;
-  try {
-    throw Error("No internet")
-    console.log("DKIM verification starting");
-    result = await dkimVerify(email);
-    const _ = result.results[0].publicKey.toString();
-    console.log("DKIM verification successful");
-    var frozen = Cryo.stringify(result);
-    fs.writeFileSync(`./email_cache.json`, frozen, { flag: "w" });
-  } catch (e) {
-    console.log("Reading cached email instead!")
-    let frozen = fs.readFileSync(`./email_cache.json`, { encoding: "utf-8" });
-    result = Cryo.parse(frozen);
-  }
+  // try {
+  console.log("DKIM verification starting");
+  result = await dkimVerify(email);
+  const _ = result.results[0].publicKey.toString();
+  console.log("DKIM verification successful");
+  var frozen = Cryo.stringify(result);
+  fs.writeFileSync(`./email_cache.json`, frozen, { flag: "w" });
+  // } catch (e) {
+  //   console.log("Reading cached email instead!")
+  //   let frozen = fs.readFileSync(`./email_cache.json`, { encoding: "utf-8" });
+  //   result = Cryo.parse(frozen);
+  // }
   let sig = BigInt("0x" + Buffer.from(result.results[0].signature, "base64").toString("hex"));
   let message = result.results[0].status.signature_header;
   let body = result.results[0].body;
@@ -246,7 +249,8 @@ export async function generate_inputs(email: Buffer, eth_address: string) {
 
 async function do_generate() {
   const email = fs.readFileSync("./twitter_msg.eml");
-  console.log(JSON.stringify(await generate_inputs(email, "0x0000000000000000000000000000000000000000")));
+  const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000");
+  // console.log(JSON.stringify(gen_inputs));
 }
 
 async function gen_test() {
