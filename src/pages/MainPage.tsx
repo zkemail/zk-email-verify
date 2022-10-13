@@ -507,9 +507,9 @@ export const MainPage: React.FC<{}> = (props) => {
         <div>
           If you wish to generate a ZK proof for proof of email ownership, you must input a max 512-byte email header
           of an email to yourself. Gmail doesn't display this information, but Outlook and most other clients do. Website
-          taken from double-blind.xyz by ecnerwala and stevenkplus.
+          taken from double-blind.xyz by ecnerwala and stevenkplus. Note that it is completely client side and open source, and you are not trusting us with any private information.
           <br />
-          Read our <a href="zkemail.xyz/docs"> docs </a> to learn more.
+          Read our <a href="https://zkemail.xyz/docs"> docs </a> to learn more.
         </div>
         <br />
         <LabeledTextArea
