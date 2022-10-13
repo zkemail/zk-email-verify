@@ -31,6 +31,8 @@ interface ICircuitInputs {
   body_hash_idx?: string;
   addressParts?: string[];
   remainder_text_body?: string[];
+  address?: string;
+  address_plus_one?: string;
 }
 
 enum CircuitType {
@@ -181,7 +183,7 @@ export async function getCircuitInputs(
   const remainder_text_body = await Uint8ArrayToCharArray(bodyPadded.slice(shaCutoffIndex)); // This is the remaining part of the sha that actually gets hashed
 
   const address = bytesToBigInt(fromHex(eth_address));
-  const addressParts = toCircomBigIntBytes(address);
+  const addressPlusOne = bytesToBigInt(fromHex(eth_address)) + 1n;
 
   if (circuit === CircuitType.RSA) {
     circuitInputs = {
@@ -200,7 +202,8 @@ export async function getCircuitInputs(
       precomputed_sha,
       remainder_text_body,
       body_hash_idx,
-      addressParts
+      address,
+      addressPlusOne
     };
   } else if (circuit === CircuitType.SHA) {
     circuitInputs = {

@@ -24,6 +24,9 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     signal reveal[max_header_bytes]; // bytes to reveal
     signal output reveal_packed[max_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
 
+    signal input address;
+    signal input address_plus_one;
+
     signal input body_hash_idx;
     signal body_hash[LEN_SHA_B64][max_header_bytes];
 
@@ -141,4 +144,4 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
 // In circom, all output signals of the main component are public (and cannot be made private), the input signals of the main component are private if not stated otherwise using the keyword public as above. The rest of signals are all private and cannot be made public.
 // This makes modulus and reveal_packed public. Signature can optionally be made public, but is not recommended since it allows the mailserver to trace who the offender is.
 
-component main { public [ modulus ] } = EmailVerify(1024, 4096, 121, 17);
+component main { public [ modulus, address ] } = EmailVerify(1024, 4096, 121, 17);
