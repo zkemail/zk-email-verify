@@ -17,7 +17,8 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     signal input in_len_padded_bytes; // length of in email data including the padding, which will inform the sha256 block length
 
     // Next 3 signals are only needed if we are doing in-body verification
-    var LEN_SHA_B64 = 44;     // ceil(32/3) * 4, should be automatically calculated.
+    signal input precomputed_sha[32];
+    // This body is only the part we care about, a significant prefix of the body has been pre-hashed into precomputed_sha.
     signal input in_body_padded[max_body_bytes];
     signal input in_body_len_padded_bytes;
 
@@ -27,6 +28,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     signal input address;
     signal input address_plus_one;
 
+    var LEN_SHA_B64 = 44;     // ceil(32/3) * 4, should be automatically calculated.
     signal input body_hash_idx;
     signal body_hash[LEN_SHA_B64][max_header_bytes];
 
@@ -114,9 +116,12 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         }
     }
 
-    component sha_body = Sha256Bytes(max_body_bytes);
+    component sha_body = Sha256BytesPartial(max_body_bytes);
     for (var i = 0; i < max_body_bytes; i++) {
         sha_body.in_padded[i] <== in_body_padded[i];
+    }
+    for (var i = 0; i < 32; i++) {
+        sha_body.pre_hash[i] <== precomputed_sha[i];
     }
     sha_body.in_len_padded_bytes <== in_body_len_padded_bytes;
 
@@ -134,7 +139,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     }
 
     component twitter_regex = TwitterResetRegex(max_body_bytes);
-    for (var i = 0; i < max_header_bytes; i++) {
+    for (var i = 0; i < max_body_bytes; i++) {
         twitter_regex.msg[i] <== in_body_padded[i];
     }
     log(twitter_regex.out);
@@ -144,4 +149,4 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
 // In circom, all output signals of the main component are public (and cannot be made private), the input signals of the main component are private if not stated otherwise using the keyword public as above. The rest of signals are all private and cannot be made public.
 // This makes modulus and reveal_packed public. Signature can optionally be made public, but is not recommended since it allows the mailserver to trace who the offender is.
 
-component main { public [ modulus, address ] } = EmailVerify(1024, 4096, 121, 17);
+component main { public [ modulus, address ] } = EmailVerify(1024, 1536, 121, 17);

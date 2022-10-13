@@ -540,7 +540,7 @@ const word_char = '(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|
 
 // let regex = `\r\ndkim-signature:(${key_chars}=${catch_all_without_semicolon}+; )+bh=${base_64}+; `;
 
-let regex = `password reset for ${word_char}+`;
+let regex = `email was meant for @${word_char}+`;
 // console.log(regex);
 // console.log(Buffer.from(regex).toString('base64'));
 
