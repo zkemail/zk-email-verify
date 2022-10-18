@@ -56,8 +56,6 @@ sudo npm i -g yarn # If don't have yarn
 yarn install
 ```
 
-```
-
 To get the ptau, do
 
 ```
