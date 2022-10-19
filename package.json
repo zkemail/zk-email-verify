@@ -12,6 +12,7 @@
     "addressparser": "^1.0.1",
     "atob": "^2.1.2",
     "base64-sol": "^1.1.0",
+    "buffer": "^6.0.3",
     "circomlib": "^2.0.3",
     "circomlibjs": "^0.1.2",
     "cryo": "^0.0.6",
@@ -80,7 +81,7 @@
     "@types/node": "^18.0.6",
     "nodemon": "^2.0.19",
     "ts-node-dev": "^2.0.0",
-    "webpack": "^4.44.2"
+    "webpack": "^5.0.0"
   },
   "packageManager": "yarn@3.2.3"
 }

@@ -1,4 +1,6 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+#
+#
 
 # dependencies
 /node_modules
@@ -48,3 +50,5 @@ circuits/email/
 cache/
 test.log
 src/contracts/out/
+.next
+src/contracts/lib/

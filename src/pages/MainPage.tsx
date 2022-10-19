@@ -30,6 +30,7 @@ import { dkimVerify } from '../helpers/dkim';
 import atob from "atob";
 import { downloadProofFiles, generateProof, verifyProof, buildInput, downloadFromFilename } from '../helpers/zkp';
 import { Profile } from "./WalletProfile";
+var Buffer = require('buffer/').Buffer  // note: the trailing slash is important!
 
 const generate_input = require('../scripts/generate_input');
 const demoUrl =
