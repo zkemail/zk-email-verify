@@ -1,6 +1,14 @@
 /* eslint no-control-regex: 0 */
 
-const LOCAL = true;
+var isNode = false;    
+if (typeof process === 'object') {
+  if (typeof process.versions === 'object') {
+    if (typeof process.versions.node !== 'undefined') {
+      isNode = true;
+    }
+  }
+}
+const LOCAL = isNode;
 
 const punycode = require("punycode/");
 const libmime = require("libmime");

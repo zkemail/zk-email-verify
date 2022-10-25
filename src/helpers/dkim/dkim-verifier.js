@@ -1,4 +1,12 @@
-const LOCAL = true;
+var isNode = false;    
+if (typeof process === 'object') {
+  if (typeof process.versions === 'object') {
+    if (typeof process.versions.node !== 'undefined') {
+      isNode = true;
+    }
+  }
+}
+const LOCAL = isNode;
 
 const { getSigningHeaderLines, getPublicKey, parseDkimHeaders, formatAuthHeaderRow, getAlignment } = require("./tools");
 const { MessageParser } = require("./message-parser");
