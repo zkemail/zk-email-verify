@@ -25,11 +25,12 @@ export const downloadProofFiles = async function (filename: string) {
   for (const c of zkeySuffix) {
     const item = await localforage.getItem(`${filename}.zkey${c}`);
     if (item) {
-      console.log(`${filename}.zkey${c} already exists!`);
+      console.log(`${filename}.zkey${c} already found in localstorage!`);
       continue;
     }
     filePromises.push(downloadFromFilename(`${filename}.zkey${c}`));
   }
+  console.log(filePromises);
   await Promise.all(filePromises);
 };
 

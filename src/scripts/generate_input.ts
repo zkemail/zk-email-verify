@@ -233,7 +233,7 @@ export async function getCircuitInputs(
 export async function generate_inputs(email: Buffer, eth_address: string): Promise<ICircuitInputs> {
   var result;
   // try {
-  debugger;
+  // debugger;
   console.log("DKIM verification starting");
   result = await dkimVerify(email);
   const _ = result.results[0].publicKey.toString();
