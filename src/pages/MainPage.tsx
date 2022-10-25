@@ -29,6 +29,7 @@ import localforage from "localforage";
 import { dkimVerify } from '../helpers/dkim';
 import atob from "atob";
 import { downloadProofFiles, generateProof, verifyProof, buildInput, downloadFromFilename } from '../helpers/zkp';
+import { packedNBytesToString } from '../helpers/binaryFormat';
 import { Profile } from "./WalletProfile";
 
 const generate_input = require('../scripts/generate_input');
@@ -233,20 +234,26 @@ export const MainPage: React.FC<{}> = (props) => {
               // console.log(JSON.stringify(input, (k, v) => (typeof v == "bigint" ? v.toString() : v), 2));
 
               console.time("zk-dl");
-              alert("Downloading proving key");
+              //alert("Downloading proving key");
               await downloadProofFiles(filename);
-              alert("Done downloading proving key");
+              //alert("Done downloading proving key");
               console.timeEnd("zk-dl");
 
               console.time("zk-gen");
               // alert("Generating proof, will fail due to input");
               const { proof, publicSignals } = await generateProof(input, filename);
+              //const proof = JSON.parse('{"pi_a": ["19201501460375869359786976350200749752225831881815567077814357716475109214225", "11505143118120261821370828666956392917988845645366364291926723724764197308214", "1"], "pi_b": [["17114997753466635923095897108905313066875545082621248342234075865495571603410", "7192405994185710518536526038522451195158265656066550519902313122056350381280"], ["13696222194662648890012762427265603087145644894565446235939768763001479304886", "2757027655603295785352548686090997179551660115030413843642436323047552012712"], ["1", "0"]], "pi_c": ["6168386124525054064559735110298802977718009746891233616490776755671099515304", "11077116868070103472532367637450067545191977757024528865783681032080180232316", "1"], "protocol": "groth16", "curve": "bn128"}');
+              //const publicSignals = JSON.parse('["0", "0", "0", "0", "0", "0", "0", "0", "32767059066617856", "30803244233155956", "0", "0", "0", "0", "27917065853693287", "28015", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "113659471951225", "0", "0", "1634582323953821262989958727173988295", "1938094444722442142315201757874145583", "375300260153333632727697921604599470", "1369658125109277828425429339149824874", "1589384595547333389911397650751436647", "1428144289938431173655248321840778928", "1919508490085653366961918211405731923", "2358009612379481320362782200045159837", "518833500408858308962881361452944175", "1163210548821508924802510293967109414", "1361351910698751746280135795885107181", "1445969488612593115566934629427756345", "2457340995040159831545380614838948388", "2612807374136932899648418365680887439", "16021263889082005631675788949457422", "299744519975649772895460843780023483", "3933359104846508935112096715593287", "556307310756571904145052207427031380052712977221"]');
+
               console.timeEnd("zk-gen");
 
-              alert("Done generating proof");
-              setProof(proof);
-              setPublicSignals(publicSignals);
-
+              // alert("Done generating proof");
+              setProof(JSON.stringify(proof));
+              let kek = publicSignals.map((x: string) => BigInt(x));
+              let soln = packedNBytesToString(kek.slice(0, 12));
+              let soln2 = packedNBytesToString(kek.slice(12, 147));
+              let soln3 = packedNBytesToString(kek.slice(147, 150));
+              setPublicSignals(`From: ${soln}\nTo: ${soln2}\nUsername: ${soln3}`);
 
               if (!circuitInputs) return;
               setLastAction("sign");
