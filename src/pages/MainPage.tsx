@@ -241,7 +241,7 @@ export const MainPage: React.FC<{}> = (props) => {
               );
               await downloadProofFiles(filename);
               setDisplayMessage(
-                "Starting proof generation... (this may take a few min)"
+                "Starting proof generation... (this will take 6-10 minutes and ~5GB RAM)"
               );
               console.timeEnd("zk-dl");
 
@@ -265,7 +265,7 @@ export const MainPage: React.FC<{}> = (props) => {
               if (!circuitInputs) return;
               setLastAction("sign");
               setDisplayMessage(
-                "Computing ZK Proof... Please wait 45 seconds"
+                "Finished computing ZK proof"
               );
               try {
                 (window as any).cJson = JSON.stringify(circuitInputs);
