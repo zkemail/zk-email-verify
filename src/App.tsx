@@ -11,25 +11,8 @@ import {
 import { useLocation } from "react-use";
 import { SetupPage } from "./pages/SetupPage";
 import styled from "styled-components";
-import {
-  WagmiConfig,
-  createClient,
-  configureChains,
-  defaultChains,
-  chain
-} from 'wagmi'
-import { publicProvider } from 'wagmi/providers/public'
 
-const { chains, provider, webSocketProvider } = configureChains(
-  [chain.mainnet],
-  [publicProvider()],
-)
-
-const client = createClient({
-  autoConnect: true,
-  provider,
-  webSocketProvider,
-})
+import { Profile } from "./pages/WalletProfile";
 
 const App = () => {
   return (
@@ -38,14 +21,7 @@ const App = () => {
         <NavSection />
 
         <Routes>
-          <Route
-            path="/"
-            element={
-              <WagmiConfig client={client}>
-                <Main/>
-              </WagmiConfig>
-            }
-          />
+          <Route path="/" element={<Main />} />
           <Route path="/setup" element={<SetupPage />} />
           <Route path="/" element={<Navigate to={"/"} replace={true} />} />
           <Route element={<>Not found</>} />
@@ -71,24 +47,20 @@ const NavSection: React.FC = () => {
       <Link className={pathname === "/" ? "current_page" : "off"} to={"/"}>
         App
       </Link>{" "}
-      <Link
-        className={pathname === "/setup" ? "current_page" : "off"}
-        to="/setup"
-      >
-        Setup
-      </Link>
+      <Profile />
       <button
         style={{
           borderRadius: 8,
           padding: "8px 12px",
-          border: "1px solid black",
+          border: "1px solid #fff",
+          background: "transparent",
           float: "right",
           marginLeft: "auto",
           fontSize: 16,
           cursor: "pointer",
         }}
       >
-        <a style={{ textDecoration: "none", color: "black" }} href="/docs">
+        <a style={{ textDecoration: "none", color: "#fff" }} href="/docs">
           Docs
         </a>
       </button>
@@ -102,5 +74,6 @@ const Nav = styled.nav`
   & > a {
     margin-left: 8px;
     font-size: 24px;
+    color: #fff;
   }
 `;
