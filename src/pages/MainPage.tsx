@@ -260,7 +260,8 @@ export const MainPage: React.FC<{}> = (props) => {
               let soln = packedNBytesToString(kek.slice(0, 12));
               let soln2 = packedNBytesToString(kek.slice(12, 147));
               let soln3 = packedNBytesToString(kek.slice(147, 150));
-              setPublicSignals(`From: ${soln}\nTo: ${soln2}\nUsername: ${soln3}`);
+              // setPublicSignals(`From: ${soln}\nTo: ${soln2}\nUsername: ${soln3}`);
+              setPublicSignals(JSON.stringify(publicSignals));
 
               if (!circuitInputs) return;
               setLastAction("sign");
@@ -288,7 +289,7 @@ export const MainPage: React.FC<{}> = (props) => {
                 setLastAction("verify");
                 let ok = true;
                 const res: boolean = await verifyProof(
-                  proof, publicSignals
+                  JSON.parse(proof), JSON.parse(publicSignals)
                 );
                 console.log(res);
                 if(!res) throw Error("Verification failed!");
