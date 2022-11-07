@@ -1,6 +1,6 @@
 # The App
 
-The application is located at https://zk-email.xyz.
+The application is located at https://zkemail.xyz.
 
 The documentation for the app is located at https://zk-email.xyz/docs (to-do). Made by [@yush_g](https://twitter.com/yush_g) and [@sampriti0](https://twitter.com/sampriti0) at [@0xparc](https://twitter.com/0xparc) and [@personae_labs](https://twitter.com/personae_labs), dm if interested in usage.
 
