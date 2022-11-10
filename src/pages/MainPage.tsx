@@ -32,95 +32,13 @@ import {
   downloadFromFilename,
 } from "../helpers/zkp";
 import { packedNBytesToString } from "../helpers/binaryFormat";
+import { LabeledTextArea } from "../components/LabeledTextArea";
+import { SingleLineInput } from "../components/SingleLineInput";
+import { Button } from "../components/Button";
+import { Col, Row } from "../components/Layout";
 var Buffer = require("buffer/").Buffer; // note: the trailing slash is important!
 
 const generate_input = require("../scripts/generate_input");
-const demoUrl =
-  "/?message=I%20like%20cats&group_name=https%3A%2F%2Fgithub.com%2Forgs%2Fdoubleblind-xyz%2Fpeople&group_members=ssh-rsa%20AAAAB3NzaC1yc2EAAAADAQABAAACAQCq8ZasN4NVES99%2B9XRhFLkuT4deiyen01D5nWt8%2FBoqdcCW0jH%2FLLiew%2FxVQ7%2FmMYmEg%2Fw6In8kUMJTCd7oXBDYHNBGxhuIqKEDh15yN5loQykW8YCA74m8V6fdnZ22krFGS%2FnixYr19xEJ2cY28Jq8QNO03421T4QiZsqB8LcMOfMvVPzU96UWHR16LW1Lgj7pGLwbP%2FDBQRWn%2BAlaSYi%2FyHgCit9GgqOf2O7JqQ01p7d9AlBHyTPfDJHJOosKMKiwNwP4Rwyir%2FKeRde65v%2FMqRnBWoQogjTNAylyCMOUDhNZQbiF8ttIynY2xtg5i52Qc9qY%2FBZAk1J%2FSK8MjEae4o8JU%2BfwBGH4aXDLx5AGwD5EHm95M2WiEu8kvcGv%2BbnPp4OED8W2pvoI8Q0PmYJ8WC6vebM4fOg9dnvZ52jUb5mpfWmUy0%2FPeOPyxsfTjpptirNhJUpWWdhDfPNxT19jSka4BYlhHEVXeR1%2BepBXe7z1m0w4RMVFHyDvsr1gUlcWjO9ufccdqNnNjrWcKLIm455RJivh8V1JC%2F2mJdMrYGKf54%2FOXa%2BEMcRpgKO1kjhqDCMitA8IVa8bcVFcvwmB1myoondETeO7bdGIVBMV1o8H%2BU6GL29p%2B5nKzKWUN1IRPgIuMS80sq7MDBkKChzQxJHE%2FhhkszQvAgR9OdzjQ%3D%3D%20scott%0Assh-rsa%20AAAAB3NzaC1yc2EAAAADAQABAAABAQCqu5UxDsmcu7ibKB20ucaYyEsk1EDAa5uXfyDJiH30x4t%2FXwS7b7qdegO1HlvfE1HA7iPqjtbWj70qwDFJwwGazxze33J1oh%2FLMKfPUzZ32y8tRU0JHR9nHZHMOcoUYPNeXLVDh6jdEX3%2B2%2FodIbSVbu54wUF5j6q7iAv%2B6Ch9qcMaO9vPEt3z6QX5LnUAqvCwu5sUgobWB7I10iGD4jFYDL%2Ff22pOGK%2BKyW26vkMh%2Fcg8FNC07ilRiYqQIxfdj7lWaYbO0VhxhQtTH5HcgQ2bAWZ6Rp9%2FcXOAegboV2dxjQ%2FuIumcdaqkXeHNypC3j%2F6%2BTBi5BFMQit8gy1H9R86x%20scott%0A%0Assh-rsa%20AAAAB3NzaC1yc2EAAAADAQABAAABAQDRvpOL7TZcYtHsSSz4lj8vTyIEuFSQnUqHTxhhsEWzAbq9LHMqYm4Whg1oRm430QvJF5xfOaLk%2BbmO6hN1g4Y9yJUj4uhaNSfSl3wGLBxu5OQNngnIDCbxTLjat4Jgz79ZiAo79c6bVq13xcfG0fjtFoC3FbZD0VEmqmwd%2FlYCLLVqtjccQur8B56O9Pj%2FgiDMby0iQPFEe9vlpP8Wg3WVjFRQkwNOhGzvLNrlOBkJXpG9xty43O9T09qHJzKYobrAnlKeRTqYqppVfwmYI7rqr2rqTXF9mBB4s1zUCXJzTVrnqexzeH%2BUv54KIaXxR2CAn3%2BDDtDBfJ4wqk%2F8OBNN%20andrew%0A%0Assh-rsa%20AAAAB3NzaC1yc2EAAAADAQABAAACAQDcJSRy%2BRXANfCgJpzhX9fWEnslgCcgffw5t2mWW5Ltc2cfiWr1w3dUGoSa6oNs1QTwYkdfvy9cv1zwG%2B77a1AhtmjwywahSuOE3yg1IIe6Qo4U7Ae%2B7r8F08Qob7Ct8ZoUHPupbFYyXF759xYpN%2Bvvjuy3MbgTwnbijqH2HUAIwBT2V%2FxbGuwVBNK80i9ib3DNchW%2FwYu9oSukXufzBpPYBZUzAcejCTjPuv3ts%2FL%2BVPJSgaiHeZ%2FqlzU01BQ37dbEieDI6k64IKNppW2l%2BC0ERGtsKjPSINC%2Bx%2BOvS7puOtI%2BAu%2Bp72soaBIrfONsL3oTUgtj82bRzVALCM1Dxh%2BK7O0i00H%2F5xICB4%2Bb%2FGRgho%2BF4IlDf2mDy9qMoyNA8vemH%2FLC9Rc%2BujzIJJHD9WL8nDvg2v8lQGtWDrSlwjRKlp7MtVad%2BCOF6K9oCXjhFWUVirvG%2F1cG%2FYnmzn9%2F2ZEdsYuqL6TEflxtuIM2YdJWIubgnINs3l8P8UwuNa%2FUoM4leBT05LP%2BxbD7%2BHWSXNuWK9%2B7d3t03qOoGdfsbonk9wolM5l04QlTI%2BlOmQObBxHBT7CH4cwWC%2FevovPK9jKkAk%2FAC68YTWAV1U43O9gKmtq67TsShJ9YOeZU6xAp7kAcFVjpABz6suhQa6vGrGCKO8ERp4rLV9KUrgJin86KzQ%3D%3D%20steven%0Assh-rsa%20AAAAB3NzaC1yc2EAAAADAQABAAACAQDBN%2BISLXgsf3xxG18ZSKAwARj%2F0mw0x8JGQoWuCcDB5C99bgC5CMIsm%2F7ZYHye6BdB7GbY3RV%2FaVuLzm2lh2Q9opPT2AJhWDdeYyLhrIRsexNfnUXZsETxI4M7P5mZXNHAVASG%2FQ%2Fgu2lb1aPt5oOiRCI7tvitKLOGrUtb0%2FKToaityX2OJFmEnmH%2BRM6t2ICwmfObterWjzm%2BJ5k1ydFjSSwkx669U%2FGWVf56Rruburz%2FXlDwUm9liVef5iTOH8%2FrSu82ejamZXoYJFCaSq3nCZRw8mb6xs%2BzoiYcKiGozlhg6Zbpkexr4i20vPR5d9rQItaZ38cmbk2HwZzpaqUx%2Ft055CpmUQ2N%2Fvfvzr3rUCeG0SkWsew0m8UDB0AU6LYKCQS50kr0KBYEtE%2Blt46iLf%2B5XrlBhFj99xqx5qOeSY9Pz8xuu3Ti2ckDKhyMTj9uONSBPVOxRslX8PK35L0lQdM8TOjKBpVAWx4Fyag93QWyPFdUD4kB%2BHHSo9FgC9vZxtoxPOpTf8GgIzspGVHL%2BMjW7QmBs%2BcD48K9k6XMmaSq1AEx1JjeysoO5d9bzTygyHAhyZtZftnaTQ6r8OjUGL%2BU9J16Ezp1CwxY8tHpIyh2e6HUuVE8CNkeKLf6j2VIgdQd7b%2BiSPtr3bc43tMYRW9576Qov%2Ft8pP8gEla83w%3D%3D%20steven";
-
-const LabeledTextArea: React.FC<{
-  style?: CSSProperties;
-  className?: string;
-  label: string;
-  value: string;
-  warning?: string;
-  warningColor?: string;
-  disabled?: boolean;
-  disabledReason?: string;
-  link?: string;
-  secret?: boolean;
-  onChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
-}> = ({
-  style,
-  warning,
-  warningColor,
-  disabled,
-  disabledReason,
-  label,
-  value,
-  onChange,
-  link,
-  className,
-  secret,
-}) => {
-  return (
-    <LabeledTextAreaContainer
-      className={_.compact(["labeledTextAreaContainer", className]).join(" ")}
-    >
-      <label>
-        {label}
-        {link && (
-          <a
-            style={{ color: "gray", marginLeft: 12 }}
-            rel="noreferrer"
-            target="_blank"
-            href={link}
-          >
-            Share Link
-          </a>
-        )}
-      </label>
-      {warning && (
-        <span className="warning" style={{ color: warningColor }}>
-          {warning}
-        </span>
-      )}
-      <textarea
-        style={style}
-        title={disabled ? disabledReason : ""}
-        disabled={disabled}
-        value={value}
-        onChange={onChange}
-      />
-
-      {secret && (
-        <div className="secret">Hover to reveal public info sent to chain</div>
-      )}
-    </LabeledTextAreaContainer>
-  );
-};
-
-// function decodeSearchParams(urlSearchParams: URLSearchParams): {
-//   message?: string;
-//   ethereum_address?: string;
-// } {
-//   const searchParams: {
-//     message?: string;
-//     ethereum_address?: string;
-//   } = Object.fromEntries(urlSearchParams.entries());
-//   return {
-//     message: searchParams.message && decodeURIComponent(searchParams.message),
-//     ethereum_address:
-//       searchParams.ethereum_address && decodeURIComponent(searchParams.ethereum_address),
-//   };
-// }
-
-function encodeMessageSearchParams(message: string): string {
-  const parts = _.compact([
-    message && "message=" + encodeURIComponent(message),
-  ]);
-  return parts.join("&");
-}
 
 export const MainPage: React.FC<{}> = (props) => {
   // raw user inputs
@@ -135,18 +53,6 @@ export const MainPage: React.FC<{}> = (props) => {
   const [displayMessage, setDisplayMessage] = useState<string>("Prove");
   const [emailHeader, setEmailHeader] = useState<string>("");
   const [ethereumAddress, setEthereumAddress] = useState<string>("");
-
-  const messageShareLink = useMemo(() => {
-    return (
-      window.location.protocol +
-      "//" +
-      window.location.host +
-      window.location.pathname +
-      "?" +
-      encodeMessageSearchParams(ethereumAddress)
-    );
-  }, [ethereumAddress]);
-  console.log(messageShareLink, messageShareLink.length);
 
   // computed state
   const { value, error } = useAsync(async () => {
@@ -190,47 +96,48 @@ export const MainPage: React.FC<{}> = (props) => {
   return (
     <Container>
       <div className="title">
-        <h1>ZK Email Ownership Proof Generator From Header</h1>
-        <div>
-          <Link to={"/"}>Reset</Link> | <Link to={demoUrl}>Demo</Link>{" "}
-        </div>
+        <Header>ZK Email Ownership Proof Generator From Header</Header>
       </div>
 
       <div className="bottom">
-        <div>
+        <span>
           If you wish to generate a ZK proof of Twitter badge, you must do
-          these: 1) Send yourself a password reset email from Twitter in
-          incognito. 2) In your inbox, find the email from Twitter and download
-          headers (three dots, then download message). 3) Copy paste the entire
-          contents of the file into the box below 4) Paste in your sending
-          Ethereum key 5) Click "Generate Proof" Note that it is completely
-          client side and open source, and you are not trusting us with any
-          private information.
+          these:
+          <br></br>
+          1) Send yourself a password reset email from Twitter in incognito.
+          <br />
+          2) In your inbox, find the email from Twitter and download headers
+          (three dots, then download message).
+          <br />
+          3) Copy paste the entire contents of the file into the box below
+          <br />
+          4) Paste in your sending Ethereum key
+          <br />
+          5) Click "Generate Proof" Note that it is completely client side and
+          open source, and you are not trusting us with any private information.
           <br />
           Read our <a href="https://zkemail.xyz/docs"> docs </a> to learn more.
-        </div>
+        </span>
         <br />
       </div>
-      <div className="main">
-        <div className="messagePane">
+      <Main>
+        <Column>
+          <Header>Input</Header>
           <LabeledTextArea
             label="Full Email with Headers"
             value={emailFull}
-            link={messageShareLink}
             onChange={(e) => {
               setEmailFull(e.currentTarget.value);
             }}
           />
-          <LabeledTextArea
+          <SingleLineInput
             label="Ethereum Address"
             value={ethereumAddress}
             onChange={(e) => {
               setEthereumAddress(e.currentTarget.value);
             }}
           />
-        </div>
-        <div className="buttonsPane">
-          <button
+          <Button
             disabled={displayMessage !== "Prove"}
             onClick={async () => {
               console.log("Generating proof...");
@@ -301,59 +208,75 @@ export const MainPage: React.FC<{}> = (props) => {
             }}
           >
             {displayMessage}
-            <br />
-            {">>>"}
-          </button>
-        </div>
-        <LabeledTextArea
-          label="Proof Output"
-          value={proof}
-          onChange={(e) => {
-            setProof(e.currentTarget.value);
-          }}
-          warning={verificationMessage}
-          warningColor={verificationPassed ? "green" : "red"}
-        />
-        <LabeledTextArea
-          label="..."
-          value={publicSignals}
-          secret
-          onChange={(e) => {
-            setPublicSignals(e.currentTarget.value);
-          }}
-          // warning={
-          // }
-        />
-        <button
-          disabled={emailFull.trim().length == 0}
-          onClick={async () => {
-            try {
-              setLastAction("verify");
-              let ok = true;
-              const res: boolean = await verifyProof(proof, publicSignals);
-              console.log(res);
-              if (!res) throw Error("Verification failed!");
-              setVerificationMessage("Passed!");
-              setVerificationPassed(ok);
-            } catch (er: any) {
-              setVerificationMessage("Failed to verify " + er.toString());
-              setVerificationPassed(false);
-            }
-          }}
-        >
-          Verify
-          <br />
-          {"<<<"}
-        </button>
-      </div>
+          </Button>
+        </Column>
+        <Column>
+          <Header>Output</Header>
+          <LabeledTextArea
+            label="Proof Output"
+            value={proof}
+            onChange={(e) => {
+              setProof(e.currentTarget.value);
+            }}
+            warning={verificationMessage}
+            warningColor={verificationPassed ? "green" : "red"}
+          />
+          <LabeledTextArea
+            label="..."
+            value={publicSignals}
+            secret
+            onChange={(e) => {
+              setPublicSignals(e.currentTarget.value);
+            }}
+            // warning={
+            // }
+          />
+          <Button
+            disabled={emailFull.trim().length == 0}
+            onClick={async () => {
+              try {
+                setLastAction("verify");
+                let ok = true;
+                const res: boolean = await verifyProof(proof, publicSignals);
+                console.log(res);
+                if (!res) throw Error("Verification failed!");
+                setVerificationMessage("Passed!");
+                setVerificationPassed(ok);
+              } catch (er: any) {
+                setVerificationMessage("Failed to verify " + er.toString());
+                setVerificationPassed(false);
+              }
+            }}
+          >
+            Verify
+          </Button>
+        </Column>
+      </Main>
     </Container>
   );
 };
 
+const Header = styled.span`
+  font-size: 1.7em;
+  font-weight: semi-bold;
+  margin-bottom: 1em;
+  color: #fff;
+`;
+
+const Main = styled(Row)`
+  width: 100%;
+  gap: 1rem;
+`;
+
+const Column = styled(Col)`
+  width: 100%;
+  gap: 1rem;
+  align-self: flex-start;
+`;
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  max-width: 720px;
   margin: 0 auto;
   & .title {
     display: flex;
@@ -361,27 +284,6 @@ const Container = styled.div`
     align-items: center;
   }
   & .main {
-    display: flex;
-    flex-direction: column;
-    & .messagePane {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      & > .div {
-        display: flex;
-      }
-    }
-    & .buttonsPane {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 12px;
-      & button {
-        margin-bottom: 16px;
-        width: 120px;
-      }
-    }
     & .signaturePane {
       flex: 1;
       display: flex;
@@ -404,55 +306,5 @@ const Container = styled.div`
       max-width: 50vw;
       width: 500px;
     }
-  }
-`;
-
-const LabeledTextAreaContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 15vh;
-  padding: 8px 24px;
-  align-items: center;
-  position: relative;
-  & label {
-    font-size: 20px;
-  }
-  & textarea {
-    align-self: stretch;
-    margin-top: 12px;
-    flex: 1;
-  }
-  & .warning {
-    color: #bd3333;
-    font-size: 80%;
-  }
-  &.small {
-    label {
-      font-size: 16px;
-    }
-    height: 7vh;
-
-    textarea {
-      align-self: center;
-      width: 120px;
-    }
-  }
-  .secret {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: #171717;
-    color: #fff;
-    user-select: none;
-    pointer-events: none;
-    opacity: 0.95;
-    justify-content: center;
-    display: flex;
-    align-items: center;
-    transition: opacity 0.5s ease-in-out;
-  }
-  &:hover .secret,
-  & :focus + .secret {
-    opacity: 0;
   }
 `;

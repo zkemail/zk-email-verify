@@ -15,7 +15,9 @@ export async function downloadFromFilename(filename: string) {
     await localforage.setItem(filename, zkeyBuff);
     console.log(`Storage of ${filename} successful!`);
   } catch (e) {
-    console.log(`Storage of ${filename} unsuccessful, make sure IndexedDB is enabled in your browser.`);
+    console.log(
+      `Storage of ${filename} unsuccessful, make sure IndexedDB is enabled in your browser.`
+    );
   }
 }
 
@@ -38,7 +40,11 @@ export async function generateProof(input: any, filename: string) {
   // TODO: figure out how to generate this s.t. it passes build
   console.log("generating proof for input");
   console.log(input);
-  const { proof, publicSignals } = await snarkjs.groth16.fullProve(input, `https://zkemail-zkey-chunks.s3.amazonaws.com/${filename}.wasm`, `${filename}.zkey`);
+  const { proof, publicSignals } = await snarkjs.groth16.fullProve(
+    input,
+    `https://zkemail-zkey-chunks.s3.amazonaws.com/${filename}.wasm`,
+    `${filename}.zkey`
+  );
   console.log(`Generated proof ${JSON.stringify(proof)}`);
 
   return {
@@ -48,7 +54,15 @@ export async function generateProof(input: any, filename: string) {
 }
 
 export async function verifyProof(proof: any, publicSignals: any) {
-  const proofVerified = await snarkjs.groth16.verify(vkey, publicSignals, proof);
+  console.log("PROOF", proof);
+  console.log("PUBLIC SIGNALS", publicSignals);
+  console.log("VK", vkey);
+  const proofVerified = await snarkjs.groth16.verify(
+    vkey,
+    publicSignals,
+    proof
+  );
+  console.log("proofV", proofVerified);
 
   return proofVerified;
 }
@@ -70,16 +84,24 @@ function bigIntToArray(n: number, k: number, x: bigint) {
 
 // taken from generation code in dizkus-circuits tests
 function pubkeyToXYArrays(pk: string) {
-  const XArr = bigIntToArray(64, 4, BigInt("0x" + pk.slice(4, 4 + 64))).map((el) => el.toString());
-  const YArr = bigIntToArray(64, 4, BigInt("0x" + pk.slice(68, 68 + 64))).map((el) => el.toString());
+  const XArr = bigIntToArray(64, 4, BigInt("0x" + pk.slice(4, 4 + 64))).map(
+    (el) => el.toString()
+  );
+  const YArr = bigIntToArray(64, 4, BigInt("0x" + pk.slice(68, 68 + 64))).map(
+    (el) => el.toString()
+  );
 
   return [XArr, YArr];
 }
 
 // taken from generation code in dizkus-circuits tests
 function sigToRSArrays(sig: string) {
-  const rArr = bigIntToArray(64, 4, BigInt("0x" + sig.slice(2, 2 + 64))).map((el) => el.toString());
-  const sArr = bigIntToArray(64, 4, BigInt("0x" + sig.slice(66, 66 + 64))).map((el) => el.toString());
+  const rArr = bigIntToArray(64, 4, BigInt("0x" + sig.slice(2, 2 + 64))).map(
+    (el) => el.toString()
+  );
+  const sArr = bigIntToArray(64, 4, BigInt("0x" + sig.slice(66, 66 + 64))).map(
+    (el) => el.toString()
+  );
 
   return [rArr, sArr];
 }

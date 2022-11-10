@@ -1,19 +1,30 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { WagmiConfig, createClient, configureChains, chain } from "wagmi";
-
 import { publicProvider } from "wagmi/providers/public";
+import {
+  getDefaultWallets,
+  RainbowKitProvider,
+} from '@rainbow-me/rainbowkit';
+
+import "./index.css";
+import '@rainbow-me/rainbowkit/styles.css';
 
 const { chains, provider, webSocketProvider } = configureChains(
   [chain.goerli],
   [publicProvider()]
 );
 
+const { connectors } = getDefaultWallets({
+  appName: 'ZK Email',
+  chains
+});
+
 const client = createClient({
   autoConnect: true,
+  connectors,
   provider,
   webSocketProvider,
 });
@@ -21,7 +32,9 @@ const client = createClient({
 ReactDOM.render(
   <React.StrictMode>
     <WagmiConfig client={client}>
-      <App />
+      <RainbowKitProvider chains={chains}>
+        <App />
+      </RainbowKitProvider>
     </WagmiConfig>
   </React.StrictMode>,
   document.getElementById("root")

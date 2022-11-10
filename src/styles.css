@@ -33,19 +33,6 @@ h1 {
   font-weight: 300;
   line-height: 1.1;
 }
-a {
-  text-decoration: none;
-  color: gray;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-a.current_page {
-  color: black;
-}
-
 html {
   background: #171717 !important;
   color: #fff;
