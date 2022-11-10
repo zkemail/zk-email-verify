@@ -146,7 +146,11 @@ export const MainPage: React.FC<{}> = (props) => {
             }}
           />
           <Button
-            disabled={displayMessage !== "Prove"}
+            disabled={
+              displayMessage !== "Prove" ||
+              emailFull.length === 0 ||
+              ethereumAddress.length === 0
+            }
             onClick={async () => {
               console.log("Generating proof...");
               const mail =
@@ -240,7 +244,7 @@ export const MainPage: React.FC<{}> = (props) => {
             // }
           />
           <Button
-            disabled={emailFull.trim().length == 0}
+            disabled={emailFull.trim().length === 0 || proof.length === 0}
             onClick={async () => {
               try {
                 setLastAction("verify");

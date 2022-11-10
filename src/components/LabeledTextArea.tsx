@@ -69,14 +69,15 @@ const LabeledTextAreaContainer = styled(Col)`
     width: 100%;
     height: 100%;
     background: #171717;
-    color: #fff;
+    border: 1px dashed rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.8);
     user-select: none;
     pointer-events: none;
     opacity: 0.95;
     justify-content: center;
     display: flex;
     align-items: center;
-    transition: opacity 0.5s ease-in-out;
+    transition: opacity 0.3s ease-in-out;
   }
   &:hover .secret,
   & :focus + .secret {
