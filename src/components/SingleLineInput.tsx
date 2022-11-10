@@ -8,13 +8,13 @@ export const SingleLineInput: React.FC<{
 }> = ({ label, onChange, value }) => {
   return (
     <InputContainer>
-      <span
+      <label
         style={{
-          color: "rgba(255, 255,2 55, 0.4)",
+          color: "rgba(255, 255, 255, 0.8)",
         }}
       >
         {label}
-      </span>
+      </label>
       <Input onChange={onChange} value={value} placeholder={label} />
     </InputContainer>
   );
@@ -26,7 +26,7 @@ const InputContainer = styled(Col)`
 
 const Input = styled.input`
   border: 1px solid rgba(255, 255, 255, 0.4);
-  background: transparent;
+  background: rgba(0, 0, 0, 0.3);
   border-radius: 4px;
   padding: 8px;
   height: 32px;

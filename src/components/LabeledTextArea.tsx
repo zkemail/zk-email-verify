@@ -12,7 +12,6 @@ export const LabeledTextArea: React.FC<{
   warningColor?: string;
   disabled?: boolean;
   disabledReason?: string;
-  link?: string;
   secret?: boolean;
   onChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
 }> = ({
@@ -24,7 +23,6 @@ export const LabeledTextArea: React.FC<{
   label,
   value,
   onChange,
-  link,
   className,
   secret,
 }) => {
@@ -32,19 +30,7 @@ export const LabeledTextArea: React.FC<{
     <LabeledTextAreaContainer
       className={_.compact(["labeledTextAreaContainer", className]).join(" ")}
     >
-      <label>
-        {label}
-        {link && (
-          <a
-            style={{ color: "gray", marginLeft: 12 }}
-            rel="noreferrer"
-            target="_blank"
-            href={link}
-          >
-            Share Link
-          </a>
-        )}
-      </label>
+      <Label>{label}</Label>
       {warning && (
         <span className="warning" style={{ color: warningColor }}>
           {warning}
@@ -65,6 +51,10 @@ export const LabeledTextArea: React.FC<{
   );
 };
 
+const Label = styled.label`
+  color: rgba(255, 255, 255, 0.8);
+`;
+
 const LabeledTextAreaContainer = styled(Col)`
   height: 15vh;
   border-radius: 4px;
@@ -73,12 +63,6 @@ const LabeledTextAreaContainer = styled(Col)`
   & .warning {
     color: #bd3333;
     font-size: 80%;
-  }
-  &.small {
-    label {
-      font-size: 16px;
-    }
-    height: 7vh;
   }
   .secret {
     position: absolute;
@@ -101,12 +85,13 @@ const LabeledTextAreaContainer = styled(Col)`
 `;
 
 const TextArea = styled.textarea`
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.3);
   border-radius: 4px;
-  height: 15vh;
+  height: 480px;
 	padding: 16px;
 	transition: all 0.2s ease-in-out;
+	resize: none;
   &:hover {
 		border: 1px solid rgba(255, 255, 255, 0.8);
 `;

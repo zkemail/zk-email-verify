@@ -36,6 +36,7 @@ import { LabeledTextArea } from "../components/LabeledTextArea";
 import { SingleLineInput } from "../components/SingleLineInput";
 import { Button } from "../components/Button";
 import { Col, Row } from "../components/Layout";
+import { NumberedStep } from "../components/NumberedStep";
 var Buffer = require("buffer/").Buffer; // note: the trailing slash is important!
 
 const generate_input = require("../scripts/generate_input");
@@ -99,30 +100,37 @@ export const MainPage: React.FC<{}> = (props) => {
         <Header>ZK Email Ownership Proof Generator From Header</Header>
       </div>
 
-      <div className="bottom">
-        <span>
+      <Col
+        style={{
+          gap: "8px",
+          maxWidth: "720px",
+          margin: "0 auto",
+          marginBottom: "2rem",
+        }}
+      >
+        <span style={{ color: "rgba(255, 255, 255, 0.7)" }}>
           If you wish to generate a ZK proof of Twitter badge, you must do
           these:
-          <br></br>
-          1) Send yourself a password reset email from Twitter in incognito.
-          <br />
-          2) In your inbox, find the email from Twitter and download headers
-          (three dots, then download message).
-          <br />
-          3) Copy paste the entire contents of the file into the box below
-          <br />
-          4) Paste in your sending Ethereum key
-          <br />
-          5) Click "Generate Proof" Note that it is completely client side and
-          open source, and you are not trusting us with any private information.
-          <br />
-          Read our <a href="https://zkemail.xyz/docs"> docs </a> to learn more.
         </span>
-        <br />
-      </div>
+        <NumberedStep step={1}>
+          Send yourself a password reset email from Twitter in incognito.
+        </NumberedStep>
+        <NumberedStep step={2}>
+          In your inbox, find the email from Twitter and download headers (three
+          dots, then download message).
+        </NumberedStep>
+        <NumberedStep step={3}>
+          Copy paste the entire contents of the file into the box below
+        </NumberedStep>
+        <NumberedStep step={4}>Paste in your sending Ethereum key</NumberedStep>
+        <NumberedStep step={5}>
+          Click "Generate Proof" Note that it is completely client side and open
+          source, and you are not trusting us with any private information.
+        </NumberedStep>
+      </Col>
       <Main>
         <Column>
-          <Header>Input</Header>
+          <SubHeader>Input</SubHeader>
           <LabeledTextArea
             label="Full Email with Headers"
             value={emailFull}
@@ -211,7 +219,7 @@ export const MainPage: React.FC<{}> = (props) => {
           </Button>
         </Column>
         <Column>
-          <Header>Output</Header>
+          <SubHeader>Output</SubHeader>
           <LabeledTextArea
             label="Proof Output"
             value={proof}
@@ -257,10 +265,18 @@ export const MainPage: React.FC<{}> = (props) => {
 };
 
 const Header = styled.span`
-  font-size: 1.7em;
-  font-weight: semi-bold;
+  font-weight: 600;
   margin-bottom: 1em;
   color: #fff;
+  font-size: 2.25rem;
+  line-height: 2.5rem;
+  letter-spacing: -0.02em;
+`;
+
+const SubHeader = styled(Header)`
+  font-size: 1.7em;
+  margin-bottom: 16px;
+  color: rgba(255, 255, 255, 0.9);
 `;
 
 const Main = styled(Row)`
@@ -272,6 +288,10 @@ const Column = styled(Col)`
   width: 100%;
   gap: 1rem;
   align-self: flex-start;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 `;
 
 const Container = styled.div`
