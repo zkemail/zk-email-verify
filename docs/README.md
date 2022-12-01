@@ -33,13 +33,17 @@ Because all web2 data is centralized to some extent, note that the Twitter mails
 or database may know other identifying metadata about you just from your username.
 
 Becaause we do not currently have a nullifier, email addresses can generate an infinite
-number of password reset emails and thus Twitter badges corresponding to their username, meaning their credentials are safe if their Ethereum account is hijacked.
+number of password reset emails and thus Twitter badges corresponding to their username, meaning their credentials are safe if their Ethereum account is hijacked. This also means 'uniqueness' is hard to define,
+so anonymous voting protocols in some anonymity set based on zk-email verification would not be possible.
+
+The verification is slow due to large zkeys and proving time, things we are both working on
+and starting new from-scratch implementations to fix.
+
+There are several other theoretical issues like BCC's etc that break the claimed properties, so contact us or join [our discord](https://discord.gg/Sph38xHHNv) (has limited uses, [dm us](https://twitter.com/yush_g) for a new link) for more discussion.
 
 ### ZK Proofs
 
-Double Blind is built using [Zero-Knowledge
-Proofs](https://en.wikipedia.org/wiki/Zero-knowledge_proof) (ZK proofs). ZK
-proofs are essentially signatures which require knowledge of a value satisfying
+ZK proofs are essentially signatures which require knowledge of a value satisfying
 a specific function in order to generate correctly (so they prove knowledge of
 the value); however, they do not reveal these values to any validator (so they
 are zero-knowledge). Surprisingly, ZK proofs can be constructed for *any*
@@ -75,20 +79,18 @@ Github Repo for double-blind: https://github.com/doubleblind-xyz/double-blind
 
 RSA: https://en.wikipedia.org/wiki/RSA_(cryptosystem)
 
-Circuit Diagram: https://excalidraw.com/#json=prlRhzCaDe1HEmrabvXs4,LSAmJLJh5JDf38Xh2g3i4g
+Talk: https://www.youtube.com/watch?v=sPCHiUT3TmA
 
 Circom: https://github.com/iden3/circom
 
 SnarkJS: https://github.com/iden3/snarkjs
 
-SSHSIG: https://github.com/openssh/openssh-portable/blob/master/PROTOCOL.sshsig, https://github.com/openssh/openssh-portable/blob/master/ssh-keygen.c
-
-PKCS 1: https://datatracker.ietf.org/doc/html/rfc8017#section-9.2
-
 ## Related Work
 
 https://semaphore.appliedzkp.org/
 
-https://stealthdrop.xyz/
+https://stealthdrop.xyz/ + https://github.com/stealthdrop/stealthdrop
 
 https://github.com/0xPARC/cabal
+
+https://github.com/personaelabs/heyanon/
