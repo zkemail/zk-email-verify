@@ -195,9 +195,16 @@ Just RSA + SHA (without masking or regex proofs) for arbitrary message length <=
 RSA + SHA + Regex + Masking with up to 1024 byte message lengths is 1,392,219 constraints, and the chunked zkey took 9 + 15 + 15 + 2 minutes to generate on a machine with 32 cores.
 The full email circuit above with the 7-byte packing into signals is 1,408,571 constraints, with 163 public signals, and the verifier script fits in the 24kb contract limit.
 
-## Security
+### Scrubbing Sensitive Files
 
-Note that if a@b.com is bcced on an email from x@y.com -> z@y.com, then a can prove anything secretly that x and z can. To get around this, you want to be able to combine multiple email sources.
+```
+brew install git-filter-repo
+git filter-repo --replace-text <(echo "0x000000000000000000000000000000000000000000000000000000000abcdef")
+git filter-repo --path mit_msg.eml --invert-paths
+git remote add origin https://github.com/Divide-By-0/autolatex/
+ls
+git push --set-upstream origin master --force
+```
 
 ## To-Do
 

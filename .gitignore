@@ -54,3 +54,11 @@ src/contracts/out/
 src/contracts/lib/
 
 node_modules.nosync
+
+# Files that never should be committed, but can be obtained by asking Aayush or generating them yourself
+*msg.eml
+*email_cache.json
+*input.json
+circuits/inputs
+
+*email_proof.json
