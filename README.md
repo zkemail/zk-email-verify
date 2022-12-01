@@ -203,7 +203,7 @@ git filter-repo --replace-text <(echo "0x000000000000000000000000000000000000000
 git filter-repo --path mit_msg.eml --invert-paths
 git remote add origin https://github.com/zk-email-verify/zk-email-verify
 ls
-git push --set-upstream origin master --force
+git push --set-upstream origin main --force
 ```
 
 ## To-Do
