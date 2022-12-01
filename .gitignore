@@ -52,3 +52,5 @@ test.log
 src/contracts/out/
 .next
 src/contracts/lib/
+
+node_modules.nosync

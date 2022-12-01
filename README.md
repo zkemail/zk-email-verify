@@ -1,8 +1,10 @@
-# The App
+**WIP: This tech is extremely tricky to use and very much a work in progress, and we do not recommend use in any production application right now. This is both due to unaudited code, and several theoretical issues such as nullifiers, bcc’s, non-nested signatures, and hash sizings. We are working on addressing those, and if you have a possible usecase, please run it by us so we can ensure that your guarantees are in fact correct!**
 
-The application is located at https://zkemail.xyz.
+# MVP App
 
-The documentation for the app is located at https://zk-email.xyz/docs (to-do). Made by [@yush_g](https://twitter.com/yush_g) and [@sampriti0](https://twitter.com/sampriti0) at [@0xparc](https://twitter.com/0xparc) and [@personae_labs](https://twitter.com/personae_labs), dm if interested in usage.
+The application is located at https://zkemail.xyz. It only works on Chrome/Brave/Arc (or other Chromium-based browsers) due to download limits on other browsers.
+
+The documentation for the app is located at https://zkemail.xyz/docs (WIP). Made by [@yush_g](https://twitter.com/yush_g) and [@sampriti0](https://twitter.com/sampriti0) at [@0xparc](https://twitter.com/0xparc) and [@personae_labs](https://twitter.com/personae_labs), dm if interested in usage or building next generation primitives like this. This is very much a work in progress, and we invite folks to contribute, or contact us for interesting projects that can be built on top of the tech!
 
 # Development Instructions
 
@@ -27,7 +29,7 @@ Modify the `let regex = ` in lexical.js and then run `python3 gen.py`
 
 ## Getting email headers
 
-In outlook, turn on plain text mode. Send an email to yourself, and copy paste the full email details into the textbox on the (only client side!) webpage.
+In Outlook, turn on plain text mode. Send an email to yourself, and copy paste the full email details into the textbox on the (only client side!) webpage.
 
 Notes about email providers: tl;dr: view headers in a non-gmail client.
 
@@ -64,10 +66,12 @@ wget https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_21.ptau
 mv powersOfTau28_hez_final_21.ptau powersoftau/powersOfTau28_hez_final_21.ptau
 ```
 
-To create a chunked zkey for in-browser proving, run the following:
+To create a chunked zkey for in-browser proving, run the following (likely on a high CPU computer):
+
+<!-- Previously snarkjs@git+https://github.com/vb7401/snarkjs.git#fae4fe381bdad2da13eee71010dfe477fc694ac1 -->
 
 ```
-yarn install snarkjs@git+https://github.com/vb7401/snarkjs.git#fae4fe381bdad2da13eee71010dfe477fc694ac1
+yarn install https://github.com/vb7401/snarkjs/commits/chunk_zkey_gen
 cd dizkus-scripts/
 ./1_compile.sh
 ./2_...
@@ -77,9 +81,9 @@ cd dizkus-scripts/
 ./6_...
 ```
 
-Note that there's no .zkeya file, only .zkeyb ... .zkeyk. Load into s3.
+Note that there's no .zkeya file, only .zkeyb ... .zkeyk. Load into s3 bucket.
 
-You use [zkp.ts](https://github.com/personaelabs/heyanon/blob/main/lib/zkp.ts) to load into localforage. In the browser, to read off of localforage, you have to do:
+We use a fork of [zkp.ts](https://github.com/personaelabs/heyanon/blob/main/lib/zkp.ts) to load these keys into localforage. In the browser, to read off of localforage, you have to use this fork when running the frontend locally/in prod:
 
 ```
 yarn install snarkjs@git+https://github.com/vb7401/snarkjs.git#53e86631b5e409e5bd30300611b495ca469503bc
@@ -87,7 +91,7 @@ yarn install snarkjs@git+https://github.com/vb7401/snarkjs.git#53e86631b5e409e5b
 
 Change s3 address to your bucket.
 
-Put the email into ...*eml. Edit generate_input.json to import it. Manually copy paste the modulus in the resulting generated file into solidity verified mailserver keys.
+Put the email into ...\*eml. Edit generate_input.json to import it. Manually copy paste the modulus in the resulting generated file into solidity verified mailserver keys.
 
 To do a non-chunked zkey for non-browser running,
 
@@ -147,6 +151,7 @@ node --max-old-space-size=614400 ./../node_modules/.bin/snarkjs r1cs info email.
 ```
 
 To test solidity,
+
 ```
 cp node_modules/forge-std src/contracts/lib/forge-std
 cd src/contracts
@@ -167,12 +172,15 @@ Just RSA + SHA (without masking or regex proofs) for arbitrary message length <=
 RSA + SHA + Regex + Masking with up to 1024 byte message lengths is 1,392,219 constraints, and the chunked zkey took 9 + 15 + 15 + 2 minutes to generate on a machine with 32 cores.
 The full email circuit above with the 7-byte packing into signals is 1,408,571 constraints, with 163 public signals, and the verifier script fits in the 24kb contract limit.
 
+## Security
+
+Note that if a@b.com is bcced on an email from x@y.com -> z@y.com, then a can prove anything secretly that x and z can. To get around this, you want to be able to combine multiple email sources.
+
 ## To-Do
 
-- Test emails where a@b.com is bcced on an email from x@y.com -> z@y.com -- can a falsely prove membership in y.com? Specifically, does DKIM happen on the message layer or the connection layer?
-- Make the frontend circuit calls work (Vivek B @vb7401 knows the right instructions)
+- Make the frontend circuit calls work (needs argument reduction in Solidity)
 - Make a general method to get formatted signatures and bodies from all email clients
 - Make versions for different size RSA keys
-- Add root cert DNS in snark, to allow anyone to add a website's RSA key
+- Add ENS DNSSEC code (possibly SNARKed), so anyone can add a website's RSA key via DNS record
 - Design the NFT/POAP to have the user's domain/verified identity on it
-- Make a testnet faucet that checks this for sybil resistance
+- Make a testnet faucet as a PoC for Sybil resistance and to get developers interested
