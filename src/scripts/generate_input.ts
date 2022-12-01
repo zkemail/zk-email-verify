@@ -1,10 +1,5 @@
 import { bytesToBigInt, stringToBytes, fromHex, toCircomBigIntBytes, packBytesIntoNBytes, bufferToUint8Array, bufferToString } from "../helpers/binaryFormat";
 import {
-  AAYUSH_EMAIL_SIG,
-  AAYUSH_EMAIL_MODULUS,
-  AAYUSH_POSTHASH_MESSAGE_PADDED_INT,
-  AAYUSH_PREHASH_MESSAGE_INT,
-  AAYUSH_PREHASH_MESSAGE_STRING,
   CIRCOM_FIELD_MODULUS,
   MAX_HEADER_PADDED_BYTES,
   MAX_BODY_PADDED_BYTES,
@@ -143,8 +138,8 @@ export async function getCircuitInputs(
   const modulusBigInt = rsa_modulus;
   // Message is the email header with the body hash
   const prehash_message_string = message;
-  const baseMessageBigInt = AAYUSH_PREHASH_MESSAGE_INT; // bytesToBigInt(stringToBytes(message)) ||
-  const postShaBigint = AAYUSH_POSTHASH_MESSAGE_PADDED_INT;
+  // const baseMessageBigInt = AAYUSH_PREHASH_MESSAGE_INT; // bytesToBigInt(stringToBytes(message)) ||
+  // const postShaBigint = AAYUSH_POSTHASH_MESSAGE_PADDED_INT;
   const signatureBigInt = rsa_signature;
 
   // Perform conversions
