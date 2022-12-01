@@ -201,7 +201,7 @@ The full email circuit above with the 7-byte packing into signals is 1,408,571 c
 brew install git-filter-repo
 git filter-repo --replace-text <(echo "0x000000000000000000000000000000000000000000000000000000000abcdef")
 git filter-repo --path mit_msg.eml --invert-paths
-git remote add origin https://github.com/Divide-By-0/autolatex/
+git remote add origin https://github.com/zk-email-verify/zk-email-verify
 ls
 git push --set-upstream origin master --force
 ```
