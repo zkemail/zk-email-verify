@@ -66,3 +66,4 @@ circuits/*.json
 generate_input_log.txt
 *email_proof.json
 *aayush_constants.ts
+test_email.txt

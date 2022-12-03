@@ -23,7 +23,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     signal input in_body_len_padded_bytes;
 
     signal reveal[max_header_bytes]; // bytes to reveal
-    signal output reveal_packed[max_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
+    signal reveal_packed[max_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
 
     var max_twitter_len = 21;
     var max_twitter_packed_bytes = (max_twitter_len - 1) \ 7 + 1; // ceil(max_num_bytes / 7)
@@ -124,16 +124,20 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         sha_body_bytes[i].out === sha_b64.out[i];
     }
 
+    // This computes the regex states on each character
     component twitter_regex = TwitterResetRegex(max_body_bytes);
     for (var i = 0; i < max_body_bytes; i++) {
         twitter_regex.msg[i] <== in_body_padded[i];
     }
+
+    // This ensures we found a match at least once
     component found_twitter = IsZero();
     found_twitter.in <== twitter_regex.out;
     found_twitter.out === 0;
 
     log(twitter_regex.out);
 
+    // We isolate where the username begins: twitter_eq there is 1, everywhere else is 0
     component twitter_eq[max_body_bytes];
     for (var i = 0; i < max_body_bytes; i++) {
         twitter_eq[i] = IsEqual();
@@ -141,9 +145,19 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         twitter_eq[i].in[1] <== twitter_username_idx;
     }
 
+
     for (var j = 0; j < max_twitter_len; j++) {
+        // This vector is 0 everywhere except at one value
+        // [x][x] is the starting character of the twitter username
         reveal_twitter[j][j] <== twitter_eq[j].out * twitter_regex.reveal[j];
         for (var i = j + 1; i < max_body_bytes; i++) {
+            // This shifts the username back to the start of the string. For example,
+            // [0][k0] = y, where k0 >= twitter_username_idx + 0
+            // [1][k1] = u, where k1 >= twitter_username_idx + 1
+            // [2][k2] = s, where k2 >= twitter_username_idx + 2
+            // [3][k3] = h, where k3 >= twitter_username_idx + 3
+            // [4][k4] = _, where k4 >= twitter_username_idx + 4
+            // [5][k5] = g, where k5 >= twitter_username_idx + 5
             reveal_twitter[j][i] <== reveal_twitter[j][i - 1] + twitter_eq[i-j].out * twitter_regex.reveal[i];
         }
     }
@@ -182,6 +196,6 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
 }
 
 // In circom, all output signals of the main component are public (and cannot be made private), the input signals of the main component are private if not stated otherwise using the keyword public as above. The rest of signals are all private and cannot be made public.
-// This makes modulus and reveal_packed public. Signature can optionally be made public, but is not recommended since it allows the mailserver to trace who the offender is.
+// This makes modulus and reveal_twitter_packed public. hash(signature) can optionally be made public, but is not recommended since it allows the mailserver to trace who the offender is.
 
 component main { public [ modulus, address ] } = EmailVerify(1024, 1536, 121, 17);

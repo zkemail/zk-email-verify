@@ -3,7 +3,7 @@ pragma circom 2.0.3;
 include "../node_modules/circomlib/circuits/sha256/constants.circom";
 include "../node_modules/circomlib/circuits/sha256/sha256compression.circom";
 include "../node_modules/circomlib/circuits/comparators.circom";
-include "./sha_utils.circom";
+include "./utils.circom";
 
 // Completing the sha256 hash given a pre-computed state and additional data
 template Sha256Partial(maxBitsPadded) {
@@ -48,7 +48,7 @@ template Sha256Partial(maxBitsPadded) {
     component hh0 = H(7);
 
     component sha256compression[maxBlocks];
-    
+
     for (i=0; i<maxBlocks; i++) {
 
         sha256compression[i] = Sha256compression() ;

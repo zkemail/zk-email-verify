@@ -3,7 +3,7 @@ pragma circom 2.0.3;
 include "../node_modules/circomlib/circuits/sha256/constants.circom";
 include "../node_modules/circomlib/circuits/sha256/sha256compression.circom";
 include "../node_modules/circomlib/circuits/comparators.circom";
-include "./sha_utils.circom";
+include "./utils.circom";
 
 // A modified version of the SHA256 circuit that allows specified length messages up to a max to all work via array indexing on the SHA256 compression circuit.
 template Sha256General(maxBitsPadded) {
