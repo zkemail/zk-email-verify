@@ -27,7 +27,7 @@ This will let you build new zkeys from source.
 
 ## Filetree Description
 
-```
+```bash
 circuits/ # groth16 zk circuits
     contracts/ # Auto-gen verifier
     example/ # Example proofs, publics, and private witnesses
@@ -69,9 +69,9 @@ Modify the `let regex = ` in lexical.js and then run `python3 gen.py`
 
 Install rust/circom2 via the following steps, according to: https://docs.circom.io/getting-started/installation/
 
-```
+```bash
 curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh # Install rust if don't already have
-source "$HOME/.cargo/env" # Also rust isntallation step
+source "$HOME/.cargo/env" # Also rust installation step
 
 git clone https://github.com/iden3/circom.git
 cd circom
@@ -88,9 +88,12 @@ sudo npm i -g yarn # If don't have yarn
 yarn install # If this fails, delete yarn.lock and try again
 ```
 
-To get the ptau, do
+To get the ptau, do (note that you only need the 22 file right now)
 
-```
+```bash
+wget https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_22.ptau
+mv powersOfTau28_hez_final_22.ptau powersoftau/powersOfTau28_hez_final_22.ptau
+
 wget https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_21.ptau
 # shasum pot21_final.ptau: e0ef07ede5c01b1f7ddabb14b60c0b740b357f70
 mv powersOfTau28_hez_final_21.ptau powersoftau/powersOfTau28_hez_final_21.ptau
@@ -100,7 +103,7 @@ To create a chunked zkey for in-browser proving, run the following (likely on a 
 
 <!-- Previously snarkjs@git+https://github.com/vb7401/snarkjs.git#fae4fe381bdad2da13eee71010dfe477fc694ac1 -->
 <!-- Now -> yarn add https://github.com/vb7401/snarkjs/commits/chunk_zkey_gen -->
-```
+```bash
 yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8
 cd dizkus-scripts/
 ./1_compile.sh && ./2_gen_wtns.sh && ./3_gen_chunk_zkey.sh && ./4_gen_vkey.sh && ./5_gen_proof.sh
@@ -128,47 +131,41 @@ To do a non-chunked zkey for non-browser running,
 yarn compile-all
 ```
 
+## Compiling Subcircuits
 If you want to compile subcircuits instead of the whole thing, you can use the following:
 
-    If you want to generate a new email/set of inputs, edit the src/constants.ts file with your constants.
-    In generate_input.ts, change the circuitType variable inside to match what circom file you are running, then run
-    ```
-    npm install typescript ts-node -g
-    # uncomment do_generate function call at end of file
-    # go to tsconfig.json and change esnext to CommonJS
-    # if weird things dont work with this and yarn start, go go node_modules/react-scripts/config/webpack.config.ts and add/cut `target: 'node',` after like 793 after `node:`.
-    npx tsc --moduleResolution node --target esnext circuits/scripts/generate_input.ts
-    ```
-    which will autowrite input_<circuitName>.json to the inputs folder.
+If you want to generate a new email/set of inputs, edit the src/constants.ts file with your constants.
+In generate_input.ts, change the circuitType variable inside to match what circom file you are running, then run
 
-    To do the steps in https://github.com/iden3/snarkjs#7-prepare-phase-2 automatically, do
-    ```
-    yarn compile email true
-    ```
-    and you can swap `email` for `sha` or `rsa` or any other circuit name that matches your generate_input type.
+```bash
+npm install typescript ts-node -g
+# uncomment do_generate function call at end of file
+# go to tsconfig.json and change esnext to CommonJS
+# if weird things dont work with this and yarn start, go go node_modules/react-scripts/config/webpack.config.ts and add/cut `target: 'node',` after like 793 after `node:`.
+npx tsc --moduleResolution node --target esnext circuits/scripts/generate_input.ts
+```
+which will autowrite input_<circuitName>.json to the inputs folder.
 
-    and when the circuit doesn't change,
-    ```
-    yarn compile email true skip-r1cswasm
-    ```
+To do the steps in https://github.com/iden3/snarkjs#7-prepare-phase-2 automatically, do
+```
+yarn compile email true
+```
+and you can swap `email` for `sha` or `rsa` or any other circuit name that matches your generate_input type.
 
-    and when the zkey also doesn't change,
-    ```
-    yarn compile email true skip-r1cswasm skip-zkey
-    ```
+and when the circuit doesn't change,
+```
+yarn compile email true skip-r1cswasm
+```
 
+and when the zkey also doesn't change,
+```
+yarn compile email true skip-r1cswasm skip-zkey
+```
+
+## Production
 For production, make sure to set a beacon in .env.
 
-Double blind circuit:
-
-```
-circom circuits/main/rsa_group_sig_verify.circom --wasm --r1cs
-snarkjs zkey new ./rsa_group_sig_verify.r1cs pot21_final.ptau public/rsa_group_sig_verify_0000.zkey
-snarkjs zkey export verificationkey public/rsa_group_sig_verify_0000.zkey public/rsa_group_sig_verify_0000.vkey.json
-cp rsa_group_sig_verify_js/rsa_group_sig_verify.wasm public
-```
-
-This leaks the number of characters in the username of someone who sent you an email, iff the first field in the email serialization format is from (effectively irrelevant)
+Note that this leaks the number of characters in the username of someone who sent you an email, iff the first field in the email serialization format is from (effectively irrelevant).
 
 ## Testing
 
