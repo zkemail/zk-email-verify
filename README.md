@@ -10,7 +10,7 @@ The documentation for the app is located at https://zkemail.xyz/docs (WIP). Made
 
 ## Local website
 
-To run the frontend with existing circuits (there is no backend or server), do
+To run the frontend with existing circuits (there is no backend or server), enable Node 16 (with nvm) and run:
 ```
 yarn start
 ```
@@ -200,7 +200,7 @@ RSA + SHA + Regex + Masking with up to 1024 byte message lengths is 1,392,219 co
 
 The full email header circuit above with the 7-byte packing into signals is 1,408,571 constraints, with 163 public signals, and the verifier script fits in the 24kb contract limit.
 
-The full email header and body check circuit, with 7-byte packing and final public output compression, is **3,115,057 constraints**, with 21 public signals.
+The full email header and body check circuit, with 7-byte packing and final public output compression, is **3,115,057 constraints**, with 21 public signals. zkey size was originally 1.75GB, and with tar.gz compression it is now 982 MB.
 
 Proof generation time on 16 CPUs took 97 seconds. Zkey 0 took 17 minutes. Unclear about zkey 1. Zkey 2 took 5 minutes. r1cs + wasm generation took 5 minutes. Witness generation took 16 seconds. cpp witness gen file generation (from script 6) took 210 minutes.
 

@@ -77,7 +77,7 @@ export const downloadProofFiles = async function (filename: string) {
       console.log(`${filename}.zkey${c}${item?"":zkeyExtension} already found in localstorage!`);
       continue;
     }
-    filePromises.push(downloadFromFilename(`${filename}.zkey${c}${zkeyExtension}`));
+    filePromises.push(downloadFromFilename(`${filename}.zkey${c}${zkeyExtension}`, true));
   }
   console.log(filePromises);
   await Promise.all(filePromises);
