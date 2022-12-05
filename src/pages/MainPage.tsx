@@ -15,9 +15,6 @@ import {
 import { generate_inputs, insert13Before10 } from "../scripts/generate_input";
 import styled, { CSSProperties } from "styled-components";
 import { sshSignatureToPubKey } from "../helpers/sshFormat";
-import {
-  verifyGroupSignature,
-} from "../helpers/groupSignature/verify";
 import { Link, useSearchParams } from "react-router-dom";
 import {
   decodeGroupSignature,
@@ -236,16 +233,12 @@ export const MainPage: React.FC<{}> = (props) => {
               // console.log(JSON.stringify(input, (k, v) => (typeof v == "bigint" ? v.toString() : v), 2));
 
               console.time("zk-dl");
-              setDisplayMessage(
-                "Downloading proving key... (this may take a few minutes)"
-              );
+              setDisplayMessage("Downloading compressed proving files... (this may take a few minutes)");
               await downloadProofFiles(filename);
-              setDisplayMessage(
-                "Starting proof generation... (this will take 6-10 minutes and ~5GB RAM)"
-              );
               console.timeEnd("zk-dl");
 
               console.time("zk-gen");
+              setDisplayMessage("Starting proof generation... (this will take 6-10 minutes and ~5GB RAM)");
               console.log("Starting proof generation");
               // alert("Generating proof, will fail due to input");
               const { proof, publicSignals } = await generateProof(input, filename);
