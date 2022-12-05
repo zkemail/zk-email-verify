@@ -8,9 +8,24 @@ The application is located at https://zkemail.xyz. It only works on Chrome/Brave
 
 The documentation for the app is located at https://zkemail.xyz/docs (WIP). Made by [@yush_g](https://twitter.com/yush_g) and [@sampriti0](https://twitter.com/sampriti0) at [@0xparc](https://twitter.com/0xparc) and [@personae_labs](https://twitter.com/personae_labs), dm if interested in usage or building next generation primitives like this. This is very much a work in progress, and we invite folks to contribute, or contact us for interesting projects that can be built on top of the tech! We are especially prioritizing optimizing circuits, making our end-to-end demo more efficient and on-chain, and an SDK/CLI.
 
+## Local website
+
+To run the frontend with existing circuits (there is no backend or server), do
+```
+yarn start
+```
+
+## Getting email headers
+
+In Outlook, turn on plain text mode. Copy paste the 'full email details' into the textbox on the (only client side!) webpage.
+
+In gmail, download original message then copy paste the contents into the textbox.
+
 # Development Instructions
 
-Incomplete description of files/folders:
+This will let you build new zkeys from source.
+
+## Filetree Description
 
 ```
 circuits/ # groth16 zk circuits
@@ -49,14 +64,6 @@ public/ # Should contain vkey/wasm, but we end up fetching those from AWS server
 ## Regex to Circom
 
 Modify the `let regex = ` in lexical.js and then run `python3 gen.py`
-
-## Getting email headers
-
-In Outlook, turn on plain text mode. Send an email to yourself, and copy paste the full email details into the textbox on the (only client side!) webpage.
-
-Notes about email providers: tl;dr: view headers in a non-gmail client.
-
-Gmail self-emails censor the signature of the mailserver, and unless you use google apps script, it is not generated. .edu domain, hotmail, custom domain, and outlook domain self-emails have the signatures. In fact, Gmail-sent self-emails using the .edu domain, viewed in a non-gmail client, are not censored -- it seems to be just a property of the gmail viewer to not show signatures on self emails (but it has signatures on every other recieved email).
 
 ## Email Circuit Build Steps
 
@@ -191,10 +198,14 @@ forge create --rpc-url $ETH_RPC_URL src/contracts/src/emailVerifier.sol:Verifier
 ## Stats
 
 Just RSA + SHA (without masking or regex proofs) for arbitrary message length <= 512 bytes is 402802 constraints, and the zkey took 42 minutes to generate on an intel mac.
+
 RSA + SHA + Regex + Masking with up to 1024 byte message lengths is 1,392,219 constraints, and the chunked zkey took 9 + 15 + 15 + 2 minutes to generate on a machine with 32 cores.
+
 The full email header circuit above with the 7-byte packing into signals is 1,408,571 constraints, with 163 public signals, and the verifier script fits in the 24kb contract limit.
+
 The full email header and body check circuit, with 7-byte packing and final public output compression, is **3,115,057 constraints**, with 21 public signals.
-Proof generation time on 16 CPUs took 97 seconds. Zkey 0 took 17 minutes. Zkey 1 took ??. Zkey 2 took 5 minutes. r1cs + wasm generation took 5 minutes. Witness generation took 16 seconds. cpp witness gen file generation (from script 6) took 210 minutes.
+
+Proof generation time on 16 CPUs took 97 seconds. Zkey 0 took 17 minutes. Unclear about zkey 1. Zkey 2 took 5 minutes. r1cs + wasm generation took 5 minutes. Witness generation took 16 seconds. cpp witness gen file generation (from script 6) took 210 minutes.
 
 ### Scrubbing Sensitive Files
 
@@ -209,7 +220,7 @@ git push --set-upstream origin main --force
 
 ## To-Do
 
-- Make the frontend circuit calls work (needs argument reduction in Solidity)
+- Make the frontend Solidity calls work
 - Make a general method to get formatted signatures and bodies from all email clients
 - Make versions for different size RSA keys
 - Add ENS DNSSEC code (possibly SNARKed), so anyone can add a website's RSA key via DNS record
