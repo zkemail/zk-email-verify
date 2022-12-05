@@ -11,11 +11,19 @@ zkey_dir = '../build/email/'
 wasm_dir = '../build/email/email_js/'
 bucket_name = 'zkemail-zkey-chunks' # us-east-1
 
+def upload_to_s3(filename, dir=""):
+    with open(dir + filename, 'rb') as file:
+        print("Starting upload...")
+        s3.upload_fileobj(file, bucket_name, filename, ExtraArgs={'ACL': 'public-read', 'ContentType': 'binary/octet-stream'})
+        print("Done uploading!")
+
 # Loop through the files in the remote directory
 for dir in [zkey_dir, wasm_dir]:
     for file in os.listdir(dir):
         # Check if the file matches the pattern
-        if file.startswith('email.zkey') or file.startswith('vkey.json') or file.startswith('email.wasm'):
+        if file.startswith('email.zkey'):
+            # upload_to_s3(file, dir) # Uncompressed file
+
             # Create a zip file for the file
             tar_file_name = file + '.tar.gz'
             with tarfile.open(tar_file_name, 'w:gz') as tar_file:
@@ -23,11 +31,10 @@ for dir in [zkey_dir, wasm_dir]:
                 tar_file.add(dir + file)
 
             # Upload the zip file to the AWS bucket, overwriting any existing file with the same name
-            with open(tar_file_name, 'rb') as tar_file:
-                print("Starting upload...")
-                s3.upload_fileobj(tar_file, bucket_name, tar_file_name, ExtraArgs={'ACL': 'public-read', 'ContentType': 'binary/octet-stream'})
-                print("Done uploading!")
+            upload_to_s3(tar_file_name)
 
             os.remove(tar_file_name)
-            zip_file_name = file + '.zip'
-            os.remove(zip_file_name)
+
+        if file.startswith('vkey.json') or file.startswith('email.wasm'):
+            # Upload the zip file to the AWS bucket, overwriting any existing file with the same name
+            upload_to_s3(file, dir)
