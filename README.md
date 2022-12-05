@@ -103,7 +103,7 @@ pip3 install boto3
 python3 upload_to_s3.py
 ```
 
-Note that there's no .zkeya file, only .zkeyb ... .zkeyk. Load into s3 bucket.
+Note that there's no .zkeya file, only .zkeyb ... .zkeyk. The script will automatically zip into .tar.gz files and load into s3 bucket.
 
 We use a fork of [zkp.ts](https://github.com/personaelabs/heyanon/blob/main/lib/zkp.ts) to load these keys into localforage. In the browser, to read off of localforage, you have to use this fork when running the frontend locally/in prod:
 
