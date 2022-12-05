@@ -78,7 +78,7 @@ Inside `zk-email-verify` folder, do
 
 ```
 sudo npm i -g yarn # If don't have yarn
-yarn install
+yarn install # If this fails, delete yarn.lock and try again
 ```
 
 To get the ptau, do
@@ -92,16 +92,15 @@ mv powersOfTau28_hez_final_21.ptau powersoftau/powersOfTau28_hez_final_21.ptau
 To create a chunked zkey for in-browser proving, run the following (likely on a high CPU computer):
 
 <!-- Previously snarkjs@git+https://github.com/vb7401/snarkjs.git#fae4fe381bdad2da13eee71010dfe477fc694ac1 -->
-
+<!-- Now -> yarn add https://github.com/vb7401/snarkjs/commits/chunk_zkey_gen -->
 ```
-yarn install https://github.com/vb7401/snarkjs/commits/chunk_zkey_gen
+yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8
 cd dizkus-scripts/
-./1_compile.sh
-./2_...
-./3_...
-./4_...
-./5_...
-./6_...
+./1_compile.sh && ./2_gen_wtns.sh && ./3_gen_chunk_zkey.sh && ./4_gen_vkey.sh && ./5_gen_proof.sh
+# optional: ./6_gen_proof_rapidsnark.sh
+aws configure # Only needs to be run once
+pip3 install boto3
+python3 upload_to_s3.py
 ```
 
 Note that there's no .zkeya file, only .zkeyb ... .zkeyk. Load into s3 bucket.
@@ -193,7 +192,9 @@ forge create --rpc-url $ETH_RPC_URL src/contracts/src/emailVerifier.sol:Verifier
 
 Just RSA + SHA (without masking or regex proofs) for arbitrary message length <= 512 bytes is 402802 constraints, and the zkey took 42 minutes to generate on an intel mac.
 RSA + SHA + Regex + Masking with up to 1024 byte message lengths is 1,392,219 constraints, and the chunked zkey took 9 + 15 + 15 + 2 minutes to generate on a machine with 32 cores.
-The full email circuit above with the 7-byte packing into signals is 1,408,571 constraints, with 163 public signals, and the verifier script fits in the 24kb contract limit.
+The full email header circuit above with the 7-byte packing into signals is 1,408,571 constraints, with 163 public signals, and the verifier script fits in the 24kb contract limit.
+The full email header and body check circuit, with 7-byte packing and final public output compression, is **3,115,057 constraints**, with 21 public signals.
+Proof generation time on 16 CPUs took 97 seconds. Zkey 0 took 17 minutes. Zkey 1 took ??. Zkey 2 took 5 minutes. r1cs + wasm generation took 5 minutes. Witness generation took 16 seconds. cpp witness gen file generation (from script 6) took 210 minutes.
 
 ### Scrubbing Sensitive Files
 
