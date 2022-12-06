@@ -5,23 +5,10 @@ import { useAsync, useMount, useUpdateEffect } from "react-use";
 // @ts-ignore
 import _ from "lodash";
 // @ts-ignore
-import {
-  IGroupSignature,
-  IIdentityRevealer,
-} from "../helpers/groupSignature/types";
-import {
-  generateGroupSignature,
-} from "../helpers/groupSignature/sign";
 import { generate_inputs, insert13Before10 } from "../scripts/generate_input";
 import styled, { CSSProperties } from "styled-components";
 import { sshSignatureToPubKey } from "../helpers/sshFormat";
 import { Link, useSearchParams } from "react-router-dom";
-import {
-  decodeGroupSignature,
-  decodeIdentityRevealer,
-  encodeGroupSignature,
-  encodeIdentityRevealer,
-} from "../helpers/groupSignature/encoding";
 import localforage from "localforage";
 import { dkimVerify } from '../helpers/dkim';
 import atob from "atob";
