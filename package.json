@@ -80,8 +80,13 @@
   },
   "devDependencies": {
     "@types/atob": "^2.1.2",
+    "@types/expect-puppeteer": "^5.0.2",
+    "@types/jest-environment-puppeteer": "^5.0.3",
     "@types/node": "^18.0.6",
+    "@types/puppeteer": "^7.0.4",
+    "jest-puppeteer": "^6.1.1",
     "nodemon": "^2.0.19",
+    "puppeteer": "^19.3.0",
     "ts-node-dev": "^2.0.0"
   },
   "packageManager": "yarn@3.2.3"
