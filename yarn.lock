@@ -3272,12 +3272,12 @@ __metadata:
   linkType: hard
 
 "@types/jest@npm:*":
-  version: 29.2.3
-  resolution: "@types/jest@npm:29.2.3"
+  version: 29.2.4
+  resolution: "@types/jest@npm:29.2.4"
   dependencies:
     expect: ^29.0.0
     pretty-format: ^29.0.0
-  checksum: 55370906711b600a05b9e497c22aa74d80d8adcdbe4ac2f1bc9311f6f6ca0dd192862b6f38df6ac0d45e92396bcd796e377b1d8058c10bdfd584aeee580c3ce1
+  checksum: 9deb4756fe1b438d41ff1aae7d6c216c9e49e5fe60f539f8edb6698ffeb530ff7b25d37e223439b03602ca3a7397c9c2e53e1a39c7bd616353472fce0cc04107
   languageName: node
   linkType: hard
 
@@ -5356,6 +5356,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bl@npm:^4.0.3":
+  version: 4.1.0
+  resolution: "bl@npm:4.1.0"
+  dependencies:
+    buffer: ^5.5.0
+    inherits: ^2.0.4
+    readable-stream: ^3.4.0
+  checksum: 9e8521fa7e83aa9427c6f8ccdcba6e8167ef30cc9a22df26effcc5ab682ef91d2cbc23a239f945d099289e4bbcfae7a192e9c28c84c6202e710a0dfec3722662
+  languageName: node
+  linkType: hard
+
 "blake-hash@npm:^2.0.0":
   version: 2.0.0
   resolution: "blake-hash@npm:2.0.0"
@@ -5756,7 +5767,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"buffer@npm:^5.4.3":
+"buffer@npm:^5.4.3, buffer@npm:^5.5.0":
   version: 5.7.1
   resolution: "buffer@npm:5.7.1"
   dependencies:
@@ -7195,9 +7206,9 @@ __metadata:
   linkType: hard
 
 "decimal.js@npm:^10.2.1":
-  version: 10.4.2
-  resolution: "decimal.js@npm:10.4.2"
-  checksum: 536cd6816a3197f2e1aa3da4860856cb5a2db73f6fafe8cb3b924ccc63f9b7d78296acc13dccbd419bd958ccc6357921fb15467f883b37cab04bfba7044cada2
+  version: 10.4.3
+  resolution: "decimal.js@npm:10.4.3"
+  checksum: 796404dcfa9d1dbfdc48870229d57f788b48c21c603c3f6554a1c17c10195fc1024de338b0cf9e1efe0c7c167eeb18f04548979bcc5fdfabebb7cc0ae3287bae
   languageName: node
   linkType: hard
 
@@ -7687,6 +7698,7 @@ __metadata:
     snarkjs: "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
     sshpk: ^1.17.0
     styled-components: ^5.3.5
+    tar-stream: ^2.2.0
     ts-node: ^10.9.1
     ts-node-dev: ^2.0.0
     typescript: ^4.8.3
@@ -7861,7 +7873,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"end-of-stream@npm:^1.0.0, end-of-stream@npm:^1.1.0":
+"end-of-stream@npm:^1.0.0, end-of-stream@npm:^1.1.0, end-of-stream@npm:^1.4.1":
   version: 1.4.4
   resolution: "end-of-stream@npm:1.4.4"
   dependencies:
@@ -8608,7 +8620,7 @@ __metadata:
   dependencies:
     bn.js: ^4.11.8
     ethereumjs-util: ^6.0.0
-  checksum: 03127d09960e5f8a44167463faf25b2894db2f746376dbb8195b789ed11762f93db9c574eaa7c498c400063508e9dfc1c80de2edf5f0e1406b25c87d860ff2f1
+  checksum: ae074be0bb012857ab5d3ae644d1163b908a48dd724b7d2567cfde309dc72222d460438f2411936a70dc949dc604ce1ef7118f7273bd525815579143c907e336
   languageName: node
   linkType: hard
 
@@ -9364,6 +9376,13 @@ __metadata:
     inherits: ^2.0.1
     readable-stream: ^2.0.0
   checksum: 6080eba0793dce32f475141fb3d54cc15f84ee52e420ee22ac3ab0ad639dc95a1875bc6eb9c0e1140e94972a36a89dc5542491b85f1ab8df0c126241e0f1a61b
+  languageName: node
+  linkType: hard
+
+"fs-constants@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "fs-constants@npm:1.0.0"
+  checksum: 18f5b718371816155849475ac36c7d0b24d39a11d91348cfcb308b4494824413e03572c403c86d3a260e049465518c4f0d5bd00f0371cdfcad6d4f30a85b350d
   languageName: node
   linkType: hard
 
@@ -15680,7 +15699,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"readable-stream@npm:^3.0.6, readable-stream@npm:^3.5.0, readable-stream@npm:^3.6.0":
+"readable-stream@npm:^3.0.6, readable-stream@npm:^3.1.1, readable-stream@npm:^3.4.0, readable-stream@npm:^3.5.0, readable-stream@npm:^3.6.0":
   version: 3.6.0
   resolution: "readable-stream@npm:3.6.0"
   dependencies:
@@ -17702,6 +17721,19 @@ __metadata:
   version: 1.1.3
   resolution: "tapable@npm:1.1.3"
   checksum: 53ff4e7c3900051c38cc4faab428ebfd7e6ad0841af5a7ac6d5f3045c5b50e88497bfa8295b4b3fbcadd94993c9e358868b78b9fb249a76cb8b018ac8dccafd7
+  languageName: node
+  linkType: hard
+
+"tar-stream@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "tar-stream@npm:2.2.0"
+  dependencies:
+    bl: ^4.0.3
+    end-of-stream: ^1.4.1
+    fs-constants: ^1.0.0
+    inherits: ^2.0.3
+    readable-stream: ^3.1.1
+  checksum: 699831a8b97666ef50021c767f84924cfee21c142c2eb0e79c63254e140e6408d6d55a065a2992548e72b06de39237ef2b802b99e3ece93ca3904a37622a66f3
   languageName: node
   linkType: hard
 

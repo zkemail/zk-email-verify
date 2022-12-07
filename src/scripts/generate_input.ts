@@ -1,15 +1,10 @@
 import { bytesToBigInt, stringToBytes, fromHex, toCircomBigIntBytes, packBytesIntoNBytes, bufferToUint8Array, bufferToString } from "../helpers/binaryFormat";
-import {
-  CIRCOM_FIELD_MODULUS,
-  MAX_HEADER_PADDED_BYTES,
-  MAX_BODY_PADDED_BYTES,
-  STRING_PRESELECTOR,
-} from "../../src/helpers/constants";
+import { CIRCOM_FIELD_MODULUS, MAX_HEADER_PADDED_BYTES, MAX_BODY_PADDED_BYTES, STRING_PRESELECTOR } from "../../src/helpers/constants";
 import { shaHash } from "../../src/helpers/shaHash";
 import { dkimVerify } from "../../src/helpers/dkim";
-import { Hash } from "./fast-sha256"
+import { Hash } from "./fast-sha256";
 import * as fs from "fs";
-var Cryo = require('cryo');
+var Cryo = require("cryo");
 const pki = require("node-forge").pki;
 
 export interface ICircuitInputs {
@@ -69,7 +64,6 @@ function mergeUInt8Arrays(a1: Uint8Array, a2: Uint8Array): Uint8Array {
 
 // Puts an end selector, a bunch of 0s, then the length, then fill the rest with 0s.
 async function sha256Pad(prehash_prepad_m: Uint8Array, maxShaBytes: number): Promise<[Uint8Array, number]> {
-
   let length_bits = prehash_prepad_m.length * 8; // bytes to bits
   let length_in_bytes = int32toBytes(length_bits);
   prehash_prepad_m = mergeUInt8Arrays(prehash_prepad_m, int8toBytes(2 ** 7));
@@ -92,7 +86,9 @@ async function Uint8ArrayToCharArray(a: Uint8Array): Promise<string[]> {
 }
 
 async function Uint8ArrayToString(a: Uint8Array): Promise<string> {
-  return Array.from(a).map((x) => x.toString()).join(";");
+  return Array.from(a)
+    .map((x) => x.toString())
+    .join(";");
 }
 
 async function findSelector(a: Uint8Array, selector: number[]): Promise<number> {
@@ -112,9 +108,9 @@ async function findSelector(a: Uint8Array, selector: number[]): Promise<number> 
   return -1;
 }
 
-async function partialSha(msg:Uint8Array, msgLen: number): Promise<Uint8Array> {
+async function partialSha(msg: Uint8Array, msgLen: number): Promise<Uint8Array> {
   const shaGadget = new Hash();
-  return await shaGadget.update(msg, msgLen).cacheState()
+  return await shaGadget.update(msg, msgLen).cacheState();
 }
 
 export async function getCircuitInputs(
@@ -132,7 +128,7 @@ export async function getCircuitInputs(
   };
   circuitInputs: ICircuitInputs;
 }> {
-  console.log("Starting processing of inputs")
+  console.log("Starting processing of inputs");
   // Derive modulus from signature
   // const modulusBigInt = bytesToBigInt(pubKeyParts[2]);
   const modulusBigInt = rsa_modulus;
@@ -148,20 +144,20 @@ export async function getCircuitInputs(
 
   // Sha add padding
   const [messagePadded, messagePaddedLen] = await sha256Pad(prehashBytesUnpadded, MAX_HEADER_PADDED_BYTES);
-  const calc_length = Math.floor((body.length + 63)/64) * 64;
+  const calc_length = Math.floor((body.length + 63) / 64) * 64;
   const [bodyPadded, bodyPaddedLen] = await sha256Pad(body, Math.max(MAX_BODY_PADDED_BYTES, calc_length));
 
   // Precompute SHA prefix
-  const selector = STRING_PRESELECTOR.split('').map(char => char.charCodeAt(0))
+  const selector = STRING_PRESELECTOR.split("").map((char) => char.charCodeAt(0));
   const selector_loc = await findSelector(bodyPadded, selector);
   console.log("Body selector found at: ", selector_loc);
-  let shaCutoffIndex = Math.floor(((await findSelector(bodyPadded, selector)) / 64)) * 64;
+  let shaCutoffIndex = Math.floor((await findSelector(bodyPadded, selector)) / 64) * 64;
   const precomputeText = bodyPadded.slice(0, shaCutoffIndex);
   let bodyRemaining = bodyPadded.slice(shaCutoffIndex);
-  const bodyRemainingLen = (bodyPaddedLen - precomputeText.length);
+  const bodyRemainingLen = bodyPaddedLen - precomputeText.length;
   assert(bodyRemainingLen < MAX_BODY_PADDED_BYTES, "Invalid slice");
   while (bodyRemaining.length < MAX_BODY_PADDED_BYTES) {
-    bodyRemaining = mergeUInt8Arrays(bodyRemaining, int32toBytes(0))
+    bodyRemaining = mergeUInt8Arrays(bodyRemaining, int32toBytes(0));
   }
   assert(bodyRemaining.length === MAX_BODY_PADDED_BYTES, "Invalid slice");
 
@@ -169,7 +165,7 @@ export async function getCircuitInputs(
 
   // Ensure SHA manual unpadded is running the correct function
   const shaOut = await partialSha(messagePadded, messagePaddedLen);
-  assert(await Uint8ArrayToString(shaOut) === await Uint8ArrayToString(Uint8Array.from(await shaHash(prehashBytesUnpadded))), "SHA256 calculation did not match!");
+  assert((await Uint8ArrayToString(shaOut)) === (await Uint8ArrayToString(Uint8Array.from(await shaHash(prehashBytesUnpadded)))), "SHA256 calculation did not match!");
 
   // Compute identity revealer
   let circuitInputs;
@@ -182,12 +178,12 @@ export async function getCircuitInputs(
   const in_body_padded = await Uint8ArrayToCharArray(bodyRemaining);
   const base_message = toCircomBigIntBytes(postShaBigintUnpadded);
   const precomputed_sha = await Uint8ArrayToCharArray(bodyShaPrecompute);
-  const body_hash_idx = ((bufferToString(message)).indexOf(body_hash)).toString();
+  const body_hash_idx = bufferToString(message).indexOf(body_hash).toString();
 
   const address = bytesToBigInt(fromHex(eth_address)).toString();
   const address_plus_one = (bytesToBigInt(fromHex(eth_address)) + 1n).toString();
 
-  const USERNAME_SELECTOR = Buffer.from('email was meant for @');
+  const USERNAME_SELECTOR = Buffer.from("email was meant for @");
   const twitter_username_idx = (Buffer.from(bodyRemaining).indexOf(USERNAME_SELECTOR) + USERNAME_SELECTOR.length).toString();
   console.log("Twitter Username idx: ", twitter_username_idx);
 
@@ -199,24 +195,24 @@ export async function getCircuitInputs(
     };
   } else if (circuit === CircuitType.EMAIL) {
     circuitInputs = {
+      in_padded,
       modulus,
       signature,
-      in_padded,
       in_len_padded_bytes,
+      precomputed_sha,
       in_body_padded,
       in_body_len_padded_bytes,
-      precomputed_sha,
-      body_hash_idx,
+      twitter_username_idx,
       address,
       address_plus_one,
-      twitter_username_idx
+      body_hash_idx,
     };
   } else {
     assert(circuit === CircuitType.SHA, "Invalid circuit type");
     circuitInputs = {
       in_padded,
       in_len_padded_bytes,
-      precomputed_sha
+      precomputed_sha,
     };
   }
   return {
@@ -262,7 +258,7 @@ async function do_generate() {
 }
 
 async function gen_test() {
-  console.log(packBytesIntoNBytes(Uint8Array.from([0,121, 117, 115, 104, 95, 103, 10 ,0,0,0,0,0,0,0,0,0,0,0,0,0,0])))
+  console.log(packBytesIntoNBytes(Uint8Array.from([0, 121, 117, 115, 104, 95, 103, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])));
 }
 
 export async function insert13Before10(a: Uint8Array): Promise<Uint8Array> {
@@ -287,10 +283,10 @@ async function debug_file() {
 }
 
 // If main
-if (typeof require !== 'undefined' && require.main === module) {
+if (typeof require !== "undefined" && require.main === module) {
   // debug_file();
   const circuitInputs = do_generate();
-  console.log("Writing to file...")
+  console.log("Writing to file...");
   fs.writeFileSync(`./circuits/inputs/input_twitter.json`, JSON.stringify(circuitInputs), { flag: "w" });
   // gen_test();
 }
