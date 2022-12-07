@@ -15,6 +15,11 @@ To run the frontend with existing circuits (there is no backend or server), enab
 yarn start
 ```
 
+If the frontend shows an error on fullProve line, run this and rerun
+```
+yarn add snarkjs@https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e
+```
+
 ## Getting email headers
 
 In Outlook, turn on plain text mode. Copy paste the 'full email details' into the textbox on the (only client side!) webpage.
@@ -104,13 +109,14 @@ To create a chunked zkey for in-browser proving, run the following (likely on a 
 <!-- Previously snarkjs@git+https://github.com/vb7401/snarkjs.git#fae4fe381bdad2da13eee71010dfe477fc694ac1 -->
 <!-- Now -> yarn add https://github.com/vb7401/snarkjs/commits/chunk_zkey_gen -->
 ```bash
-yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8
+yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8 # Swap to chunked generation version
 cd dizkus-scripts/
 ./1_compile.sh && ./2_gen_wtns.sh && ./3_gen_chunk_zkey.sh && ./4_gen_vkey.sh && ./5_gen_proof.sh
 # optional: ./6_gen_proof_rapidsnark.sh
 aws configure # Only needs to be run once
 pip3 install boto3
 python3 upload_to_s3.py
+yarn add snarkjs@https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e # Revert to frontend version
 ```
 
 Note that there's no .zkeya file, only .zkeyb ... .zkeyk. The script will automatically zip into .tar.gz files and load into s3 bucket.

@@ -7,6 +7,7 @@ const zlib = require('zlib')
 
 const loadURL = "https://zkemail-zkey-chunks.s3.amazonaws.com/";
 
+// Downloads and uncompresses if compressed
 export async function downloadFromFilename(filename: string, compressed = false) {
   const link = loadURL + filename;
   const uncompressFilePromises = []
@@ -73,7 +74,7 @@ export const downloadProofFiles = async function (filename: string) {
   for (const c of zkeySuffix) {
     const itemCompressed = await localforage.getItem(`${filename}.zkey${c}${zkeyExtension}`);
     const item = await localforage.getItem(`${filename}.zkey${c}`);
-    if (item || itemCompressed) {
+    if (item) {
       console.log(`${filename}.zkey${c}${item?"":zkeyExtension} already found in localstorage!`);
       continue;
     }
@@ -83,28 +84,36 @@ export const downloadProofFiles = async function (filename: string) {
   await Promise.all(filePromises);
 };
 
-export const uncompressProofFiles = async function (filename: string) {
-  const filePromises = [];
-  for (const c of zkeySuffix) {
-    const targzFilename = `${filename}.zkey${c}${zkeyExtension}`;
-    const item = await localforage.getItem(`${filename}.zkey${c}`);
-    const itemCompressed = await localforage.getItem(targzFilename);
-    if (!itemCompressed){
-      console.error(`Error downloading file ${targzFilename}`)
-    } else {
-      console.log(`${filename}.zkey${c}${item?"":zkeyExtension} already found in localstorage!`);
-      continue;
-    }
-    filePromises.push(downloadFromFilename(targzFilename));
-  }
-  console.log(filePromises);
-  await Promise.all(filePromises);
-};
+// export const uncompressProofFiles = async function (filename: string) {
+//   const filePromises = [];
+//   for (const c of zkeySuffix) {
+//     const targzFilename = `${filename}.zkey${c}${zkeyExtension}`;
+//     const item = await localforage.getItem(`${filename}.zkey${c}`);
+//     const itemCompressed = await localforage.getItem(targzFilename);
+//     if (!itemCompressed){
+//       console.error(`Error downloading file ${targzFilename}`)
+//     } else {
+//       console.log(`${filename}.zkey${c}${item?"":zkeyExtension} already found in localstorage!`);
+//       continue;
+//     }
+//     filePromises.push(downloadFromFilename(targzFilename));
+//   }
+//   console.log(filePromises);
+//   await Promise.all(filePromises);
+// };
 
 export async function generateProof(input: any, filename: string) {
   // TODO: figure out how to generate this s.t. it passes build
   console.log("generating proof for input");
   console.log(input);
+  // Test code
+  const filePromises = [];
+  for (const c of ["b", "c"]) {
+    const targzFilename = `${filename}.zkey${c}${zkeyExtension}`;
+    const item = await localforage.getItem(`${filename}.zkey${c}`);
+    console.log(typeof item, item)
+  }
+  // End test code
   const { proof, publicSignals } = await snarkjs.groth16.fullProve(input, `https://zkemail-zkey-chunks.s3.amazonaws.com/${filename}.wasm`, `${filename}.zkey`);
   console.log(`Generated proof ${JSON.stringify(proof)}`);
 
