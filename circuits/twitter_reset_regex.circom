@@ -255,6 +255,8 @@ template TwitterResetRegex (msg_bytes) {
       states[i+1][22] <== and[28][i].out;
     }
 
+    // The number of times the regex matches so far; in this case, the start of a twitter username
+    // Should be 0 for invalid emails and 1 for valid emails, we should never see a 2 or more
     signal final_state_sum[num_bytes+1];
     final_state_sum[0] <== states[0][1];
     for (var i = 1; i <= num_bytes; i++) {
@@ -262,6 +264,7 @@ template TwitterResetRegex (msg_bytes) {
     }
     out <== final_state_sum[num_bytes];
 
+    // Vector that masks the email with mostly 0s, but reveals the twitter username
     signal output reveal[num_bytes];
     for (var i = 0; i < num_bytes; i++) {
         reveal[i] <== in[i] * states[i+1][1];

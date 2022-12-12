@@ -5,22 +5,10 @@ import { useAsync, useMount, useUpdateEffect } from "react-use";
 // @ts-ignore
 import _ from "lodash";
 // @ts-ignore
-import {
-  IGroupSignature,
-  IIdentityRevealer,
-} from "../helpers/groupSignature/types";
-import { generateGroupSignature } from "../helpers/groupSignature/sign";
 import { generate_inputs, insert13Before10 } from "../scripts/generate_input";
 import styled, { CSSProperties } from "styled-components";
 import { sshSignatureToPubKey } from "../helpers/sshFormat";
-import { verifyGroupSignature } from "../helpers/groupSignature/verify";
 import { Link, useSearchParams } from "react-router-dom";
-import {
-  decodeGroupSignature,
-  decodeIdentityRevealer,
-  encodeGroupSignature,
-  encodeIdentityRevealer,
-} from "../helpers/groupSignature/encoding";
 import localforage from "localforage";
 import { dkimVerify } from "../helpers/dkim";
 import atob from "atob";
@@ -175,16 +163,12 @@ export const MainPage: React.FC<{}> = (props) => {
               // console.log(JSON.stringify(input, (k, v) => (typeof v == "bigint" ? v.toString() : v), 2));
 
               console.time("zk-dl");
-              setDisplayMessage(
-                "Downloading proving key... (this may take a few minutes)"
-              );
+              setDisplayMessage("Downloading compressed proving files... (this may take a few minutes)");
               await downloadProofFiles(filename);
-              setDisplayMessage(
-                "Starting proof generation... (this will take 6-10 minutes and ~5GB RAM)"
-              );
               console.timeEnd("zk-dl");
 
               console.time("zk-gen");
+              setDisplayMessage("Starting proof generation... (this will take 6-10 minutes and ~5GB RAM)");
               console.log("Starting proof generation");
               // alert("Generating proof, will fail due to input");
               const { proof, publicSignals } = await generateProof(
@@ -202,9 +186,8 @@ export const MainPage: React.FC<{}> = (props) => {
               let soln = packedNBytesToString(kek.slice(0, 12));
               let soln2 = packedNBytesToString(kek.slice(12, 147));
               let soln3 = packedNBytesToString(kek.slice(147, 150));
-              setPublicSignals(
-                `From: ${soln}\nTo: ${soln2}\nUsername: ${soln3}`
-              );
+              // setPublicSignals(`From: ${soln}\nTo: ${soln2}\nUsername: ${soln3}`);
+              setPublicSignals(JSON.stringify(publicSignals));
 
               if (!circuitInputs) return;
               setLastAction("sign");
@@ -249,7 +232,9 @@ export const MainPage: React.FC<{}> = (props) => {
               try {
                 setLastAction("verify");
                 let ok = true;
-                const res: boolean = await verifyProof(proof, publicSignals);
+                const res: boolean = await verifyProof(
+                  JSON.parse(proof), JSON.parse(publicSignals)
+                );
                 console.log(res);
                 if (!res) throw Error("Verification failed!");
                 setVerificationMessage("Passed!");
