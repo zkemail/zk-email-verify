@@ -1,5 +1,5 @@
 // @ts-ignore
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useAsync, useMount, useUpdateEffect } from "react-use";
 // @ts-ignore
 // @ts-ignore
@@ -25,6 +25,7 @@ import { SingleLineInput } from "../components/SingleLineInput";
 import { Button } from "../components/Button";
 import { Col, Row } from "../components/Layout";
 import { NumberedStep } from "../components/NumberedStep";
+import { TopBanner } from "../components/TopBanner";
 var Buffer = require("buffer/").Buffer; // note: the trailing slash is important!
 
 const generate_input = require("../scripts/generate_input");
@@ -62,6 +63,15 @@ export const MainPage: React.FC<{}> = (props) => {
   const [verificationMessage, setVerificationMessage] = useState("");
   const [verificationPassed, setVerificationPassed] = useState(true);
   const [lastAction, setLastAction] = useState<"" | "sign" | "verify">("");
+  const [showBrowserWarning, setShowBrowserWarning] = useState<boolean>(false);
+
+  useEffect(() => {
+    const userAgent = navigator.userAgent;
+    const isChrome = userAgent.indexOf("Chrome") > -1;
+    if (!isChrome) {
+      setShowBrowserWarning(true);
+    }
+  }, []);
 
   useMount(() => {
     function handleKeyDown() {
@@ -84,6 +94,11 @@ export const MainPage: React.FC<{}> = (props) => {
 
   return (
     <Container>
+      {showBrowserWarning && (
+        <TopBanner
+          message={"ZK Email only works on Chrome or Chromium-based browsers."}
+        />
+      )}
       <div className="title">
         <Header>ZK Email Ownership Proof Generator From Header</Header>
       </div>
@@ -163,12 +178,16 @@ export const MainPage: React.FC<{}> = (props) => {
               // console.log(JSON.stringify(input, (k, v) => (typeof v == "bigint" ? v.toString() : v), 2));
 
               console.time("zk-dl");
-              setDisplayMessage("Downloading compressed proving files... (this may take a few minutes)");
+              setDisplayMessage(
+                "Downloading compressed proving files... (this may take a few minutes)"
+              );
               await downloadProofFiles(filename);
               console.timeEnd("zk-dl");
 
               console.time("zk-gen");
-              setDisplayMessage("Starting proof generation... (this will take 6-10 minutes and ~5GB RAM)");
+              setDisplayMessage(
+                "Starting proof generation... (this will take 6-10 minutes and ~5GB RAM)"
+              );
               console.log("Starting proof generation");
               // alert("Generating proof, will fail due to input");
               const { proof, publicSignals } = await generateProof(
@@ -233,7 +252,8 @@ export const MainPage: React.FC<{}> = (props) => {
                 setLastAction("verify");
                 let ok = true;
                 const res: boolean = await verifyProof(
-                  JSON.parse(proof), JSON.parse(publicSignals)
+                  JSON.parse(proof),
+                  JSON.parse(publicSignals)
                 );
                 console.log(res);
                 if (!res) throw Error("Verification failed!");
