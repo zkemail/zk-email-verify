@@ -26,6 +26,7 @@ import { Button } from "../components/Button";
 import { Col, Row } from "../components/Layout";
 import { NumberedStep } from "../components/NumberedStep";
 import { TopBanner } from "../components/TopBanner";
+import { useAccount, useContractWrite, usePrepareContractWrite } from "wagmi";
 var Buffer = require("buffer/").Buffer; // note: the trailing slash is important!
 
 const generate_input = require("../scripts/generate_input");
@@ -42,7 +43,8 @@ export const MainPage: React.FC<{}> = (props) => {
   const [publicSignals, setPublicSignals] = useState<string>("");
   const [displayMessage, setDisplayMessage] = useState<string>("Prove");
   const [emailHeader, setEmailHeader] = useState<string>("");
-  const [ethereumAddress, setEthereumAddress] = useState<string>("");
+  const { address } = useAccount();
+  const [ethereumAddress, setEthereumAddress] = useState<string>(address ?? "");
 
   // computed state
   const { value, error } = useAsync(async () => {
@@ -61,7 +63,7 @@ export const MainPage: React.FC<{}> = (props) => {
   console.log("Circuit inputs:", circuitInputs);
 
   const [verificationMessage, setVerificationMessage] = useState("");
-  const [verificationPassed, setVerificationPassed] = useState(true);
+  const [verificationPassed, setVerificationPassed] = useState(false);
   const [lastAction, setLastAction] = useState<"" | "sign" | "verify">("");
   const [showBrowserWarning, setShowBrowserWarning] = useState<boolean>(false);
 
@@ -72,6 +74,14 @@ export const MainPage: React.FC<{}> = (props) => {
       setShowBrowserWarning(true);
     }
   }, []);
+
+  useEffect(() => {
+    if (address) {
+      setEthereumAddress(address);
+    } else {
+      setEthereumAddress("");
+    }
+  }, [address]);
 
   useMount(() => {
     function handleKeyDown() {
@@ -90,6 +100,18 @@ export const MainPage: React.FC<{}> = (props) => {
       }
     }
   }, [value]);
+
+  const { config } = usePrepareContractWrite({
+    addressOrName: "", // TODO: get address
+    contractInterface: [], // TODO: get abi
+    functionName: "verifyProof",
+    onError: (error: { message: any }) => {
+      // TODO: handle errors
+    },
+  });
+
+  const { data, isLoading, isSuccess, write } = useContractWrite(config);
+
   if (error) console.error(error);
 
   return (
@@ -267,6 +289,10 @@ export const MainPage: React.FC<{}> = (props) => {
           >
             Verify
           </Button>
+          <Button disabled={!verificationPassed} onClick={() => write?.()}>
+            {isLoading ? "Confirm in wallet" : "Mint Twitter badge on-chain"}
+          </Button>
+          {isSuccess && <div>Transaction: {JSON.stringify(data)}</div>}
         </Column>
       </Main>
     </Container>
