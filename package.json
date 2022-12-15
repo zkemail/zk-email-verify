@@ -82,6 +82,7 @@
   "devDependencies": {
     "@types/atob": "^2.1.2",
     "@types/node": "^18.0.6",
+    "@types/tar-stream": "^2.2.2",
     "nodemon": "^2.0.19",
     "ts-node-dev": "^2.0.0"
   },

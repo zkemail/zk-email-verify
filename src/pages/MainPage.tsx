@@ -27,6 +27,7 @@ import { Col, Row } from "../components/Layout";
 import { NumberedStep } from "../components/NumberedStep";
 import { TopBanner } from "../components/TopBanner";
 import { useAccount, useContractWrite, usePrepareContractWrite } from "wagmi";
+import { ProgressBar } from "../components/ProgressBar";
 var Buffer = require("buffer/").Buffer; // note: the trailing slash is important!
 
 const generate_input = require("../scripts/generate_input");
@@ -66,6 +67,7 @@ export const MainPage: React.FC<{}> = (props) => {
   const [verificationPassed, setVerificationPassed] = useState(false);
   const [lastAction, setLastAction] = useState<"" | "sign" | "verify">("");
   const [showBrowserWarning, setShowBrowserWarning] = useState<boolean>(false);
+  const [downloadProgress, setDownloadProgress] = useState<number>(0);
 
   useEffect(() => {
     const userAgent = navigator.userAgent;
@@ -203,7 +205,9 @@ export const MainPage: React.FC<{}> = (props) => {
               setDisplayMessage(
                 "Downloading compressed proving files... (this may take a few minutes)"
               );
-              await downloadProofFiles(filename);
+              await downloadProofFiles(filename, () => {
+                setDownloadProgress((p) => p + 1);
+              });
               console.timeEnd("zk-dl");
 
               console.time("zk-gen");
@@ -245,6 +249,13 @@ export const MainPage: React.FC<{}> = (props) => {
           >
             {displayMessage}
           </Button>
+          {displayMessage ===
+            "Downloading compressed proving files... (this may take a few minutes)" && (
+            <ProgressBar
+              width={downloadProgress * 10}
+              label={`${downloadProgress} / 10 items`}
+            />
+          )}
         </Column>
         <Column>
           <SubHeader>Output</SubHeader>

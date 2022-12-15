@@ -70,16 +70,21 @@ const uncompressAndStore = async function (arrayBuffer: ArrayBuffer, filename: s
 
 const zkeySuffix = ["b", "c", "d", "e", "f", "g", "h", "i", "j", "k"];
 
-export const downloadProofFiles = async function (filename: string) {
+export const downloadProofFiles = async function (filename: string, onFileDownloaded: () => void) {
   const filePromises = [];
   for (const c of zkeySuffix) {
     const itemCompressed = await localforage.getItem(`${filename}.zkey${c}${zkeyExtension}`);
     const item = await localforage.getItem(`${filename}.zkey${c}`);
     if (item || itemCompressed) {
       console.log(`${filename}.zkey${c}${item?"":zkeyExtension} already found in localstorage!`);
+      onFileDownloaded();
       continue;
     }
-    filePromises.push(downloadFromFilename(`${filename}.zkey${c}${zkeyExtension}`, true));
+    filePromises.push(
+      downloadFromFilename(`${filename}.zkey${c}${zkeyExtension}`, true).then(
+        () => onFileDownloaded()
+      )
+    );
   }
   console.log(filePromises);
   await Promise.all(filePromises);
