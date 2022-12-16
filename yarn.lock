@@ -7698,6 +7698,7 @@ __metadata:
     snarkjs: "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
     sshpk: ^1.17.0
     styled-components: ^5.3.5
+    tar-js: ^0.3.0
     tar-stream: ^2.2.0
     ts-node: ^10.9.1
     ts-node-dev: ^2.0.0
@@ -17721,6 +17722,13 @@ __metadata:
   version: 1.1.3
   resolution: "tapable@npm:1.1.3"
   checksum: 53ff4e7c3900051c38cc4faab428ebfd7e6ad0841af5a7ac6d5f3045c5b50e88497bfa8295b4b3fbcadd94993c9e358868b78b9fb249a76cb8b018ac8dccafd7
+  languageName: node
+  linkType: hard
+
+"tar-js@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "tar-js@npm:0.3.0"
+  checksum: f15922e55035e2d76e1c59b38e1cf97db05f7e83aa3989038f09a196e4da4d93badab248fe83107f590fae254f321e02bf91b3fbc5617abe6a9d6603fff752d2
   languageName: node
   linkType: hard
 
