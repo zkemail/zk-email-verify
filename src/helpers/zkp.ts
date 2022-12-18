@@ -46,6 +46,11 @@ const uncompressAndStore = async function (filename: string, arrayBuffer: ArrayB
   console.log("Called gunzip", typeof decompressedBuffer);
 
   const bufferCopy = Buffer.from(decompressedBuffer.slice(0)); // create a copy of the buffer
+  // create a new Buffer object from the ArrayBuffer of the original Buffer
+  // const bufferFromArrayBuffer = Buffer.allocUnsafe(bufferCopy.buffer);
+
+  // create a copy of the new Buffer object
+  // const arrayBuffer = Buffer.from(bufferCopy).buffer;
   const uint8Array = new Uint8Array(bufferCopy); // create a Uint8Array view of the copy
   const decompressedArrayBuffer = uint8Array.buffer; // get the underlying ArrayBuffer
   console.log(
@@ -59,7 +64,7 @@ const uncompressAndStore = async function (filename: string, arrayBuffer: ArrayB
     uint8Array.slice(-10)
   );
   try {
-    localforage.setItem(rawFilename, decompressedArrayBuffer); // Page crashed here once
+    localforage.setItem(rawFilename, bufferCopy); // Page crashed here once
   } catch (e: any) {
     console.log("Couldn't store item", e);
   }
