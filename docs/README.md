@@ -4,7 +4,7 @@ ZK Email is an app for you to anonymously verifiy email signatures yet mask what
 data you would like. Each email can either be verified to be to/from specific domains
 or subsets of domains, or have some specific text in the body. These can be used for
 web2 interoperability, decentralized anonymous KYC, or interesting on-chain anonymity
-sets.
+sets. For a deeper dive, read our full [blog post](https://blog.aayushg.com/posts/zkemail/).
 
 ## Registering your email identity
 
