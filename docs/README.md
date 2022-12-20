@@ -5,17 +5,18 @@ data you would like. Each email can either be verified to be to/from specific do
 or subsets of domains, or have some specific text in the body. These can be used for
 web2 interoperability, decentralized anonymous KYC, or interesting on-chain anonymity
 sets.
+
 ## Registering your email identity
 
 If you wish to generate a ZK proof of Twitter badge, you must do these:
 
-1) Send yourself a password reset email from Twitter in incognito.
-2) In your inbox, find the email from Twitter and download headers (three dots, then download message).
-3) Copy paste the entire contents of the file into the box below
-4) Paste in your sending Ethereum key
-5) Click "Generate Proof"
+1. Send yourself a password reset email from Twitter in incognito.
+2. In your inbox, find the email from Twitter and download headers (three dots, then download message).
+3. Copy paste the entire contents of the file into the box below
+4. Paste in your sending Ethereum key
+5. Click "Generate Proof"
 
-Note that it is completely client side and open source, and you are not trusting us with any private information.
+Note that it is completely client side and [open source](https://github.com/zk-email-verify/zk-email-verify/), and you are not trusting us with any private information.
 
 ## Verifying Signatures
 
@@ -46,13 +47,15 @@ There are several other theoretical issues like BCC's etc that break the claimed
 ZK proofs are essentially signatures which require knowledge of a value satisfying
 a specific function in order to generate correctly (so they prove knowledge of
 the value); however, they do not reveal these values to any validator (so they
-are zero-knowledge). Surprisingly, ZK proofs can be constructed for *any*
+are zero-knowledge). Surprisingly, ZK proofs can be constructed for _any_
 computable function.
 
 For ZK Email, the function we care about is
+
 ```
 DKIM = RSA_verify(sha_hash(header | sha_hash(body)), pk)
 ```
+
 A ZK proof of this statement shows that you own your public ssh key and are part
 of the group, but does not reveal your public ssh key beyond that. The pk is on
 the DNS record of the mail sending website.
