@@ -11,6 +11,7 @@ The documentation for the app is located at https://zkemail.xyz/docs (WIP). Made
 ## Local website
 
 To run the frontend with existing circuits (there is no backend or server), enable Node 16 (with nvm) and run:
+
 ```
 yarn start
 ```
@@ -103,6 +104,7 @@ To create a chunked zkey for in-browser proving, run the following (likely on a 
 
 <!-- Previously snarkjs@git+https://github.com/vb7401/snarkjs.git#fae4fe381bdad2da13eee71010dfe477fc694ac1 -->
 <!-- Now -> yarn add https://github.com/vb7401/snarkjs/commits/chunk_zkey_gen -->
+
 ```bash
 yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8
 cd dizkus-scripts/
@@ -132,6 +134,7 @@ yarn compile-all
 ```
 
 ## Compiling Subcircuits
+
 If you want to compile subcircuits instead of the whole thing, you can use the following:
 
 If you want to generate a new email/set of inputs, edit the src/constants.ts file with your constants.
@@ -144,25 +147,31 @@ npm install typescript ts-node -g
 # if weird things dont work with this and yarn start, go go node_modules/react-scripts/config/webpack.config.ts and add/cut `target: 'node',` after like 793 after `node:`.
 npx tsc --moduleResolution node --target esnext circuits/scripts/generate_input.ts
 ```
-which will autowrite input_<circuitName>.json to the inputs folder.
+
+which will autowrite input\_<circuitName>.json to the inputs folder.
 
 To do the steps in https://github.com/iden3/snarkjs#7-prepare-phase-2 automatically, do
+
 ```
 yarn compile email true
 ```
+
 and you can swap `email` for `sha` or `rsa` or any other circuit name that matches your generate_input type.
 
 and when the circuit doesn't change,
+
 ```
 yarn compile email true skip-r1cswasm
 ```
 
 and when the zkey also doesn't change,
+
 ```
 yarn compile email true skip-r1cswasm skip-zkey
 ```
 
 ## Production
+
 For production, make sure to set a beacon in .env.
 
 Note that this leaks the number of characters in the username of someone who sent you an email, iff the first field in the email serialization format is from (effectively irrelevant).
@@ -202,7 +211,9 @@ The full email header circuit above with the 7-byte packing into signals is 1,40
 
 The full email header and body check circuit, with 7-byte packing and final public output compression, is **3,115,057 constraints**, with 21 public signals. zkey size was originally 1.75GB, and with tar.gz compression it is now 982 MB.
 
-Proof generation time on 16 CPUs took 97 seconds. Zkey 0 took 17 minutes. Unclear about zkey 1. Zkey 2 took 5 minutes. r1cs + wasm generation took 5 minutes. Witness generation took 16 seconds. cpp witness gen file generation (from script 6) took 210 minutes.
+In the browser, on a 2019 Intel Mac on Chrome, proving uses 7.3/8 cores. zk-gen takes 384 s, groth16 prove takes 375 s, and witness calculation takes 9 s.
+
+For baremetal, proof generation time on 16 CPUs took 97 seconds. Generating zkey 0 took 17 minutes. Unclear about zkey 1. Zkey 2 took 5 minutes. r1cs + wasm generation took 5 minutes. Witness generation took 16 seconds. cpp witness gen file generation (from script 6) took 210 minutes.
 
 ### Scrubbing Sensitive Files
 
