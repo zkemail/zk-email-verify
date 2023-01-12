@@ -209,7 +209,7 @@ RSA + SHA + Regex + Masking with up to 1024 byte message lengths is 1,392,219 co
 
 The full email header circuit above with the 7-byte packing into signals is 1,408,571 constraints, with 163 public signals, and the verifier script fits in the 24kb contract limit.
 
-The full email header and body check circuit, with 7-byte packing and final public output compression, is **3,115,057 constraints**, with 21 public signals. zkey size was originally 1.75GB, and with tar.gz compression it is now 982 MB.
+The full email header and body check circuit, with 7-byte packing and final public output compression, is **3,115,057 constraints**, with 21 public signals. zkey size was originally 1.75GB, and with tar.gz compression it is now 982 MB. Decompression doesn't work in the browser however.
 
 In the browser, on a 2019 Intel Mac on Chrome, proving uses 7.3/8 cores. zk-gen takes 384 s, groth16 prove takes 375 s, and witness calculation takes 9 s.
 
@@ -225,6 +225,20 @@ git remote add origin https://github.com/zk-email-verify/zk-email-verify
 ls
 git push --set-upstream origin main --force
 ```
+
+## Possible Errors
+
+### No available storage method found.
+
+If when using snarkjs, you see this:
+
+```
+[ERROR] snarkJS: Error: No available storage method found. [full path]
+/node_modules/localforage/dist/localforage.js:2762:25
+```
+
+Rerun with this:
+`yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8`
 
 ## To-Do
 

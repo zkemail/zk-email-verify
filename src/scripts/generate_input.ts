@@ -7,6 +7,7 @@ import * as fs from "fs";
 var Cryo = require("cryo");
 const pki = require("node-forge").pki;
 
+const email_file = "kaylee_phone_number_email_twitter.eml"; // "./test_email.txt", "./twitter_msg.eml"
 export interface ICircuitInputs {
   modulus?: string[];
   signature?: string[];
@@ -76,6 +77,7 @@ async function sha256Pad(prehash_prepad_m: Uint8Array, maxShaBytes: number): Pro
   while (prehash_prepad_m.length < maxShaBytes) {
     prehash_prepad_m = mergeUInt8Arrays(prehash_prepad_m, int32toBytes(0));
   }
+  // console.log(prehash_prepad_m.length, maxShaBytes);
   assert(prehash_prepad_m.length === maxShaBytes, "Padding to max length did not complete properly!");
 
   return [prehash_prepad_m, messageLen];
@@ -250,7 +252,7 @@ export async function generate_inputs(email: Buffer, eth_address: string): Promi
 }
 
 async function do_generate() {
-  const email = fs.readFileSync("./twitter_msg.eml");
+  const email = fs.readFileSync(email_file);
   console.log(email);
   const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000");
   console.log(JSON.stringify(gen_inputs));
@@ -276,8 +278,7 @@ export async function insert13Before10(a: Uint8Array): Promise<Uint8Array> {
 }
 
 async function debug_file() {
-  // const email = fs.readFileSync("./test_email.txt");
-  const email = fs.readFileSync("./twitter_msg.eml");
+  const email = fs.readFileSync(email_file);
   console.log(Uint8Array.from(email));
   // Key difference: file load has 13 10, web version has just 10
 }
@@ -287,6 +288,6 @@ if (typeof require !== "undefined" && require.main === module) {
   // debug_file();
   const circuitInputs = do_generate();
   console.log("Writing to file...");
-  fs.writeFileSync(`./circuits/inputs/input_twitter.json`, JSON.stringify(circuitInputs), { flag: "w" });
+  circuitInputs.then((inputs) => fs.writeFileSync(`./circuits/inputs/input_twitter.json`, JSON.stringify(inputs), { flag: "w" }));
   // gen_test();
 }
