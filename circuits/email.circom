@@ -71,23 +71,34 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         rsa.signature[i] <== signature[i];
     }
 
+    // The header regex right now checks for both a from and a to,
+    // To mask these out, check the old circuits
     component dkim_header_regex = DKIMHeaderRegex(max_header_bytes);
     for (var i = 0; i < max_header_bytes; i++) {
         dkim_header_regex.msg[i] <== in_padded[i];
     }
+
+    // This verifies two matches for from/to, and outputs the masked header in .msg
+    // (emails sent from hotmail won't work, they don't have a to field).
     dkim_header_regex.out === 2;
+
     for (var i = 0; i < max_header_bytes; i++) {
         reveal[i] <== dkim_header_regex.reveal[i+1];
     }
     log(dkim_header_regex.out);
 
+    // This isolates the hash of the body within the header via regex, and outputs the masked header in .msg
     component body_hash_regex = BodyHashRegex(max_header_bytes);
     for (var i = 0; i < max_header_bytes; i++) {
         body_hash_regex.msg[i] <== in_padded[i];
     }
+
+    // There should only be one body hash match
     body_hash_regex.out === 1;
     log(body_hash_regex.out);
 
+    // Extracts the body hash index
+    // body_hash_eq is a vector that is 1 at starting index, everywhere else is 0
     component body_hash_eq[max_header_bytes];
     for (var i = 0; i < max_header_bytes; i++) {
         body_hash_eq[i] = IsEqual();
@@ -95,6 +106,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         body_hash_eq[i].in[1] <== body_hash_idx;
     }
 
+    // This part converts the regex-masked body into a 2d array from which we can extract just the username
     for (var j = 0; j < 44; j++) {
         body_hash[j][j] <== body_hash_eq[j].out * body_hash_regex.reveal[j];
         for (var i = j + 1; i < max_header_bytes; i++) {
@@ -111,10 +123,13 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     }
     sha_body.in_len_padded_bytes <== in_body_len_padded_bytes;
 
+    // Base64 decode just the body hash
     component sha_b64 = Base64Decode(32);
     for (var i = 0; i < 44; i++) {
         sha_b64.in[i] <== body_hash[i][max_header_bytes - 1];
     }
+
+    // Convert bits to bytes to verify the byte-wise base64 decoding correctly
     component sha_body_bytes[32];
     for (var i = 0; i < 32; i++) {
         sha_body_bytes[i] = Bits2Num(8);
@@ -134,10 +149,10 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     component found_twitter = IsZero();
     found_twitter.in <== twitter_regex.out;
     found_twitter.out === 0;
-
     log(twitter_regex.out);
 
-    // We isolate where the username begins: twitter_eq there is 1, everywhere else is 0
+    // We isolate the index where the username begins
+    // twitter_eq a vector that is 1 at the starting index, everywhere else is 0
     component twitter_eq[max_body_bytes];
     for (var i = 0; i < max_body_bytes; i++) {
         twitter_eq[i] = IsEqual();
@@ -145,13 +160,14 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         twitter_eq[i].in[1] <== twitter_username_idx;
     }
 
-
+    // This part converts the regex-masked body into a 2d array from which we can extract just the username
+    // Without doing variable array indexes, which would require a more complex quinselector circuit
     for (var j = 0; j < max_twitter_len; j++) {
         // This vector is 0 everywhere except at one value
         // [x][x] is the starting character of the twitter username
         reveal_twitter[j][j] <== twitter_eq[j].out * twitter_regex.reveal[j];
         for (var i = j + 1; i < max_body_bytes; i++) {
-            // This shifts the username back to the start of the string. For example,
+            // This shifts the username back to the start of the string. For example, for username yush_g
             // [0][k0] = y, where k0 >= twitter_username_idx + 0
             // [1][k1] = u, where k1 >= twitter_username_idx + 1
             // [2][k2] = s, where k2 >= twitter_username_idx + 2

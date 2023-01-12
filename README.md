@@ -106,10 +106,12 @@ wget https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_21.ptau
 mv powersOfTau28_hez_final_21.ptau powersoftau/powersOfTau28_hez_final_21.ptau
 ```
 
-To create a chunked zkey for in-browser proving, run the following (likely on a high CPU computer):
-
 <!-- Previously snarkjs@git+https://github.com/vb7401/snarkjs.git#fae4fe381bdad2da13eee71010dfe477fc694ac1 -->
 <!-- Now -> yarn add https://github.com/vb7401/snarkjs/commits/chunk_zkey_gen -->
+
+Put the email into ...\*.eml. Edit the constant filename at the top of generate_input.ts to import that file, then use the output of running that file as the input file (you may need to rename it). You'll need this for both zkey and verifier generation.
+
+To create a chunked zkey for in-browser proving, run the following (likely on a high CPU computer):
 
 ```bash
 yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8 # Swap to chunked generation version
@@ -130,9 +132,9 @@ We use a fork of [zkp.ts](https://github.com/personaelabs/heyanon/blob/main/lib/
 yarn install snarkjs@git+https://github.com/vb7401/snarkjs.git#53e86631b5e409e5bd30300611b495ca469503bc
 ```
 
-Change s3 address to your bucket.
+Manually copy paste the modulus in the resulting generated file into solidity verified mailserver keys.
 
-Put the email into ...\*eml. Edit generate_input.json to import it. Manually copy paste the modulus in the resulting generated file into solidity verified mailserver keys.
+Change s3 address in the frontend to your bucket.
 
 To do a non-chunked zkey for non-browser running,
 
@@ -230,6 +232,10 @@ git remote add origin https://github.com/zk-email-verify/zk-email-verify
 ls
 git push --set-upstream origin main --force
 ```
+
+### “Cannot resolve module ‘fs’”
+
+Fixed by downgrading react-scripts version.
 
 ## To-Do
 
