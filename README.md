@@ -11,11 +11,13 @@ The documentation for the app is located at https://zkemail.xyz/docs (WIP). Made
 ## Local website
 
 To run the frontend with existing circuits (there is no backend or server), enable Node 16 (with nvm) and run:
+
 ```
 yarn start
 ```
 
 If the frontend shows an error on fullProve line, run this and rerun
+
 ```
 yarn add snarkjs@https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e
 ```
@@ -108,6 +110,7 @@ To create a chunked zkey for in-browser proving, run the following (likely on a 
 
 <!-- Previously snarkjs@git+https://github.com/vb7401/snarkjs.git#fae4fe381bdad2da13eee71010dfe477fc694ac1 -->
 <!-- Now -> yarn add https://github.com/vb7401/snarkjs/commits/chunk_zkey_gen -->
+
 ```bash
 yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8 # Swap to chunked generation version
 cd dizkus-scripts/
@@ -138,6 +141,7 @@ yarn compile-all
 ```
 
 ## Compiling Subcircuits
+
 If you want to compile subcircuits instead of the whole thing, you can use the following:
 
 If you want to generate a new email/set of inputs, edit the src/constants.ts file with your constants.
@@ -150,25 +154,31 @@ npm install typescript ts-node -g
 # if weird things dont work with this and yarn start, go go node_modules/react-scripts/config/webpack.config.ts and add/cut `target: 'node',` after like 793 after `node:`.
 npx tsc --moduleResolution node --target esnext circuits/scripts/generate_input.ts
 ```
-which will autowrite input_<circuitName>.json to the inputs folder.
+
+which will autowrite input\_<circuitName>.json to the inputs folder.
 
 To do the steps in https://github.com/iden3/snarkjs#7-prepare-phase-2 automatically, do
+
 ```
 yarn compile email true
 ```
+
 and you can swap `email` for `sha` or `rsa` or any other circuit name that matches your generate_input type.
 
 and when the circuit doesn't change,
+
 ```
 yarn compile email true skip-r1cswasm
 ```
 
 and when the zkey also doesn't change,
+
 ```
 yarn compile email true skip-r1cswasm skip-zkey
 ```
 
 ## Production
+
 For production, make sure to set a beacon in .env.
 
 Note that this leaks the number of characters in the username of someone who sent you an email, iff the first field in the email serialization format is from (effectively irrelevant).
@@ -229,3 +239,4 @@ git push --set-upstream origin main --force
 - Add ENS DNSSEC code (possibly SNARKed), so anyone can add a website's RSA key via DNS record
 - Design the NFT/POAP to have the user's domain/verified identity on it
 - Make a testnet faucet as a PoC for Sybil resistance and to get developers interested
+- Dynamically tradeoff between gzip (2x faster decompression) and xz (30% smaller file size): https://www.rootusers.com/gzip-vs-bzip2-vs-xz-performance-comparison/ based on internet speed (i.e. minimize download time + unzip time)
