@@ -6,7 +6,7 @@ const fs = require("fs");
 let circuitsList = process.argv[2];
 const deterministic = false;
 const contributingExtraRandomness = false;
-const ptau_size = 21;
+const ptau_size = 22;
 // process.argv[3] === "true" || process.argv[3] === undefined;
 
 // TODO: add an option to generate with entropy for production keys
