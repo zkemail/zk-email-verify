@@ -4,18 +4,23 @@ import tarfile
 import time
 
 # Set up the client for the AWS S3 service
-s3 = boto3.client('s3') # Ask Aayush for the access key and secret access key
+s3 = boto3.client('s3')  # Ask Aayush for the access key and secret access key
 
 # Set the name of the remote directory and the AWS bucket
-zkey_dir = '../build/email/'
-wasm_dir = '../build/email/email_js/'
-bucket_name = 'zkemail-zkey-chunks' # us-east-1
+source = '~/Documents/projects/zk-email-verify'
+source = '~/zk-email-verify-old'
+zkey_dir = source + '/build/email/'
+wasm_dir = source + '/build/email/email_js/'
+bucket_name = 'zkemail-zkey-chunks'  # us-east-1
+
 
 def upload_to_s3(filename, dir=""):
     with open(dir + filename, 'rb') as file:
         print("Starting upload...")
-        s3.upload_fileobj(file, bucket_name, filename, ExtraArgs={'ACL': 'public-read', 'ContentType': 'binary/octet-stream'})
+        s3.upload_fileobj(file, bucket_name, filename, ExtraArgs={
+                          'ACL': 'public-read', 'ContentType': 'binary/octet-stream'})
         print("Done uploading!")
+
 
 # Loop through the files in the remote directory
 for dir in [zkey_dir, wasm_dir]:
@@ -27,8 +32,10 @@ for dir in [zkey_dir, wasm_dir]:
             # Create a zip file for the file
             tar_file_name = file + '.tar.gz'
             with tarfile.open(tar_file_name, 'w:gz') as tar_file:
-                print("Compressing: ", dir + file)
-                tar_file.add(dir + file)
+                source_file_path = dir + file
+                print("Compressing: ", source_file_path)
+                tar_file.add(source_file_path,
+                             arcname=os.path.basename(source_file_path))
 
             # Upload the zip file to the AWS bucket, overwriting any existing file with the same name
             upload_to_s3(tar_file_name)
