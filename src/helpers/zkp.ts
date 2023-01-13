@@ -11,10 +11,14 @@ const fs = require("fs");
 
 const loadURL = "https://zkemail-zkey-chunks.s3.amazonaws.com/";
 const zkeyExtension = ".tar.gz";
-const uncompressFiles = true;
+const useCompressedFiles = true;
 
 // Downloads and uncompresses if compressed
-export async function downloadFromFilename(filename: string, compressed = false) {
+export async function downloadFromFilename(filenameRaw: string, compressed = false) {
+  let filename = filenameRaw;
+  if (compressed) {
+    filename = filenameRaw + zkeyExtension;
+  }
   const link = loadURL + filename;
   const uncompressFilePromises = [];
   try {
@@ -115,37 +119,26 @@ export const downloadProofFiles = async function (filename: string, onFileDownlo
   for (const c of zkeySuffix) {
     const itemCompressed = await localforage.getItem(`${filename}.zkey${c}${zkeyExtension}`);
     const item = await localforage.getItem(`${filename}.zkey${c}`);
-    if (item || itemCompressed) {
-      console.log(`${filename}.zkey${c}${item ? "" : zkeyExtension} already found in localstorage!`);
+    if (item) {
+      console.log(`${filename}.zkey${c} already found in localstorage!`);
       onFileDownloaded();
       continue;
+    } else if (itemCompressed) {
+      console.log(`Only compressed ${filename}.zkey${c}${zkeyExtension} already found in localstorage, decompressing!`);
+      const zkeyBuff: ArrayBuffer = await localforage.getItem(filename);
+      filePromises.push(uncompressAndStore(filename, zkeyBuff));
+      onFileDownloaded();
+      continue;
+    } else {
+      filePromises.push(
+        // downloadFromFilename(`${filename}.zkey${c}${zkeyExtension}`, true).then(
+        downloadFromFilename(`${filename}.zkey${c}`, useCompressedFiles).then(() => onFileDownloaded())
+      );
     }
-    filePromises.push(
-      // downloadFromFilename(`${filename}.zkey${c}${zkeyExtension}`, true).then(
-      downloadFromFilename(`${filename}.zkey${c}${zkeyExtension}`, uncompressFiles).then(() => onFileDownloaded())
-    );
   }
   console.log(filePromises);
   await Promise.all(filePromises);
 };
-
-// export const uncompressProofFiles = async function (filename: string) {
-//   const filePromises = [];
-//   for (const c of zkeySuffix) {
-//     const targzFilename = `${filename}.zkey${c}${zkeyExtension}`;
-//     const item = await localforage.getItem(`${filename}.zkey${c}`);
-//     const itemCompressed = await localforage.getItem(targzFilename);
-//     if (!itemCompressed){
-//       console.error(`Error downloading file ${targzFilename}`)
-//     } else {
-//       console.log(`${filename}.zkey${c}${item?"":zkeyExtension} already found in localstorage!`);
-//       continue;
-//     }
-//     filePromises.push(downloadFromFilename(targzFilename));
-//   }
-//   console.log(filePromises);
-//   await Promise.all(filePromises);
-// };
 
 export const uncompressProofFiles = async function (filename: string) {
   const filePromises = [];
