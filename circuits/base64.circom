@@ -3,6 +3,8 @@ pragma circom 2.0.3;
 include "../node_modules/circomlib/circuits/comparators.circom";
 
 // http://0x80.pl/notesen/2016-01-17-sse-base64-decoding.html#vector-lookup-base
+// Also, look at TextEncoder().encode() call in generate_input.ts for the analog in ts
+
 template Base64Lookup() {
     signal input in;
     signal output out;
@@ -11,11 +13,11 @@ template Base64Lookup() {
     component le_Z = LessThan(8);
     le_Z.in[0] <== in;
     le_Z.in[1] <== 90+1;
-    
+
     component ge_A = GreaterThan(8);
     ge_A.in[0] <== in;
     ge_A.in[1] <== 65-1;
-    
+
     signal range_AZ <== ge_A.out * le_Z.out;
     signal sum_AZ <== range_AZ * (in - 65);
 
@@ -23,11 +25,11 @@ template Base64Lookup() {
     component le_z = LessThan(8);
     le_z.in[0] <== in;
     le_z.in[1] <== 122+1;
-    
+
     component ge_a = GreaterThan(8);
     ge_a.in[0] <== in;
     ge_a.in[1] <== 97-1;
-    
+
     signal range_az <== ge_a.out * le_z.out;
     signal sum_az <== sum_AZ + range_az * (in - 71);
 
@@ -35,11 +37,11 @@ template Base64Lookup() {
     component le_9 = LessThan(8);
     le_9.in[0] <== in;
     le_9.in[1] <== 57+1;
-    
+
     component ge_0 = GreaterThan(8);
     ge_0.in[0] <== in;
     ge_0.in[1] <== 48-1;
-    
+
     signal range_09 <== ge_0.out * le_9.out;
     signal sum_09 <== sum_az + range_09 * (in + 4);
 
@@ -56,6 +58,9 @@ template Base64Lookup() {
     out <== sum_slash;
 }
 
+// Decode code is hard to edit due to array offsets. We'd recommend adding special cases
+// or more characters to the encode function, and passing in an extra input that you constrain instead.
+
 template Base64Decode(N) {
     var M = 4*((N+2)\3);
     signal input in[M];
@@ -70,7 +75,7 @@ template Base64Decode(N) {
         for (var j = 0; j < 3; j++) {
             bits_out[i\4][j] = Bits2Num(8);
         }
-        
+
         for (var j = 0; j < 4; j++) {
             bits_in[i\4][j] = Num2Bits(6);
             translate[i\4][j] = Base64Lookup();

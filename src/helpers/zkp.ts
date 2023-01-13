@@ -6,10 +6,12 @@ const snarkjs = require("snarkjs");
 const zlib = require("zlib");
 const tar = require("tar-stream");
 // const tar = require("tar-js");
+// const tar = require("tar-fs"); // try fs.createReadStream(tarFile).pipe(tar.extract(target));
 const fs = require("fs");
 
 const loadURL = "https://zkemail-zkey-chunks.s3.amazonaws.com/";
 const zkeyExtension = ".tar.gz";
+const uncompressFiles = true;
 
 // Downloads and uncompresses if compressed
 export async function downloadFromFilename(filename: string, compressed = false) {
@@ -120,7 +122,7 @@ export const downloadProofFiles = async function (filename: string, onFileDownlo
     }
     filePromises.push(
       // downloadFromFilename(`${filename}.zkey${c}${zkeyExtension}`, true).then(
-      downloadFromFilename(`${filename}.zkey${c}${zkeyExtension}`, false).then(() => onFileDownloaded())
+      downloadFromFilename(`${filename}.zkey${c}${zkeyExtension}`, uncompressFiles).then(() => onFileDownloaded())
     );
   }
   console.log(filePromises);

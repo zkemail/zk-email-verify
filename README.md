@@ -235,13 +235,15 @@ ls
 git push --set-upstream origin main --force
 ```
 
-<<<<<<< HEAD
+## FAQ/Errors
+
+### What are the differences between generating proofs (snarkjs.groth16.fullprove) on the client vs. on a server?
+
+If the server is generating the proof, it has to have the private input. We want people to own their own data, so client side proving is the most secure both privacy and anonymity wise. There are fancier solutions (MPC, FHE, recursive proofs etc), but those are still in the research stage.
 
 ### “Cannot resolve module ‘fs’”
 
-# Fixed by downgrading react-scripts version.
-
-## Possible Errors
+Fixed by downgrading react-scripts version.
 
 ### No available storage method found.
 
@@ -255,7 +257,31 @@ If when using snarkjs, you see this:
 Rerun with this:
 `yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8`
 
-> > > > > > > lermchair/ui
+### I'm trying to edit the circuits, and running into the error 'Non-quadratic constraints are not allowed!'
+
+The line number of this error is usually arbitrary. Make sure you are not mixing signals and variables anywhere: signals can only be assigned once, and assigned to other signals (not variables), and cannot be used as parameters in control flow like for, if, array indexing, etc. You can get versions of these by using components like isEqual, lessThan, and quinSelector, respectively.
+
+### Where do I get the public key for the signature?
+
+Usually, this will be hosted on some URL under the parent organization. You can try to get it from a .pem file, but that is usually a fraught effort since the encoding of such files varies a lot, is idiosyncratic, and hard to parse. The easiest way is to just extract it from the RSA signature itself, and just verify that it matches the parent organization.
+
+### How can I trust that you verify the correct public key?
+
+You can see the decomposed public key in our Solidity verifier, and you can auto-check this against the mailserver URL. This prevents the code from falling victim to DNS spoofing attacks. We don't have mailserver key rotations figured out right now, but we expect that can be done trustlessly via DNSSEC (though not widely enabled) or via deploying another contract.
+
+### How do I get a Verifier.sol file that matches my chunked zkeys?
+
+You should be able to put in identical randomness on both the chunked zkey fork and the regular zkey generation fork in the beacon and Powers of Tau phase 2, to be able to get the same zkey in both a chunked and non-chunked form. You can then run compile.js, or if you prefer the individual line, just `node --max-old-space-size=614400 ${snarkJSPath} zkey export solidityverifier ${cwd}/circuits/${circuitNamePrimary}/keys/circuit_final.zkey ${cwd}/circuits/contracts/verifier.sol`, where you edit the path variables to be your preferred ones.
+
+The chunked file utils will automatically search for circuit_final.zkeyb from this command line call if you are using the chunked zkey fork (you'll know you have that fork, if you have a file called chunkFileUtils in snarkJS).
+
+### How do I deal with all of these snarkJS forks?
+
+Apologies, this part is some messy legacy code from previous projects. You can do something like `./node_modules/bin/snarkjs' inside your repo, and it'll run the snarkjs command built from the fork you're using instead of the global one.
+
+### How do I build my own frontend but plug in your ZK parsing?
+
+zkp.ts is the key file that calls the important proving functions. You should be able to just call the exported functions from there, along with setting up your own s3 bucket and setting the constants at the top.
 
 ## To-Do
 

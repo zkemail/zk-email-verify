@@ -8,6 +8,11 @@ include "./body_hash_regex.circom";
 include "./twitter_reset_regex.circom";
 include "./base64.circom";
 
+// This circuit takes in an email body and header
+// It extracts the body hash and DKIM signature from this info, proves correctness, and extracts the email address and twitter username from the email.
+// The max arguments are the maximum number of bytes that can be passed in for the header and body.
+// The n and k define bigInts for all of the RSA arithmetic: they are represented as k parts of n bits each.
+// n < 127, and n * k > 2048 (or your RSA key size), otherwise the circuit will not handle bigInt arithmetic correctly.
 template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     // max_num_bytes must be a multiple of 64
     var max_packed_bytes = (max_header_bytes - 1) \ 7 + 1; // ceil(max_num_bytes / 7)
@@ -73,6 +78,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
 
     // The header regex right now checks for both a from and a to,
     // To mask these out, check the old circuits
+    // Regex runs on the raw string chars, not the base64-encoded string
     component dkim_header_regex = DKIMHeaderRegex(max_header_bytes);
     for (var i = 0; i < max_header_bytes; i++) {
         dkim_header_regex.msg[i] <== in_padded[i];
@@ -82,6 +88,8 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     // (emails sent from hotmail won't work, they don't have a to field).
     dkim_header_regex.out === 2;
 
+    // This reveal section extracts the relevant regex state into a mask array
+    // For instance, reveal may look like 0000yush_g0000, where it's only non-zero at the characters to be revealed
     for (var i = 0; i < max_header_bytes; i++) {
         reveal[i] <== dkim_header_regex.reveal[i+1];
     }
