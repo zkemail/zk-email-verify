@@ -16,6 +16,12 @@ To run the frontend with existing circuits (there is no backend or server), enab
 yarn start
 ```
 
+If the frontend shows an error on fullProve line, run this and rerun
+
+```
+yarn add snarkjs@https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e
+```
+
 ## Getting email headers
 
 In Outlook, turn on plain text mode. Copy paste the 'full email details' into the textbox on the (only client side!) webpage.
@@ -100,19 +106,22 @@ wget https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_21.ptau
 mv powersOfTau28_hez_final_21.ptau powersoftau/powersOfTau28_hez_final_21.ptau
 ```
 
-To create a chunked zkey for in-browser proving, run the following (likely on a high CPU computer):
-
 <!-- Previously snarkjs@git+https://github.com/vb7401/snarkjs.git#fae4fe381bdad2da13eee71010dfe477fc694ac1 -->
 <!-- Now -> yarn add https://github.com/vb7401/snarkjs/commits/chunk_zkey_gen -->
 
+Put the email into ...\*.eml. Edit the constant filename at the top of generate_input.ts to import that file, then use the output of running that file as the input file (you may need to rename it). You'll need this for both zkey and verifier generation.
+
+To create a chunked zkey for in-browser proving, run the following (likely on a high CPU computer):
+
 ```bash
-yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8
+yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8 # Swap to chunked generation version
 cd dizkus-scripts/
 ./1_compile.sh && ./2_gen_wtns.sh && ./3_gen_chunk_zkey.sh && ./4_gen_vkey.sh && ./5_gen_proof.sh
 # optional: ./6_gen_proof_rapidsnark.sh
 aws configure # Only needs to be run once
 pip3 install boto3
 python3 upload_to_s3.py
+yarn add snarkjs@https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e # Revert to frontend version
 ```
 
 Note that there's no .zkeya file, only .zkeyb ... .zkeyk. The script will automatically zip into .tar.gz files and load into s3 bucket.
@@ -123,9 +132,9 @@ We use a fork of [zkp.ts](https://github.com/personaelabs/heyanon/blob/main/lib/
 yarn install snarkjs@git+https://github.com/vb7401/snarkjs.git#53e86631b5e409e5bd30300611b495ca469503bc
 ```
 
-Change s3 address to your bucket.
+Manually copy paste the modulus in the resulting generated file into solidity verified mailserver keys.
 
-Put the email into ...\*eml. Edit generate_input.json to import it. Manually copy paste the modulus in the resulting generated file into solidity verified mailserver keys.
+Change s3 address in the frontend to your bucket.
 
 To do a non-chunked zkey for non-browser running,
 
@@ -226,7 +235,15 @@ ls
 git push --set-upstream origin main --force
 ```
 
-## Possible Errors
+## FAQ/Errors
+
+### What are the differences between generating proofs (snarkjs.groth16.fullprove) on the client vs. on a server?
+
+If the server is generating the proof, it has to have the private input. We want people to own their own data, so client side proving is the most secure both privacy and anonymity wise. There are fancier solutions (MPC, FHE, recursive proofs etc), but those are still in the research stage.
+
+### “Cannot resolve module ‘fs’”
+
+Fixed by downgrading react-scripts version.
 
 ### No available storage method found.
 
@@ -240,6 +257,36 @@ If when using snarkjs, you see this:
 Rerun with this:
 `yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8`
 
+### I'm trying to edit the circuits, and running into the error 'Non-quadratic constraints are not allowed!'
+
+The line number of this error is usually arbitrary. Make sure you are not mixing signals and variables anywhere: signals can only be assigned once, and assigned to other signals (not variables), and cannot be used as parameters in control flow like for, if, array indexing, etc. You can get versions of these by using components like isEqual, lessThan, and quinSelector, respectively.
+
+### Where do I get the public key for the signature?
+
+Usually, this will be hosted on some URL under the parent organization. You can try to get it from a .pem file, but that is usually a fraught effort since the encoding of such files varies a lot, is idiosyncratic, and hard to parse. The easiest way is to just extract it from the RSA signature itself, and just verify that it matches the parent organization.
+
+### How can I trust that you verify the correct public key?
+
+You can see the decomposed public key in our Solidity verifier, and you can auto-check this against the mailserver URL. This prevents the code from falling victim to DNS spoofing attacks. We don't have mailserver key rotations figured out right now, but we expect that can be done trustlessly via DNSSEC (though not widely enabled) or via deploying another contract.
+
+### How do I get a Verifier.sol file that matches my chunked zkeys?
+
+You should be able to put in identical randomness on both the chunked zkey fork and the regular zkey generation fork in the beacon and Powers of Tau phase 2, to be able to get the same zkey in both a chunked and non-chunked form. You can then run compile.js, or if you prefer the individual line, just `node --max-old-space-size=614400 ${snarkJSPath} zkey export solidityverifier ${cwd}/circuits/${circuitNamePrimary}/keys/circuit_final.zkey ${cwd}/circuits/contracts/verifier.sol`, where you edit the path variables to be your preferred ones.
+
+The chunked file utils will automatically search for circuit_final.zkeyb from this command line call if you are using the chunked zkey fork (you'll know you have that fork, if you have a file called chunkFileUtils in snarkJS).
+
+### How do I deal with all of these snarkJS forks?
+
+Apologies, this part is some messy legacy code from previous projects. You can do something like `./node_modules/bin/snarkjs' inside your repo, and it'll run the snarkjs command built from the fork you're using instead of the global one.
+
+### How do I build my own frontend but plug in your ZK parsing?
+
+zkp.ts is the key file that calls the important proving functions. You should be able to just call the exported functions from there, along with setting up your own s3 bucket and setting the constants at the top.
+
+### Why did you choose GPL over MIT licensing?
+
+Since circom is GPL, we are forced to use the GPL license, which is still a highly permissive license. You can dm us if you'd like to treat non-circom parts of the repo as MIT licensed, but broadly we are pro permissive open source usage with attribution! We hope that those who derive profit from this primitive contribute that money altruistically back to this technology.
+
 ## To-Do
 
 - Make the frontend Solidity calls work
@@ -248,3 +295,4 @@ Rerun with this:
 - Add ENS DNSSEC code (possibly SNARKed), so anyone can add a website's RSA key via DNS record
 - Design the NFT/POAP to have the user's domain/verified identity on it
 - Make a testnet faucet as a PoC for Sybil resistance and to get developers interested
+- Dynamically tradeoff between gzip (2x faster decompression) and xz (30% smaller file size): https://www.rootusers.com/gzip-vs-bzip2-vs-xz-performance-comparison/ based on internet speed (i.e. minimize download time + unzip time)
