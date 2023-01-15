@@ -251,8 +251,9 @@ export async function generate_inputs(email: Buffer, eth_address: string): Promi
   return fin_result.circuitInputs;
 }
 
-async function do_generate() {
-  const email = fs.readFileSync(email_file);
+export async function do_generate(emailFilePath = email_file) {
+  console.log(emailFilePath)
+  const email = fs.readFileSync(emailFilePath);
   console.log(email);
   const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000");
   console.log(JSON.stringify(gen_inputs));
@@ -289,5 +290,5 @@ if (typeof require !== "undefined" && require.main === module) {
   const circuitInputs = do_generate();
   console.log("Writing to file...");
   circuitInputs.then((inputs) => fs.writeFileSync(`./circuits/inputs/input_twitter.json`, JSON.stringify(inputs), { flag: "w" }));
-  // gen_test();
+  // ();
 }
