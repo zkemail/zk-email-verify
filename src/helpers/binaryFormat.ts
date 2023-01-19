@@ -31,9 +31,27 @@ export function bufferToUint8Array(buf: Buffer): Uint8Array {
   const ab = new ArrayBuffer(buf.length);
   const view = new Uint8Array(ab);
   for (let i = 0; i < buf.length; ++i) {
-      view[i] = buf[i];
+    view[i] = buf[i];
   }
   return Uint8Array.from(view);
+}
+
+export function bufferToHex(buf: Buffer): String {
+  return buf.toString("hex");
+}
+
+export async function Uint8ArrayToCharArray(a: Uint8Array): Promise<string[]> {
+  return Array.from(a).map((x) => x.toString());
+}
+
+export async function Uint8ArrayToString(a: Uint8Array): Promise<string> {
+  return Array.from(a)
+    .map((x) => x.toString())
+    .join(";");
+}
+
+export async function Uint8ArrayToHex(a: Uint8Array): Promise<string> {
+  return Buffer.from(a).toString("hex");
 }
 
 export function bufferToString(buf: Buffer): String {
@@ -98,7 +116,7 @@ export function toHex(bytes: Uint8Array): string {
 // https://github.com/nodejs/node/blob/v14.18.1/src/string_bytes.cc#L246-L261
 export function fromHex(hexString: string): Uint8Array {
   let hexStringTrimmed: string = hexString;
-  if(hexString[0] === "0" && hexString[1] === "x") {
+  if (hexString[0] === "0" && hexString[1] === "x") {
     hexStringTrimmed = hexString.slice(2);
   }
   const bytes = new Uint8Array(Math.floor((hexStringTrimmed || "").length / 2));
@@ -123,7 +141,6 @@ export function packedNBytesToString(packedBytes: bigint[], n: number = 7): stri
   }
   return bytesToString(Uint8Array.from(chars));
 }
-
 
 export function packBytesIntoNBytes(messagePaddedRaw: Uint8Array | string, n = 7): Array<bigint> {
   const messagePadded: Uint8Array = typeof messagePaddedRaw === "string" ? stringToBytes(messagePaddedRaw) : messagePaddedRaw;
