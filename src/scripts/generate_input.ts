@@ -9,9 +9,12 @@ import {
   bufferToHex,
   Uint8ArrayToString,
   Uint8ArrayToCharArray,
+  assert,
+  mergeUInt8Arrays,
+  int64toBytes,
 } from "../helpers/binaryFormat";
 import { CIRCOM_FIELD_MODULUS, MAX_HEADER_PADDED_BYTES, MAX_BODY_PADDED_BYTES, STRING_PRESELECTOR } from "../../src/helpers/constants";
-import { shaHash, partialSha } from "../../src/helpers/shaHash";
+import { shaHash, partialSha, sha256Pad } from "../../src/helpers/shaHash";
 import { dkimVerify } from "../../src/helpers/dkim";
 import * as fs from "fs";
 var Cryo = require("cryo");
@@ -44,36 +47,6 @@ enum CircuitType {
   EMAIL = "email",
 }
 
-function assert(cond: boolean, errorMessage: string) {
-  if (!cond) {
-    throw new Error(errorMessage);
-  }
-}
-
-// Works only on 32 bit sha text lengths
-function int64toBytes(num: number): Uint8Array {
-  let arr = new ArrayBuffer(8); // an Int32 takes 4 bytes
-  let view = new DataView(arr);
-  view.setInt32(4, num, false); // byteOffset = 0; litteEndian = false
-  return new Uint8Array(arr);
-}
-
-// Works only on 32 bit sha text lengths
-function int8toBytes(num: number): Uint8Array {
-  let arr = new ArrayBuffer(1); // an Int8 takes 4 bytes
-  let view = new DataView(arr);
-  view.setUint8(0, num); // byteOffset = 0; litteEndian = false
-  return new Uint8Array(arr);
-}
-
-function mergeUInt8Arrays(a1: Uint8Array, a2: Uint8Array): Uint8Array {
-  // sum of individual array lengths
-  var mergedArray = new Uint8Array(a1.length + a2.length);
-  mergedArray.set(a1);
-  mergedArray.set(a2, a1.length);
-  return mergedArray;
-}
-
 async function findSelector(a: Uint8Array, selector: number[]): Promise<number> {
   let i = 0;
   let j = 0;
@@ -89,38 +62,6 @@ async function findSelector(a: Uint8Array, selector: number[]): Promise<number> 
     i++;
   }
   return -1;
-}
-
-function bitsToUint8(bits: string[]): Uint8Array {
-  let bytes = new Uint8Array(bits.length);
-  for (let i = 0; i < bits.length; i += 1) {
-    bytes[i] = parseInt(bits[i], 2);
-  }
-  return bytes;
-}
-
-function uint8ToBits(uint8: Uint8Array): string {
-  return uint8.reduce((acc, byte) => acc + byte.toString(2).padStart(8, "0"), "");
-}
-
-// Puts an end selector, a bunch of 0s, then the length, then fill the rest with 0s.
-async function sha256Pad(prehash_prepad_m: Uint8Array, maxShaBytes: number): Promise<[Uint8Array, number]> {
-  let length_bits = prehash_prepad_m.length * 8; // bytes to bits
-  let length_in_bytes = int64toBytes(length_bits);
-  prehash_prepad_m = mergeUInt8Arrays(prehash_prepad_m, int8toBytes(2 ** 7)); // Add the 1 on the end, length 505
-  // while ((prehash_prepad_m.length * 8 + length_in_bytes.length * 8) % 512 !== 0) {
-  while ((prehash_prepad_m.length * 8 + length_in_bytes.length * 8) % 512 !== 0) {
-    prehash_prepad_m = mergeUInt8Arrays(prehash_prepad_m, int8toBytes(0));
-  }
-  prehash_prepad_m = mergeUInt8Arrays(prehash_prepad_m, length_in_bytes);
-  assert((prehash_prepad_m.length * 8) % 512 === 0, "Padding did not complete properly!");
-  let messageLen = prehash_prepad_m.length;
-  while (prehash_prepad_m.length < maxShaBytes) {
-    prehash_prepad_m = mergeUInt8Arrays(prehash_prepad_m, int64toBytes(0));
-  }
-  // console.log(prehash_prepad_m.length, maxShaBytes);
-  assert(prehash_prepad_m.length === maxShaBytes, "Padding to max length did not complete properly!");
-  return [prehash_prepad_m, messageLen];
 }
 
 export async function getCircuitInputs(
