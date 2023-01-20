@@ -18,8 +18,9 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
   string constant domain = "twitter.com";
 
   uint16 public constant msg_len = 163; // header + body
-  uint256 public constant header_len = 50; // FIX CONSTANT
-  uint256 public constant addressIndexInSignals = 163; // FIX CONSTANT
+  uint256 public constant header_len = 50; // TODO: FIX CONSTANT
+  uint256 public constant body_len = msg_len - header_len;
+  uint256 public constant addressIndexInSignals = 163; // TODO: FIX CONSTANT
 
   constructor() ERC721("VerifiedEmail", "VerifiedEmail") {
     // Do dig TXT outgoing._domainkey.twitter.com to verify these.
@@ -135,7 +136,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
   // Unpacks uint256s into bytes and then extracts the non-zero characters
   // Only extracts contiguous non-zero characters and ensures theres only 1 such state
   // Note that unpackedLen may be more than packedBytes.length * 8 since there may be 0s
-  function convert7PackedBytesToBytes(uint256[] memory packedBytes) public view returns (string memory extractedString) {
+  function convert7PackedBytesToBytes(uint256[] memory packedBytes) public pure returns (string memory extractedString) {
     uint8 state = 0;
     // bytes: 0 0 0 0 y u s h _ g 0 0 0
     // state: 0 0 0 0 1 1 1 1 1 1 2 2 2
@@ -154,7 +155,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
       ];
       for (uint256 j = 0; j < 7; j++) {
         uint256 unpackedByte = unpackedBytes[j]; //unpackedBytes[j];
-        console.log(i, j, state, unpackedByte);
+        // console.log(i, j, state, unpackedByte);
         if (unpackedByte != 0) {
           nonzeroBytesArray[nonzeroBytesArrayIndex] = bytes1(uint8(unpackedByte));
           nonzeroBytesArrayIndex++;
@@ -177,49 +178,49 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
     // Have to end at the end of the email -- state cannot be 1 since there should be an email footer
   }
 
-  function mint(
-    uint256[2] memory a,
-    uint256[2][2] memory b,
-    uint256[2] memory c,
-    uint256[msg_len] memory signals
-  ) public {
+  function _stringEq(string memory a, string memory b) public pure returns (bool) {
+    return keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b));
+  }
+
+  function _domainCheck(uint256[] memory headerSignals) public pure returns (bool) {
+    string memory senderBytes = convert7PackedBytesToBytes(headerSignals);
+    string[2] memory domainStrings = ["verify@twitter.com", "info@twitter.com"];
+    return _stringEq(senderBytes, domainStrings[0]) || _stringEq(senderBytes, domainStrings[1]);
+    // Usage: require(_domainCheck(senderBytes, domainStrings), "Invalid domain");
+  }
+
+  function mint(uint256[2] memory a, uint256[2][2] memory b, uint256[2] memory c, uint256[msg_len] memory signals) public {
+    // Checks: Verify proof and check signals
     // require(signals[0] == 1337, "invalid signals"); // TODO no invalid signal check yet, which is fine since the zk proof does it
     require(signals[0] == 0, "Invalid starting message character");
+
     // msg_len-17 public signals are the masked message bytes, 17 are the modulus.
     uint256[] memory headerSignals = new uint256[](header_len);
-    // TODO set consistent body len with circuit
-    uint256 body_len = msg_len - header_len;
     uint256[] memory bodySignals = new uint256[](body_len);
-    for (uint256 i = 0; i < header_len; i++) {
-      headerSignals[i] = signals[i];
-    }
-    for (uint256 i = header_len; i < msg_len; i++) {
-      bodySignals[i] = signals[i];
-    }
-    address currAddress = address(uint160(signals[addressIndexInSignals]));
-    require(currAddress == msg.sender, "Invalid address");
+    for (uint256 i = 0; i < header_len; i++) headerSignals[i] = signals[i];
+    for (uint256 i = header_len; i < msg_len; i++) bodySignals[i] = signals[i];
 
-    string memory senderBytes = convert7PackedBytesToBytes(headerSignals);
+    // Check eth address committed to in proof matches msg.sender, to avoid replayability
+    require(address(uint160(signals[addressIndexInSignals])) == msg.sender, "Invalid address");
+
+    // Check from/to email domains are correct [in this case, only from domain is checked]
+    require(_domainCheck(headerSignals), "Invalid domain");
+
+    // Verify that the public key for RSA matches the hardcoded one
     string memory messageBytes = convert7PackedBytesToBytes(bodySignals);
-    string memory domainString = "verify@twitter.com";
-    require(keccak256(abi.encodePacked(senderBytes)) == keccak256(abi.encodePacked(domainString)), "Invalid domain");
-
     for (uint32 i = msg_len - 17; i < msg_len; i++) {
       require(signals[i] == verifiedMailserverKeys[domain][i], "Invalid modulus not matched");
     }
     require(verifyProof(a, b, c, signals), "Invalid Proof"); // checks effects iteractions, this should come first
 
+    // Effects: Mint token
     uint256 tokenId = tokenCounter.current() + 1;
     tokenToName[tokenId] = messageBytes;
     _mint(msg.sender, tokenId);
     tokenCounter.increment();
   }
 
-  function _beforeTokenTransfer(
-    address from,
-    address to,
-    uint256 tokenId
-  ) internal override {
+  function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal {
     require(from == address(0), "Cannot transfer - VerifiedEmail is soulbound");
   }
 }
