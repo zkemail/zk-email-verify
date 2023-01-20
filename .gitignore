@@ -51,12 +51,12 @@ cache/
 test.log
 src/contracts/out/
 .next
-src/contracts/lib/
 
 node_modules.nosync
 
 # Files that never should be committed, but can be obtained by asking Aayush or generating them yourself
-*msg.eml
+*.eml
+*_email.txt
 *email_cache.json
 *input.json
 circuits/inputs
@@ -66,4 +66,4 @@ circuits/*.json
 generate_input_log.txt
 *email_proof.json
 *aayush_constants.ts
-test_email.txt
+*.debug

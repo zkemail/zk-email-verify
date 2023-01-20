@@ -31,9 +31,27 @@ export function bufferToUint8Array(buf: Buffer): Uint8Array {
   const ab = new ArrayBuffer(buf.length);
   const view = new Uint8Array(ab);
   for (let i = 0; i < buf.length; ++i) {
-      view[i] = buf[i];
+    view[i] = buf[i];
   }
   return Uint8Array.from(view);
+}
+
+export function bufferToHex(buf: Buffer): String {
+  return buf.toString("hex");
+}
+
+export async function Uint8ArrayToCharArray(a: Uint8Array): Promise<string[]> {
+  return Array.from(a).map((x) => x.toString());
+}
+
+export async function Uint8ArrayToString(a: Uint8Array): Promise<string> {
+  return Array.from(a)
+    .map((x) => x.toString())
+    .join(";");
+}
+
+export async function Uint8ArrayToHex(a: Uint8Array): Promise<string> {
+  return Buffer.from(a).toString("hex");
 }
 
 export function bufferToString(buf: Buffer): String {
@@ -98,7 +116,7 @@ export function toHex(bytes: Uint8Array): string {
 // https://github.com/nodejs/node/blob/v14.18.1/src/string_bytes.cc#L246-L261
 export function fromHex(hexString: string): Uint8Array {
   let hexStringTrimmed: string = hexString;
-  if(hexString[0] === "0" && hexString[1] === "x") {
+  if (hexString[0] === "0" && hexString[1] === "x") {
     hexStringTrimmed = hexString.slice(2);
   }
   const bytes = new Uint8Array(Math.floor((hexStringTrimmed || "").length / 2));
@@ -114,6 +132,48 @@ export function fromHex(hexString: string): Uint8Array {
   return i === bytes.length ? bytes : bytes.slice(0, i);
 }
 
+// Works only on 32 bit sha text lengths
+export function int64toBytes(num: number): Uint8Array {
+  let arr = new ArrayBuffer(8); // an Int32 takes 4 bytes
+  let view = new DataView(arr);
+  view.setInt32(4, num, false); // byteOffset = 0; litteEndian = false
+  return new Uint8Array(arr);
+}
+
+// Works only on 32 bit sha text lengths
+export function int8toBytes(num: number): Uint8Array {
+  let arr = new ArrayBuffer(1); // an Int8 takes 4 bytes
+  let view = new DataView(arr);
+  view.setUint8(0, num); // byteOffset = 0; litteEndian = false
+  return new Uint8Array(arr);
+}
+
+export function bitsToUint8(bits: string[]): Uint8Array {
+  let bytes = new Uint8Array(bits.length);
+  for (let i = 0; i < bits.length; i += 1) {
+    bytes[i] = parseInt(bits[i], 2);
+  }
+  return bytes;
+}
+
+export function uint8ToBits(uint8: Uint8Array): string {
+  return uint8.reduce((acc, byte) => acc + byte.toString(2).padStart(8, "0"), "");
+}
+
+export function mergeUInt8Arrays(a1: Uint8Array, a2: Uint8Array): Uint8Array {
+  // sum of individual array lengths
+  var mergedArray = new Uint8Array(a1.length + a2.length);
+  mergedArray.set(a1);
+  mergedArray.set(a2, a1.length);
+  return mergedArray;
+}
+
+export function assert(cond: boolean, errorMessage: string) {
+  if (!cond) {
+    throw new Error(errorMessage);
+  }
+}
+
 export function packedNBytesToString(packedBytes: bigint[], n: number = 7): string {
   let chars: number[] = [];
   for (let i = 0; i < packedBytes.length; i++) {
@@ -123,7 +183,6 @@ export function packedNBytesToString(packedBytes: bigint[], n: number = 7): stri
   }
   return bytesToString(Uint8Array.from(chars));
 }
-
 
 export function packBytesIntoNBytes(messagePaddedRaw: Uint8Array | string, n = 7): Array<bigint> {
   const messagePadded: Uint8Array = typeof messagePaddedRaw === "string" ? stringToBytes(messagePaddedRaw) : messagePaddedRaw;
