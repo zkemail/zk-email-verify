@@ -37,11 +37,7 @@ contract VerifiedEmail is ERC721Enumerable, Verifier {
     verifiedMailserverKeys["mit.edu"][16] = 343542034344264361438243465247009;
   }
 
-  function getDesc(
-    address origin,
-    address sink,
-    uint256 degree
-  ) private view returns (string memory) {
+  function getDesc(address origin, address sink, uint256 degree) private view returns (string memory) {
     // convert address to string
     string memory originStr = toString(origin);
     string memory sinkStr = toString(sink);
@@ -179,12 +175,7 @@ contract VerifiedEmail is ERC721Enumerable, Verifier {
   //     return b;
   // }
 
-  function mint(
-    uint256[2] memory a,
-    uint256[2][2] memory b,
-    uint256[2] memory c,
-    uint256[msg_len] memory signals
-  ) public {
+  function mint(uint256[2] memory a, uint256[2][2] memory b, uint256[2] memory c, uint256[msg_len] memory signals) public {
     // require(signals[0] == 1337, "invalid signals"); // TODO no invalid signal check yet, which is fine since the zk proof does it
     require(signals[0] == 0, "Invalid starting message character");
     // msg_len-17 public signals are the masked message bytes, 17 are the modulus.
@@ -201,11 +192,8 @@ contract VerifiedEmail is ERC721Enumerable, Verifier {
     tokenCounter.increment();
   }
 
-  function _beforeTokenTransfer(
-    address from,
-    address to,
-    uint256 tokenId
-  ) internal override {
+  // TODO: This should override an ERC721 but doesn't
+  function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal pure {
     revert("Cannot transfer - VerifiedEmail is soulbound");
   }
 }
