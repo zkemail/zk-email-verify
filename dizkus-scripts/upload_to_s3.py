@@ -8,9 +8,9 @@ s3 = boto3.client('s3')  # Ask Aayush for the access key and secret access key
 
 # Set the name of the remote directory and the AWS bucket
 source = '~/Documents/projects/zk-email-verify'
-source = '~/zk-email-verify-old'
-zkey_dir = source + '/build/email/'
-wasm_dir = source + '/build/email/email_js/'
+source = '~/zk-email-verify'
+zkey_dir = source + '/chunked_build/email/'
+wasm_dir = source + '/chunked_build/email/email_js/'
 bucket_name = 'zkemail-zkey-chunks'  # us-east-1
 
 
@@ -27,7 +27,7 @@ for dir in [zkey_dir, wasm_dir]:
     for file in os.listdir(dir):
         # Check if the file matches the pattern
         if file.startswith('email.zkey'):
-            # upload_to_s3(file, dir) # Uncompressed file
+            upload_to_s3(file, dir)  # Uncompressed file
 
             # Create a zip file for the file
             tar_file_name = file + '.tar.gz'

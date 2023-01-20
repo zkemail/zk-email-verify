@@ -67,3 +67,4 @@ generate_input_log.txt
 *email_proof.json
 *aayush_constants.ts
 *.debug
+*.env
