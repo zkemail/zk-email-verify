@@ -8,7 +8,7 @@ s3 = boto3.client('s3')  # Ask Aayush for the access key and secret access key
 
 # Set the name of the remote directory and the AWS bucket
 source = '~/Documents/projects/zk-email-verify'
-source = '~/zk-email-verify'
+source = '.'
 zkey_dir = source + '/chunked_build/email/'
 wasm_dir = source + '/chunked_build/email/email_js/'
 bucket_name = 'zkemail-zkey-chunks'  # us-east-1
@@ -19,7 +19,7 @@ def upload_to_s3(filename, dir=""):
         print("Starting upload...")
         s3.upload_fileobj(file, bucket_name, filename, ExtraArgs={
                           'ACL': 'public-read', 'ContentType': 'binary/octet-stream'})
-        print("Done uploading!")
+        print("Done uploading ", filename, "!")
 
 
 # Loop through the files in the remote directory
