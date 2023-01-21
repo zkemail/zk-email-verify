@@ -1,13 +1,27 @@
-import { bytesToBigInt, stringToBytes, fromHex, toCircomBigIntBytes, packBytesIntoNBytes, bufferToUint8Array, bufferToString } from "../helpers/binaryFormat";
+import {
+  bytesToBigInt,
+  stringToBytes,
+  fromHex,
+  toCircomBigIntBytes,
+  packBytesIntoNBytes,
+  bufferToUint8Array,
+  bufferToString,
+  bufferToHex,
+  Uint8ArrayToString,
+  Uint8ArrayToCharArray,
+  assert,
+  mergeUInt8Arrays,
+  int64toBytes,
+} from "../helpers/binaryFormat";
 import { CIRCOM_FIELD_MODULUS, MAX_HEADER_PADDED_BYTES, MAX_BODY_PADDED_BYTES, STRING_PRESELECTOR } from "../../src/helpers/constants";
-import { shaHash } from "../../src/helpers/shaHash";
+import { shaHash, partialSha, sha256Pad } from "../../src/helpers/shaHash";
 import { dkimVerify } from "../../src/helpers/dkim";
-import { Hash } from "./fast-sha256";
 import * as fs from "fs";
 var Cryo = require("cryo");
 const pki = require("node-forge").pki;
 
-const email_file = "kaylee_phone_number_email_twitter.eml"; // "./test_email.txt", "./twitter_msg.eml"
+// const email_file = "monia_email.eml"; // "./test_email.txt", "./twitter_msg.eml", kaylee_phone_number_email_twitter
+const email_file = "twitter_msg.eml"; // "./test_email.txt", "./twitter_msg.eml", kaylee_phone_number_email_twitter
 export interface ICircuitInputs {
   modulus?: string[];
   signature?: string[];
@@ -33,66 +47,6 @@ enum CircuitType {
   EMAIL = "email",
 }
 
-function assert(cond: boolean, errorMessage: string) {
-  if (!cond) {
-    throw new Error(errorMessage);
-  }
-}
-
-// Works only on 32 bit sha text lengths
-function int32toBytes(num: number): Uint8Array {
-  let arr = new ArrayBuffer(4); // an Int32 takes 4 bytes
-  let view = new DataView(arr);
-  view.setUint32(0, num, false); // byteOffset = 0; litteEndian = false
-  return new Uint8Array(arr);
-}
-
-// Works only on 32 bit sha text lengths
-function int8toBytes(num: number): Uint8Array {
-  let arr = new ArrayBuffer(1); // an Int8 takes 4 bytes
-  let view = new DataView(arr);
-  view.setUint8(0, num); // byteOffset = 0; litteEndian = false
-  return new Uint8Array(arr);
-}
-
-function mergeUInt8Arrays(a1: Uint8Array, a2: Uint8Array): Uint8Array {
-  // sum of individual array lengths
-  var mergedArray = new Uint8Array(a1.length + a2.length);
-  mergedArray.set(a1);
-  mergedArray.set(a2, a1.length);
-  return mergedArray;
-}
-
-// Puts an end selector, a bunch of 0s, then the length, then fill the rest with 0s.
-async function sha256Pad(prehash_prepad_m: Uint8Array, maxShaBytes: number): Promise<[Uint8Array, number]> {
-  let length_bits = prehash_prepad_m.length * 8; // bytes to bits
-  let length_in_bytes = int32toBytes(length_bits);
-  prehash_prepad_m = mergeUInt8Arrays(prehash_prepad_m, int8toBytes(2 ** 7));
-  while ((prehash_prepad_m.length * 8 + length_in_bytes.length * 8) % 512 !== 0) {
-    prehash_prepad_m = mergeUInt8Arrays(prehash_prepad_m, int8toBytes(0));
-  }
-  prehash_prepad_m = mergeUInt8Arrays(prehash_prepad_m, length_in_bytes);
-  assert((prehash_prepad_m.length * 8) % 512 === 0, "Padding did not complete properly!");
-  let messageLen = prehash_prepad_m.length;
-  while (prehash_prepad_m.length < maxShaBytes) {
-    prehash_prepad_m = mergeUInt8Arrays(prehash_prepad_m, int32toBytes(0));
-  }
-  // console.log(prehash_prepad_m.length, maxShaBytes);
-  assert(prehash_prepad_m.length === maxShaBytes, "Padding to max length did not complete properly!");
-
-  return [prehash_prepad_m, messageLen];
-}
-
-async function Uint8ArrayToCharArray(a: Uint8Array): Promise<string[]> {
-  return Array.from(a).map((x) => x.toString());
-}
-
-async function Uint8ArrayToString(a: Uint8Array): Promise<string> {
-  return Array.from(a)
-    .map((x) => x.toString())
-    .join(";");
-}
-
 async function findSelector(a: Uint8Array, selector: number[]): Promise<number> {
   let i = 0;
   let j = 0;
@@ -108,11 +62,6 @@ async function findSelector(a: Uint8Array, selector: number[]): Promise<number> 
     i++;
   }
   return -1;
-}
-
-async function partialSha(msg: Uint8Array, msgLen: number): Promise<Uint8Array> {
-  const shaGadget = new Hash();
-  return await shaGadget.update(msg, msgLen).cacheState();
 }
 
 export async function getCircuitInputs(
@@ -149,6 +98,10 @@ export async function getCircuitInputs(
   const calc_length = Math.floor((body.length + 63) / 64) * 64;
   const [bodyPadded, bodyPaddedLen] = await sha256Pad(body, Math.max(MAX_BODY_PADDED_BYTES, calc_length));
 
+  // Ensure SHA manual unpadded is running the correct function
+  const shaOut = await partialSha(messagePadded, messagePaddedLen);
+  assert((await Uint8ArrayToString(shaOut)) === (await Uint8ArrayToString(Uint8Array.from(await shaHash(prehashBytesUnpadded)))), "SHA256 calculation did not match!");
+
   // Precompute SHA prefix
   const selector = STRING_PRESELECTOR.split("").map((char) => char.charCodeAt(0));
   const selector_loc = await findSelector(bodyPadded, selector);
@@ -158,16 +111,12 @@ export async function getCircuitInputs(
   let bodyRemaining = bodyPadded.slice(shaCutoffIndex);
   const bodyRemainingLen = bodyPaddedLen - precomputeText.length;
   assert(bodyRemainingLen < MAX_BODY_PADDED_BYTES, "Invalid slice");
+  assert(bodyRemaining.length % 64 === 0, "Not going to be padded correctly with int64s");
   while (bodyRemaining.length < MAX_BODY_PADDED_BYTES) {
-    bodyRemaining = mergeUInt8Arrays(bodyRemaining, int32toBytes(0));
+    bodyRemaining = mergeUInt8Arrays(bodyRemaining, int64toBytes(0));
   }
   assert(bodyRemaining.length === MAX_BODY_PADDED_BYTES, "Invalid slice");
-
   const bodyShaPrecompute = await partialSha(precomputeText, shaCutoffIndex);
-
-  // Ensure SHA manual unpadded is running the correct function
-  const shaOut = await partialSha(messagePadded, messagePaddedLen);
-  assert((await Uint8ArrayToString(shaOut)) === (await Uint8ArrayToString(Uint8Array.from(await shaHash(prehashBytesUnpadded)))), "SHA256 calculation did not match!");
 
   // Compute identity revealer
   let circuitInputs;

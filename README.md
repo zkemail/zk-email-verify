@@ -237,6 +237,10 @@ git push --set-upstream origin main --force
 
 ## FAQ/Errors
 
+### I'm having issues with the intricacies of the SHA hashing. How do I understand the function better?
+
+Use https://sha256algorithm.com/ as an explainer! It's a great visualization of what is going on, and our code should match what is going on there.
+
 ### What are the differences between generating proofs (snarkjs.groth16.fullprove) on the client vs. on a server?
 
 If the server is generating the proof, it has to have the private input. We want people to own their own data, so client side proving is the most secure both privacy and anonymity wise. There are fancier solutions (MPC, FHE, recursive proofs etc), but those are still in the research stage.
