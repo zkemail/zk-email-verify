@@ -32,8 +32,7 @@ circuits/*.wtns
 src/circuits/*.wasm
 *.ptau
 *.zkey
-circuits/inputs/*old.json
-circuits/inputs/*test.json
+circuits/inputs/*.json
 
 .pnp.*
 .yarn/*
@@ -59,7 +58,6 @@ node_modules.nosync
 *_email.txt
 *email_cache.json
 *input.json
-circuits/inputs
 dizkus-scripts/*input.json
 circuits/example
 circuits/*.json
