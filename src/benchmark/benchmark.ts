@@ -57,15 +57,23 @@ const runBenchmark = async (cap: any) => {
             return proofVerified;
         }
 
+        const gen_t0 = performance.now();
         const { proof, publicSignals } = await generateProof(inputs, "email");
+        const gen_t1 = performance.now();
         
-        const res = await verifyProof(proof, publicSignals, vkey);
+        const verify_t0 = performance.now();
+        await verifyProof(proof, publicSignals, vkey);
+        const verify_t1 = performance.now();
 
+        return {
+            timeToGenerateProof: gen_t1 - gen_t0,
+            timeToVerifyProof: verify_t1 - verify_t0,
+        }
     }, toInject);
 
-    console.log("Benchmark results");
+    console.log("--- Benchmark results ---");
     console.log(benchmark_results, cap);
-    console.log("Benchmark results");
+    console.log("---> Benchmark results ---");
     await browser.close();
 };
 
