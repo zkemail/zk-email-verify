@@ -1,6 +1,7 @@
+import { readFile } from "fs/promises";
 import puppeteer from "puppeteer";
 import { vkey } from "../helpers/vkey";
-import { do_generate } from "../scripts/generate_input";
+import { do_generate, generate_inputs, insert13Before10 } from "../scripts/generate_input";
 
 declare var snarkjs: any;
 
@@ -11,9 +12,19 @@ const runBenchmark = async (cap: any) => {
         throw new Error("EMAIL_FILE_PATH not found, please provide a valid email to test with");
     }
 
-    const inputs = await do_generate(process.env.EMAIL_FILE_PATH);
+    const emailFull = await readFile(process.env.EMAIL_FILE_PATH);
+    const formattedArray = await insert13Before10(Uint8Array.from(emailFull));
+    // Due to a quirk in carriage return parsing in JS, we need to manually edit carriage returns to match DKIM parsing
+    console.log("formattedArray", formattedArray);
+    console.log("buffFormArray", Buffer.from(formattedArray.buffer));
+    console.log("buffFormArray", formattedArray.toString());
+    console.log("ethereumAddress", "0x0000000000000000000000000000000000000000");
+    const input = await generate_inputs(Buffer.from(formattedArray.buffer), "0x0000000000000000000000000000000000000000");
+    console.log("Generated input:", JSON.stringify(input));
+
+    //const input = await do_generate(process.env.EMAIL_FILE_PATH);
     const toInject = {
-        inputs,
+        input,
         vkey,
     }
 
@@ -36,7 +47,7 @@ const runBenchmark = async (cap: any) => {
     await page.title();
 
     const benchmark_results = await page.evaluate(async (toInject) => {
-        const { inputs, vkey } = toInject;
+        const { input, vkey } = toInject;
 
         async function generateProof(input: any, filename: any) {
             // TODO: figure out how to generate this s.t. it passes build
@@ -58,7 +69,7 @@ const runBenchmark = async (cap: any) => {
         }
 
         const gen_t0 = performance.now();
-        const { proof, publicSignals } = await generateProof(inputs, "email");
+        const { proof, publicSignals } = await generateProof(input, "email");
         const gen_t1 = performance.now();
         
         const verify_t0 = performance.now();
