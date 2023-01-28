@@ -32,8 +32,7 @@ circuits/*.wtns
 src/circuits/*.wasm
 *.ptau
 *.zkey
-circuits/inputs/*old.json
-circuits/inputs/*test.json
+circuits/inputs/*.json
 
 .pnp.*
 .yarn/*
@@ -51,7 +50,6 @@ cache/
 test.log
 src/contracts/out/
 .next
-src/contracts/lib/
 
 node_modules.nosync
 
@@ -60,10 +58,10 @@ node_modules.nosync
 *_email.txt
 *email_cache.json
 *input.json
-circuits/inputs
 dizkus-scripts/*input.json
 circuits/example
 circuits/*.json
 generate_input_log.txt
 *email_proof.json
 *aayush_constants.ts
+*.debug
