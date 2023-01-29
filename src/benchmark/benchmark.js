@@ -1,28 +1,17 @@
-import { readFile } from "fs/promises";
-import puppeteer from "puppeteer";
-import { vkey } from "../helpers/vkey";
-import { do_generate, generate_inputs, insert13Before10 } from "../scripts/generate_input";
+const puppeteer = require("puppeteer");
+const { vkey } = require("./vkey");
+const { readFileSync } = require("fs");
 
-declare var snarkjs: any;
+//declare var snarkjs;
 
 
-const runBenchmark = async (cap: any) => {
+const runBenchmark = async (cap) => {
     console.log("Setting up test -->", cap['name'])
-    if (!process.env.EMAIL_FILE_PATH) {
-        throw new Error("EMAIL_FILE_PATH not found, please provide a valid email to test with");
+    if (!process.env.INPUT_FILE_PATH) {
+        throw new Error("INPUT_FILE_PATH not found, please provide a valid email to test with");
     }
 
-    const emailFull = await readFile(process.env.EMAIL_FILE_PATH);
-    const formattedArray = await insert13Before10(Uint8Array.from(emailFull));
-    // Due to a quirk in carriage return parsing in JS, we need to manually edit carriage returns to match DKIM parsing
-    console.log("formattedArray", formattedArray);
-    console.log("buffFormArray", Buffer.from(formattedArray.buffer));
-    console.log("buffFormArray", formattedArray.toString());
-    console.log("ethereumAddress", "0x0000000000000000000000000000000000000000");
-    const input = await generate_inputs(Buffer.from(formattedArray.buffer), "0x0000000000000000000000000000000000000000");
-    console.log("Generated input:", JSON.stringify(input));
-
-    //const input = await do_generate(process.env.EMAIL_FILE_PATH);
+    const input = JSON.parse(readFileSync(process.env.INPUT_FILE_PATH, 'utf-8'));
     const toInject = {
         input,
         vkey,
@@ -35,11 +24,11 @@ const runBenchmark = async (cap: any) => {
     cap["browserstack.console"] = "verbose";
 
     const browser = await puppeteer.connect({
-      browserWSEndpoint:
-      `wss://cdp.browserstack.com/puppeteer?caps=${encodeURIComponent(JSON.stringify(cap))}`,  // The BrowserStack CDP endpoint gives you a `browser` instance based on the `caps` that you specified
-    });
-
-
+        browserWSEndpoint:
+        `wss://cdp.browserstack.com/puppeteer?caps=${encodeURIComponent(JSON.stringify(cap))}`,  // The BrowserStack CDP endpoint gives you a `browser` instance based on the `caps` that you specified
+      });
+  
+  
     const page = await browser.newPage();
     await page.goto(process.env.SNARKJS_WEB_SITE || "https://immanuelsegol.github.io/");
     
@@ -49,20 +38,17 @@ const runBenchmark = async (cap: any) => {
     const benchmark_results = await page.evaluate(async (toInject) => {
         const { input, vkey } = toInject;
 
-        async function generateProof(input: any, filename: any) {
-            // TODO: figure out how to generate this s.t. it passes build
+        async function generateProof(input, filename) {
             console.log("generating proof for input");
-            console.log(input);
-            const { proof, publicSignals } = await snarkjs.groth16.fullProve(input, `https://zkemail-zkey-chunks.s3.amazonaws.com/${filename}.wasm`, `${filename}.zkey`);
-            console.log(`Generated proof ${JSON.stringify(proof)}`);
-          
+            const { proof, publicSignals } = await snarkjs.groth16.fullProve(input, `https://zkemail-zkey-chunks.s3.amazonaws.com/${filename}.wasm`, `https://zkemail-zkey-chunks.s3.amazonaws.com/${filename}.zkey`);
+
             return {
               proof,
               publicSignals,
             };
         }
 
-        async function verifyProof(proof: any, publicSignals: any, vkey: any) {
+        async function verifyProof(proof, publicSignals, vkey) {
             const proofVerified = await snarkjs.groth16.verify(vkey, publicSignals, proof);
           
             return proofVerified;

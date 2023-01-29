@@ -1,2 +1,3 @@
 *.eml
 .env
+*.json

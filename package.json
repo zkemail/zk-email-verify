@@ -57,7 +57,7 @@
     "eject": "react-scripts eject",
     "compile": "node circuits/scripts/compile.js",
     "compile-all": "npx tsx src/scripts/generate_input.ts && yarn compile email true",
-    "bench": "npx tsx src/benchmark/benchmark.ts"
+    "bench": "node src/benchmark/benchmark.js"
   },
   "eslintConfig": {
     "extends": [
