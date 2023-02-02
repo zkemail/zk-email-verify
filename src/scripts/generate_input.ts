@@ -21,7 +21,7 @@ var Cryo = require("cryo");
 const pki = require("node-forge").pki;
 
 // const email_file = "monia_email.eml"; // "./test_email.txt", "./twitter_msg.eml", kaylee_phone_number_email_twitter
-const email_file = "twitter_msg.eml"; // "./test_email.txt", "./twitter_msg.eml", kaylee_phone_number_email_twitter
+const email_file = "twitter_msg.eml";
 export interface ICircuitInputs {
   modulus?: string[];
   signature?: string[];
@@ -95,7 +95,7 @@ export async function getCircuitInputs(
 
   // Sha add padding
   const [messagePadded, messagePaddedLen] = await sha256Pad(prehashBytesUnpadded, MAX_HEADER_PADDED_BYTES);
-  const calc_length = Math.floor((body.length + 63) / 64) * 64;
+  const calc_length = Math.floor((body.length + 63 + 65) / 64) * 64; // 65 comes from the 64 at the end and the 1 bit in the start, then rounded up to the nearest 64
   const [bodyPadded, bodyPaddedLen] = await sha256Pad(body, Math.max(MAX_BODY_PADDED_BYTES, calc_length));
 
   // Ensure SHA manual unpadded is running the correct function
