@@ -136,6 +136,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
   // Unpacks uint256s into bytes and then extracts the non-zero characters
   // Only extracts contiguous non-zero characters and ensures theres only 1 such state
   // Note that unpackedLen may be more than packedBytes.length * 8 since there may be 0s
+  // TODO: Remove console.logs and define this as a pure function instead of a view (done)
   function convert7PackedBytesToBytes(uint256[] memory packedBytes) public pure returns (string memory extractedString) {
     uint8 state = 0;
     // bytes: 0 0 0 0 y u s h _ g 0 0 0
@@ -182,6 +183,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
     return keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b));
   }
 
+  // TODO: Remove console.logs and define this as a pure function instead of a view (done)
   function _domainCheck(uint256[] memory headerSignals) public pure returns (bool) {
     string memory senderBytes = convert7PackedBytesToBytes(headerSignals);
     string[2] memory domainStrings = ["verify@twitter.com", "info@twitter.com"];
