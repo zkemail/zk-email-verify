@@ -3337,6 +3337,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/pako@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@types/pako@npm:2.0.0"
+  checksum: 50240a036b5e6acabbf36ac4dca93ec9e619241f0404da8d401cdb427bec3029833324b8a04c4b1ae2ecbc33422fdec31dbf9f43653d9d07cafb82ace78dfccd
+  languageName: node
+  linkType: hard
+
 "@types/parse-json@npm:^4.0.0":
   version: 4.0.0
   resolution: "@types/parse-json@npm:4.0.0"
@@ -7666,6 +7673,7 @@ __metadata:
     "@types/atob": ^2.1.2
     "@types/lodash": ^4.14.181
     "@types/node": ^18.0.6
+    "@types/pako": ^2.0.0
     "@types/styled-components": ^5.1.24
     addressparser: ^1.0.1
     atob: ^2.1.2
@@ -7677,11 +7685,13 @@ __metadata:
     ethereumjs-abi: ^0.6.8
     ethers: ^5.7.1
     forge-std: ^1.1.2
+    js-untar: ^2.0.0
     libmime: ^5.1.0
     localforage: ^1.10.0
     lodash: ^4.17.21
     next: ^12.3.1
     nodemon: ^2.0.19
+    pako: ^2.1.0
     prettier: ^2.7.1
     prettier-plugin-solidity: ^1.0.0-beta.24
     react: ^17.0.2
@@ -11790,6 +11800,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"js-untar@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "js-untar@npm:2.0.0"
+  checksum: 36fbcd3cda9049dc7da968998e44e79b0d030ac05d64949d2143dc7cfbe78aa69d7c0a01888edbbca8dff7b5332afcd17d5f91449105165499bb26a95816092d
+  languageName: node
+  linkType: hard
+
 "js-yaml@npm:^3.13.1":
   version: 3.14.1
   resolution: "js-yaml@npm:3.14.1"
@@ -13704,6 +13721,13 @@ __metadata:
   version: 2.2.0
   resolution: "p-try@npm:2.2.0"
   checksum: f8a8e9a7693659383f06aec604ad5ead237c7a261c18048a6e1b5b85a5f8a067e469aa24f5bc009b991ea3b058a87f5065ef4176793a200d4917349881216cae
+  languageName: node
+  linkType: hard
+
+"pako@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "pako@npm:2.1.0"
+  checksum: 71666548644c9a4d056bcaba849ca6fd7242c6cf1af0646d3346f3079a1c7f4a66ffec6f7369ee0dc88f61926c10d6ab05da3e1fca44b83551839e89edd75a3e
   languageName: node
   linkType: hard
 
