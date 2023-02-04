@@ -134,7 +134,7 @@ export async function getCircuitInputs(
   const address = bytesToBigInt(fromHex(eth_address)).toString();
   const address_plus_one = (bytesToBigInt(fromHex(eth_address)) + 1n).toString();
 
-  const USERNAME_SELECTOR = Buffer.from("email was meant for @");
+  const USERNAME_SELECTOR = Buffer.from(STRING_PRESELECTOR);
   const twitter_username_idx = (Buffer.from(bodyRemaining).indexOf(USERNAME_SELECTOR) + USERNAME_SELECTOR.length).toString();
   console.log("Twitter Username idx: ", twitter_username_idx);
 
