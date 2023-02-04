@@ -32,13 +32,10 @@ for dir in [zkey_dir, wasm_dir]:
             upload_to_s3(file, dir)  # Uncompressed file
 
             # Make a .gz file
-            gz_file_name = file + '.gz'
             gz_file_path = source_file_path + ".gz"
-            f_in = open(source_file_path)
-            f_out = gzip.open(gz_file_path, 'wb')
-            f_out.writelines(f_in)
-            f_out.close()
-            f_in.close()
+            with open(source_file_path, 'rb') as f_in, gzip.open(gz_file_path, 'wb') as f_out:
+                f_out.write(f_in.read())
+            gz_file_name = file + '.gz'
 
             # Create a .tar.gz file for the file
             tar_file_name = file + '.tar.gz'
