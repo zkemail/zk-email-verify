@@ -7,6 +7,14 @@ const snarkjs = require("snarkjs");
 const loadURL = "https://zkemail-zkey-chunks.s3.amazonaws.com/";
 // const loadURL = "/zkemail-zkey-chunks/";
 
+// We can use this function to ensure the type stored in localforage is correct.
+async function storeArrayBuffer(keyname: string, buffer: ArrayBuffer) {
+  return await localforage.setItem(keyname, buffer);
+}
+
+// GET the compressed file from the remote server, then store it with localforage
+// Note that it must be stored as an uncompressed ArrayBuffer
+// and named such that filename===`${name}.zkey${a}` in order for it to be found by snarkjs.
 export async function downloadFromFilename(filename: string, compressed = false) {
   const link = loadURL + filename;
   const uncompressFilePromises = []
@@ -16,14 +24,14 @@ export async function downloadFromFilename(filename: string, compressed = false)
     });
     const zkeyBuff = await zkeyResp.arrayBuffer();
     if(!compressed){
-      await localforage.setItem(filename, zkeyBuff);
+      await storeArrayBuffer(filename, zkeyBuff);
     } else {
       // uncompress the data
-      const zkeyUncompressed = uncompress(zkeyBuff);
+      const zkeyUncompressed = await uncompress(zkeyBuff);
       const rawFilename = filename.replace(/.tar.gz$/, "");
       // store the uncompressed data
       console.log("storing file in localforage", rawFilename)
-      await localforage.setItem(rawFilename, zkeyUncompressed);
+      await storeArrayBuffer(rawFilename, zkeyUncompressed);
       console.log("stored file in localforage", rawFilename);
       // await localforage.setItem(filename, zkeyBuff);
     }
