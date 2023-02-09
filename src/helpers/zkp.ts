@@ -1,12 +1,17 @@
 import { vkey } from "./vkey";
 import localforage from "localforage";
-import { uncompressZkeydTarball as uncompress } from "./uncompress";
+import { uncompressGz as uncompress } from "./uncompress";
 
 const snarkjs = require("snarkjs");
 
 const loadURL = "https://zkemail-zkey-chunks.s3.amazonaws.com/";
 const compressed = true;
 // const loadURL = "/zkemail-zkey-chunks/";
+
+const zkeyExtension = ".gz"
+const zkeyExtensionRegEx = new RegExp(`\\b${zkeyExtension}$\\b`, 'i') // = /.gz$/i
+const zkeySuffix = ["b", "c", "d", "e", "f", "g", "h", "i", "j", "k"];
+
 
 // We can use this function to ensure the type stored in localforage is correct.
 async function storeArrayBuffer(keyname: string, buffer: ArrayBuffer) {
@@ -18,7 +23,6 @@ async function storeArrayBuffer(keyname: string, buffer: ArrayBuffer) {
 // and named such that filename===`${name}.zkey${a}` in order for it to be found by snarkjs.
 export async function downloadFromFilename(filename: string, compressed = false) {
   const link = loadURL + filename;
-  const uncompressFilePromises = [];
   try {
     const zkeyResp = await fetch(link, {
       method: "GET",
@@ -29,7 +33,7 @@ export async function downloadFromFilename(filename: string, compressed = false)
     } else {
       // uncompress the data
       const zkeyUncompressed = await uncompress(zkeyBuff);
-      const rawFilename = filename.replace(/.tar.gz$/, "");
+      const rawFilename = filename.replace(zkeyExtensionRegEx, ""); // replace .gz with ""
       // store the uncompressed data
       console.log("storing file in localforage", rawFilename);
       await storeArrayBuffer(rawFilename, zkeyUncompressed);
@@ -42,9 +46,6 @@ export async function downloadFromFilename(filename: string, compressed = false)
     console.log(e);
   }
 }
-
-const zkeyExtension = ".tar.gz";
-const zkeySuffix = ["b", "c", "d", "e", "f", "g", "h", "i", "j", "k"];
 
 export const downloadProofFiles = async function (filename: string, onFileDownloaded: () => void) {
   const filePromises = [];
