@@ -1,16 +1,21 @@
 import { vkey } from "./vkey";
+import localforage from "localforage";
+import { uncompressZkeydTarball as uncompress } from "./uncompress";
 
-const localforage = require("localforage");
 const snarkjs = require("snarkjs");
-const tar = require("tar-stream");
-const zlib = require("zlib");
 
 const loadURL = "https://zkemail-zkey-chunks.s3.amazonaws.com/";
+// const loadURL = "/zkemail-zkey-chunks/";
 
-export async function downloadFromFilename(
-  filename: string,
-  compressed = false
-) {
+// We can use this function to ensure the type stored in localforage is correct.
+async function storeArrayBuffer(keyname: string, buffer: ArrayBuffer) {
+  return await localforage.setItem(keyname, buffer);
+}
+
+// GET the compressed file from the remote server, then store it with localforage
+// Note that it must be stored as an uncompressed ArrayBuffer
+// and named such that filename===`${name}.zkey${a}` in order for it to be found by snarkjs.
+export async function downloadFromFilename(filename: string, compressed = false) {
   const link = loadURL + filename;
   const uncompressFilePromises = [];
   try {
@@ -19,93 +24,40 @@ export async function downloadFromFilename(
     });
     const zkeyBuff = await zkeyResp.arrayBuffer();
     if (!compressed) {
-      await localforage.setItem(filename, zkeyBuff);
+      await storeArrayBuffer(filename, zkeyBuff);
     } else {
-      await uncompressAndStore(zkeyBuff, filename);
+      // uncompress the data
+      const zkeyUncompressed = await uncompress(zkeyBuff);
+      const rawFilename = filename.replace(/.tar.gz$/, "");
+      // store the uncompressed data
+      console.log("storing file in localforage", rawFilename);
+      await storeArrayBuffer(rawFilename, zkeyUncompressed);
+      console.log("stored file in localforage", rawFilename);
+      // await localforage.setItem(filename, zkeyBuff);
     }
     console.log(`Storage of ${filename} successful!`);
   } catch (e) {
-    console.log(
-      `Storage of ${filename} unsuccessful, make sure IndexedDB is enabled in your browser.`
-    );
+    console.log(`Storage of ${filename} unsuccessful, make sure IndexedDB is enabled in your browser.`);
+    console.log(e);
   }
 }
 
-// const zkeyExtension = ".tar.gz"
-const zkeyExtension = "";
-
-// Un-targz the arrayBuffer into the filename without the .tar.gz on the end
-const uncompressAndStore = async function (
-  arrayBuffer: ArrayBuffer,
-  filename: string
-) {
-  console.log(`Started to uncompress ${filename}...!`);
-  const extract = tar.extract(); // create a tar extract stream
-  const gunzip = zlib.createGunzip(arrayBuffer); // create a gunzip stream from the array buffer
-  gunzip.pipe(extract); // pipe the gunzip stream into the tar extract stream
-
-  // header is the tar header, stream is the content body (might be an empty stream), call next when you are done with this entry
-  extract.on("entry", function (header: any, stream: any, next: Function) {
-    // decompress the entry data
-    const extractedData: any = [];
-    stream.on("data", function (chunk: any) {
-      extractedData.push(chunk);
-    });
-
-    // make sure to call next when the entry is fully processed
-    stream.on("end", function () {
-      next();
-
-      console.assert(
-        filename.endsWith(zkeyExtension),
-        `Filename doesn't end in ${zkeyExtension}`
-      );
-      const rawFilename = filename.replace(/.tar.gz$/, "");
-      // save the extracted data to localForage
-      localforage.setItem(rawFilename, extractedData, function (err: Error) {
-        if (err) {
-          console.error(
-            `Couldn't extract data from ${filename}:` + err.message
-          );
-        } else {
-          console.log("Saved extracted file to localForage");
-        }
-      });
-    });
-  });
-
-  // all entries have been processed
-  extract.on("finish", function () {
-    console.log(`Finished extracting ${filename}`);
-  });
-};
-
+const zkeyExtension = ".tar.gz";
 const zkeySuffix = ["b", "c", "d", "e", "f", "g", "h", "i", "j", "k"];
 
-export const downloadProofFiles = async function (
-  filename: string,
-  onFileDownloaded: () => void
-) {
+export const downloadProofFiles = async function (filename: string, onFileDownloaded: () => void) {
   const filePromises = [];
   for (const c of zkeySuffix) {
-    const itemCompressed = await localforage.getItem(
-      `${filename}.zkey${c}${zkeyExtension}`
-    );
+    const itemCompressed = await localforage.getItem(`${filename}.zkey${c}${zkeyExtension}`);
     const item = await localforage.getItem(`${filename}.zkey${c}`);
     if (item || itemCompressed) {
-      console.log(
-        `${filename}.zkey${c}${
-          item ? "" : zkeyExtension
-        } already found in localstorage!`
-      );
+      console.log(`${filename}.zkey${c}${item ? "" : zkeyExtension} already found in localstorage!`);
       onFileDownloaded();
       continue;
     }
     filePromises.push(
       // downloadFromFilename(`${filename}.zkey${c}${zkeyExtension}`, true).then(
-      downloadFromFilename(`${filename}.zkey${c}${zkeyExtension}`, false).then(
-        () => onFileDownloaded()
-      )
+      downloadFromFilename(`${filename}.zkey${c}${zkeyExtension}`, false).then(() => onFileDownloaded())
     );
   }
   console.log(filePromises);
@@ -121,11 +73,7 @@ export const uncompressProofFiles = async function (filename: string) {
     if (!itemCompressed) {
       console.error(`Error downloading file ${targzFilename}`);
     } else {
-      console.log(
-        `${filename}.zkey${c}${
-          item ? "" : zkeyExtension
-        } already found in localstorage!`
-      );
+      console.log(`${filename}.zkey${c}${item ? "" : zkeyExtension} already found in localstorage!`);
       continue;
     }
     filePromises.push(downloadFromFilename(targzFilename));
@@ -138,11 +86,7 @@ export async function generateProof(input: any, filename: string) {
   // TODO: figure out how to generate this s.t. it passes build
   console.log("generating proof for input");
   console.log(input);
-  const { proof, publicSignals } = await snarkjs.groth16.fullProve(
-    input,
-    `https://zkemail-zkey-chunks.s3.amazonaws.com/${filename}.wasm`,
-    `${filename}.zkey`
-  );
+  const { proof, publicSignals } = await snarkjs.groth16.fullProve(input, `${loadURL}${filename}.wasm`, `${filename}.zkey`);
   console.log(`Generated proof ${JSON.stringify(proof)}`);
 
   return {
@@ -155,11 +99,7 @@ export async function verifyProof(proof: any, publicSignals: any) {
   console.log("PROOF", proof);
   console.log("PUBLIC SIGNALS", publicSignals);
   console.log("VK", vkey);
-  const proofVerified = await snarkjs.groth16.verify(
-    vkey,
-    publicSignals,
-    proof
-  );
+  const proofVerified = await snarkjs.groth16.verify(vkey, publicSignals, proof);
   console.log("proofV", proofVerified);
 
   return proofVerified;
@@ -182,24 +122,16 @@ function bigIntToArray(n: number, k: number, x: bigint) {
 
 // taken from generation code in dizkus-circuits tests
 function pubkeyToXYArrays(pk: string) {
-  const XArr = bigIntToArray(64, 4, BigInt("0x" + pk.slice(4, 4 + 64))).map(
-    (el) => el.toString()
-  );
-  const YArr = bigIntToArray(64, 4, BigInt("0x" + pk.slice(68, 68 + 64))).map(
-    (el) => el.toString()
-  );
+  const XArr = bigIntToArray(64, 4, BigInt("0x" + pk.slice(4, 4 + 64))).map((el) => el.toString());
+  const YArr = bigIntToArray(64, 4, BigInt("0x" + pk.slice(68, 68 + 64))).map((el) => el.toString());
 
   return [XArr, YArr];
 }
 
 // taken from generation code in dizkus-circuits tests
 function sigToRSArrays(sig: string) {
-  const rArr = bigIntToArray(64, 4, BigInt("0x" + sig.slice(2, 2 + 64))).map(
-    (el) => el.toString()
-  );
-  const sArr = bigIntToArray(64, 4, BigInt("0x" + sig.slice(66, 66 + 64))).map(
-    (el) => el.toString()
-  );
+  const rArr = bigIntToArray(64, 4, BigInt("0x" + sig.slice(2, 2 + 64))).map((el) => el.toString());
+  const sArr = bigIntToArray(64, 4, BigInt("0x" + sig.slice(66, 66 + 64))).map((el) => el.toString());
 
   return [rArr, sArr];
 }

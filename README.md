@@ -276,6 +276,19 @@ If the server is generating the proof, it has to have the private input. We want
 
 Fixed by downgrading react-scripts version.
 
+### TypeError: Cannot read properties of undefined (reading 'toString')
+
+This is the full error:
+
+```
+zk-email-verify/src/scripts/generateinput.ts:182
+const = result.results[0].publicKey.toString();
+                                    ^
+TypeError: Cannot read properties of undefined (reading 'toString')
+```
+
+You need to have internet connection while running dkim verification locally, in order to fetch the public key.
+
 ### No available storage method found.
 
 If when using snarkjs, you see this:
@@ -308,7 +321,7 @@ The chunked file utils will automatically search for circuit_final.zkeyb from th
 
 ### How do I deal with all of these snarkJS forks?
 
-Apologies, this part is some messy legacy code from previous projects. You can do something like `./node_modules/bin/snarkjs' inside your repo, and it'll run the snarkjs command built from the fork you're using instead of the global one.
+Apologies, this part is some messy legacy code from previous projects. You use vivekab's fork for keygeneration, sampritipanda's fork for chunked zkey checking on the frontend, and the original snarkjs@latest to get rid of chunking entirely (but you'll need to edit frontend code to not do that). You can do something like `./node_modules/bin/snarkjs' inside your repo, and it'll run the snarkjs command built from the fork you're using instead of the global one.
 
 ### How do I build my own frontend but plug in your ZK parsing?
 

@@ -19,4 +19,4 @@ export const CIRCOM_BIGINT_K = 17;
 export const CIRCOM_LEVELS = 30;
 
 // This is the string that comes right before the target string in the email. Ideally as close to the end of the email as possible.
-export const STRING_PRESELECTOR = 'meant for @';
+export const STRING_PRESELECTOR = "email was meant for @";
