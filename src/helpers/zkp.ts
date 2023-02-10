@@ -5,6 +5,7 @@ import { uncompressZkeydTarball as uncompress } from "./uncompress";
 const snarkjs = require("snarkjs");
 
 const loadURL = "https://zkemail-zkey-chunks.s3.amazonaws.com/";
+const compressed = true;
 // const loadURL = "/zkemail-zkey-chunks/";
 
 // We can use this function to ensure the type stored in localforage is correct.
@@ -48,16 +49,17 @@ const zkeySuffix = ["b", "c", "d", "e", "f", "g", "h", "i", "j", "k"];
 export const downloadProofFiles = async function (filename: string, onFileDownloaded: () => void) {
   const filePromises = [];
   for (const c of zkeySuffix) {
-    const itemCompressed = await localforage.getItem(`${filename}.zkey${c}${zkeyExtension}`);
+    const targzFilename = `${filename}.zkey${c}${zkeyExtension}`;
+    const itemCompressed = await localforage.getItem(targzFilename);
     const item = await localforage.getItem(`${filename}.zkey${c}`);
-    if (item || itemCompressed) {
+    if (item) {
       console.log(`${filename}.zkey${c}${item ? "" : zkeyExtension} already found in localstorage!`);
       onFileDownloaded();
       continue;
     }
     filePromises.push(
-      // downloadFromFilename(`${filename}.zkey${c}${zkeyExtension}`, true).then(
-      downloadFromFilename(`${filename}.zkey${c}${zkeyExtension}`, false).then(() => onFileDownloaded())
+      // downloadFromFilename(targzFilename, true).then(
+      downloadFromFilename(targzFilename, compressed).then(() => onFileDownloaded())
     );
   }
   console.log(filePromises);

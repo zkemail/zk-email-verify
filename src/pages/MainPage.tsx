@@ -124,7 +124,7 @@ export const MainPage: React.FC<{}> = (props) => {
           Note that we are actively developing and debugging this page, it is likely unstable. Due to download limits of incognito mode and non-chrome browsers, you must use Chrome
           to generate proofs right now. If you wish to generate a ZK proof of Twitter badge, you must do these:
         </span>
-        <NumberedStep step={1}>Send yourself a password reset email from Twitter in incognito.</NumberedStep>
+        <NumberedStep step={1}>Send yourself a [password reset email](https://twitter.com/i/flow/password_reset) from Twitter in incognito.</NumberedStep>
         <NumberedStep step={2}>In your inbox, find the email from Twitter and download headers (three dots, then download message).</NumberedStep>
         <NumberedStep step={3}>Copy paste the entire contents of the .eml file into the box below. </NumberedStep>
         <NumberedStep step={4}>Paste in your sending Ethereum key. This ensures that no one else can "steal" your proof for another account.</NumberedStep>
