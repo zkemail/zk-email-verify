@@ -219,10 +219,11 @@ forge create --rpc-url $ETH_RPC_URL src/contracts/src/emailVerifier.sol:Verifier
 |     SHA of email header     |   506,670    |
 |        RSA signature        |   149,251    |
 |      DKIM header regex      |   736,553    |
-|       Body hash regex       |   617,597    |
+|       Body hash regex       |   760,142    |
 |        SHA body hash        |   506,670    |
 |    Twitter handle regex     |   328,044    |
 | Packing output for solidity |    16,800    |
+|      Total constraints      |  3,115,057   |
 
 ## General guidelines
 
