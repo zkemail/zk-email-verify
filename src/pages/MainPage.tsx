@@ -1,5 +1,5 @@
 // @ts-ignore
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useAsync, useMount, useUpdateEffect } from "react-use";
 // @ts-ignore
 // @ts-ignore
@@ -14,67 +14,17 @@ import { dkimVerify } from "../helpers/dkim";
 import atob from "atob";
 import { downloadProofFiles, generateProof, verifyProof, buildInput, downloadFromFilename } from "../helpers/zkp";
 import { packedNBytesToString } from "../helpers/binaryFormat";
-import { Profile } from "./WalletProfile";
+import { LabeledTextArea } from "../components/LabeledTextArea";
+import { SingleLineInput } from "../components/SingleLineInput";
+import { Button } from "../components/Button";
+import { Col, Row } from "../components/Layout";
+import { NumberedStep } from "../components/NumberedStep";
+import { TopBanner } from "../components/TopBanner";
+import { useAccount, useContractWrite, usePrepareContractWrite } from "wagmi";
+import { ProgressBar } from "../components/ProgressBar";
 var Buffer = require("buffer/").Buffer; // note: the trailing slash is important!
 
 const generate_input = require("../scripts/generate_input");
-const demoUrl =
-  "/?message=I%20like%20cats&group_name=https%3A%2F%2Fgithub.com%2Forgs%2Fdoubleblind-xyz%2Fpeople&group_members=ssh-rsa%20AAAAB3NzaC1yc2EAAAADAQABAAACAQCq8ZasN4NVES99%2B9XRhFLkuT4deiyen01D5nWt8%2FBoqdcCW0jH%2FLLiew%2FxVQ7%2FmMYmEg%2Fw6In8kUMJTCd7oXBDYHNBGxhuIqKEDh15yN5loQykW8YCA74m8V6fdnZ22krFGS%2FnixYr19xEJ2cY28Jq8QNO03421T4QiZsqB8LcMOfMvVPzU96UWHR16LW1Lgj7pGLwbP%2FDBQRWn%2BAlaSYi%2FyHgCit9GgqOf2O7JqQ01p7d9AlBHyTPfDJHJOosKMKiwNwP4Rwyir%2FKeRde65v%2FMqRnBWoQogjTNAylyCMOUDhNZQbiF8ttIynY2xtg5i52Qc9qY%2FBZAk1J%2FSK8MjEae4o8JU%2BfwBGH4aXDLx5AGwD5EHm95M2WiEu8kvcGv%2BbnPp4OED8W2pvoI8Q0PmYJ8WC6vebM4fOg9dnvZ52jUb5mpfWmUy0%2FPeOPyxsfTjpptirNhJUpWWdhDfPNxT19jSka4BYlhHEVXeR1%2BepBXe7z1m0w4RMVFHyDvsr1gUlcWjO9ufccdqNnNjrWcKLIm455RJivh8V1JC%2F2mJdMrYGKf54%2FOXa%2BEMcRpgKO1kjhqDCMitA8IVa8bcVFcvwmB1myoondETeO7bdGIVBMV1o8H%2BU6GL29p%2B5nKzKWUN1IRPgIuMS80sq7MDBkKChzQxJHE%2FhhkszQvAgR9OdzjQ%3D%3D%20scott%0Assh-rsa%20AAAAB3NzaC1yc2EAAAADAQABAAABAQCqu5UxDsmcu7ibKB20ucaYyEsk1EDAa5uXfyDJiH30x4t%2FXwS7b7qdegO1HlvfE1HA7iPqjtbWj70qwDFJwwGazxze33J1oh%2FLMKfPUzZ32y8tRU0JHR9nHZHMOcoUYPNeXLVDh6jdEX3%2B2%2FodIbSVbu54wUF5j6q7iAv%2B6Ch9qcMaO9vPEt3z6QX5LnUAqvCwu5sUgobWB7I10iGD4jFYDL%2Ff22pOGK%2BKyW26vkMh%2Fcg8FNC07ilRiYqQIxfdj7lWaYbO0VhxhQtTH5HcgQ2bAWZ6Rp9%2FcXOAegboV2dxjQ%2FuIumcdaqkXeHNypC3j%2F6%2BTBi5BFMQit8gy1H9R86x%20scott%0A%0Assh-rsa%20AAAAB3NzaC1yc2EAAAADAQABAAABAQDRvpOL7TZcYtHsSSz4lj8vTyIEuFSQnUqHTxhhsEWzAbq9LHMqYm4Whg1oRm430QvJF5xfOaLk%2BbmO6hN1g4Y9yJUj4uhaNSfSl3wGLBxu5OQNngnIDCbxTLjat4Jgz79ZiAo79c6bVq13xcfG0fjtFoC3FbZD0VEmqmwd%2FlYCLLVqtjccQur8B56O9Pj%2FgiDMby0iQPFEe9vlpP8Wg3WVjFRQkwNOhGzvLNrlOBkJXpG9xty43O9T09qHJzKYobrAnlKeRTqYqppVfwmYI7rqr2rqTXF9mBB4s1zUCXJzTVrnqexzeH%2BUv54KIaXxR2CAn3%2BDDtDBfJ4wqk%2F8OBNN%20andrew%0A%0Assh-rsa%20AAAAB3NzaC1yc2EAAAADAQABAAACAQDcJSRy%2BRXANfCgJpzhX9fWEnslgCcgffw5t2mWW5Ltc2cfiWr1w3dUGoSa6oNs1QTwYkdfvy9cv1zwG%2B77a1AhtmjwywahSuOE3yg1IIe6Qo4U7Ae%2B7r8F08Qob7Ct8ZoUHPupbFYyXF759xYpN%2Bvvjuy3MbgTwnbijqH2HUAIwBT2V%2FxbGuwVBNK80i9ib3DNchW%2FwYu9oSukXufzBpPYBZUzAcejCTjPuv3ts%2FL%2BVPJSgaiHeZ%2FqlzU01BQ37dbEieDI6k64IKNppW2l%2BC0ERGtsKjPSINC%2Bx%2BOvS7puOtI%2BAu%2Bp72soaBIrfONsL3oTUgtj82bRzVALCM1Dxh%2BK7O0i00H%2F5xICB4%2Bb%2FGRgho%2BF4IlDf2mDy9qMoyNA8vemH%2FLC9Rc%2BujzIJJHD9WL8nDvg2v8lQGtWDrSlwjRKlp7MtVad%2BCOF6K9oCXjhFWUVirvG%2F1cG%2FYnmzn9%2F2ZEdsYuqL6TEflxtuIM2YdJWIubgnINs3l8P8UwuNa%2FUoM4leBT05LP%2BxbD7%2BHWSXNuWK9%2B7d3t03qOoGdfsbonk9wolM5l04QlTI%2BlOmQObBxHBT7CH4cwWC%2FevovPK9jKkAk%2FAC68YTWAV1U43O9gKmtq67TsShJ9YOeZU6xAp7kAcFVjpABz6suhQa6vGrGCKO8ERp4rLV9KUrgJin86KzQ%3D%3D%20steven%0Assh-rsa%20AAAAB3NzaC1yc2EAAAADAQABAAACAQDBN%2BISLXgsf3xxG18ZSKAwARj%2F0mw0x8JGQoWuCcDB5C99bgC5CMIsm%2F7ZYHye6BdB7GbY3RV%2FaVuLzm2lh2Q9opPT2AJhWDdeYyLhrIRsexNfnUXZsETxI4M7P5mZXNHAVASG%2FQ%2Fgu2lb1aPt5oOiRCI7tvitKLOGrUtb0%2FKToaityX2OJFmEnmH%2BRM6t2ICwmfObterWjzm%2BJ5k1ydFjSSwkx669U%2FGWVf56Rruburz%2FXlDwUm9liVef5iTOH8%2FrSu82ejamZXoYJFCaSq3nCZRw8mb6xs%2BzoiYcKiGozlhg6Zbpkexr4i20vPR5d9rQItaZ38cmbk2HwZzpaqUx%2Ft055CpmUQ2N%2Fvfvzr3rUCeG0SkWsew0m8UDB0AU6LYKCQS50kr0KBYEtE%2Blt46iLf%2B5XrlBhFj99xqx5qOeSY9Pz8xuu3Ti2ckDKhyMTj9uONSBPVOxRslX8PK35L0lQdM8TOjKBpVAWx4Fyag93QWyPFdUD4kB%2BHHSo9FgC9vZxtoxPOpTf8GgIzspGVHL%2BMjW7QmBs%2BcD48K9k6XMmaSq1AEx1JjeysoO5d9bzTygyHAhyZtZftnaTQ6r8OjUGL%2BU9J16Ezp1CwxY8tHpIyh2e6HUuVE8CNkeKLf6j2VIgdQd7b%2BiSPtr3bc43tMYRW9576Qov%2Ft8pP8gEla83w%3D%3D%20steven";
-
-const LabeledTextArea: React.FC<{
-  style?: CSSProperties;
-  className?: string;
-  label: string;
-  value: string;
-  warning?: string;
-  warningColor?: string;
-  disabled?: boolean;
-  disabledReason?: string;
-  link?: string;
-  secret?: boolean;
-  onChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
-}> = ({ style, warning, warningColor, disabled, disabledReason, label, value, onChange, link, className, secret }) => {
-  return (
-    <LabeledTextAreaContainer className={_.compact(["labeledTextAreaContainer", className]).join(" ")}>
-      <label>
-        {label}
-        {link && (
-          <a style={{ color: "gray", marginLeft: 12 }} rel="noreferrer" target="_blank" href={link}>
-            Share Link
-          </a>
-        )}
-      </label>
-      {warning && (
-        <span className="warning" style={{ color: warningColor }}>
-          {warning}
-        </span>
-      )}
-      <textarea style={style} title={disabled ? disabledReason : ""} disabled={disabled} value={value} onChange={onChange} />
-
-      {secret && <div className="secret">Hover to reveal public info sent to chain</div>}
-    </LabeledTextAreaContainer>
-  );
-};
-
-// function decodeSearchParams(urlSearchParams: URLSearchParams): {
-//   message?: string;
-//   ethereum_address?: string;
-// } {
-//   const searchParams: {
-//     message?: string;
-//     ethereum_address?: string;
-//   } = Object.fromEntries(urlSearchParams.entries());
-//   return {
-//     message: searchParams.message && decodeURIComponent(searchParams.message),
-//     ethereum_address:
-//       searchParams.ethereum_address && decodeURIComponent(searchParams.ethereum_address),
-//   };
-// }
-
-function encodeMessageSearchParams(message: string): string {
-  const parts = _.compact([message && "message=" + encodeURIComponent(message)]);
-  return parts.join("&");
-}
 
 export const MainPage: React.FC<{}> = (props) => {
   // raw user inputs
@@ -86,12 +36,8 @@ export const MainPage: React.FC<{}> = (props) => {
   const [publicSignals, setPublicSignals] = useState<string>("");
   const [displayMessage, setDisplayMessage] = useState<string>("Prove");
   const [emailHeader, setEmailHeader] = useState<string>("");
-  const [ethereumAddress, setEthereumAddress] = useState<string>("");
-
-  const messageShareLink = useMemo(() => {
-    return window.location.protocol + "//" + window.location.host + window.location.pathname + "?" + encodeMessageSearchParams(ethereumAddress);
-  }, [ethereumAddress]);
-  console.log(messageShareLink, messageShareLink.length);
+  const { address } = useAccount();
+  const [ethereumAddress, setEthereumAddress] = useState<string>(address ?? "");
 
   // computed state
   const { value, error } = useAsync(async () => {
@@ -107,8 +53,26 @@ export const MainPage: React.FC<{}> = (props) => {
   console.log("Circuit inputs:", circuitInputs);
 
   const [verificationMessage, setVerificationMessage] = useState("");
-  const [verificationPassed, setVerificationPassed] = useState(true);
+  const [verificationPassed, setVerificationPassed] = useState(false);
   const [lastAction, setLastAction] = useState<"" | "sign" | "verify">("");
+  const [showBrowserWarning, setShowBrowserWarning] = useState<boolean>(false);
+  const [downloadProgress, setDownloadProgress] = useState<number>(0);
+
+  useEffect(() => {
+    const userAgent = navigator.userAgent;
+    const isChrome = userAgent.indexOf("Chrome") > -1;
+    if (!isChrome) {
+      setShowBrowserWarning(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (address) {
+      setEthereumAddress(address);
+    } else {
+      setEthereumAddress("");
+    }
+  }, [address]);
 
   useMount(() => {
     function handleKeyDown() {
@@ -127,37 +91,67 @@ export const MainPage: React.FC<{}> = (props) => {
       }
     }
   }, [value]);
+
+  const { config } = usePrepareContractWrite({
+    addressOrName: "", // TODO: get address
+    contractInterface: [], // TODO: get abi
+    functionName: "verifyProof",
+    onError: (error: { message: any }) => {
+      // TODO: handle errors
+    },
+  });
+
+  const { data, isLoading, isSuccess, write } = useContractWrite(config);
+
   if (error) console.error(error);
+
   return (
     <Container>
+      {showBrowserWarning && <TopBanner message={"ZK Email only works on Chrome or Chromium-based browsers."} />}
       <div className="title">
-        <h1>ZK Email Ownership Proof Generator From Header</h1>
-        <div>
-          <Link to={"/"}>Reset</Link> | <Link to={demoUrl}>Demo</Link>{" "}
-        </div>
-        <Profile />
+        <Header>ZK Email Ownership Proof Generator From Header</Header>
       </div>
-      <div className="main">
-        <div className="messagePane">
+
+      <Col
+        style={{
+          gap: "8px",
+          maxWidth: "720px",
+          margin: "0 auto",
+          marginBottom: "2rem",
+        }}
+      >
+        <span style={{ color: "rgba(255, 255, 255, 0.7)" }}>
+          Note that we are actively developing and debugging this page, it is likely unstable. Due to download limits of incognito mode and non-chrome browsers, you must use Chrome
+          to generate proofs right now. If you wish to generate a ZK proof of Twitter badge, you must do these:
+        </span>
+        <NumberedStep step={1}>Send yourself a [password reset email](https://twitter.com/i/flow/password_reset) from Twitter in incognito.</NumberedStep>
+        <NumberedStep step={2}>In your inbox, find the email from Twitter and download headers (three dots, then download message).</NumberedStep>
+        <NumberedStep step={3}>Copy paste the entire contents of the .eml file into the box below. </NumberedStep>
+        <NumberedStep step={4}>Paste in your sending Ethereum key. This ensures that no one else can "steal" your proof for another account.</NumberedStep>
+        <NumberedStep step={5}>
+          Click "Generate Proof". Since it is completely client side and open source, and you are not trusting us with any private information. We will soon have the ability to
+          send this proof on-chain!
+        </NumberedStep>
+      </Col>
+      <Main>
+        <Column>
+          <SubHeader>Input</SubHeader>
           <LabeledTextArea
             label="Full Email with Headers"
             value={emailFull}
-            link={messageShareLink}
             onChange={(e) => {
               setEmailFull(e.currentTarget.value);
             }}
           />
-          <LabeledTextArea
+          <SingleLineInput
             label="Ethereum Address"
             value={ethereumAddress}
             onChange={(e) => {
               setEthereumAddress(e.currentTarget.value);
             }}
           />
-        </div>
-        <div className="buttonsPane">
-          <button
-            disabled={displayMessage !== "Prove"}
+          <Button
+            disabled={displayMessage !== "Prove" || emailFull.length === 0 || ethereumAddress.length === 0}
             onClick={async () => {
               console.log("Generating proof...");
               const mail =
@@ -178,7 +172,9 @@ export const MainPage: React.FC<{}> = (props) => {
 
               console.time("zk-dl");
               setDisplayMessage("Downloading compressed proving files... (this may take a few minutes)");
-              await downloadProofFiles(filename);
+              await downloadProofFiles(filename, () => {
+                setDownloadProgress((p) => p + 1);
+              });
               console.timeEnd("zk-dl");
 
               console.time("zk-gen");
@@ -212,11 +208,34 @@ export const MainPage: React.FC<{}> = (props) => {
             }}
           >
             {displayMessage}
-            <br />
-            {">>>"}
-          </button>
-          <button
-            disabled={emailFull.trim().length == 0}
+          </Button>
+          {displayMessage === "Downloading compressed proving files... (this may take a few minutes)" && (
+            <ProgressBar width={downloadProgress * 10} label={`${downloadProgress} / 10 items`} />
+          )}
+        </Column>
+        <Column>
+          <SubHeader>Output</SubHeader>
+          <LabeledTextArea
+            label="Proof Output"
+            value={proof}
+            onChange={(e) => {
+              setProof(e.currentTarget.value);
+            }}
+            warning={verificationMessage}
+            warningColor={verificationPassed ? "green" : "red"}
+          />
+          <LabeledTextArea
+            label="..."
+            value={publicSignals}
+            secret
+            onChange={(e) => {
+              setPublicSignals(e.currentTarget.value);
+            }}
+            // warning={
+            // }
+          />
+          <Button
+            disabled={emailFull.trim().length === 0 || proof.length === 0}
             onClick={async () => {
               try {
                 setLastAction("verify");
@@ -233,75 +252,57 @@ export const MainPage: React.FC<{}> = (props) => {
             }}
           >
             Verify
-            <br />
-            {"<<<"}
-          </button>
-        </div>
-        <LabeledTextArea
-          label="Proof Output"
-          value={proof}
-          onChange={(e) => {
-            setProof(e.currentTarget.value);
-          }}
-          warning={verificationMessage}
-          warningColor={verificationPassed ? "green" : "red"}
-        />
-      </div>
-      <div className="bottom">
-        <h3>ZK Email</h3>
-        <div>
-          If you wish to generate a ZK proof of Twitter badge, you must do these: 1) Send yourself a password reset email from Twitter in incognito. 2) In your inbox, find the
-          email from Twitter and download headers (three dots, then download message). 3) Copy paste the entire contents of the file into the box below 4) Paste in your sending
-          Ethereum key 5) Click "Generate Proof" Note that it is completely client side and <a href="https://github.com/zk-email-verify/zk-email-verify/">open source</a>, and you
-          are not trusting us with any private information.
-          <br />
-          Read our <a href="https://zkemail.xyz/docs"> docs </a> to learn more.
-        </div>
-        <br />
-        <LabeledTextArea
-          label="..."
-          value={publicSignals}
-          secret
-          onChange={(e) => {
-            setPublicSignals(e.currentTarget.value);
-          }}
-          // warning={
-          // }
-        />
-      </div>
+          </Button>
+          <Button disabled={!verificationPassed} onClick={() => write?.()}>
+            {isLoading ? "Confirm in wallet" : "Mint Twitter badge on-chain"}
+          </Button>
+          {isSuccess && <div>Transaction: {JSON.stringify(data)}</div>}
+        </Column>
+      </Main>
     </Container>
   );
 };
 
+const Header = styled.span`
+  font-weight: 600;
+  margin-bottom: 1em;
+  color: #fff;
+  font-size: 2.25rem;
+  line-height: 2.5rem;
+  letter-spacing: -0.02em;
+`;
+
+const SubHeader = styled(Header)`
+  font-size: 1.7em;
+  margin-bottom: 16px;
+  color: rgba(255, 255, 255, 0.9);
+`;
+
+const Main = styled(Row)`
+  width: 100%;
+  gap: 1rem;
+`;
+
+const Column = styled(Col)`
+  width: 100%;
+  gap: 1rem;
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+`;
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
+  margin: 0 auto;
   & .title {
     display: flex;
     flex-direction: column;
     align-items: center;
   }
   & .main {
-    display: flex;
-    & .messagePane {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      & > .div {
-        display: flex;
-      }
-    }
-    & .buttonsPane {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 12px;
-      & button {
-        margin-bottom: 16px;
-        width: 120px;
-      }
-    }
     & .signaturePane {
       flex: 1;
       display: flex;
@@ -324,54 +325,5 @@ const Container = styled.div`
       max-width: 50vw;
       width: 500px;
     }
-  }
-`;
-
-const LabeledTextAreaContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 15vh;
-  padding: 8px 24px;
-  align-items: center;
-  position: relative;
-  & label {
-    font-size: 20px;
-  }
-  & textarea {
-    align-self: stretch;
-    margin-top: 12px;
-    flex: 1;
-  }
-  & .warning {
-    color: #bd3333;
-    font-size: 80%;
-  }
-  &.small {
-    label {
-      font-size: 16px;
-    }
-    height: 7vh;
-
-    textarea {
-      align-self: center;
-      width: 120px;
-    }
-  }
-  .secret {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: white;
-    user-select: none;
-    pointer-events: none;
-    opacity: 0.95;
-    justify-content: center;
-    display: flex;
-    align-items: center;
-    transition: opacity 0.5s ease-in-out;
-  }
-  &:hover .secret,
-  & :focus + .secret {
-    opacity: 0;
   }
 `;

@@ -9,27 +9,8 @@ import {
   Navigate,
 } from "react-router-dom";
 import { useLocation } from "react-use";
-import { SetupPage } from "./pages/SetupPage";
 import styled from "styled-components";
-import {
-  WagmiConfig,
-  createClient,
-  configureChains,
-  defaultChains,
-  chain
-} from 'wagmi'
-import { publicProvider } from 'wagmi/providers/public'
-
-const { chains, provider, webSocketProvider } = configureChains(
-  [chain.mainnet],
-  [publicProvider()],
-)
-
-const client = createClient({
-  autoConnect: true,
-  provider,
-  webSocketProvider,
-})
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 const App = () => {
   return (
@@ -38,15 +19,7 @@ const App = () => {
         <NavSection />
 
         <Routes>
-          <Route
-            path="/"
-            element={
-              <WagmiConfig client={client}>
-                <Main/>
-              </WagmiConfig>
-            }
-          />
-          <Route path="/setup" element={<SetupPage />} />
+          <Route path="/" element={<Main />} />
           <Route path="/" element={<Navigate to={"/"} replace={true} />} />
           <Route element={<>Not found</>} />
         </Routes>
@@ -68,39 +41,44 @@ const NavSection: React.FC = () => {
 
   return (
     <Nav>
-      <Link className={pathname === "/" ? "current_page" : "off"} to={"/"}>
-        App
-      </Link>{" "}
-      <Link
-        className={pathname === "/setup" ? "current_page" : "off"}
-        to="/setup"
-      >
-        Setup
-      </Link>
-      <button
+      <Logo className={pathname === "/" ? "current_page" : "off"} to={"/"}>
+        ZK-Email
+      </Logo>
+      <div
         style={{
-          borderRadius: 8,
-          padding: "8px 12px",
-          border: "1px solid black",
-          float: "right",
-          marginLeft: "auto",
-          fontSize: 16,
-          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          gap: "1rem",
         }}
       >
-        <a style={{ textDecoration: "none", color: "black" }} href="/docs">
-          Docs
-        </a>
-      </button>
+        <DocsLink href="/docs">Docs</DocsLink>
+        <ConnectButton />
+      </div>
     </Nav>
   );
 };
 
+const Logo = styled(Link)`
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.2rem;
+`;
+
 const Nav = styled.nav`
   display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin: 12px;
-  & > a {
-    margin-left: 8px;
-    font-size: 24px;
+`;
+
+const DocsLink = styled.a`
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  underline: none;
+  transition: all 0.2s ease-in-out;
+  &:hover {
+    color: rgba(255, 255, 255, 1);
   }
 `;
