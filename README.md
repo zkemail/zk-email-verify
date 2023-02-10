@@ -287,7 +287,7 @@ const = result.results[0].publicKey.toString();
 TypeError: Cannot read properties of undefined (reading 'toString')
 ```
 
-You need to have internet connection while running dkim verification locally, in order to fetch the public key.
+You need to have internet connection while running dkim verification locally, in order to fetch the public key. If you have internet connection, make sure you downloaded the email with the headers: you should see a DKIM section in the file.
 
 ### No available storage method found.
 
@@ -307,7 +307,7 @@ The line number of this error is usually arbitrary. Make sure you are not mixing
 
 ### Where do I get the public key for the signature?
 
-Usually, this will be hosted on some URL under the parent organization. You can try to get it from a .pem file, but that is usually a fraught effort since the encoding of such files varies a lot, is idiosyncratic, and hard to parse. The easiest way is to just extract it from the RSA signature itself, and just verify that it matches the parent organization.
+Usually, this will be hosted on DNS server of some consistent URL under the parent organization. You can try to get it from a .pem file, but that is usually a fraught effort since the encoding of such files varies a lot, is idiosyncratic, and hard to parse. The easiest way is to just extract it from the RSA signature itself (like our generate_input.ts file), and just verify that it matches the parent organization.
 
 ### How can I trust that you verify the correct public key?
 
