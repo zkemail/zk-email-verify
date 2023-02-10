@@ -10,7 +10,7 @@ The application is located at https://zkemail.xyz. It only works on Chrome/Brave
 
 The documentation for the app is located at https://zkemail.xyz/docs (WIP). Made by [@yush_g](https://twitter.com/yush_g) and [@sampriti0](https://twitter.com/sampriti0) at [@0xparc](https://twitter.com/0xparc) and [@personae_labs](https://twitter.com/personae_labs), dm if interested in usage or building next generation primitives like this. This is very much a work in progress, and we invite folks to contribute, or contact us for interesting projects that can be built on top of the tech! We are especially prioritizing optimizing circuits, making our end-to-end demo more efficient and on-chain, and an SDK/CLI.
 
-## Local website
+### Local website
 
 To run the frontend with existing circuits (there is no backend or server), enable Node 16 (with nvm) and run:
 
@@ -24,17 +24,17 @@ If the frontend shows an error on fullProve line, run this and rerun
 yarn add snarkjs@https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e
 ```
 
-## Getting email headers
+### Getting email headers
 
 In Outlook, turn on plain text mode. Copy paste the 'full email details' into the textbox on the (only client side!) webpage.
 
 In gmail, download original message then copy paste the contents into the textbox.
 
-# Development Instructions
+## Development Instructions
 
 This will let you build new zkeys from source.
 
-## Filetree Description
+### Filetree Description
 
 ```bash
 circuits/ # groth16 zk circuits
@@ -70,11 +70,11 @@ public/ # Should contain vkey/wasm, but we end up fetching those from AWS server
     wasm
 ```
 
-## Regex to Circom
+### Regex to Circom
 
 Modify the `let regex = ` in lexical.js and then run `python3 gen.py`
 
-## Email Circuit Build Steps
+### Email Circuit Build Steps
 
 Install rust/circom2 via the following steps, according to: https://docs.circom.io/getting-started/installation/
 
@@ -144,7 +144,7 @@ To do a non-chunked zkey for non-browser running,
 yarn compile-all
 ```
 
-## Compiling Subcircuits
+### Compiling Subcircuits
 
 If you want to compile subcircuits instead of the whole thing, you can use the following:
 
@@ -181,13 +181,13 @@ and when the zkey also doesn't change,
 yarn compile email true skip-r1cswasm skip-zkey
 ```
 
-## Production
+### Production
 
 For production, make sure to set a beacon in .env.
 
 Note that this leaks the number of characters in the username of someone who sent you an email, iff the first field in the email serialization format is from (effectively irrelevant).
 
-## Testing
+### Testing
 
 To constraint count, do
 
@@ -212,20 +212,39 @@ export ETH_RPC_URL=http://localhost:8547
 forge create --rpc-url $ETH_RPC_URL src/contracts/src/emailVerifier.sol:Verifier --private-key  0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 # Public anvil sk
 ```
 
-## Constraint count
+## Performance
+
+### Constraint breakdown
 
 |          Operation          | Constraint # |
 | :-------------------------: | :----------: |
 |     SHA of email header     |   506,670    |
-|        RSA signature        |   149,251    |
+|    RSA signature verify     |   149,251    |
 |      DKIM header regex      |   736,553    |
-|       Body hash regex       |   760,142    |
-|        SHA body hash        |   506,670    |
+|       Body hash regex       |   617,597    |
+|        SHA body hash        |   760,142    |
 |    Twitter handle regex     |   328,044    |
 | Packing output for solidity |    16,800    |
 |      Total constraints      |  3,115,057   |
 
-## General guidelines
+| Function | % of constraints |
+| :------: | ---------------- |
+|  Regex   | 54.00 %          |
+| SHA hash | 40.67 %          |
+|   RSA    | 4.79 %           |
+| Packing  | 0.54 %           |
+
+### Optimization plan
+
+The current circom version is too expensive for any widely deployed in-browser use case, even with a plethora of tricks (chunked zkeys, single threaded proof gen for lower memory, compressing zkey and decompressing locally, etc.).
+
+Short term ways to improve the performance would be to replace the regex checks with substring checks for everything except the email header, where we need regex (as far as we can tell) to correctly parse the "from" or "to" email from the header.
+
+Looking more long term, we are actively using Halo2 and Nova to speed up the most expensive operations of regex and SHA. As hash functions and regex DFA traversal are repeated operations, they are a great fit for Nova's folding methods. But to actually use Nova to fold expensive operations outside of Halo2, we need to verify the folded instance is valid inside the circuit for zero-knowledge and to link it to the rest of the computation. The current set of remaining tasks and potential final states is documented in the following DAG, please reach out if any of the projects seem interesting!
+
+![Optimization plan](public/zk_email_optim.jpg)
+
+### General guidelines
 
 Just RSA + SHA (without masking or regex proofs) for arbitrary message length <= 512 bytes is 402,802 constraints, and the zkey took 42 minutes to generate on an intel mac.
 
