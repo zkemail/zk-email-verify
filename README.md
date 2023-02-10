@@ -240,7 +240,9 @@ The current circom version is too expensive for any widely deployed in-browser u
 
 Short term ways to improve the performance would be to replace the regex checks with substring checks for everything except the email header, where we need regex (as far as we can tell) to correctly parse the "from" or "to" email from the header.
 
-Looking more long term, we are actively using Halo2 and Nova to speed up the most expensive operations of regex and SHA. As hash functions and regex DFA traversal are repeated operations, they are a great fit for Nova's folding methods. But to actually use Nova to fold expensive operations outside of Halo2, we need to verify the folded instance is valid inside the circuit for zero-knowledge and to link it to the rest of the computation. The current set of remaining tasks and potential final states is documented in the following DAG, please reach out if any of the projects seem interesting!
+Looking more long term, we are actively using Halo2 and Nova to speed up the most expensive operations of regex and SHA. As hash functions and regex DFA traversal are repeated operations, they are a great fit for Nova's folding methods to compress repeated computation into a constant sized folded instance. But to actually use Nova to fold expensive operations outside of Halo2/Groth16, we need to verify the folded instance is valid inside the circuit for zero-knowledge and to link it to the rest of the computation. We also are attempting to use the lookup feature of Halo2 to precompute the entire table of possible regex state transitions, and just looking up that all of the transitions made are valid ones in the table instead of expensively checking each state! This idea is due to Sora Suegami, explained in more detail here: https://hackmd.io/@SoraSuegami/Hy9dWgT8i.
+
+The current set of remaining tasks and potential final states is documented in the following DAG, please reach out if any of the projects seem interesting!
 
 ![Optimization plan](public/zk_email_optim.jpg)
 
