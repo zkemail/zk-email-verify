@@ -1,8 +1,10 @@
+# ZK Email Verify
+
 **WIP: This tech is extremely tricky to use and very much a work in progress, and we do not recommend use in any production application right now. This is both due to unaudited code, and several theoretical issues such as nullifiers, bcc’s, non-nested signatures, and hash sizings. We are working on addressing those, and if you have a possible usecase, please run it by us so we can ensure that your guarantees are in fact correct!**
 
 Join the conversation [on discord](https://discord.gg/34EPvjuPZj) or via [dm](https://twitter.com/yush_g/)!
 
-# MVP App
+## MVP App
 
 The application is located at https://zkemail.xyz. It only works on Chrome/Brave/Arc (or other Chromium-based browsers) due to download limits on other browsers.
 
@@ -210,15 +212,27 @@ export ETH_RPC_URL=http://localhost:8547
 forge create --rpc-url $ETH_RPC_URL src/contracts/src/emailVerifier.sol:Verifier --private-key  0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 # Public anvil sk
 ```
 
-## Stats
+## Constraint count
 
-Just RSA + SHA (without masking or regex proofs) for arbitrary message length <= 512 bytes is 402802 constraints, and the zkey took 42 minutes to generate on an intel mac.
+|          Operation          | Constraint # |
+| :-------------------------: | :----------: |
+|     SHA of email header     |   506,670    |
+|        RSA signature        |   149,251    |
+|      DKIM header regex      |   736,553    |
+|       Body hash regex       |   617,597    |
+|        SHA body hash        |   506,670    |
+|    Twitter handle regex     |   328,044    |
+| Packing output for solidity |    16,800    |
+
+## General guidelines
+
+Just RSA + SHA (without masking or regex proofs) for arbitrary message length <= 512 bytes is 402,802 constraints, and the zkey took 42 minutes to generate on an intel mac.
 
 RSA + SHA + Regex + Masking with up to 1024 byte message lengths is 1,392,219 constraints, and the chunked zkey took 9 + 15 + 15 + 2 minutes to generate on a machine with 32 cores.
 
 The full email header circuit above with the 7-byte packing into signals is 1,408,571 constraints, with 163 public signals, and the verifier script fits in the 24kb contract limit.
 
-The full email header and body check circuit, with 7-byte packing and final public output compression, is **3,115,057 constraints**, with 21 public signals. zkey size was originally 1.75GB, and with tar.gz compression it is now 982 MB. Decompression doesn't work in the browser however.
+The full email header and body check circuit, with 7-byte packing and final public output compression, is **3,115,057 constraints**, with 21 public signals. zkey size was originally 1.75GB, and with tar.gz compression it is now 982 MB.
 
 In the browser, on a 2019 Intel Mac on Chrome, proving uses 7.3/8 cores. zk-gen takes 384 s, groth16 prove takes 375 s, and witness calculation takes 9 s.
 
