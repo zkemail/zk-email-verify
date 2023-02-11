@@ -21,6 +21,8 @@
 
 textarea {
   /* white-space: pre; */
+  background: transparent;
+  color: #fff;
 }
 
 body {
@@ -31,36 +33,7 @@ h1 {
   font-weight: 300;
   line-height: 1.1;
 }
-a {
-  text-decoration: none;
-  color: gray;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-a.current_page {
-  color: black;
-}
-
-/* Dark Mode */
-
 html {
-  background-color: #171717 !important;
+  background: #171717 !important;
+  color: #fff;
 }
-html {
-  filter: invert(100%) hue-rotate(180deg) brightness(105%) contrast(85%);
-  -webkit-filter: invert(100%) hue-rotate(180deg) brightness(105%) contrast(85%);
-}
-body {
-  background-color: #FFF !important;
-}
-img,
-video,
-body * [style*="background-image"] {
-  filter: hue-rotate(180deg) contrast(100%) invert(100%);
-  -webkit-filter: hue-rotate(180deg) contrast(100%) invert(100%);
-}
-
-/* End Dark Mode */

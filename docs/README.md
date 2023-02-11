@@ -10,10 +10,10 @@ sets. For a deeper dive, read our full [blog post](https://blog.aayushg.com/post
 
 If you wish to generate a ZK proof of Twitter badge, you must do these:
 
-1. Send yourself a password reset email from Twitter in incognito.
+1. Send yourself a [password reset email](https://twitter.com/i/flow/password_reset) from Twitter in incognito.
 2. In your inbox, find the email from Twitter and download headers (three dots, then download message).
-3. Copy paste the entire contents of the file into the box below
-4. Paste in your sending Ethereum key
+3. Copy paste the entire contents of the file into the box below. We admit it is an unfortunate flow, but we are still searching for a good Twitter email that anyone can induce that cannot be injected.
+4. Paste in your sending Ethereum address
 5. Click "Generate Proof"
 
 Note that it is completely client side and [open source](https://github.com/zk-email-verify/zk-email-verify/), and you are not trusting us with any private information.
@@ -25,7 +25,7 @@ side and click the `Verify` button. We will try to populate some signals.
 
 ## Advanced Understanding
 
-Because you put your Ethereum key into the proof, it operates as a commitment
+Because you put your Ethereum address into the proof, it operates as a commitment
 such that no one else can steal your proof on chain. If you in the future decide to
 shift your Twitter badge to a new Ethereum address, you can do so by just generating a
 proof like this again.

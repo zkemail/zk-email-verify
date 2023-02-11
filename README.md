@@ -1,14 +1,16 @@
-**WIP: This tech is extremely tricky to use and very much a work in progress, and we do not recommend use in any production application right now. This is both due to unaudited code, and several theoretical issues such as nullifiers, bcc’s, non-nested signatures, and hash sizings. We are working on addressing those, and if you have a possible usecase, please run it by us so we can ensure that your guarantees are in fact correct!**
+# ZK Email Verify
 
-Join the conversation [on discord](https://discord.gg/34EPvjuPZj) or via [dm](https://twitter.com/yush_g/)!
+**WIP: This tech is extremely tricky to use and very much a work in progress, and we do not recommend use in any production application right now. This is both due to unaudited code, and several theoretical issues such as nullifiers, bcc’s, non-nested signatures, and hash sizings. These are all resolved for our Twitter MVP usecase, but may not be generally gauranteed. If you have a possible usecase, please run it by us so we can ensure that your guarantees are in fact correct!**
 
-# MVP App
+Join the conversation via [dm'ing us](https://twitter.com/yush_g/)! We will have a broader Discord soon.
 
-The application is located at https://zkemail.xyz. It only works on Chrome/Brave/Arc (or other Chromium-based browsers) due to download limits on other browsers.
+## MVP App
 
-The documentation for the app is located at https://zkemail.xyz/docs (WIP). Made by [@yush_g](https://twitter.com/yush_g) and [@sampriti0](https://twitter.com/sampriti0) at [@0xparc](https://twitter.com/0xparc) and [@personae_labs](https://twitter.com/personae_labs), dm if interested in usage or building next generation primitives like this. This is very much a work in progress, and we invite folks to contribute, or contact us for interesting projects that can be built on top of the tech! We are especially prioritizing optimizing circuits, making our end-to-end demo more efficient and on-chain, and an SDK/CLI.
+The application is located at https://zkemail.xyz. It only works on Chrome/Brave/Arc (or other Chromium-based browsers) due to download limits on other browsers. To understand the construction more, read [our blog post here](https://blog.aayushg.com/posts/zkemail).
 
-## Local website
+The documentation for the app is located at https://zkemail.xyz/docs (WIP). Made by [@yush_g](https://twitter.com/yush_g) and [@sampriti0](https://twitter.com/sampriti0) at [@0xparc](https://twitter.com/0xparc), dm if interested in usage or building next generation primitives like this. This is very much a work in progress, and we invite folks to contribute, or contact us for interesting projects that can be built on top of the tech! We are especially prioritizing optimizing circuits, making our end-to-end demo more efficient and on-chain, and an SDK/CLI.
+
+### Local website
 
 To run the frontend with existing circuits (there is no backend or server), enable Node 16 (with nvm) and run:
 
@@ -22,17 +24,17 @@ If the frontend shows an error on fullProve line, run this and rerun
 yarn add snarkjs@https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e
 ```
 
-## Getting email headers
+### Getting email headers
 
 In Outlook, turn on plain text mode. Copy paste the 'full email details' into the textbox on the (only client side!) webpage.
 
 In gmail, download original message then copy paste the contents into the textbox.
 
-# Development Instructions
+## Development Instructions
 
 This will let you build new zkeys from source.
 
-## Filetree Description
+### Filetree Description
 
 ```bash
 circuits/ # groth16 zk circuits
@@ -68,11 +70,11 @@ public/ # Should contain vkey/wasm, but we end up fetching those from AWS server
     wasm
 ```
 
-## Regex to Circom
+### Regex to Circom
 
 Modify the `let regex = ` in lexical.js and then run `python3 gen.py`
 
-## Email Circuit Build Steps
+### Email Circuit Build Steps
 
 Install rust/circom2 via the following steps, according to: https://docs.circom.io/getting-started/installation/
 
@@ -142,7 +144,7 @@ To do a non-chunked zkey for non-browser running,
 yarn compile-all
 ```
 
-## Compiling Subcircuits
+### Compiling Subcircuits
 
 If you want to compile subcircuits instead of the whole thing, you can use the following:
 
@@ -179,13 +181,13 @@ and when the zkey also doesn't change,
 yarn compile email true skip-r1cswasm skip-zkey
 ```
 
-## Production
+### Production
 
 For production, make sure to set a beacon in .env.
 
 Note that this leaks the number of characters in the username of someone who sent you an email, iff the first field in the email serialization format is from (effectively irrelevant).
 
-## Testing
+### Testing
 
 To constraint count, do
 
@@ -210,15 +212,49 @@ export ETH_RPC_URL=http://localhost:8547
 forge create --rpc-url $ETH_RPC_URL src/contracts/src/emailVerifier.sol:Verifier --private-key  0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 # Public anvil sk
 ```
 
-## Stats
+## Performance
 
-Just RSA + SHA (without masking or regex proofs) for arbitrary message length <= 512 bytes is 402802 constraints, and the zkey took 42 minutes to generate on an intel mac.
+### Constraint breakdown
+
+|          Operation          | Constraint # |
+| :-------------------------: | :----------: |
+|     SHA of email header     |   506,670    |
+|    RSA signature verify     |   149,251    |
+|      DKIM header regex      |   736,553    |
+|       Body hash regex       |   617,597    |
+|        SHA body hash        |   760,142    |
+|    Twitter handle regex     |   328,044    |
+| Packing output for solidity |    16,800    |
+|      Total constraints      |  3,115,057   |
+
+| Function | % of constraints |
+| :------: | ---------------- |
+|  Regex   | 54.00 %          |
+| SHA hash | 40.67 %          |
+|   RSA    | 4.79 %           |
+| Packing  | 0.54 %           |
+
+### Optimization plan
+
+The current circom version is too expensive for any widely deployed in-browser use case, even with a plethora of tricks (chunked zkeys, single threaded proof gen for lower memory, compressing zkey and decompressing locally, etc.).
+
+Short term ways to improve the performance would be to replace the regex checks with substring checks for everything except the email header, where we need regex (as far as we can tell) to correctly parse the "from" or "to" email from the header.
+
+Looking more long term, we are actively using Halo2 and Nova to speed up the most expensive operations of regex and SHA. As hash functions and regex DFA traversal are repeated operations, they are a great fit for Nova's folding methods to compress repeated computation into a constant sized folded instance. But to actually use Nova to fold expensive operations outside of Halo2/Groth16, we need to verify the folded instance is valid inside the circuit for zero-knowledge and to link it to the rest of the computation. We also are attempting to use the lookup feature of Halo2 to precompute the entire table of possible regex state transitions, and just looking up that all of the transitions made are valid ones in the table instead of expensively checking each state! This idea is due to Sora Suegami, explained in more detail here: https://hackmd.io/@SoraSuegami/Hy9dWgT8i.
+
+The current set of remaining tasks and potential final states is documented in the following DAG, please reach out if any of the projects seem interesting!
+
+![Optimization plan](public/zk_email_optim.jpg)
+
+### General guidelines
+
+Just RSA + SHA (without masking or regex proofs) for arbitrary message length <= 512 bytes is 402,802 constraints, and the zkey took 42 minutes to generate on an intel mac.
 
 RSA + SHA + Regex + Masking with up to 1024 byte message lengths is 1,392,219 constraints, and the chunked zkey took 9 + 15 + 15 + 2 minutes to generate on a machine with 32 cores.
 
 The full email header circuit above with the 7-byte packing into signals is 1,408,571 constraints, with 163 public signals, and the verifier script fits in the 24kb contract limit.
 
-The full email header and body check circuit, with 7-byte packing and final public output compression, is **3,115,057 constraints**, with 21 public signals. zkey size was originally 1.75GB, and with tar.gz compression it is now 982 MB. Decompression doesn't work in the browser however.
+The full email header and body check circuit, with 7-byte packing and final public output compression, is **3,115,057 constraints**, with 21 public signals. zkey size was originally 1.75GB, and with tar.gz compression it is now 982 MB.
 
 In the browser, on a 2019 Intel Mac on Chrome, proving uses 7.3/8 cores. zk-gen takes 384 s, groth16 prove takes 375 s, and witness calculation takes 9 s.
 
@@ -235,7 +271,34 @@ ls
 git push --set-upstream origin main --force
 ```
 
-## FAQ/Errors
+## Regexes we compiled
+
+The regex to get out the from/to emails is:
+
+```
+// '(\r\n|\x80)(to|from):([A-Za-z0-9 _."@-]+<)?[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.]+>?\r\n';
+// let regex = '(\r\n|\x80)(to|from):((a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|0|1|2|3|4|5|6|7|8|9| |_|.|"|@|-)+<)?(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|0|1|2|3|4|5|6|7|8|9|_|.|-)+@(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|0|1|2|3|4|5|6|7|8|9|_|.|-)+>?\r\n';
+```
+
+The regex to get out the body hash is:
+
+```
+const key_chars = '(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)';
+const catch_all = '(0|1|2|3|4|5|6|7|8|9|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|!|"|#|$|%|&|\'|\\(|\\)|\\*|\\+|,|-|.|/|:|;|<|=|>|\\?|@|[|\\\\|]|^|_|`|{|\\||}|~| |\t|\n|\r|\x0b|\x0c)';
+const catch_all_without_semicolon = '(0|1|2|3|4|5|6|7|8|9|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|!|"|#|$|%|&|\'|\\(|\\)|\\*|\\+|,|-|.|/|:|<|=|>|\\?|@|[|\\\\|]|^|_|`|{|\\||}|~| |\t|\n|\r|\x0b|\x0c)';
+const base_64 = '(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|0|1|2|3|4|5|6|7|8|9|\\+|/|=)';
+
+let regex = `\r\ndkim-signature:(${key_chars}=${catch_all_without_semicolon}+; )+bh=${base_64}+; `;
+```
+
+The regex for Twitter is:
+
+```
+const word_char = '(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|0|1|2|3|4|5|6|7|8|9|_)';
+let regex = `email was meant for @${word_char}+`;
+```
+
+## FAQ/Possible Errors
 
 ### I'm having issues with the intricacies of the SHA hashing. How do I understand the function better?
 
@@ -248,6 +311,19 @@ If the server is generating the proof, it has to have the private input. We want
 ### “Cannot resolve module ‘fs’”
 
 Fixed by downgrading react-scripts version.
+
+### TypeError: Cannot read properties of undefined (reading 'toString')
+
+This is the full error:
+
+```
+zk-email-verify/src/scripts/generateinput.ts:182
+const = result.results[0].publicKey.toString();
+                                    ^
+TypeError: Cannot read properties of undefined (reading 'toString')
+```
+
+You need to have internet connection while running dkim verification locally, in order to fetch the public key. If you have internet connection, make sure you downloaded the email with the headers: you should see a DKIM section in the file.
 
 ### No available storage method found.
 
@@ -267,7 +343,7 @@ The line number of this error is usually arbitrary. Make sure you are not mixing
 
 ### Where do I get the public key for the signature?
 
-Usually, this will be hosted on some URL under the parent organization. You can try to get it from a .pem file, but that is usually a fraught effort since the encoding of such files varies a lot, is idiosyncratic, and hard to parse. The easiest way is to just extract it from the RSA signature itself, and just verify that it matches the parent organization.
+Usually, this will be hosted on DNS server of some consistent URL under the parent organization. You can try to get it from a .pem file, but that is usually a fraught effort since the encoding of such files varies a lot, is idiosyncratic, and hard to parse. The easiest way is to just extract it from the RSA signature itself (like our generate_input.ts file), and just verify that it matches the parent organization.
 
 ### How can I trust that you verify the correct public key?
 
@@ -281,7 +357,7 @@ The chunked file utils will automatically search for circuit_final.zkeyb from th
 
 ### How do I deal with all of these snarkJS forks?
 
-Apologies, this part is some messy legacy code from previous projects. You can do something like `./node_modules/bin/snarkjs' inside your repo, and it'll run the snarkjs command built from the fork you're using instead of the global one.
+Apologies, this part is some messy legacy code from previous projects. You use vivekab's fork for keygeneration, sampritipanda's fork for chunked zkey checking on the frontend, and the original snarkjs@latest to get rid of chunking entirely (but you'll need to edit frontend code to not do that). You can do something like `./node_modules/bin/snarkjs' inside your repo, and it'll run the snarkjs command built from the fork you're using instead of the global one.
 
 ### How do I build my own frontend but plug in your ZK parsing?
 

@@ -1,5 +1,5 @@
 import { createHash } from "crypto";
-import { assert, int64toBytes, int8toBytes, mergeUInt8Arrays } from "./binaryFormat";
+import { assert, int64toBytes, int8toBytes, mergeUInt8Arrays, Uint8ArrayToHex } from "./binaryFormat";
 // const { webcrypto, KeyObject } = await import('crypto');
 // const { subtle } = webcrypto;
 import { Hash } from "./fast-sha256";
@@ -28,7 +28,6 @@ export async function sha256Pad(prehash_prepad_m: Uint8Array, maxShaBytes: numbe
   while (prehash_prepad_m.length < maxShaBytes) {
     prehash_prepad_m = mergeUInt8Arrays(prehash_prepad_m, int64toBytes(0));
   }
-  // console.log(prehash_prepad_m.length, maxShaBytes);
   assert(prehash_prepad_m.length === maxShaBytes, "Padding to max length did not complete properly!");
   return [prehash_prepad_m, messageLen];
 }
