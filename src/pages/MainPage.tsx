@@ -126,8 +126,13 @@ export const MainPage: React.FC<{}> = (props) => {
         </span>
         <NumberedStep step={1}>Send yourself a [password reset email](https://twitter.com/i/flow/password_reset) from Twitter in incognito.</NumberedStep>
         <NumberedStep step={2}>In your inbox, find the email from Twitter and download headers (three dots, then download message).</NumberedStep>
-        <NumberedStep step={3}>Copy paste the entire contents of the .eml file into the box below. </NumberedStep>
-        <NumberedStep step={4}>Paste in your sending Ethereum key. This ensures that no one else can "steal" your proof for another account.</NumberedStep>
+        <NumberedStep step={3}>
+          Copy paste the entire contents of the .eml file into the box below. Note that this code is one-use and we never get your password (in fact, we don't have a server at
+          all).
+        </NumberedStep>
+        <NumberedStep step={4}>
+          Paste in your sending Ethereum address. This ensures that no one else can "steal" your proof for another account (frontrunning protection!).
+        </NumberedStep>
         <NumberedStep step={5}>
           Click "Generate Proof". Since it is completely client side and open source, and you are not trusting us with any private information. We will soon have the ability to
           send this proof on-chain!
