@@ -28,7 +28,7 @@ template Sha256Bytes(max_num_bytes) {
 }
 
 template Sha256BytesPartial(max_num_bytes) {
-    assert(max_num_bytes % 32 == 0)
+    assert(max_num_bytes % 32 == 0);
     signal input in_padded[max_num_bytes];
     signal input in_len_padded_bytes;
     signal input pre_hash[32];

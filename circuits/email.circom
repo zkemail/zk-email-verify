@@ -39,12 +39,12 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     signal input body_hash_idx;
     signal body_hash[LEN_SHA_B64][max_header_bytes];
 
+    // SHA HEADER: 506,670 constraints
     component sha = Sha256Bytes(max_header_bytes);
     for (var i = 0; i < max_header_bytes; i++) {
         sha.in_padded[i] <== in_padded[i];
     }
     sha.in_len_padded_bytes <== in_len_padded_bytes;
-
     var msg_len = (256+n)\n;
     component base_msg[msg_len];
     for (var i = 0; i < msg_len; i++) {
@@ -57,6 +57,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         base_msg[i\n].in[i%n] <== 0;
     }
 
+    // VERIFY RSA SIGNATURE: 149,251 constraints
     component rsa = RSAVerify65537(n, k);
     for (var i = 0; i < msg_len; i++) {
         rsa.base_message[i] <== base_msg[i].out;
@@ -71,6 +72,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         rsa.signature[i] <== signature[i];
     }
 
+    // DKIM HEADER REGEX: 736,553 constraints
     component dkim_header_regex = DKIMHeaderRegex(max_header_bytes);
     for (var i = 0; i < max_header_bytes; i++) {
         dkim_header_regex.msg[i] <== in_padded[i];
@@ -81,20 +83,19 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     }
     log(dkim_header_regex.out);
 
+    // BODY HASH REGEX: 617,597 constraints
     component body_hash_regex = BodyHashRegex(max_header_bytes);
     for (var i = 0; i < max_header_bytes; i++) {
         body_hash_regex.msg[i] <== in_padded[i];
     }
     body_hash_regex.out === 1;
     log(body_hash_regex.out);
-
     component body_hash_eq[max_header_bytes];
     for (var i = 0; i < max_header_bytes; i++) {
         body_hash_eq[i] = IsEqual();
         body_hash_eq[i].in[0] <== i;
         body_hash_eq[i].in[1] <== body_hash_idx;
     }
-
     for (var j = 0; j < 44; j++) {
         body_hash[j][j] <== body_hash_eq[j].out * body_hash_regex.reveal[j];
         for (var i = j + 1; i < max_header_bytes; i++) {
@@ -102,6 +103,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         }
     }
 
+    // SHA BODY: 760,142 constraints
     component sha_body = Sha256BytesPartial(max_body_bytes);
     for (var i = 0; i < max_body_bytes; i++) {
         sha_body.in_padded[i] <== in_body_padded[i];
@@ -110,7 +112,6 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         sha_body.pre_hash[i] <== precomputed_sha[i];
     }
     sha_body.in_len_padded_bytes <== in_body_len_padded_bytes;
-
     component sha_b64 = Base64Decode(32);
     for (var i = 0; i < 44; i++) {
         sha_b64.in[i] <== body_hash[i][max_header_bytes - 1];
@@ -124,19 +125,17 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         sha_body_bytes[i].out === sha_b64.out[i];
     }
 
+    // TWITTER REGEX: 328,044 constraints
     // This computes the regex states on each character
     component twitter_regex = TwitterResetRegex(max_body_bytes);
     for (var i = 0; i < max_body_bytes; i++) {
         twitter_regex.msg[i] <== in_body_padded[i];
     }
-
     // This ensures we found a match at least once
     component found_twitter = IsZero();
     found_twitter.in <== twitter_regex.out;
     found_twitter.out === 0;
-
     log(twitter_regex.out);
-
     // We isolate where the username begins: twitter_eq there is 1, everywhere else is 0
     component twitter_eq[max_body_bytes];
     for (var i = 0; i < max_body_bytes; i++) {
@@ -144,8 +143,6 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         twitter_eq[i].in[0] <== i;
         twitter_eq[i].in[1] <== twitter_username_idx;
     }
-
-
     for (var j = 0; j < max_twitter_len; j++) {
         // This vector is 0 everywhere except at one value
         // [x][x] is the starting character of the twitter username
@@ -162,6 +159,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         }
     }
 
+    // PACKING: 16,800 constraints (Total: 3,115,057)
     // Pack output for solidity verifier to be < 24kb size limit
     // chunks = 7 is the number of bytes that can fit into a 255ish bit signal
     var chunks = 7;
