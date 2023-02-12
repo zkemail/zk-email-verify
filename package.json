@@ -55,7 +55,10 @@
     "build": "react-scripts build",
     "both-build": "react-scripts build && next build",
     "next-build": "next build",
-    "test": "react-scripts test --reporters=default --reporters=jest-junit",
+    "test": "react-scripts test --runInBand --testPathIgnorePatterns='e2e' --reporters=default --reporters=jest-junit",
+    "start-e2e-test-server": "serve -s build -p 3000",
+    "test:e2e-ui": "CI=true react-scripts test --runInBand --testPathPattern='e2e-ui' --reporters=default --reporters=jest-junit",
+    "test:e2e-zkp": "CI=true react-scripts test --runInBand --testPathPattern='e2e-dl-zkp' --reporters=default --reporters=jest-junit",
     "eject": "react-scripts eject",
     "compile": "node circuits/scripts/compile.js",
     "compile-all": "npx tsx src/scripts/generate_input.ts && yarn compile email true"

@@ -38,6 +38,7 @@ export const LabeledTextArea: React.FC<{
       )}
       <TextArea
         style={style}
+        aria-label={label} 
         title={disabled ? disabledReason : ""}
         disabled={disabled}
         value={value}
