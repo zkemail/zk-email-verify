@@ -87,5 +87,10 @@
     "nodemon": "^2.0.19",
     "ts-node-dev": "^2.0.0"
   },
+  "jest": {
+    "transformIgnorePatterns": [
+      "node_modules/(?!@rainbow-me/rainbowkit)"
+    ]
+  },
   "packageManager": "yarn@3.2.3"
 }
