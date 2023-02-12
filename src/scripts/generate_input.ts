@@ -178,6 +178,13 @@ export async function generate_inputs(email: Buffer, eth_address: string): Promi
   // debugger;
   console.log("DKIM verification starting");
   result = await dkimVerify(email);
+  if(!result.results[0].publicKey) {
+    if(result.results[0].status.message) {
+      throw new Error(result.results[0].status.message);
+    } else {
+      throw new Error("No public key found on generate_inputs");
+    }
+  }
   const _ = result.results[0].publicKey.toString();
   console.log("DKIM verification successful");
   // var frozen = Cryo.stringify(result);
