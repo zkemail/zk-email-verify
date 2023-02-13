@@ -4,7 +4,7 @@ This code generates a circom regex file with Python and JS, but doesn't support 
 
 Note that there is a full JS version of this code with tests at https://github.com/zk-email-verify/zk-regex/ , which also now supports some additional character classes. Once it reaches parity, we expect to update this repo to use that library instead.
 
-Edit the regex on the top of lexical.js to change which regex is generated.
+Edit the regex on the top of lexical.js to change which regex is generated, then run `python3 gen.py`.
 
 ## Halo2
 
