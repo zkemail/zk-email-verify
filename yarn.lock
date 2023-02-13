@@ -7941,6 +7941,7 @@ __metadata:
     ethereumjs-abi: ^0.6.8
     ethers: ^5.7.1
     forge-std: ^1.1.2
+    jest-junit: ^15.0.0
     libmime: ^5.1.0
     localforage: ^1.10.0
     lodash: ^4.17.21
@@ -11688,6 +11689,18 @@ __metadata:
     pretty-format: ^26.6.2
     throat: ^5.0.0
   checksum: 41df0b993ae0cdeb2660fb3d8e88e2dcc83aec6b5c27d85eb233c2d507b546f8dce45fc54898ffbefa48ccc4633f225d0e023fd0979b8f7f2f1626074a69a9a3
+  languageName: node
+  linkType: hard
+
+"jest-junit@npm:^15.0.0":
+  version: 15.0.0
+  resolution: "jest-junit@npm:15.0.0"
+  dependencies:
+    mkdirp: ^1.0.4
+    strip-ansi: ^6.0.1
+    uuid: ^8.3.2
+    xml: ^1.0.1
+  checksum: e8fe4d2f2ab843383ac41820a6fe495739d154ec435cd44ba590b44ec7fd62095676f3eef13f98392f81d4a3727ea58b4f4fad231fe367ac31243952b9ad716f
   languageName: node
   linkType: hard
 
@@ -19989,6 +20002,13 @@ __metadata:
   version: 3.0.0
   resolution: "xml-name-validator@npm:3.0.0"
   checksum: b3ac459afed783c285bb98e4960bd1f3ba12754fd4f2320efa0f9181ca28928c53cc75ca660d15d205e81f92304419afe94c531c7cfb3e0649aa6d140d53ecb0
+  languageName: node
+  linkType: hard
+
+"xml@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "xml@npm:1.0.1"
+  checksum: 11b5545ef3f8fec3fa29ce251f50ad7b6c97c103ed4d851306ec23366f5fa4699dd6a942262df52313a0cd1840ab26256da253c023bad3309d8ce46fe6020ca0
   languageName: node
   linkType: hard
 

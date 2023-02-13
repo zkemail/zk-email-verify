@@ -1,0 +1,41 @@
+version: 2.1
+orbs:
+  node: circleci/node@5.1.0
+jobs:
+  run_unit_and_e2e_tests:
+    docker:
+      - image: cimg/node:16.19-browsers
+    steps:
+      - checkout
+      - run: node --version
+      - node/install-packages:
+          pkg-manager: yarn
+      - run:
+          command: yarn test
+          name: Run unit tests
+          environment:
+            JEST_JUNIT_OUTPUT: reports/unit-test-results.xml
+      # - run:
+      #     command: CI=false yarn run build
+      #     name: Build app
+      # - run:
+      #     command: yarn run start-e2e-test-server
+      #     name: Start test server
+      #     background: true
+      # - run:
+      #     command: yarn test:e2e-ui
+      #     name: Run e2e tests for UI
+      #     environment:
+      #       JEST_JUNIT_OUTPUT: reports/e2e-ui-test-results.xml
+
+      # - run:
+      #     command: yarn test:e2e-zkp
+      #     name: Run e2e tests for zkp
+      #     environment:
+      #       JEST_JUNIT_OUTPUT: reports/e2e-zkp-test-results.xml
+      - store_test_results:
+          path: reports/
+workflows:
+  build_test: 
+    jobs:
+      - run_unit_and_e2e_tests
