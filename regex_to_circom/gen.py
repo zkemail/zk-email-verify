@@ -49,7 +49,7 @@ for i in range(1, N):
         OUTPUT_HALO2 = True
         if (OUTPUT_HALO2):
             for val in vals:
-                with open('halo2_regex_lookup.txt', 'w') as f:
+                with open('halo2_regex_lookup.txt', 'a') as f:
                     print(prev_i, prev_i + 1, ord(val), file=f)
 
         if uppercase <= vals:
