@@ -4,6 +4,8 @@ This code generates a circom regex file with Python and JS, but doesn't support 
 
 Note that there is a full JS version of this code with tests at https://github.com/zk-email-verify/zk-regex/ , which also now supports some additional character classes. Once it reaches parity, we expect to update this repo to use that library instead.
 
+Edit the regex on the top of lexical.js to change which regex is generated.
+
 ## Halo2
 
 You can use the compiled halo2_regex_lookup.txt file as input to the https://github.com/zk-email-verify/halo2-regex/ library, which will generate a regex circuit in halo2 instead. That circuit is much more efficient than this one for large inputs.
