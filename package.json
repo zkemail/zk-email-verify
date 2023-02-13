@@ -21,7 +21,6 @@
     "ethereumjs-abi": "^0.6.8",
     "ethers": "^5.7.1",
     "forge-std": "^1.1.2",
-    "js-untar": "^2.0.0",
     "libmime": "^5.1.0",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
@@ -43,7 +42,6 @@
     "snarkjs": "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e",
     "sshpk": "^1.17.0",
     "styled-components": "^5.3.5",
-    "tar-stream": "^2.2.0",
     "ts-node": "^10.9.1",
     "typescript": "^4.8.3",
     "wagmi": "^0.6.8",
@@ -57,7 +55,10 @@
     "build": "react-scripts build",
     "both-build": "react-scripts build && next build",
     "next-build": "next build",
-    "test": "react-scripts test",
+    "test": "react-scripts test --runInBand --testPathIgnorePatterns='e2e' --reporters=default --reporters=jest-junit",
+    "start-e2e-test-server": "serve -s build -p 3000",
+    "test:e2e-ui": "CI=true react-scripts test --runInBand --testPathPattern='e2e-ui' --reporters=default --reporters=jest-junit",
+    "test:e2e-zkp": "CI=true react-scripts test --runInBand --testPathPattern='e2e-dl-zkp' --reporters=default --reporters=jest-junit",
     "eject": "react-scripts eject",
     "compile": "node circuits/scripts/compile.js",
     "compile-all": "npx tsx src/scripts/generate_input.ts && yarn compile email true"
@@ -86,8 +87,16 @@
     "@types/atob": "^2.1.2",
     "@types/node": "^18.0.6",
     "@types/tar-stream": "^2.2.2",
+    "jest-junit": "^15.0.0",
+    "msw": "^1.0.1",
     "nodemon": "^2.0.19",
+    "puppeteer": "18.1",
     "ts-node-dev": "^2.0.0"
+  },
+  "jest": {
+    "transformIgnorePatterns": [
+      "node_modules/(?!@rainbow-me/rainbowkit)"
+    ]
   },
   "packageManager": "yarn@3.2.3"
 }
