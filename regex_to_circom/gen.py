@@ -13,8 +13,8 @@ accept_nodes = set()
 
 for i in range(N):
     for k in graph_json[i]['edges']:
-        #assert len(k) == 1
-        #assert ord(k) < 128
+        # assert len(k) == 1
+        # assert ord(k) < 128
         v = graph_json[i]['edges'][k]
         graph[i][k] = v
         rev_graph[v].append((k, i))
@@ -34,6 +34,10 @@ lines.append("for (var i = 0; i < num_bytes; i++) {")
 
 assert 0 not in accept_nodes
 
+# Clear file
+with open('halo2_regex_lookup.txt', 'w') as f:
+    print("", file=f)
+
 for i in range(1, N):
     outputs = []
     for k, prev_i in rev_graph[i]:
@@ -45,7 +49,7 @@ for i in range(1, N):
         digits = set(string.digits)
         vals = set(vals)
 
-        # Iterates over value in set for halo2 lookup
+        # Iterates over value in set for halo2 lookup, append to file
         OUTPUT_HALO2 = True
         if (OUTPUT_HALO2):
             for val in vals:
@@ -118,16 +122,13 @@ for i in range(1, N):
         lines.append(f"\tand[{and_i}][i].a <== states[i][{prev_i}];")
 
         if len(eq_outputs) == 1:
-            lines.append(
-                f"\tand[{and_i}][i].b <== {eq_outputs[0][0]}[{eq_outputs[0][1]}][i].out;")
+            lines.append(f"\tand[{and_i}][i].b <== {eq_outputs[0][0]}[{eq_outputs[0][1]}][i].out;")
         elif len(eq_outputs) > 1:
-            lines.append(
-                f"\tmulti_or[{multi_or_i}][i] = MultiOR({len(eq_outputs)});")
+            lines.append(f"\tmulti_or[{multi_or_i}][i] = MultiOR({len(eq_outputs)});")
             for output_i in range(len(eq_outputs)):
                 lines.append(
                     f"\tmulti_or[{multi_or_i}][i].in[{output_i}] <== {eq_outputs[output_i][0]}[{eq_outputs[output_i][1]}][i].out;")
-            lines.append(
-                f"\tand[{and_i}][i].b <== multi_or[{multi_or_i}][i].out;")
+            lines.append(f"\tand[{and_i}][i].b <== multi_or[{multi_or_i}][i].out;")
             multi_or_i += 1
 
         outputs.append(and_i)
@@ -138,8 +139,7 @@ for i in range(1, N):
     elif len(outputs) > 1:
         lines.append(f"\tmulti_or[{multi_or_i}][i] = MultiOR({len(outputs)});")
         for output_i in range(len(outputs)):
-            lines.append(
-                f"\tmulti_or[{multi_or_i}][i].in[{output_i}] <== and[{outputs[output_i]}][i].out;")
+            lines.append(f"\tmulti_or[{multi_or_i}][i].in[{output_i}] <== and[{outputs[output_i]}][i].out;")
         lines.append(f"\tstates[i+1][{i}] <== multi_or[{multi_or_i}][i].out;")
         multi_or_i += 1
 
@@ -177,8 +177,7 @@ accept_lines = [""]
 accept_lines.append("signal final_state_sum[num_bytes+1];")
 accept_lines.append(f"final_state_sum[0] <== states[0][{accept_node}];")
 accept_lines.append("for (var i = 1; i <= num_bytes; i++) {")
-accept_lines.append(
-    f"\tfinal_state_sum[i] <== final_state_sum[i-1] + states[i][{accept_node}];")
+accept_lines.append(f"\tfinal_state_sum[i] <== final_state_sum[i-1] + states[i][{accept_node}];")
 accept_lines.append("}")
 accept_lines.append("out <== final_state_sum[num_bytes];")
 
