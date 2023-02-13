@@ -120,6 +120,8 @@ yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae
 cd dizkus-scripts/
 ./1_compile.sh && ./2_gen_wtns.sh && ./3_gen_chunk_zkey.sh && ./4_gen_vkey.sh && ./5_gen_proof.sh
 # optional: ./6_gen_proof_rapidsnark.sh
+
+# This part is to upload the zkeys, not critical
 aws configure # Only needs to be run once
 pip3 install boto3
 python3 upload_to_s3.py
@@ -369,10 +371,10 @@ Since circom is GPL, we are forced to use the GPL license, which is still a high
 
 ## To-Do
 
-- Make the frontend Solidity calls work
-- Make a general method to get formatted signatures and bodies from all email clients
-- Make versions for different size RSA keys
-- Add ENS DNSSEC code (possibly SNARKed), so anyone can add a website's RSA key via DNS record
-- Design the NFT/POAP to have the user's domain/verified identity on it
-- Make a testnet faucet as a PoC for Sybil resistance and to get developers interested
-- Dynamically tradeoff between gzip (2x faster decompression) and xz (30% smaller file size): https://www.rootusers.com/gzip-vs-bzip2-vs-xz-performance-comparison/ based on internet speed (i.e. minimize download time + unzip time)
+-   Make the frontend Solidity calls work
+-   Make a general method to get formatted signatures and bodies from all email clients
+-   Make versions for different size RSA keys
+-   Add ENS DNSSEC code (possibly SNARKed), so anyone can add a website's RSA key via DNS record
+-   Design the NFT/POAP to have the user's domain/verified identity on it
+-   Make a testnet faucet as a PoC for Sybil resistance and to get developers interested
+-   Dynamically tradeoff between gzip (2x faster decompression) and xz (30% smaller file size): https://www.rootusers.com/gzip-vs-bzip2-vs-xz-performance-comparison/ based on internet speed (i.e. minimize download time + unzip time)

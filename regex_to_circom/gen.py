@@ -2,7 +2,7 @@ import subprocess
 import json
 import string
 
-graph_json = json.loads(subprocess.check_output(['node', 'lexical.js']))
+graph_json = json.loads(subprocess.check_output(['npx', 'tsx', 'lexical.js']))
 N = len(graph_json)
 
 # Outgoing nodes
@@ -13,8 +13,8 @@ accept_nodes = set()
 
 for i in range(N):
     for k in graph_json[i]['edges']:
-        #assert len(k) == 1
-        #assert ord(k) < 128
+        # assert len(k) == 1
+        # assert ord(k) < 128
         v = graph_json[i]['edges'][k]
         graph[i][k] = v
         rev_graph[v].append((k, i))
@@ -34,6 +34,10 @@ lines.append("for (var i = 0; i < num_bytes; i++) {")
 
 assert 0 not in accept_nodes
 
+# Clear file
+with open('halo2_regex_lookup.txt', 'w') as f:
+    print("", file=f)
+
 for i in range(1, N):
     outputs = []
     for k, prev_i in rev_graph[i]:
@@ -44,6 +48,13 @@ for i in range(1, N):
         lowercase = set(string.ascii_lowercase)
         digits = set(string.digits)
         vals = set(vals)
+
+        # Iterates over value in set for halo2 lookup, append to file
+        OUTPUT_HALO2 = True
+        if (OUTPUT_HALO2):
+            for val in vals:
+                with open('halo2_regex_lookup.txt', 'a') as f:
+                    print(prev_i, prev_i + 1, ord(val), file=f)
 
         if uppercase <= vals:
             vals -= uppercase
