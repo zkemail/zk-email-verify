@@ -126,8 +126,7 @@ for i in range(1, N):
         elif len(eq_outputs) > 1:
             lines.append(f"\tmulti_or[{multi_or_i}][i] = MultiOR({len(eq_outputs)});")
             for output_i in range(len(eq_outputs)):
-                lines.append(
-                    f"\tmulti_or[{multi_or_i}][i].in[{output_i}] <== {eq_outputs[output_i][0]}[{eq_outputs[output_i][1]}][i].out;")
+                lines.append(f"\tmulti_or[{multi_or_i}][i].in[{output_i}] <== {eq_outputs[output_i][0]}[{eq_outputs[output_i][1]}][i].out;")
             lines.append(f"\tand[{and_i}][i].b <== multi_or[{multi_or_i}][i].out;")
             multi_or_i += 1
 
