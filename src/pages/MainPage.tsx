@@ -72,6 +72,32 @@ export const MainPage: React.FC<{}> = (props) => {
       setEthereumAddress("");
     }
   }, [address]);
+  const [status, setStatus] = useState<"not-started" | "generating-input" | "downloading-proof-files" | "generating-proof" | "error-bad-input" | "error-failed-to-download" | "error-failed-to-prove" | "done">("not-started");
+  const [zkeyStatus, setzkeyStatus] = useState<Record<string, string>>({
+    a: "not started",
+    b: "not started",
+    c: "not started",
+    d: "not started",
+    e: "not started",
+    f: "not started",
+    g: "not started",
+    h: "not started",
+    i: "not started",
+    k: "not started",
+  });
+  const [stopwatch, setStopwatch] = useState<Record<string, number>>({
+    startedDownloading: 0,
+    finishedDownloading: 0,
+    startedProving: 0,
+    finishedProving: 0,
+  });
+
+  const recordTimeForActivity = (activity: string) => {
+    setStopwatch((prev) => ({
+      ...prev,
+      [activity]: Date.now(),
+    }));
+  }
 
   useMount(() => {
     function handleKeyDown() {
@@ -157,9 +183,12 @@ export const MainPage: React.FC<{}> = (props) => {
             }}
           />
           <Button
+            data-testid="prove-button"
             disabled={displayMessage !== "Prove" || emailFull.length === 0 || ethereumAddress.length === 0}
             onClick={async () => {
               console.log("Generating proof...");
+              setDisplayMessage("Generating proof...");
+              setStatus("generating-input");
               const mail =
                 "RGVsaXZlcmVkLVRvOiBiaXN3YWppdHNhbXByaXRpQGdtYWlsLmNvbQ0KUmVjZWl2ZWQ6IGJ5IDIwMDI6YTA1OjY1MTI6M2UxNTowOjA6MDowIHdpdGggU01UUCBpZCBpMjFjc3AzMTExMzI2bGZ2Ow0KICAgICAgICBXZWQsIDIwIEp1bCAyMDIyIDIwOjU1OjIwIC0wNzAwIChQRFQpDQpYLUdvb2dsZS1TbXRwLVNvdXJjZTogQUdSeU0xdVV1cmtpL0RJRHR0ckFEM1I3Z2Y4SXNWSGFXamhqaHRtKzNsSkp6RmI4SVZMdmEyUEY1YmZXTllHaDBObHRSdFJvUDJjSg0KWC1SZWNlaXZlZDogYnkgMjAwMjphMDU6NjIyYTo1MTQ6YjA6MzFmOmI1OjdkNmUgd2l0aCBTTVRQIGlkIGwyMC0yMDAyMGEwNTYyMmEwNTE0MDBiMDAzMWYwMGI1N2Q2ZW1yODI1NTQ3NHF0eC42NzcuMTY1ODM3NTcxOTgxNDsNCiAgICAgICAgV2VkLCAyMCBKdWwgMjAyMiAyMDo1NToxOSAtMDcwMCAoUERUKQ0KQVJDLVNlYWw6IGk9MTsgYT1yc2Etc2hhMjU2OyB0PTE2NTgzNzU3MTk7IGN2PW5vbmU7DQogICAgICAgIGQ9Z29vZ2xlLmNvbTsgcz1hcmMtMjAxNjA4MTY7DQogICAgICAgIGI9T2hMY1c4TFV0RDFmNGNEQTZ3Qk13MnhwMzEvMlJtQURtWU8ycEM0T09FbExFY1FQRnQxZTFhNzAwejVUWmNqMS9hDQogICAgICAgICBNajl5dGxKa2ladGg5SzlzSjRMc2x1QmRudk1YQndDbmc0R2w1b0tTWEpoNlZiUmtWUm5nZWhrZlB2L2ZyMkhNNGthQg0KICAgICAgICAgMHRaWEVMK3JGUjJLNjN1MmVTODVKbnlmYkh6a2t5eDJiMlBKWW1CUDJnN2tUbkR6SDJnOUhOK2cvekk5czlEbERMTUMNCiAgICAgICAgIEwzNnZrbGprcTI5a1V3aUVjUU5hbVRiREFNUUk2ZFlhMmtCbVMveFdKUDVrY0dOb3lMNzFSc2x3R3R3SE15dyt1NWlvDQogICAgICAgICBsdDlkWVRHbDBMWWlyelJvdlBPUXV4eVJFaTdlYlBuN1A4VytDVUpjem1ENjhnTFA1WWFUYjBwR0FIWWF0dGJyNURRSw0KICAgICAgICAgSmJBZz09DQpBUkMtTWVzc2FnZS1TaWduYXR1cmU6IGk9MTsgYT1yc2Etc2hhMjU2OyBjPXJlbGF4ZWQvcmVsYXhlZDsgZD1nb29nbGUuY29tOyBzPWFyYy0yMDE2MDgxNjsNCiAgICAgICAgaD10bzpzdWJqZWN0Om1lc3NhZ2UtaWQ6ZGF0ZTpmcm9tOm1pbWUtdmVyc2lvbjpka2ltLXNpZ25hdHVyZTsNCiAgICAgICAgYmg9VysvWkdkQjFkM0lVOHhGNkNBUGJwNENpRDlLY2VVU3hnV2lmeFhBZkYrdz07DQogICAgICAgIGI9T25jWXZINlFnUjFHeG82Y0VGNmV4ZEdzekl5YVFaeEFRWEFXbWNuOW1hWXdRQmNWZW9HTjNGNGpURUJXMjVDV3d0DQogICAgICAgICBVUHNacnlXdExhbDNmaHF1VzVDSHF5VWNNOGlTYXRnUUt3dkFJUGVaT0pZMFpuenRtbmdmZHdwTDliSUFyRlhuR2prRA0KICAgICAgICAgTkhRLzEwTUZxRG9uNzgwR2diTXNReVJHOS83U2NwMXBySUowTTFvNGlCWUtIRFBiNkJHRkg3Q3dPcWUycWE5TnNTVy8NCiAgICAgICAgIFZnTmovU3B1QlJuTDNsZlpsZnN1MC93WlVENWNjb1pJeS9IdlllRjFYczF0bG9aWENqcWtoQ1c4RzZOZmpjRzluYkZUDQogICAgICAgICBmakZJSS9XallkazZSSkRXaUt3N0p3UUF4a3hKMHhOcEpyMUZSUDFhdGRsSGFoQ1B1QWhvUUp0MFBsdGdFUi9jU1VJcQ0KICAgICAgICAgNWlkQT09DQpBUkMtQXV0aGVudGljYXRpb24tUmVzdWx0czogaT0xOyBteC5nb29nbGUuY29tOw0KICAgICAgIGRraW09cGFzcyBoZWFkZXIuaT1AbWl0LmVkdSBoZWFkZXIucz1vdXRnb2luZyBoZWFkZXIuYj1lSGNxYmRoRzsNCiAgICAgICBzcGY9cGFzcyAoZ29vZ2xlLmNvbTogZG9tYWluIG9mIGFheXVzaGdAbWl0LmVkdSBkZXNpZ25hdGVzIDE4LjkuMjguMTEgYXMgcGVybWl0dGVkIHNlbmRlcikgc210cC5tYWlsZnJvbT1hYXl1c2hnQG1pdC5lZHU7DQogICAgICAgZG1hcmM9cGFzcyAocD1OT05FIHNwPU5PTkUgZGlzPU5PTkUpIGhlYWRlci5mcm9tPW1pdC5lZHUNClJldHVybi1QYXRoOiA8YWF5dXNoZ0BtaXQuZWR1Pg0KUmVjZWl2ZWQ6IGZyb20gb3V0Z29pbmcubWl0LmVkdSAob3V0Z29pbmctYXV0aC0xLm1pdC5lZHUuIFsxOC45LjI4LjExXSkNCiAgICAgICAgYnkgbXguZ29vZ2xlLmNvbSB3aXRoIEVTTVRQUyBpZCBhMTgtMjAwMjBhYzg0NGIyMDAwMDAwYjAwMzFlZGY0NjZiNzNzaTQ2NjAxN3F0by42NC4yMDIyLjA3LjIwLjIwLjU1LjE5DQogICAgICAgIGZvciA8Ymlzd2FqaXRzYW1wcml0aUBnbWFpbC5jb20+DQogICAgICAgICh2ZXJzaW9uPVRMUzFfMiBjaXBoZXI9RUNESEUtRUNEU0EtQUVTMTI4LUdDTS1TSEEyNTYgYml0cz0xMjgvMTI4KTsNCiAgICAgICAgV2VkLCAyMCBKdWwgMjAyMiAyMDo1NToxOSAtMDcwMCAoUERUKQ0KUmVjZWl2ZWQtU1BGOiBwYXNzIChnb29nbGUuY29tOiBkb21haW4gb2YgYWF5dXNoZ0BtaXQuZWR1IGRlc2lnbmF0ZXMgMTguOS4yOC4xMSBhcyBwZXJtaXR0ZWQgc2VuZGVyKSBjbGllbnQtaXA9MTguOS4yOC4xMTsNCkF1dGhlbnRpY2F0aW9uLVJlc3VsdHM6IG14Lmdvb2dsZS5jb207DQogICAgICAgZGtpbT1wYXNzIGhlYWRlci5pPUBtaXQuZWR1IGhlYWRlci5zPW91dGdvaW5nIGhlYWRlci5iPWVIY3FiZGhHOw0KICAgICAgIHNwZj1wYXNzIChnb29nbGUuY29tOiBkb21haW4gb2YgYWF5dXNoZ0BtaXQuZWR1IGRlc2lnbmF0ZXMgMTguOS4yOC4xMSBhcyBwZXJtaXR0ZWQgc2VuZGVyKSBzbXRwLm1haWxmcm9tPWFheXVzaGdAbWl0LmVkdTsNCiAgICAgICBkbWFyYz1wYXNzIChwPU5PTkUgc3A9Tk9ORSBkaXM9Tk9ORSkgaGVhZGVyLmZyb209bWl0LmVkdQ0KUmVjZWl2ZWQ6IGZyb20gbWFpbC15dzEtZjE4Mi5nb29nbGUuY29tIChtYWlsLXl3MS1mMTgyLmdvb2dsZS5jb20gWzIwOS44NS4xMjguMTgyXSkNCgkoYXV0aGVudGljYXRlZCBiaXRzPTApDQogICAgICAgIChVc2VyIGF1dGhlbnRpY2F0ZWQgYXMgYWF5dXNoZ0BBVEhFTkEuTUlULkVEVSkNCglieSBvdXRnb2luZy5taXQuZWR1ICg4LjE0LjcvOC4xMi40KSB3aXRoIEVTTVRQIGlkIDI2TDN0STdPMDA4NTM0DQoJKHZlcnNpb249VExTdjEvU1NMdjMgY2lwaGVyPUFFUzEyOC1HQ00tU0hBMjU2IGJpdHM9MTI4IHZlcmlmeT1OT1QpDQoJZm9yIDxiaXN3YWppdHNhbXByaXRpQGdtYWlsLmNvbT47IFdlZCwgMjAgSnVsIDIwMjIgMjM6NTU6MTkgLTA0MDANCkRLSU0tU2lnbmF0dXJlOiB2PTE7IGE9cnNhLXNoYTI1NjsgYz1yZWxheGVkL3JlbGF4ZWQ7IGQ9bWl0LmVkdTsgcz1vdXRnb2luZzsNCgl0PTE2NTgzNzU3MTk7IGJoPVcrL1pHZEIxZDNJVTh4RjZDQVBicDRDaUQ5S2NlVVN4Z1dpZnhYQWZGK3c9Ow0KCWg9RnJvbTpEYXRlOlN1YmplY3Q6VG87DQoJYj1lSGNxYmRoR29GNVM4N2YrOXIvWFB0dDVEYmdCandnb1lUcytKTVBIcUFIZ2hzazhLVVRoQTFyZkhab2hvTENVUQ0KCSBxamVEbW1rQXg0aDdKeS9ldG1nemdJSGEwZmhVRHpmbDh6Y1NZUVNDU29zM0NRTERieVlkYzNVMjJyWW0xcVhmVE4NCgkgYzRsYlhJMVQvbit0b25tcnkyMG8wZ2I1YlhMVGZVWjZTblc5RitXSGhhUFBYY0pvK3cyNzREeExoL2tJcjRTaEJNDQoJIC80Qk16MHNOaXVHeGQrZzFyR3lsclAvcjVnTTRxeHl6SlRVZjA4UVljeCtEUURVc3o3dlpVUXZLUjVJV3dSSit6TA0KCSBCZjY5cElwckZuakIzeXk1MWVxeGpIZXFnWDFWeE5GVlV0S2FoZm5VTys0dTRWVGRBQzk1MU5rRDFLRzRzb0NHWVgNCgkgYmFIMnR6Ny96QXZnQT09DQpSZWNlaXZlZDogYnkgbWFpbC15dzEtZjE4Mi5nb29nbGUuY29tIHdpdGggU01UUCBpZCAwMDcyMTE1N2FlNjgyLTMxZTQ1NTI3ZGE1c280OTg5NTU3YjMuNQ0KICAgICAgICBmb3IgPGJpc3dhaml0c2FtcHJpdGlAZ21haWwuY29tPjsgV2VkLCAyMCBKdWwgMjAyMiAyMDo1NToxOCAtMDcwMCAoUERUKQ0KWC1HbS1NZXNzYWdlLVN0YXRlOiBBSklvcmE4aXlsUmVNZmU2RWxSL0hHL3AvTXFDcGhJVGNEL2hvYkpXS0ZZU3hWQVVOMHYycmIzbg0KCUMwc2s0dkdlcmlVUklNbkdxWCsrdUhMcFZzNHlPY3pscGFLZ3FIdz0NClgtUmVjZWl2ZWQ6IGJ5IDIwMDI6YTBkOmY2YzU6MDpiMDozMWQ6YWY3ZDo1ZDRmIHdpdGggU01UUCBpZA0KIGcxODgtMjAwMjBhMGRmNmM1MDAwMDAwYjAwMzFkYWY3ZDVkNGZtcjQ0MjU4MTI2eXdmLjE4Ny4xNjU4Mzc1NzE4MDA3OyBXZWQsIDIwDQogSnVsIDIwMjIgMjA6NTU6MTggLTA3MDAgKFBEVCkNCk1JTUUtVmVyc2lvbjogMS4wDQpGcm9tOiBBYXl1c2ggR3VwdGEgPGFheXVzaGdAbWl0LmVkdT4NCkRhdGU6IFdlZCwgMjAgSnVsIDIwMjIgMjM6NTU6MDYgLTA0MDANClgtR21haWwtT3JpZ2luYWwtTWVzc2FnZS1JRDogPENBK09KNVFmRU9NN0VFYlV6MCsya1cwdXQ2b0RaVDZ0c0J5N3BUazZEZ3pBTlQtTGROd0BtYWlsLmdtYWlsLmNvbT4NCk1lc3NhZ2UtSUQ6IDxDQStPSjVRZkVPTTdFRWJVejArMmtXMHV0Nm9EWlQ2dHNCeTdwVGs2RGd6QU5ULUxkTndAbWFpbC5nbWFpbC5jb20+DQpTdWJqZWN0OiBkZXNwZXJhdGVseSB0cnlpbmcgdG8gbWFrZSBpdCB0byBjaGFpbg0KVG86ICJiaXN3YWppdHNhbXByaXRpQGdtYWlsLmNvbSIgPGJpc3dhaml0c2FtcHJpdGlAZ21haWwuY29tPg0KQ29udGVudC1UeXBlOiBtdWx0aXBhcnQvYWx0ZXJuYXRpdmU7IGJvdW5kYXJ5PSIwMDAwMDAwMDAwMDA5Mzc3YWYwNWU0NDhhZjUxIg0KDQotLTAwMDAwMDAwMDAwMDkzNzdhZjA1ZTQ0OGFmNTENCkNvbnRlbnQtVHlwZTogdGV4dC9wbGFpbjsgY2hhcnNldD0iVVRGLTgiDQoNCndpbGwgd2UgbWFrZSBpdCB0aGlzIHRpbWUgaW50byB0aGUgemsgcHJvb2YNCg0KLS0wMDAwMDAwMDAwMDA5Mzc3YWYwNWU0NDhhZjUxDQpDb250ZW50LVR5cGU6IHRleHQvaHRtbDsgY2hhcnNldD0iVVRGLTgiDQoNCjxkaXYgZGlyPSJhdXRvIj53aWxsIHdlIG1ha2UgaXQgdGhpcyB0aW1lIGludG8gdGhlIHprIHByb29mPC9kaXY+DQoNCi0tMDAwMDAwMDAwMDAwOTM3N2FmMDVlNDQ4YWY1MS0tDQo=";
 
@@ -169,7 +198,15 @@ export const MainPage: React.FC<{}> = (props) => {
               console.log("buffFormArray", Buffer.from(formattedArray.buffer));
               console.log("buffFormArray", formattedArray.toString());
               console.log("ethereumAddress", ethereumAddress);
-              const input = await generate_input.generate_inputs(Buffer.from(formattedArray.buffer), ethereumAddress);
+              let input = '';
+              try{
+                input = await generate_input.generate_inputs(Buffer.from(formattedArray.buffer), ethereumAddress);
+              } catch (e) {
+                console.log("Error generating input", e);
+                setDisplayMessage("Prove");
+                setStatus("error-bad-input");
+                return;
+              }
               console.log("Generated input:", JSON.stringify(input));
 
               // Insert input structuring code here
@@ -177,14 +214,19 @@ export const MainPage: React.FC<{}> = (props) => {
               // console.log(JSON.stringify(input, (k, v) => (typeof v == "bigint" ? v.toString() : v), 2));
 
               console.time("zk-dl");
+              recordTimeForActivity("startedDownloading");
               setDisplayMessage("Downloading compressed proving files... (this may take a few minutes)");
+              setStatus("downloading-proof-files");
               await downloadProofFiles(filename, () => {
                 setDownloadProgress((p) => p + 1);
               });
               console.timeEnd("zk-dl");
+              recordTimeForActivity("finishedDownloading");
 
               console.time("zk-gen");
+              recordTimeForActivity("startedProving");
               setDisplayMessage("Starting proof generation... (this will take 6-10 minutes and ~5GB RAM)");
+              setStatus("generating-proof");
               console.log("Starting proof generation");
               // alert("Generating proof, will fail due to input");
               const { proof, publicSignals } = await generateProof(input, filename);
@@ -192,6 +234,7 @@ export const MainPage: React.FC<{}> = (props) => {
               //const publicSignals = JSON.parse('["0", "0", "0", "0", "0", "0", "0", "0", "32767059066617856", "30803244233155956", "0", "0", "0", "0", "27917065853693287", "28015", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "113659471951225", "0", "0", "1634582323953821262989958727173988295", "1938094444722442142315201757874145583", "375300260153333632727697921604599470", "1369658125109277828425429339149824874", "1589384595547333389911397650751436647", "1428144289938431173655248321840778928", "1919508490085653366961918211405731923", "2358009612379481320362782200045159837", "518833500408858308962881361452944175", "1163210548821508924802510293967109414", "1361351910698751746280135795885107181", "1445969488612593115566934629427756345", "2457340995040159831545380614838948388", "2612807374136932899648418365680887439", "16021263889082005631675788949457422", "299744519975649772895460843780023483", "3933359104846508935112096715593287", "556307310756571904145052207427031380052712977221"]');
               console.log("Finished proof generation");
               console.timeEnd("zk-gen");
+              recordTimeForActivity("finishedProving");
 
               // alert("Done generating proof");
               setProof(JSON.stringify(proof));
@@ -202,9 +245,13 @@ export const MainPage: React.FC<{}> = (props) => {
               // setPublicSignals(`From: ${soln}\nTo: ${soln2}\nUsername: ${soln3}`);
               setPublicSignals(JSON.stringify(publicSignals));
 
-              if (!circuitInputs) return;
+              if (!circuitInputs){
+                setStatus("error-failed-to-prove");
+                return;
+              }
               setLastAction("sign");
               setDisplayMessage("Finished computing ZK proof");
+              setStatus("done");
               try {
                 (window as any).cJson = JSON.stringify(circuitInputs);
                 console.log("wrote circuit input to window.cJson. Run copy(cJson)");
@@ -218,6 +265,16 @@ export const MainPage: React.FC<{}> = (props) => {
           {displayMessage === "Downloading compressed proving files... (this may take a few minutes)" && (
             <ProgressBar width={downloadProgress * 10} label={`${downloadProgress} / 10 items`} />
           )}
+          <ProcessStatus status={status}>
+            {status!=="not-started" ?
+              <div>
+                Status:
+                <span data-testid={"status-"+status}>{status}</span>
+              </div>
+              : <div data-testid={"status-"+status}></div>
+            }
+            <TimerDisplay timers={stopwatch} />
+          </ProcessStatus>
         </Column>
         <Column>
           <SubHeader>Output</SubHeader>
@@ -267,6 +324,33 @@ export const MainPage: React.FC<{}> = (props) => {
       </Main>
     </Container>
   );
+};
+
+const ProcessStatus = styled.div<{ status: string }>`
+  font-size: 8px;
+  padding: 8px;
+  border-radius: 8px;
+`;
+
+const TimerDisplayContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  font-size: 8px;
+`;
+
+const TimerDisplay = ({ timers }: {timers: Record<string, number>}) => {
+  return (
+    <TimerDisplayContainer>
+      { timers["startedDownloading"] && timers["finishedDownloading"] ?
+      <div>Zkey Download time:&nbsp;
+        <span data-testid="download-time">{timers["finishedDownloading"] - timers["startedDownloading"]}</span>ms
+      </div> : <div></div> }
+      { timers["startedProving"] && timers["finishedProving"] ?
+      <div>Proof generation time:&nbsp;
+        <span data-testid="proof-time">{timers["finishedProving"] - timers["startedProving"]}</span>ms
+      </div> : <div></div> }
+    </TimerDisplayContainer>
+  )
 };
 
 const Header = styled.span`
