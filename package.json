@@ -55,7 +55,8 @@
     "build": "react-scripts build",
     "both-build": "react-scripts build && next build",
     "next-build": "next build",
-    "test": "react-scripts test --runInBand --testPathIgnorePatterns='e2e' --reporters=default --reporters=jest-junit",
+    "test": "react-scripts test --runInBand --testPathIgnorePatterns='e2e,src/contracts/lib' --reporters=default --reporters=jest-junit",
+    "test:browserstack": "browserstack-node-sdk jest src/ --runInBand --testPathIgnorePatterns='e2e,src/contracts/lib' --reporters=default --reporters=jest-junit",
     "start-e2e-test-server": "serve -s build -p 3000",
     "test:e2e-ui": "CI=true react-scripts test --runInBand --testPathPattern='e2e-ui' --reporters=default --reporters=jest-junit",
     "test:e2e-zkp": "CI=true react-scripts test --runInBand --testPathPattern='e2e-dl-zkp' --reporters=default --reporters=jest-junit",
@@ -85,12 +86,16 @@
   },
   "devDependencies": {
     "@types/atob": "^2.1.2",
+    "@types/jest": "^29.4.0",
     "@types/node": "^18.0.6",
     "@types/tar-stream": "^2.2.2",
+    "browserstack-local": "^1.5.1",
+    "browserstack-node-sdk": "^1.6.1",
     "jest-junit": "^15.0.0",
     "msw": "^1.0.1",
     "nodemon": "^2.0.19",
     "puppeteer": "18.1",
+    "selenium-webdriver": "^4.8.1",
     "ts-node-dev": "^2.0.0"
   },
   "jest": {

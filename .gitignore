@@ -67,3 +67,4 @@ generate_input_log.txt
 *aayush_constants.ts
 *.debug
 *.env
+.vscode
