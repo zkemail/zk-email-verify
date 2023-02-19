@@ -1,6 +1,6 @@
 # ZK Email
 
-ZK Email is an app for you to anonymously verifiy email signatures yet mask whatever
+ZK Email is an app for you to anonymously verify email signatures yet mask whatever
 data you would like. Each email can either be verified to be to/from specific domains
 or subsets of domains, or have some specific text in the body. These can be used for
 web2 interoperability, decentralized anonymous KYC, or interesting on-chain anonymity
@@ -33,7 +33,7 @@ proof like this again.
 Because all web2 data is centralized to some extent, note that the Twitter mailserver
 or database may know other identifying metadata about you just from your username.
 
-Becaause we do not currently have a nullifier, email addresses can generate an infinite
+Because we do not currently have a nullifier, email addresses can generate an infinite
 number of password reset emails and thus Twitter badges corresponding to their username, meaning their credentials are safe if their Ethereum account is hijacked. This also means 'uniqueness' is hard to define,
 so anonymous voting protocols in some anonymity set based on zk-email verification would not be possible.
 
