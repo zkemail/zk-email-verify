@@ -1,6 +1,6 @@
 # ZK Email Verify
 
-**WIP: This tech is extremely tricky to use and very much a work in progress, and we do not recommend use in any production application right now. This is both due to unaudited code, and several theoretical issues such as nullifiers, bcc’s, non-nested signatures, and hash sizings. These are all resolved for our Twitter MVP usecase, but may not be generally gauranteed. If you have a possible usecase, please run it by us so we can ensure that your guarantees are in fact correct!**
+**WIP: This tech is extremely tricky to use and very much a work in progress, and we do not recommend use in any production application right now. This is both due to unaudited code, and several theoretical issues such as nullifiers, bcc’s, non-nested signatures, and hash sizings. These are all resolved for our Twitter MVP usecase, but may not be generally guaranteed. If you have a possible usecase, please run it by us so we can ensure that your guarantees are in fact correct!**
 
 Join the conversation via [dm'ing us](https://twitter.com/yush_g/)! We will have a broader Discord soon.
 
@@ -187,7 +187,7 @@ yarn compile email true skip-r1cswasm skip-zkey
 
 For production, make sure to set a beacon in .env.
 
-Note that this leaks the number of characters in the username of someone who sent you an email, iff the first field in the email serialization format is from (effectively irrelevant).
+Note that this leaks the number of characters in the username of someone who sent you an email, if the first field in the email serialization format is from (effectively irrelevant).
 
 ### Testing
 
