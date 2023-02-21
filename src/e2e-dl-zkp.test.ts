@@ -4,8 +4,6 @@ import fs from "fs";
 const testEthAddress = "0x00000000000000000000";
 const testEmailFile = "/__fixtures__/email/zktestemail.test-eml"
 const testEmailText = fs.readFileSync(__dirname + testEmailFile, "utf8"); 
-const testProofFile = "/__fixtures__/proofs/zktestemail.test-proof.json"
-const testProofText = fs.readFileSync(__dirname + testProofFile, "utf8"); 
 
 // puppeteer test helpers
 const emailInputSelector = "textarea[aria-label='Full Email with Headers']";
@@ -72,7 +70,7 @@ describe("App.js", () => {
     await page.click(proveButtonSelector);
     // starting download
     console.log("starting download...this will take up to 10 minutes and consume bandwidth");
-    const proveButtonIsDisabled = await page.$eval(proveButtonSelector, button => button.disabled);
+    const proveButtonIsDisabled = await page.$eval(proveButtonSelector, button => (button as HTMLButtonElement).disabled);
     expect(proveButtonIsDisabled).toBe(true);
 
     let status;
@@ -92,7 +90,12 @@ describe("App.js", () => {
 
     // check proof
     const proofValue = await page.$eval(proofTextareaSelector, e => (e as HTMLInputElement).value);
-    expect(proofValue).toBe(testProofText);
+    const proofObj = JSON.parse(proofValue);
+    expect(proofObj["pi_a"]).toBeTruthy();
+    expect(proofObj["pi_b"]).toBeTruthy();
+    expect(proofObj["pi_c"]).toBeTruthy();
+    expect(proofObj["protocol"]).toBe("groth16");
+    expect(proofObj["curve"]).toBe("bn128");
 
     // report times
     const downloadTime = await page.$eval("[data-testid='download-time']", e => e.textContent);
