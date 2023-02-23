@@ -5,7 +5,7 @@ include "./sha.circom";
 include "./rsa.circom";
 include "./dkim_header_regex.circom";
 include "./body_hash_regex.circom";
-include "./github_regex.circom";
+include "./twitter_reset_regex.circom";
 include "./base64.circom";
 
 template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
@@ -25,12 +25,12 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     signal reveal[max_header_bytes]; // bytes to reveal
     signal reveal_packed[max_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
 
-    var max_github_len = 35;
-    var max_github_packed_bytes = (max_github_len - 1) \ 7 + 1; // ceil(max_num_bytes / 7)
+    var max_twitter_len = 21;
+    var max_twitter_packed_bytes = (max_twitter_len - 1) \ 7 + 1; // ceil(max_num_bytes / 7)
 
-    signal input github_username_idx;
-    signal reveal_github[max_github_len][max_body_bytes];
-    signal output reveal_github_packed[max_github_packed_bytes];
+    signal input twitter_username_idx;
+    signal reveal_twitter[max_twitter_len][max_body_bytes];
+    signal output reveal_twitter_packed[max_twitter_packed_bytes];
 
     signal input address;
     signal input address_plus_one;
@@ -77,8 +77,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     for (var i = 0; i < max_header_bytes; i++) {
         dkim_header_regex.msg[i] <== in_padded[i];
     }
-    log("dkim_header_match:",dkim_header_regex.out);
-    dkim_header_regex.out === 1;
+    dkim_header_regex.out === 2;
     for (var i = 0; i < max_header_bytes; i++) {
         reveal[i] <== dkim_header_regex.reveal[i+1];
     }
@@ -126,29 +125,28 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         sha_body_bytes[i].out === sha_b64.out[i];
     }
 
-    // Github REGEX: 328,044 constraints
+    // TWITTER REGEX: 328,044 constraints
     // This computes the regex states on each character
-    component github_regex = GithubRegex(max_body_bytes,44,0);
+    component twitter_regex = TwitterResetRegex(max_body_bytes);
     for (var i = 0; i < max_body_bytes; i++) {
-        github_regex.msg[i] <== in_body_padded[i];
+        twitter_regex.msg[i] <== in_body_padded[i];
     }
-    github_regex.match_idx<==0;
     // This ensures we found a match at least once
-    component found_github = IsZero();
-    found_github.in <== github_regex.entire_count;
-    found_github.out === 0;
-    log(github_regex.entire_count);
+    component found_twitter = IsZero();
+    found_twitter.in <== twitter_regex.out;
+    found_twitter.out === 0;
+    log(twitter_regex.out);
     // We isolate where the username begins: twitter_eq there is 1, everywhere else is 0
-    component github_eq[max_body_bytes];
+    component twitter_eq[max_body_bytes];
     for (var i = 0; i < max_body_bytes; i++) {
-        github_eq[i] = IsEqual();
-        github_eq[i].in[0] <== i;
-        github_eq[i].in[1] <== github_username_idx;
+        twitter_eq[i] = IsEqual();
+        twitter_eq[i].in[0] <== i;
+        twitter_eq[i].in[1] <== twitter_username_idx;
     }
-    for (var j = 0; j < max_github_len; j++) {
+    for (var j = 0; j < max_twitter_len; j++) {
         // This vector is 0 everywhere except at one value
         // [x][x] is the starting character of the twitter username
-        reveal_github[j][j] <== github_eq[j].out * github_regex.reveal[j];
+        reveal_twitter[j][j] <== twitter_eq[j].out * twitter_regex.reveal[j];
         for (var i = j + 1; i < max_body_bytes; i++) {
             // This shifts the username back to the start of the string. For example,
             // [0][k0] = y, where k0 >= twitter_username_idx + 0
@@ -157,7 +155,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
             // [3][k3] = h, where k3 >= twitter_username_idx + 3
             // [4][k4] = _, where k4 >= twitter_username_idx + 4
             // [5][k5] = g, where k5 >= twitter_username_idx + 5
-            reveal_github[j][i] <== reveal_github[j][i - 1] + github_eq[i-j].out * github_regex.reveal[i];
+            reveal_twitter[j][i] <== reveal_twitter[j][i - 1] + twitter_eq[i-j].out * twitter_regex.reveal[i];
         }
     }
 
@@ -165,19 +163,19 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     // Pack output for solidity verifier to be < 24kb size limit
     // chunks = 7 is the number of bytes that can fit into a 255ish bit signal
     var chunks = 7;
-    component packed_github_output[max_github_packed_bytes];
-    for (var i = 0; i < max_github_packed_bytes; i++) {
-        packed_github_output[i] = Bytes2Packed(chunks);
+    component packed_twitter_output[max_twitter_packed_bytes];
+    for (var i = 0; i < max_twitter_packed_bytes; i++) {
+        packed_twitter_output[i] = Bytes2Packed(chunks);
         for (var j = 0; j < chunks; j++) {
             var reveal_idx = i * chunks + j;
             if (reveal_idx < max_body_bytes) {
-                packed_github_output[i].in[j] <== reveal_github[i * chunks + j][max_body_bytes - 1];
+                packed_twitter_output[i].in[j] <== reveal_twitter[i * chunks + j][max_body_bytes - 1];
             } else {
-                packed_github_output[i].in[j] <== 0;
+                packed_twitter_output[i].in[j] <== 0;
             }
         }
-        reveal_github_packed[i] <== packed_github_output[i].out;
-        log(reveal_github_packed[i]);
+        reveal_twitter_packed[i] <== packed_twitter_output[i].out;
+        log(reveal_twitter_packed[i]);
     }
 
     component packed_output[max_packed_bytes];
@@ -198,4 +196,4 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
 // In circom, all output signals of the main component are public (and cannot be made private), the input signals of the main component are private if not stated otherwise using the keyword public as above. The rest of signals are all private and cannot be made public.
 // This makes modulus and reveal_twitter_packed public. hash(signature) can optionally be made public, but is not recommended since it allows the mailserver to trace who the offender is.
 
-component main { public [ modulus, address ] } = EmailVerify(2048, 1536, 121, 17);
+component main { public [ modulus, address ] } = EmailVerify(1024, 1536, 121, 17);
