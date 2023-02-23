@@ -13,15 +13,21 @@ import {
   mergeUInt8Arrays,
   int64toBytes,
 } from "../helpers/binaryFormat";
-import { CIRCOM_FIELD_MODULUS, MAX_HEADER_PADDED_BYTES, MAX_BODY_PADDED_BYTES, STRING_PRESELECTOR } from "../../src/helpers/constants";
+import {
+  CIRCOM_FIELD_MODULUS,
+  MAX_HEADER_PADDED_BYTES,
+  MAX_BODY_PADDED_BYTES,
+  STRING_PRESELECTOR,
+} from "../../src/helpers/constants";
 import { shaHash, partialSha, sha256Pad } from "../../src/helpers/shaHash";
 import { dkimVerify } from "../../src/helpers/dkim";
 import * as fs from "fs";
+import path from "path";
 var Cryo = require("cryo");
 const pki = require("node-forge").pki;
 
 // const email_file = "monia_email.eml"; // "./test_email.txt", "./twitter_msg.eml", kaylee_phone_number_email_twitter
-const email_file = "jacob_email.eml";
+const email_file = path.join(__dirname, "../github.eml");
 export interface ICircuitInputs {
   modulus?: string[];
   signature?: string[];
@@ -37,7 +43,7 @@ export interface ICircuitInputs {
   addressParts?: string[];
   address?: string;
   address_plus_one?: string;
-  twitter_username_idx?: string;
+  github_username_idx?: string;
 }
 
 enum CircuitType {
@@ -47,7 +53,10 @@ enum CircuitType {
   EMAIL = "email",
 }
 
-async function findSelector(a: Uint8Array, selector: number[]): Promise<number> {
+async function findSelector(
+  a: Uint8Array,
+  selector: number[]
+): Promise<number> {
   let i = 0;
   let j = 0;
   while (i < a.length) {
@@ -90,28 +99,56 @@ export async function getCircuitInputs(
   const signatureBigInt = rsa_signature;
 
   // Perform conversions
-  const prehashBytesUnpadded = typeof prehash_message_string == "string" ? new TextEncoder().encode(prehash_message_string) : Uint8Array.from(prehash_message_string);
-  const postShaBigintUnpadded = bytesToBigInt(stringToBytes((await shaHash(prehashBytesUnpadded)).toString())) % CIRCOM_FIELD_MODULUS;
-
+  const prehashBytesUnpadded =
+    typeof prehash_message_string == "string"
+      ? new TextEncoder().encode(prehash_message_string)
+      : Uint8Array.from(prehash_message_string);
+  const postShaBigintUnpadded =
+    bytesToBigInt(
+      stringToBytes((await shaHash(prehashBytesUnpadded)).toString())
+    ) % CIRCOM_FIELD_MODULUS;
+  console.log("prehash: ", prehashBytesUnpadded);
+  console.log("len prehash: ", prehashBytesUnpadded.length);
+  console.log("maxheaderpad: ", MAX_HEADER_PADDED_BYTES);
   // Sha add padding
-  const [messagePadded, messagePaddedLen] = await sha256Pad(prehashBytesUnpadded, MAX_HEADER_PADDED_BYTES);
+  const [messagePadded, messagePaddedLen] = await sha256Pad(
+    prehashBytesUnpadded,
+    MAX_HEADER_PADDED_BYTES
+  );
+  console.log("line 116");
+  // Why 63, 65, 64
   const calc_length = Math.floor((body.length + 63 + 65) / 64) * 64; // 65 comes from the 64 at the end and the 1 bit in the start, then rounded up to the nearest 64
-  const [bodyPadded, bodyPaddedLen] = await sha256Pad(body, Math.max(MAX_BODY_PADDED_BYTES, calc_length));
+  const [bodyPadded, bodyPaddedLen] = await sha256Pad(
+    body,
+    Math.max(MAX_BODY_PADDED_BYTES, calc_length)
+  );
 
   // Ensure SHA manual unpadded is running the correct function
   const shaOut = await partialSha(messagePadded, messagePaddedLen);
-  assert((await Uint8ArrayToString(shaOut)) === (await Uint8ArrayToString(Uint8Array.from(await shaHash(prehashBytesUnpadded)))), "SHA256 calculation did not match!");
+  assert(
+    (await Uint8ArrayToString(shaOut)) ===
+      (await Uint8ArrayToString(
+        Uint8Array.from(await shaHash(prehashBytesUnpadded))
+      )),
+    "SHA256 calculation did not match!"
+  );
 
   // Precompute SHA prefix
-  const selector = STRING_PRESELECTOR.split("").map((char) => char.charCodeAt(0));
+  const selector = STRING_PRESELECTOR["github"]
+    .split("")
+    .map((char) => char.charCodeAt(0));
   const selector_loc = await findSelector(bodyPadded, selector);
   console.log("Body selector found at: ", selector_loc);
-  let shaCutoffIndex = Math.floor((await findSelector(bodyPadded, selector)) / 64) * 64;
+  let shaCutoffIndex =
+    Math.floor((await findSelector(bodyPadded, selector)) / 64) * 64;
   const precomputeText = bodyPadded.slice(0, shaCutoffIndex);
   let bodyRemaining = bodyPadded.slice(shaCutoffIndex);
   const bodyRemainingLen = bodyPaddedLen - precomputeText.length;
   assert(bodyRemainingLen < MAX_BODY_PADDED_BYTES, "Invalid slice");
-  assert(bodyRemaining.length % 64 === 0, "Not going to be padded correctly with int64s");
+  assert(
+    bodyRemaining.length % 64 === 0,
+    "Not going to be padded correctly with int64s"
+  );
   while (bodyRemaining.length < MAX_BODY_PADDED_BYTES) {
     bodyRemaining = mergeUInt8Arrays(bodyRemaining, int64toBytes(0));
   }
@@ -132,11 +169,16 @@ export async function getCircuitInputs(
   const body_hash_idx = bufferToString(message).indexOf(body_hash).toString();
 
   const address = bytesToBigInt(fromHex(eth_address)).toString();
-  const address_plus_one = (bytesToBigInt(fromHex(eth_address)) + 1n).toString();
+  const address_plus_one = (
+    bytesToBigInt(fromHex(eth_address)) + 1n
+  ).toString();
 
-  const USERNAME_SELECTOR = Buffer.from(STRING_PRESELECTOR);
-  const twitter_username_idx = (Buffer.from(bodyRemaining).indexOf(USERNAME_SELECTOR) + USERNAME_SELECTOR.length).toString();
-  console.log("Twitter Username idx: ", twitter_username_idx);
+  const USERNAME_SELECTOR = Buffer.from(STRING_PRESELECTOR["github"]);
+  const github_username_idx = (
+    Buffer.from(bodyRemaining).indexOf(USERNAME_SELECTOR) +
+    USERNAME_SELECTOR.length
+  ).toString();
+  console.log("Twitter Username idx: ", github_username_idx);
 
   if (circuit === CircuitType.RSA) {
     circuitInputs = {
@@ -153,7 +195,7 @@ export async function getCircuitInputs(
       precomputed_sha,
       in_body_padded,
       in_body_len_padded_bytes,
-      twitter_username_idx,
+      github_username_idx,
       address,
       address_plus_one,
       body_hash_idx,
@@ -172,14 +214,17 @@ export async function getCircuitInputs(
   };
 }
 
-export async function generate_inputs(email: Buffer, eth_address: string): Promise<ICircuitInputs> {
+export async function generate_inputs(
+  email: Buffer,
+  eth_address: string
+): Promise<ICircuitInputs> {
   var result;
   // try {
   // debugger;
   console.log("DKIM verification starting");
   result = await dkimVerify(email);
-  if(!result.results[0].publicKey) {
-    if(result.results[0].status.message) {
+  if (!result.results[0].publicKey) {
+    if (result.results[0].status.message) {
       throw new Error(result.results[0].status.message);
     } else {
       throw new Error("No public key found on generate_inputs");
@@ -194,7 +239,9 @@ export async function generate_inputs(email: Buffer, eth_address: string): Promi
   //   let frozen = fs.readFileSync(`./email_cache.json`, { encoding: "utf-8" });
   //   result = Cryo.parse(frozen);
   // }
-  let sig = BigInt("0x" + Buffer.from(result.results[0].signature, "base64").toString("hex"));
+  let sig = BigInt(
+    "0x" + Buffer.from(result.results[0].signature, "base64").toString("hex")
+  );
   let message = result.results[0].status.signature_header;
   let body = result.results[0].body;
   let body_hash = result.results[0].bodyHash;
@@ -203,20 +250,38 @@ export async function generate_inputs(email: Buffer, eth_address: string): Promi
   let pubkey = result.results[0].publicKey;
   const pubKeyData = pki.publicKeyFromPem(pubkey.toString());
   let modulus = BigInt(pubKeyData.n.toString());
-  let fin_result = await getCircuitInputs(sig, modulus, message, body, body_hash, eth_address, circuitType);
+  let fin_result = await getCircuitInputs(
+    sig,
+    modulus,
+    message,
+    body,
+    body_hash,
+    eth_address,
+    circuitType
+  );
   return fin_result.circuitInputs;
 }
 
 async function do_generate() {
   const email = fs.readFileSync(email_file);
   console.log(email);
-  const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000");
+  const gen_inputs = await generate_inputs(
+    email,
+    "0x0000000000000000000000000000000000000000"
+  );
   console.log(JSON.stringify(gen_inputs));
   return gen_inputs;
 }
 
 async function gen_test() {
-  console.log(packBytesIntoNBytes(Uint8Array.from([0, 121, 117, 115, 104, 95, 103, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])));
+  console.log(
+    packBytesIntoNBytes(
+      Uint8Array.from([
+        0, 121, 117, 115, 104, 95, 103, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0,
+      ])
+    )
+  );
 }
 
 export async function insert13Before10(a: Uint8Array): Promise<Uint8Array> {
@@ -244,6 +309,12 @@ if (typeof require !== "undefined" && require.main === module) {
   // debug_file();
   const circuitInputs = do_generate();
   console.log("Writing to file...");
-  circuitInputs.then((inputs) => fs.writeFileSync(`./circuits/inputs/input_twitter.json`, JSON.stringify(inputs), { flag: "w" }));
+  circuitInputs.then((inputs) =>
+    fs.writeFileSync(
+      path.join(__dirname, `../../circuits/inputs/input_github.json`),
+      JSON.stringify(inputs),
+      { flag: "w" }
+    )
+  );
   // gen_test();
 }
