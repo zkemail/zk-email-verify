@@ -9,7 +9,7 @@ template GithubRegex (msg_bytes, reveal_bytes, group_idx) {
     signal output group_match_count;
     signal output entire_count;
 
-    signal reveal_shifted_intermediate[reveal_bytes][msg_bytes];
+    signal output reveal_shifted_intermediate[reveal_bytes][msg_bytes];
     signal output reveal_shifted[reveal_bytes];
 
     var num_bytes = msg_bytes;

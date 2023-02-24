@@ -128,7 +128,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
 
     // Github REGEX: 328,044 constraints
     // This computes the regex states on each character
-    component github_regex = GithubRegex(max_body_bytes,44,0);
+    component github_regex = GithubRegex(max_body_bytes,max_github_len,0);
     for (var i = 0; i < max_body_bytes; i++) {
         github_regex.msg[i] <== in_body_padded[i];
     }
@@ -139,28 +139,32 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     found_github.out === 0;
     log(github_regex.entire_count);
     // We isolate where the username begins: twitter_eq there is 1, everywhere else is 0
-    component github_eq[max_body_bytes];
-    for (var i = 0; i < max_body_bytes; i++) {
-        github_eq[i] = IsEqual();
-        github_eq[i].in[0] <== i;
-        github_eq[i].in[1] <== github_username_idx;
-    }
-    for (var j = 0; j < max_github_len; j++) {
-        // This vector is 0 everywhere except at one value
-        // [x][x] is the starting character of the twitter username
-        reveal_github[j][j] <== github_eq[j].out * github_regex.reveal[j];
-        for (var i = j + 1; i < max_body_bytes; i++) {
-            // This shifts the username back to the start of the string. For example,
-            // [0][k0] = y, where k0 >= twitter_username_idx + 0
-            // [1][k1] = u, where k1 >= twitter_username_idx + 1
-            // [2][k2] = s, where k2 >= twitter_username_idx + 2
-            // [3][k3] = h, where k3 >= twitter_username_idx + 3
-            // [4][k4] = _, where k4 >= twitter_username_idx + 4
-            // [5][k5] = g, where k5 >= twitter_username_idx + 5
-            reveal_github[j][i] <== reveal_github[j][i - 1] + github_eq[i-j].out * github_regex.reveal[i];
+    // component github_eq[max_body_bytes];
+    // for (var i = 0; i < max_body_bytes; i++) {
+    //     github_eq[i] = IsEqual();
+    //     github_eq[i].in[0] <== i;
+    //     github_eq[i].in[1] <== github_username_idx;
+    // }
+    // for (var j = 0; j < max_github_len; j++) {
+    //     // This vector is 0 everywhere except at one value
+    //     // [x][x] is the starting character of the twitter username
+    //     reveal_github[j][j] <== github_eq[j].out * github_regex.reveal[j];
+    //     for (var i = j + 1; i < max_body_bytes; i++) {
+    //         // This shifts the username back to the start of the string. For example,
+    //         // [0][k0] = y, where k0 >= twitter_username_idx + 0
+    //         // [1][k1] = u, where k1 >= twitter_username_idx + 1
+    //         // [2][k2] = s, where k2 >= twitter_username_idx + 2
+    //         // [3][k3] = h, where k3 >= twitter_username_idx + 3
+    //         // [4][k4] = _, where k4 >= twitter_username_idx + 4
+    //         // [5][k5] = g, where k5 >= twitter_username_idx + 5
+    //         reveal_github[j][i] <== reveal_github[j][i - 1] + github_eq[i-j].out * github_regex.reveal[i];
+    //     }
+    // }
+    for (var j =0; j<max_github_len;j++){
+        for (var i =j; i< max_body_bytes;i++){
+            reveal_github[j][i] <== github_regex.reveal_shifted_intermediate[j][i];
         }
     }
-
     // PACKING: 16,800 constraints (Total: 3,115,057)
     // Pack output for solidity verifier to be < 24kb size limit
     // chunks = 7 is the number of bytes that can fit into a 255ish bit signal
