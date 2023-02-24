@@ -128,7 +128,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
 
     // Github REGEX: 328,044 constraints
     // This computes the regex states on each character
-    component github_regex = GithubRegex(max_body_bytes,max_github_len,0);
+    component github_regex = GithubRegex(max_body_bytes,max_github_len,1);
     for (var i = 0; i < max_body_bytes; i++) {
         github_regex.msg[i] <== in_body_padded[i];
     }

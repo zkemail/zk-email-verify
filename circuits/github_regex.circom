@@ -6,6 +6,7 @@ template GithubRegex (msg_bytes, reveal_bytes, group_idx) {
     signal input msg[msg_bytes];
     signal input match_idx;
     signal output start_idx;
+    signal output start_idx0;
     signal output group_match_count;
     signal output entire_count;
 
@@ -282,45 +283,105 @@ template GithubRegex (msg_bytes, reveal_bytes, group_idx) {
     entire_count <== final_state_sum[num_bytes];
     signal output reveal[num_bytes];
     for (var i = 0; i < num_bytes; i++) {
-        reveal[i] <== in[i] * states[i+1][match_group_indexes[group_idx]];
+        // use 0th group too, when using group index 1
+        reveal[i] <== in[i] * (states[i+1][match_group_indexes[group_idx-1]]+states[i+1][3]+states[i+1][match_group_indexes[group_idx]]);
     }
     
 
     // a flag to indicate the start position of the match
     var start_index = 0;
+    // use 0th group too
+    var start_index0=0;
+    var start_index0_5=0;
     // for counting the number of matches
     var count = 0;
+    // use 0th group too
+    var count0=0;
+    var count0_5=0;
 
     // lengths to be consistent with states signal
     component check_start[num_bytes + 1];
+    //use 0th group too
+    component check_start0[num_bytes+1];
+    component check_start0_5[num_bytes+1];
     component check_match[num_bytes + 1];
+    //use 0th group too
+    component check_match0[num_bytes+1];
+    component check_match0_5[num_bytes+1];
     component check_matched_start[num_bytes + 1];
+    //use 0th group too
+    component check_matched_start0[num_bytes+1];
+    component check_matched_start0_5[num_bytes+1];
     component matched_idx_eq[msg_bytes];
+    //use 0th group too
+    component matched_idx_eq0[msg_bytes];
+    component matched_idx_eq0_5[msg_bytes];
 
     for (var i = 0; i < num_bytes; i++) {
         if (i == 0) {
+            // use 0th group too
             count += states[1][match_group_indexes[group_idx]];
+            // use 0th group too
+            count0+= states[1][match_group_indexes[group_idx-1]];
+            count0_5+= states[1][3];
         }
         else {
             check_start[i] = AND();
             check_start[i].a <== states[i + 1][match_group_indexes[group_idx]];
             check_start[i].b <== 1 - states[i][match_group_indexes[group_idx]];
 
+            check_start0[i] = AND();
+            check_start0[i].a <== states[i + 1][match_group_indexes[group_idx-1]];
+            check_start0[i].b <== 1 - states[i][match_group_indexes[group_idx-1]];
+
+            check_start0_5[i] = AND();
+            check_start0_5[i].a <== states[i + 1][3];
+            check_start0_5[i].b <== 1 - states[i][3];
+
             count += check_start[i].out;
+            //use 0th group too
+            count0 +=check_start0[i].out;
+            count0_5 +=check_start0_5[i].out;
 
             check_match[i] = IsEqual();
             check_match[i].in[0] <== count;
             check_match[i].in[1] <== match_idx + 1;
 
+            //use 0th group too
+            check_match0[i] = IsEqual();
+            check_match0[i].in[0] <== count0;
+            check_match0[i].in[1] <== match_idx + 1;
+            check_match0_5[i] = IsEqual();
+            check_match0_5[i].in[0] <== count0_5;
+            check_match0_5[i].in[1] <== match_idx + 1;
+
             check_matched_start[i] = AND();
             check_matched_start[i].a <== check_match[i].out;
             check_matched_start[i].b <== check_start[i].out;
             start_index += check_matched_start[i].out * i;
+            
+            //use 0th group too
+            check_matched_start0[i] = AND();
+            check_matched_start0[i].a <== check_match0[i].out;
+            check_matched_start0[i].b <== check_start0[i].out;
+            start_index0 += check_matched_start0[i].out * i;
+            check_matched_start0_5[i] = AND();
+            check_matched_start0_5[i].a <== check_match0_5[i].out;
+            check_matched_start0_5[i].b <== check_start0_5[i].out;
+            start_index0_5 += check_matched_start0_5[i].out * i;
         }
 
         matched_idx_eq[i] = IsEqual();
         matched_idx_eq[i].in[0] <== states[i + 1][match_group_indexes[group_idx]] * count;
         matched_idx_eq[i].in[1] <== match_idx + 1;
+
+        //use 0th group too
+        matched_idx_eq0[i] = IsEqual();
+        matched_idx_eq0[i].in[0] <== states[i + 1][match_group_indexes[group_idx-1]] * count0;
+        matched_idx_eq0[i].in[1] <== match_idx + 1;
+        matched_idx_eq0_5[i] = IsEqual();
+        matched_idx_eq0_5[i].in[0] <== states[i + 1][3] * count0_5;
+        matched_idx_eq0_5[i].in[1] <== match_idx + 1;
     }
 
     component match_start_idx[msg_bytes];
@@ -329,21 +390,35 @@ template GithubRegex (msg_bytes, reveal_bytes, group_idx) {
         match_start_idx[i].in[0] <== i;
         match_start_idx[i].in[1] <== start_index;
     }
+    //use 0th group too
+    component match_start_idx0[msg_bytes];
+    for (var i = 0; i < msg_bytes; i++) {
+        match_start_idx0[i] = IsEqual();
+        match_start_idx0[i].in[0] <== i;
+        match_start_idx0[i].in[1] <== start_index0;
+    }
+    component match_start_idx0_5[msg_bytes];
+    for (var i = 0; i < msg_bytes; i++) {
+        match_start_idx0_5[i] = IsEqual();
+        match_start_idx0_5[i].in[0] <== i;
+        match_start_idx0_5[i].in[1] <== start_index0_5;
+    }
 
     signal reveal_match[msg_bytes];
     for (var i = 0; i < msg_bytes; i++) {
-        reveal_match[i] <== matched_idx_eq[i].out * reveal[i];
+        reveal_match[i] <== (matched_idx_eq[i].out+matched_idx_eq0[i].out+matched_idx_eq0_5[i].out) * reveal[i];
     }
 
     for (var j = 0; j < reveal_bytes; j++) {
         reveal_shifted_intermediate[j][j] <== 0;
         for (var i = j + 1; i < msg_bytes; i++) {
             // This shifts matched string back to the beginning. 
-            reveal_shifted_intermediate[j][i] <== reveal_shifted_intermediate[j][i - 1] + match_start_idx[i-j].out * reveal_match[i];
+            reveal_shifted_intermediate[j][i] <== reveal_shifted_intermediate[j][i - 1] + match_start_idx0[i-j].out * reveal_match[i];
         }
         reveal_shifted[j] <== reveal_shifted_intermediate[j][msg_bytes - 1];
     }
 
     group_match_count <== count;
     start_idx <== start_index;
+    start_idx0 <== start_index0;
 }
