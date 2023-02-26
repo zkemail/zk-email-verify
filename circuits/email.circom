@@ -77,20 +77,20 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     for (var i = 0; i < max_header_bytes; i++) {
         dkim_header_regex.msg[i] <== in_padded[i];
     }
-    log("dkim_header_match:",dkim_header_regex.out);
+    log("dkim_header_match: ",dkim_header_regex.out);
     dkim_header_regex.out === 1;
     for (var i = 0; i < max_header_bytes; i++) {
         reveal[i] <== dkim_header_regex.reveal[i+1];
     }
-    log(dkim_header_regex.out);
+    log("dkim_header_out: ",dkim_header_regex.out);
 
     // BODY HASH REGEX: 617,597 constraints
     component body_hash_regex = BodyHashRegex(max_header_bytes);
     for (var i = 0; i < max_header_bytes; i++) {
         body_hash_regex.msg[i] <== in_padded[i];
     }
+    log("body_hash_regex_out: ",body_hash_regex.out);
     body_hash_regex.out === 1;
-    log(body_hash_regex.out);
     component body_hash_eq[max_header_bytes];
     for (var i = 0; i < max_header_bytes; i++) {
         body_hash_eq[i] = IsEqual();
@@ -136,8 +136,8 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     // This ensures we found a match at least once
     component found_github = IsZero();
     found_github.in <== github_regex.entire_count;
+    log("github entire count: ",github_regex.entire_count);
     found_github.out === 0;
-    log(github_regex.entire_count);
     // We isolate where the username begins: twitter_eq there is 1, everywhere else is 0
     // component github_eq[max_body_bytes];
     // for (var i = 0; i < max_body_bytes; i++) {
@@ -181,7 +181,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
             }
         }
         reveal_github_packed[i] <== packed_github_output[i].out;
-        log(reveal_github_packed[i]);
+        log("reveal_github_packed: ",reveal_github_packed[i]);
     }
 
     component packed_output[max_packed_bytes];
@@ -202,4 +202,4 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
 // In circom, all output signals of the main component are public (and cannot be made private), the input signals of the main component are private if not stated otherwise using the keyword public as above. The rest of signals are all private and cannot be made public.
 // This makes modulus and reveal_twitter_packed public. hash(signature) can optionally be made public, but is not recommended since it allows the mailserver to trace who the offender is.
 
-component main { public [ modulus, address ] } = EmailVerify(2048, 1536, 121, 17);
+component main { public [ modulus, address ] } = EmailVerify(1536, 3072, 121, 17);

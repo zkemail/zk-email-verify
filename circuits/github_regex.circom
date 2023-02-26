@@ -19,16 +19,16 @@ template GithubRegex (msg_bytes, reveal_bytes, group_idx) {
         in[i] <== msg[i];
     }
 
-    component eq[12][num_bytes];
+    component eq[10][num_bytes];
     component lt[24][num_bytes];
-    component and[24][num_bytes];
+    component and[22][num_bytes];
     component multi_or[6][num_bytes];
-    signal states[num_bytes+1][11];
+    signal states[num_bytes+1][9];
     
     for (var i = 0; i < num_bytes; i++) {
         states[i][0] <== 1;
     }
-    for (var i = 1; i < 11; i++) {
+    for (var i = 1; i < 9; i++) {
         states[0][i] <== 0;
     }
     
@@ -111,7 +111,7 @@ template GithubRegex (msg_bytes, reveal_bytes, group_idx) {
         eq[1][i].in[0] <== in[i];
         eq[1][i].in[1] <== 95;
         and[7][i] = AND();
-        and[7][i].a <== states[i][10];
+        and[7][i].a <== states[i][8];
         multi_or[1][i] = MultiOR(4);
         multi_or[1][i].in[0] <== and[4][i].out;
         multi_or[1][i].in[1] <== and[5][i].out;
@@ -122,10 +122,10 @@ template GithubRegex (msg_bytes, reveal_bytes, group_idx) {
         multi_or[2][i].in[0] <== and[3][i].out;
         multi_or[2][i].in[1] <== and[7][i].out;
         states[i+1][1] <== multi_or[2][i].out;
-        //a
+        //>
         eq[2][i] = IsEqual();
         eq[2][i].in[0] <== in[i];
-        eq[2][i].in[1] <== 97;
+        eq[2][i].in[1] <== 62;
         and[8][i] = AND();
         and[8][i].a <== states[i][0];
         and[8][i].b <== eq[2][i].out;
@@ -138,26 +138,26 @@ template GithubRegex (msg_bytes, reveal_bytes, group_idx) {
         and[9][i].a <== states[i][1];
         and[9][i].b <== eq[3][i].out;
         states[i+1][3] <== and[9][i].out;
-        //n
+        //&
         eq[4][i] = IsEqual();
         eq[4][i].in[0] <== in[i];
-        eq[4][i].in[1] <== 110;
+        eq[4][i].in[1] <== 38;
         and[10][i] = AND();
         and[10][i].a <== states[i][2];
         and[10][i].b <== eq[4][i].out;
         states[i+1][4] <== and[10][i].out;
-        //>
+        //l
         eq[5][i] = IsEqual();
         eq[5][i].in[0] <== in[i];
-        eq[5][i].in[1] <== 62;
+        eq[5][i].in[1] <== 108;
         and[11][i] = AND();
         and[11][i].a <== states[i][4];
         and[11][i].b <== eq[5][i].out;
         states[i+1][5] <== and[11][i].out;
-        //&
+        //t
         eq[6][i] = IsEqual();
         eq[6][i].in[0] <== in[i];
-        eq[6][i].in[1] <== 38;
+        eq[6][i].in[1] <== 116;
         and[12][i] = AND();
         and[12][i].a <== states[i][5];
         and[12][i].b <== eq[6][i].out;
@@ -250,40 +250,23 @@ template GithubRegex (msg_bytes, reveal_bytes, group_idx) {
         multi_or[5][i].in[0] <== and[16][i].out;
         multi_or[5][i].in[1] <== and[20][i].out;
         states[i+1][7] <== multi_or[5][i].out;
-        //l
+        //;
         eq[9][i] = IsEqual();
         eq[9][i].in[0] <== in[i];
-        eq[9][i].in[1] <== 108;
+        eq[9][i].in[1] <== 59;
         and[21][i] = AND();
         and[21][i].a <== states[i][6];
         and[21][i].b <== eq[9][i].out;
         states[i+1][8] <== and[21][i].out;
-        //t
-        eq[10][i] = IsEqual();
-        eq[10][i].in[0] <== in[i];
-        eq[10][i].in[1] <== 116;
-        and[22][i] = AND();
-        and[22][i].a <== states[i][8];
-        and[22][i].b <== eq[10][i].out;
-        states[i+1][9] <== and[22][i].out;
-        //;
-        eq[11][i] = IsEqual();
-        eq[11][i].in[0] <== in[i];
-        eq[11][i].in[1] <== 59;
-        and[23][i] = AND();
-        and[23][i].a <== states[i][9];
-        and[23][i].b <== eq[11][i].out;
-        states[i+1][10] <== and[23][i].out;
     }
     signal final_state_sum[num_bytes+1];
-    final_state_sum[0] <== states[0][10];
+    final_state_sum[0] <== states[0][8];
     for (var i = 1; i <= num_bytes; i++) {
-        final_state_sum[i] <== final_state_sum[i-1] + states[i][10];
+        final_state_sum[i] <== final_state_sum[i-1] + states[i][8];
     }
     entire_count <== final_state_sum[num_bytes];
     signal output reveal[num_bytes];
     for (var i = 0; i < num_bytes; i++) {
-        // use 0th group too, when using group index 1
         reveal[i] <== in[i] * (states[i+1][match_group_indexes[group_idx-1]]+states[i+1][3]+states[i+1][match_group_indexes[group_idx]]);
     }
     
@@ -304,14 +287,17 @@ template GithubRegex (msg_bytes, reveal_bytes, group_idx) {
     //use 0th group too
     component check_start0[num_bytes+1];
     component check_start0_5[num_bytes+1];
+
     component check_match[num_bytes + 1];
     //use 0th group too
     component check_match0[num_bytes+1];
     component check_match0_5[num_bytes+1];
+
     component check_matched_start[num_bytes + 1];
     //use 0th group too
     component check_matched_start0[num_bytes+1];
     component check_matched_start0_5[num_bytes+1];
+
     component matched_idx_eq[msg_bytes];
     //use 0th group too
     component matched_idx_eq0[msg_bytes];
@@ -319,7 +305,6 @@ template GithubRegex (msg_bytes, reveal_bytes, group_idx) {
 
     for (var i = 0; i < num_bytes; i++) {
         if (i == 0) {
-            // use 0th group too
             count += states[1][match_group_indexes[group_idx]];
             // use 0th group too
             count0+= states[1][match_group_indexes[group_idx-1]];
@@ -329,7 +314,7 @@ template GithubRegex (msg_bytes, reveal_bytes, group_idx) {
             check_start[i] = AND();
             check_start[i].a <== states[i + 1][match_group_indexes[group_idx]];
             check_start[i].b <== 1 - states[i][match_group_indexes[group_idx]];
-
+            // use 0th group too 
             check_start0[i] = AND();
             check_start0[i].a <== states[i + 1][match_group_indexes[group_idx-1]];
             check_start0[i].b <== 1 - states[i][match_group_indexes[group_idx-1]];
@@ -346,7 +331,6 @@ template GithubRegex (msg_bytes, reveal_bytes, group_idx) {
             check_match[i] = IsEqual();
             check_match[i].in[0] <== count;
             check_match[i].in[1] <== match_idx + 1;
-
             //use 0th group too
             check_match0[i] = IsEqual();
             check_match0[i].in[0] <== count0;
@@ -355,11 +339,12 @@ template GithubRegex (msg_bytes, reveal_bytes, group_idx) {
             check_match0_5[i].in[0] <== count0_5;
             check_match0_5[i].in[1] <== match_idx + 1;
 
+
             check_matched_start[i] = AND();
             check_matched_start[i].a <== check_match[i].out;
             check_matched_start[i].b <== check_start[i].out;
             start_index += check_matched_start[i].out * i;
-            
+
             //use 0th group too
             check_matched_start0[i] = AND();
             check_matched_start0[i].a <== check_match0[i].out;
@@ -374,7 +359,6 @@ template GithubRegex (msg_bytes, reveal_bytes, group_idx) {
         matched_idx_eq[i] = IsEqual();
         matched_idx_eq[i].in[0] <== states[i + 1][match_group_indexes[group_idx]] * count;
         matched_idx_eq[i].in[1] <== match_idx + 1;
-
         //use 0th group too
         matched_idx_eq0[i] = IsEqual();
         matched_idx_eq0[i].in[0] <== states[i + 1][match_group_indexes[group_idx-1]] * count0;
@@ -384,12 +368,13 @@ template GithubRegex (msg_bytes, reveal_bytes, group_idx) {
         matched_idx_eq0_5[i].in[1] <== match_idx + 1;
     }
 
-    component match_start_idx[msg_bytes];
-    for (var i = 0; i < msg_bytes; i++) {
-        match_start_idx[i] = IsEqual();
-        match_start_idx[i].in[0] <== i;
-        match_start_idx[i].in[1] <== start_index;
-    }
+    // component match_start_idx[msg_bytes];
+    // for (var i = 0; i < msg_bytes; i++) {
+    //     match_start_idx[i] = IsEqual();
+    //     match_start_idx[i].in[0] <== i;
+    //     match_start_idx[i].in[1] <== start_index;
+    // }
+
     //use 0th group too
     component match_start_idx0[msg_bytes];
     for (var i = 0; i < msg_bytes; i++) {
@@ -397,12 +382,12 @@ template GithubRegex (msg_bytes, reveal_bytes, group_idx) {
         match_start_idx0[i].in[0] <== i;
         match_start_idx0[i].in[1] <== start_index0;
     }
-    component match_start_idx0_5[msg_bytes];
-    for (var i = 0; i < msg_bytes; i++) {
-        match_start_idx0_5[i] = IsEqual();
-        match_start_idx0_5[i].in[0] <== i;
-        match_start_idx0_5[i].in[1] <== start_index0_5;
-    }
+    // component match_start_idx0_5[msg_bytes];
+    // for (var i = 0; i < msg_bytes; i++) {
+    //     match_start_idx0_5[i] = IsEqual();
+    //     match_start_idx0_5[i].in[0] <== i;
+    //     match_start_idx0_5[i].in[1] <== start_index0_5;
+    // }
 
     signal reveal_match[msg_bytes];
     for (var i = 0; i < msg_bytes; i++) {

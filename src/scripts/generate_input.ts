@@ -115,13 +115,15 @@ export async function getCircuitInputs(
     prehashBytesUnpadded,
     MAX_HEADER_PADDED_BYTES
   );
-  console.log("line 116");
+  console.log("body length", body.length);
   // Why 63, 65, 64
   const calc_length = Math.floor((body.length + 63 + 65) / 64) * 64; // 65 comes from the 64 at the end and the 1 bit in the start, then rounded up to the nearest 64
+  console.log("calc_length ", calc_length);
   const [bodyPadded, bodyPaddedLen] = await sha256Pad(
     body,
     Math.max(MAX_BODY_PADDED_BYTES, calc_length)
   );
+  console.log("bodypaddedlen", bodyPaddedLen);
 
   // Ensure SHA manual unpadded is running the correct function
   const shaOut = await partialSha(messagePadded, messagePaddedLen);
@@ -144,14 +146,21 @@ export async function getCircuitInputs(
   const precomputeText = bodyPadded.slice(0, shaCutoffIndex);
   let bodyRemaining = bodyPadded.slice(shaCutoffIndex);
   const bodyRemainingLen = bodyPaddedLen - precomputeText.length;
+  console.log("bodyremain: ", bodyRemainingLen);
+  console.log("Max body padded", MAX_BODY_PADDED_BYTES);
   assert(bodyRemainingLen < MAX_BODY_PADDED_BYTES, "Invalid slice");
   assert(
     bodyRemaining.length % 64 === 0,
     "Not going to be padded correctly with int64s"
   );
+  console.log("bodyremain: ", bodyRemainingLen);
+  console.log("Max body padded", MAX_BODY_PADDED_BYTES);
   while (bodyRemaining.length < MAX_BODY_PADDED_BYTES) {
+    // console.log("be4", bodyRemaining.length);
     bodyRemaining = mergeUInt8Arrays(bodyRemaining, int64toBytes(0));
+    // console.log("after", bodyRemaining.length);
   }
+  console.log("jer");
   assert(bodyRemaining.length === MAX_BODY_PADDED_BYTES, "Invalid slice");
   const bodyShaPrecompute = await partialSha(precomputeText, shaCutoffIndex);
 
@@ -269,7 +278,7 @@ async function do_generate() {
     email,
     "0x0000000000000000000000000000000000000000"
   );
-  console.log(JSON.stringify(gen_inputs));
+  // console.log(JSON.stringify(gen_inputs));
   return gen_inputs;
 }
 
