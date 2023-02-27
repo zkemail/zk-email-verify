@@ -94,8 +94,9 @@ export async function getCircuitInputs(
   const postShaBigintUnpadded = bytesToBigInt(stringToBytes((await shaHash(prehashBytesUnpadded)).toString())) % CIRCOM_FIELD_MODULUS;
 
   // Sha add padding
+  // 65 comes from the 64 at the end and the 1 bit in the start, then 63 comes from the formula to round it up to the nearest 64. see sha256algorithm.com for a more full explanation of paddnig length
+  const calc_length = Math.floor((body.length + 63 + 65) / 64) * 64;
   const [messagePadded, messagePaddedLen] = await sha256Pad(prehashBytesUnpadded, MAX_HEADER_PADDED_BYTES);
-  const calc_length = Math.floor((body.length + 63 + 65) / 64) * 64; // 65 comes from the 64 at the end and the 1 bit in the start, then rounded up to the nearest 64
   const [bodyPadded, bodyPaddedLen] = await sha256Pad(body, Math.max(MAX_BODY_PADDED_BYTES, calc_length));
 
   // Ensure SHA manual unpadded is running the correct function
@@ -178,8 +179,8 @@ export async function generate_inputs(email: Buffer, eth_address: string): Promi
   // debugger;
   console.log("DKIM verification starting");
   result = await dkimVerify(email);
-  if(!result.results[0].publicKey) {
-    if(result.results[0].status.message) {
+  if (!result.results[0].publicKey) {
+    if (result.results[0].status.message) {
       throw new Error(result.results[0].status.message);
     } else {
       throw new Error("No public key found on generate_inputs");

@@ -96,7 +96,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         body_hash_eq[i].in[0] <== i;
         body_hash_eq[i].in[1] <== body_hash_idx;
     }
-    for (var j = 0; j < 44; j++) {
+    for (var j = 0; j < LEN_SHA_B64; j++) {
         body_hash[j][j] <== body_hash_eq[j].out * body_hash_regex.reveal[j];
         for (var i = j + 1; i < max_header_bytes; i++) {
             body_hash[j][i] <== body_hash[j][i - 1] + body_hash_eq[i-j].out * body_hash_regex.reveal[i];
@@ -113,7 +113,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     }
     sha_body.in_len_padded_bytes <== in_body_len_padded_bytes;
     component sha_b64 = Base64Decode(32);
-    for (var i = 0; i < 44; i++) {
+    for (var i = 0; i < LEN_SHA_B64; i++) {
         sha_b64.in[i] <== body_hash[i][max_header_bytes - 1];
     }
     component sha_body_bytes[32];
