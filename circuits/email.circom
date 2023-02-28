@@ -8,17 +8,28 @@ include "./body_hash_regex.circom";
 include "./twitter_reset_regex.circom";
 include "./base64.circom";
 
+// Here, n and k are the biginteger parameters for RSA
+// This is because the number is chunked into n chunks of k bits each
+// Max header bytes shouldn't need to be changed much per email,
+// but the max mody bytes may need to be changed to be larger if the email has a lot of i.e. HTML formatting
 template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
-    // max_num_bytes must be a multiple of 64
+    assert(max_header_bytes % 64 == 0);
+    assert(max_body_bytes % 64 == 0);
+    assert(n * k > 2048); // constraints for 2048 bit RSA
+    assert(k < 255 / 2); // we want a multiplication to fit into a circom signal
+
     var max_packed_bytes = (max_header_bytes - 1) \ 7 + 1; // ceil(max_num_bytes / 7)
     signal input in_padded[max_header_bytes]; // prehashed email data, includes up to 512 + 64? bytes of padding pre SHA256, and padded with lots of 0s at end after the length
     signal input modulus[k]; // rsa pubkey, verified with smart contract + optional oracle
     signal input signature[k];
     signal input in_len_padded_bytes; // length of in email data including the padding, which will inform the sha256 block length
 
-    // Next 3 signals are only needed if we are doing in-body verification
+    // Next 3 signals are for decreasing SHA constraints for parsing out information from the in-body text
+    // The precomputed_sha value is the Merkle-Damgard state of our SHA hash uptil our first regex match
+    // This allows us to save a ton of SHA constraints by only hashing the relevant part of the body
+    // It doesn't have an impact on security since a user must have known the pre-image of a signed message to be able to fake it
     signal input precomputed_sha[32];
-    // This body is only the part we care about, a significant prefix of the body has been pre-hashed into precomputed_sha.
+    // The lower two body signals are only the part we care about, a significant prefix of the body has been pre-hashed into precomputed_sha.
     signal input in_body_padded[max_body_bytes];
     signal input in_body_len_padded_bytes;
 
