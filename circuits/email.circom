@@ -51,6 +51,10 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     signal body_hash[LEN_SHA_B64][max_header_bytes];
 
     // SHA HEADER: 506,670 constraints
+    // This calculates the SHA256 hash of the header, which is the "base_msg" that is RSA signed.
+    // The header signs the fields in the "h=Date:From:To:Subject:MIME-Version:Content-Type:Message-ID;"
+    // section of the "DKIM-Signature:"" line, along with the body hash.
+    // Note that nothing above the "DKIM-Signature:" line is signed.
     component sha = Sha256Bytes(max_header_bytes);
     for (var i = 0; i < max_header_bytes; i++) {
         sha.in_padded[i] <== in_padded[i];
@@ -69,6 +73,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     }
 
     // VERIFY RSA SIGNATURE: 149,251 constraints
+    // The fields that this signature actually signs are defined as the body and the values in the header
     component rsa = RSAVerify65537(n, k);
     for (var i = 0; i < msg_len; i++) {
         rsa.base_message[i] <== base_msg[i].out;
@@ -84,6 +89,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     }
 
     // DKIM HEADER REGEX: 736,553 constraints
+    // This extracts the from and the to emails, and the precise regex format can be viewed in the README
     component dkim_header_regex = DKIMHeaderRegex(max_header_bytes);
     for (var i = 0; i < max_header_bytes; i++) {
         dkim_header_regex.msg[i] <== in_padded[i];
@@ -95,6 +101,8 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     log(dkim_header_regex.out);
 
     // BODY HASH REGEX: 617,597 constraints
+    // This extracts the body hash from the header (i.e. the part after bh= within the DKIM-signature section)
+    // which is used to verify the body text matches this signed hash + the signature verifies this hash is legit
     component body_hash_regex = BodyHashRegex(max_header_bytes);
     for (var i = 0; i < max_header_bytes; i++) {
         body_hash_regex.msg[i] <== in_padded[i];
@@ -115,6 +123,8 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     }
 
     // SHA BODY: 760,142 constraints
+    // This verifies that the hash of the body, when calculated from the precomputed part forwards,
+    // actually matches the hash in the header
     component sha_body = Sha256BytesPartial(max_body_bytes);
     for (var i = 0; i < max_body_bytes; i++) {
         sha_body.in_padded[i] <== in_body_padded[i];
@@ -137,7 +147,9 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     }
 
     // TWITTER REGEX: 328,044 constraints
-    // This computes the regex states on each character
+    // This computes the regex states on each character in the email body. For new emails, this is the
+    // section that you want to swap out via using the zk-regex library.
+
     component twitter_regex = TwitterResetRegex(max_body_bytes);
     for (var i = 0; i < max_body_bytes; i++) {
         twitter_regex.msg[i] <== in_body_padded[i];
