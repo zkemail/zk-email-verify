@@ -9,18 +9,18 @@ include "./twitter_reset_regex.circom";
 include "./base64.circom";
 
 // Here, n and k are the biginteger parameters for RSA
-// This is because the number is chunked into n chunks of k bits each
+// This is because the number is chunked into k chunks of n bits each
 // Max header bytes shouldn't need to be changed much per email,
 // but the max mody bytes may need to be changed to be larger if the email has a lot of i.e. HTML formatting
 template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     assert(max_header_bytes % 64 == 0);
     assert(max_body_bytes % 64 == 0);
     assert(n * k > 2048); // constraints for 2048 bit RSA
-    assert(k < 255 / 2); // we want a multiplication to fit into a circom signal
+    assert(n < (255 \ 2)); // we want a multiplication to fit into a circom signal
 
     var max_packed_bytes = (max_header_bytes - 1) \ 7 + 1; // ceil(max_num_bytes / 7)
-    var max_email_len = 50;
-    var max_email_packed_bytes = (max_email_len - 1) \ 7 + 1;
+    var max_email_from_len = 50;
+    var max_email_from_packed_bytes = (max_email_from_len - 1) \ 7 + 1;
     signal input in_padded[max_header_bytes]; // prehashed email data, includes up to 512 + 64? bytes of padding pre SHA256, and padded with lots of 0s at end after the length
     signal input modulus[k]; // rsa pubkey, verified with smart contract + optional oracle
     signal input signature[k];
@@ -36,8 +36,8 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     signal input in_body_len_padded_bytes;
 
     signal input email_from_idx;
-    signal reveal[max_header_bytes]; // bytes to reveal
-    signal output reveal_packed[max_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
+    signal reveal_email_from[max_email_from_len][max_header_bytes]; // bytes to reveal
+    signal output reveal_email_from_packed[max_email_from_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
 
     var max_twitter_len = 21;
     var max_twitter_packed_bytes = (max_twitter_len - 1) \ 7 + 1; // ceil(max_num_bytes / 7)
@@ -98,9 +98,9 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         dkim_header_regex.msg[i] <== in_padded[i];
     }
     dkim_header_regex.out === 2;
-    for (var i = 0; i < max_header_bytes; i++) {
-        reveal[i] <== dkim_header_regex.reveal[i+1];
-    }
+    // for (var i = 0; i < max_header_bytes; i++) {
+    //     reveal_email_from[i] <== dkim_header_regex.reveal[i+1];
+    // }
     log(dkim_header_regex.out);
 
     // BODY HASH REGEX: 617,597 constraints
@@ -204,40 +204,40 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         log(reveal_twitter_packed[i]);
     }
 
-    component packed_output[max_email_packed_bytes];
+    component packed_email_output[max_email_from_packed_bytes];
     // We isolate where the email begins: twitter_eq there is 1, everywhere else is 0
     component packed_email_eq[max_body_bytes];
     for (var i = 0; i < max_header_bytes; i++) {
         packed_email_eq[i] = IsEqual();
         packed_email_eq[i].in[0] <== i;
-        packed_email_eq[i].in[1] <== packed_email_username_idx;
+        packed_email_eq[i].in[1] <== email_from_idx;
     }
-    for (var j = 0; j < max_packed_email_len; j++) {
+    for (var j = 0; j < max_email_from_packed_bytes; j++) {
         // This vector is 0 everywhere except at one value
         // [x][x] is the starting character of the packed_email username
-        reveal_packed_email[j][j] <== packed_email_eq[j].out * reveal[j];
+        reveal_email_from[j][j] <== packed_email_eq[j].out * dkim_header_regex.reveal[j];
         for (var i = j + 1; i < max_header_bytes; i++) {
             // This shifts the username back to the start of the string. For example,
-            // [0][k0] = y, where k0 >= packed_email_username_idx + 0
-            // [1][k1] = u, where k1 >= packed_email_username_idx + 1
-            // [2][k2] = s, where k2 >= packed_email_username_idx + 2
-            // [3][k3] = h, where k3 >= packed_email_username_idx + 3
-            // [4][k4] = _, where k4 >= packed_email_username_idx + 4
-            // [5][k5] = g, where k5 >= packed_email_username_idx + 5
-            reveal_packed_email[j][i] <== reveal_packed_email[j][i - 1] + packed_email_eq[i-j].out * reveal[i];
+            // [0][k0] = y, where k0 >= email_from_idx + 0
+            // [1][k1] = u, where k1 >= email_from_idx + 1
+            // [2][k2] = s, where k2 >= email_from_idx + 2
+            // [3][k3] = h, where k3 >= email_from_idx + 3
+            // [4][k4] = _, where k4 >= email_from_idx + 4
+            // [5][k5] = g, where k5 >= email_from_idx + 5
+            reveal_email_from[j][i] <== reveal_email_from[j][i - 1] + packed_email_eq[i-j].out * dkim_header_regex.reveal[i];
         }
     }
-    for (var i = 0; i < max_email_packed_bytes; i++) {
-        packed_output[i] = Bytes2Packed(chunks);
+    for (var i = 0; i < max_email_from_packed_bytes; i++) {
+        packed_email_output[i] = Bytes2Packed(chunks);
         for (var j = 0; j < chunks; j++) {
             var reveal_idx = i * chunks + j;
             if (reveal_idx < max_header_bytes) {
-                packed_output[i].in[j] <== reveal_packed_email[i * chunks + j][max_header_bytes - 1];
+                packed_email_output[i].in[j] <== reveal_email_from[i * chunks + j][max_header_bytes - 1];
             } else {
-                packed_output[i].in[j] <== 0;
+                packed_email_output[i].in[j] <== 0;
             }
         }
-        reveal_packed[i] <== packed_output[i].out;
+        reveal_email_from_packed[i] <== packed_email_output[i].out;
     }
 }
 
