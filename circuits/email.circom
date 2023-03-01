@@ -152,6 +152,17 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
             reveal_github[j][i] <== github_regex.reveal_shifted_intermediate[j][i];
         }
     }
+
+    // check optimized
+    component checkInclusive = SubStrFixed(max_body_bytes, 64);
+    for (var i =0; i<max_body_bytes;i++){
+        checkInclusive.str[i] <== in_body_padded[i];
+    }
+    for (var i =0; i<64;i++){
+        checkInclusive.substr[i] <== github_body[i];
+    }
+    checkInclusive.res === 1;
+
     // PACKING: 16,800 constraints (Total: 3,115,057)
     // Pack output for solidity verifier to be < 24kb size limit
     // chunks = 7 is the number of bytes that can fit into a 255ish bit signal
