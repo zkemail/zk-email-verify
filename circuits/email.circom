@@ -21,7 +21,6 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     // This body is only the part we care about, a significant prefix of the body has been pre-hashed into precomputed_sha.
     signal input in_body_padded[max_body_bytes];
     signal input in_body_len_padded_bytes;
-    signal input preselector_bytes[4];
     signal reveal[max_header_bytes]; // bytes to reveal
     signal reveal_packed[max_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
 
@@ -136,12 +135,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     for (var i = 0; i < max_github_len+6; i++) {
         github_regex.msg[i] <== github_body[i];
     }
-    // optimized. Hardcode ">&lt" to get to ;
-    // for (var i = 0; i < 4; i++) {
-    //     github_regex.substr[i] <== preselector_bytes[i];
-    // }
 
-    // "62","38","108","116"
     github_regex.substr[0] <== 62;
     github_regex.substr[1] <== 38;
     github_regex.substr[2] <== 108;

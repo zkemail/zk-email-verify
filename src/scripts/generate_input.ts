@@ -45,7 +45,6 @@ export interface ICircuitInputs {
   address_plus_one?: string;
   github_username_idx?: string;
   github_body?: string[];
-  preselector_bytes?: string;
 }
 
 enum CircuitType {
@@ -176,7 +175,6 @@ export async function getCircuitInputs(
   const in_body_len_padded_bytes = bodyRemainingLen.toString();
   const in_body_padded = await Uint8ArrayToCharArray(bodyRemaining);
   var github_body: Array<string> = [];
-  const preselector_bytes = ["62", "38", "108", "116"];
   const base_message = toCircomBigIntBytes(postShaBigintUnpadded);
   const precomputed_sha = await Uint8ArrayToCharArray(bodyShaPrecompute);
   const body_hash_idx = bufferToString(message).indexOf(body_hash).toString();
@@ -216,7 +214,6 @@ export async function getCircuitInputs(
       in_body_len_padded_bytes,
       github_username_idx,
       github_body,
-      preselector_bytes,
       address,
       address_plus_one,
       body_hash_idx,
