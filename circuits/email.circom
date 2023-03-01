@@ -137,9 +137,15 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         github_regex.msg[i] <== github_body[i];
     }
     // optimized. Hardcode ">&lt" to get to ;
-    for (var i = 0; i < 4; i++) {
-        github_regex.substr[i] <== preselector_bytes[i];
-    }
+    // for (var i = 0; i < 4; i++) {
+    //     github_regex.substr[i] <== preselector_bytes[i];
+    // }
+
+    // "62","38","108","116"
+    github_regex.substr[0] <== 62;
+    github_regex.substr[1] <== 38;
+    github_regex.substr[2] <== 108;
+    github_regex.substr[3] <== 116;
     // github_regex.match_idx<==0;
     // This ensures we found a match at least once
     component found_github = IsZero();
