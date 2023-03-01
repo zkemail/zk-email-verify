@@ -6,6 +6,7 @@ import "../emailVerifier.sol";
 
 contract TwitterUtilsTest is Test {
   address internal constant zero = 0x0000000000000000000000000000000000000000;
+  address constant VM_ADDR = 0x7109709ECfa91a80626fF3989D68f67F5b1DD12D;
   VerifiedTwitterEmail testVerifier;
   Verifier proofVerifier;
 
@@ -26,7 +27,7 @@ contract TwitterUtilsTest is Test {
     packedBytes[2] = 0;
 
     // This is 0x797573685f670000000000000000000000000000000000000000000000000000
-    string memory byteList = testVerifier.convert7PackedBytesToBytes(packedBytes);
+    string memory byteList = testVerifier.convert7PackedBytesToBytes(packedBytes, 15);
     // This is 0x797573685f67, since strings are internally arbitrary length arrays
     string memory intended_value = "yush_g";
 
@@ -38,13 +39,22 @@ contract TwitterUtilsTest is Test {
     // ASCII should fit in 2 bytes but emails may not be ASCII
     assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
     console.logString(byteList);
+
+
+    packedBytes[0] = 28557011619965818;
+    packedBytes[1] = 1818845549;
+    packedBytes[2] = 0;
+    byteList = testVerifier.convert7PackedBytesToBytes(packedBytes, 15);
+    intended_value = "zktestemail";
+    assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
+    console.logString(byteList);
   }
 
   // Should pass (note that there are extra 0 bytes, which are filtered out but should be noted in audits)
   function testVerify() public {
     uint256[21] memory publicSignals;
-    publicSignals[0] = 113659471951225;
-    publicSignals[1] = 0;
+    publicSignals[0] = 28557011619965818;
+    publicSignals[1] = 1818845549;
     publicSignals[2] = 0;
     publicSignals[3] = 1634582323953821262989958727173988295;
     publicSignals[4] = 1938094444722442142315201757874145583;
@@ -63,34 +73,36 @@ contract TwitterUtilsTest is Test {
     publicSignals[17] = 16021263889082005631675788949457422;
     publicSignals[18] = 299744519975649772895460843780023483;
     publicSignals[19] = 3933359104846508935112096715593287;
-    publicSignals[20] = 556307310756571904145052207427031380052712977221;
+    publicSignals[20] = 0;
 
     // TODO switch order
     uint256[2] memory proof_a = [
-      9363006867611269678582925935753021647889027030446896413835957187406043727690,
-      21630169556253404895678159104497446719574525736987888783761908716313881927992
+      17318502520832615283826550477925001617374441832173193898272797377898919690173,
+      1708688089563725129787243063584224119336781576179282788310373993962852719817
     ];
     // Note: you need to swap the order of the two elements in each subarray
     uint256[2][2] memory proof_b = [
       [
-        16566593201830840943252718762249962483142131594763397873538075518277702645082,
-        18567659038303546225106951504886253604470228016916658528973206870511276829533
+        7137251977000396921187211482543276383286499202727947375560240664952053065760,
+        13876127660294685598627130750542098746667235071325948077323047871936291383165
       ],[
-        2266080565824575322432873090363833504418041632970946239667340737263413898232,
-        2242723441612422425510136818011613824051492998493014918147869951941405078798
+        14638760282053729656283850853839612853026876699152633302805709762247334168353,
+        5306466054152524902400380774329999556148766793013496242284114650812813364132
       ]
     ];
     uint256[2] memory proof_c = [
-      12224501323997049527817799755022184802988108888333268634200461535503052305125,
-      3177656185967472916322211236519001250723481802804621893491948147849123768548
+      12060931860841152285454518314820865992567081987338134389462649672166704174317,
+      7111421371997933184032946089722965864022481584154371381685431780940473112378
     ];
+
+    // Test proof verification
     bool verified = proofVerifier.verifyProof(proof_a, proof_b, proof_c, publicSignals);
     assertEq(verified, true);
-    // We need to cast both to bytes32, which works since usernames can be at most 15, alphanumeric + '_' characters
-    // Note that this may not generalize to non-ascii characters.
-    // Weird characters are allowed in email addresses, see https://en.wikipedia.org/wiki/Email_address#Local-part
-    // See https://stackoverflow.com/a/2049510/3977093 -- you can even have international characters with RFC 6532
-    // Our regex should just disallow most of these emails, but they may end up taking more than two bytes
-    // ASCII should fit in 2 bytes but emails may not be ASCII
+
+    // Test mint after spoofing msg.sender
+    Vm vm = Vm(VM_ADDR);
+    vm.startPrank(0x0000000000000000000000000000000000000000);
+    testVerifier.mint(proof_a, proof_b, proof_c, publicSignals);
+    vm.stopPrank();
   }
 }

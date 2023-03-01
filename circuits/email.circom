@@ -34,7 +34,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     signal input in_body_len_padded_bytes;
 
     signal reveal[max_header_bytes]; // bytes to reveal
-    signal reveal_packed[max_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
+    signal output reveal_packed[max_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
 
     var max_twitter_len = 21;
     var max_twitter_packed_bytes = (max_twitter_len - 1) \ 7 + 1; // ceil(max_num_bytes / 7)

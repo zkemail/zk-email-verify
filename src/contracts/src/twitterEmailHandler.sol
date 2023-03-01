@@ -37,13 +37,13 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
     verifiedMailserverKeys["twitter.com"][7] = 2358009612379481320362782200045159837;
     verifiedMailserverKeys["twitter.com"][8] = 518833500408858308962881361452944175;
     verifiedMailserverKeys["twitter.com"][9] = 1163210548821508924802510293967109414;
-    verifiedMailserverKeys["twitter.com"][1] = 1361351910698751746280135795885107181;
-    verifiedMailserverKeys["twitter.com"][1] = 1445969488612593115566934629427756345;
-    verifiedMailserverKeys["twitter.com"][1] = 2457340995040159831545380614838948388;
-    verifiedMailserverKeys["twitter.com"][1] = 2612807374136932899648418365680887439;
-    verifiedMailserverKeys["twitter.com"][1] = 16021263889082005631675788949457422;
-    verifiedMailserverKeys["twitter.com"][1] = 299744519975649772895460843780023483;
-    verifiedMailserverKeys["twitter.com"][1] = 3933359104846508935112096715593287;
+    verifiedMailserverKeys["twitter.com"][10] = 1361351910698751746280135795885107181;
+    verifiedMailserverKeys["twitter.com"][11] = 1445969488612593115566934629427756345;
+    verifiedMailserverKeys["twitter.com"][12] = 2457340995040159831545380614838948388;
+    verifiedMailserverKeys["twitter.com"][13] = 2612807374136932899648418365680887439;
+    verifiedMailserverKeys["twitter.com"][14] = 16021263889082005631675788949457422;
+    verifiedMailserverKeys["twitter.com"][15] = 299744519975649772895460843780023483;
+    verifiedMailserverKeys["twitter.com"][16] = 3933359104846508935112096715593287;
   }
 
   // function getDesc(
@@ -137,7 +137,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
   // Only extracts contiguous non-zero characters and ensures theres only 1 such state
   // Note that unpackedLen may be more than packedBytes.length * 8 since there may be 0s
   // TODO: Remove console.logs and define this as a pure function instead of a view
-  function convert7PackedBytesToBytes(uint256[] memory packedBytes) public view returns (string memory extractedString) {
+  function convert7PackedBytesToBytes(uint256[] memory packedBytes, uint256 maxBytes) public view returns (string memory extractedString) {
     uint8 state = 0;
     // bytes: 0 0 0 0 y u s h _ g 0 0 0
     // state: 0 0 0 0 1 1 1 1 1 1 2 2 2
@@ -173,7 +173,8 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
     }
     string memory returnValue = string(nonzeroBytesArray);
     require(state == 2, "Invalid final state of packed bytes in email");
-    require(nonzeroBytesArrayIndex <= 15, "Twitter username more than 15 chars!");
+    console.log(nonzeroBytesArrayIndex);
+    require(nonzeroBytesArrayIndex <= maxBytes, "Twitter username more than 15 chars!");
     return returnValue;
     // Have to end at the end of the email -- state cannot be 1 since there should be an email footer
   }
@@ -184,7 +185,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
 
   // TODO: Remove console.logs and define this as a pure function instead of a view
   function _domainCheck(uint256[] memory headerSignals) public view returns (bool) {
-    string memory senderBytes = convert7PackedBytesToBytes(headerSignals);
+    string memory senderBytes = convert7PackedBytesToBytes(headerSignals, 15);
     string[2] memory domainStrings = ["verify@twitter.com", "info@twitter.com"];
     return _stringEq(senderBytes, domainStrings[0]) || _stringEq(senderBytes, domainStrings[1]);
     // Usage: require(_domainCheck(senderBytes, domainStrings), "Invalid domain");
@@ -193,13 +194,12 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
   function mint(uint256[2] memory a, uint256[2][2] memory b, uint256[2] memory c, uint256[msg_len] memory signals) public {
     // Checks: Verify proof and check signals
     // require(signals[0] == 1337, "invalid signals"); // TODO no invalid signal check yet, which is fine since the zk proof does it
-    require(signals[0] == 0, "Invalid starting message character");
 
-    // msg_len-17 public signals are the masked message bytes, 17 are the modulus.
-    uint256[] memory headerSignals = new uint256[](header_len);
+    // 3 public signals are the masked packed message bytes, 17 are the modulus.
     uint256[] memory bodySignals = new uint256[](body_len);
+    uint256[] memory headerSignals = new uint256[](header_len);
     for (uint256 i = 0; i < body_len; i++) bodySignals[i] = signals[i];
-    for (uint256 i = body_len; i < msg_len; i++) headerSignals[i] = signals[i];
+    for (uint256 i = body_len; i < msg_len; i++) headerSignals[i - body_len] = signals[i];
 
     // Check eth address committed to in proof matches msg.sender, to avoid replayability
     require(address(uint160(signals[addressIndexInSignals])) == msg.sender, "Invalid address");
@@ -208,14 +208,15 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
     require(_domainCheck(headerSignals), "Invalid domain");
 
     // Verify that the public key for RSA matches the hardcoded one
-    string memory messageBytes = convert7PackedBytesToBytes(bodySignals);
-    for (uint32 i = msg_len - 17; i < msg_len; i++) {
-      require(signals[i] == verifiedMailserverKeys[domain][i], "Invalid modulus not matched");
+    for (uint i = body_len - 1; i < msg_len; i++) {
+      console.log(signals[i], verifiedMailserverKeys[domain][i - body_len + 1]);
+      require(signals[i] == verifiedMailserverKeys[domain][i - body_len + 1], "Invalid modulus not matched");
     }
     require(verifyProof(a, b, c, signals), "Invalid Proof"); // checks effects iteractions, this should come first
 
     // Effects: Mint token
     uint256 tokenId = tokenCounter.current() + 1;
+    string memory messageBytes = convert7PackedBytesToBytes(bodySignals, 5000);
     tokenToName[tokenId] = messageBytes;
     _mint(msg.sender, tokenId);
     tokenCounter.increment();
