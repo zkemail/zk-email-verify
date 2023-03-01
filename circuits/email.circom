@@ -21,7 +21,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     // This body is only the part we care about, a significant prefix of the body has been pre-hashed into precomputed_sha.
     signal input in_body_padded[max_body_bytes];
     signal input in_body_len_padded_bytes;
-
+    signal input preselector_bytes[4];
     signal reveal[max_header_bytes]; // bytes to reveal
     signal reveal_packed[max_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
 
@@ -29,7 +29,9 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     var max_github_packed_bytes = (max_github_len - 1) \ 7 + 1; // ceil(max_num_bytes / 7)
 
     signal input github_username_idx;
-    signal reveal_github[max_github_len][max_body_bytes];
+    signal input github_body[64];
+    //optimized
+    signal reveal_github[max_github_len][max_github_len+2];
     signal output reveal_github_packed[max_github_packed_bytes];
 
     signal input address;
@@ -128,40 +130,25 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
 
     // Github REGEX: 328,044 constraints
     // This computes the regex states on each character
-    component github_regex = GithubRegex(max_body_bytes,max_github_len,1);
-    for (var i = 0; i < max_body_bytes; i++) {
-        github_regex.msg[i] <== in_body_padded[i];
+    // msg_bytes --> from >&lt;Jern/repo1 --> 
+    component github_regex = RegexWithPlain(max_github_len+6, max_github_len, 4);
+    //optimized
+    for (var i = 0; i < max_github_len+6; i++) {
+        github_regex.msg[i] <== github_body[i];
     }
-    github_regex.match_idx<==0;
+    // optimized. Hardcode ">&lt" to get to ;
+    for (var i = 0; i < 4; i++) {
+        github_regex.substr[i] <== preselector_bytes[i];
+    }
+    // github_regex.match_idx<==0;
     // This ensures we found a match at least once
     component found_github = IsZero();
     found_github.in <== github_regex.entire_count;
     log("github entire count: ",github_regex.entire_count);
     found_github.out === 0;
-    // We isolate where the username begins: twitter_eq there is 1, everywhere else is 0
-    // component github_eq[max_body_bytes];
-    // for (var i = 0; i < max_body_bytes; i++) {
-    //     github_eq[i] = IsEqual();
-    //     github_eq[i].in[0] <== i;
-    //     github_eq[i].in[1] <== github_username_idx;
-    // }
-    // for (var j = 0; j < max_github_len; j++) {
-    //     // This vector is 0 everywhere except at one value
-    //     // [x][x] is the starting character of the twitter username
-    //     reveal_github[j][j] <== github_eq[j].out * github_regex.reveal[j];
-    //     for (var i = j + 1; i < max_body_bytes; i++) {
-    //         // This shifts the username back to the start of the string. For example,
-    //         // [0][k0] = y, where k0 >= twitter_username_idx + 0
-    //         // [1][k1] = u, where k1 >= twitter_username_idx + 1
-    //         // [2][k2] = s, where k2 >= twitter_username_idx + 2
-    //         // [3][k3] = h, where k3 >= twitter_username_idx + 3
-    //         // [4][k4] = _, where k4 >= twitter_username_idx + 4
-    //         // [5][k5] = g, where k5 >= twitter_username_idx + 5
-    //         reveal_github[j][i] <== reveal_github[j][i - 1] + github_eq[i-j].out * github_regex.reveal[i];
-    //     }
-    // }
+   
     for (var j =0; j<max_github_len;j++){
-        for (var i =j; i< max_body_bytes;i++){
+        for (var i =j; i< max_github_len+2;i++){
             reveal_github[j][i] <== github_regex.reveal_shifted_intermediate[j][i];
         }
     }
@@ -174,8 +161,10 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         packed_github_output[i] = Bytes2Packed(chunks);
         for (var j = 0; j < chunks; j++) {
             var reveal_idx = i * chunks + j;
-            if (reveal_idx < max_body_bytes) {
-                packed_github_output[i].in[j] <== reveal_github[i * chunks + j][max_body_bytes - 1];
+            //optimized
+            if (reveal_idx < max_github_len) {
+                //optimized
+                packed_github_output[i].in[j] <== reveal_github[i * chunks + j][max_github_len + 1];
             } else {
                 packed_github_output[i].in[j] <== 0;
             }
@@ -202,4 +191,4 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
 // In circom, all output signals of the main component are public (and cannot be made private), the input signals of the main component are private if not stated otherwise using the keyword public as above. The rest of signals are all private and cannot be made public.
 // This makes modulus and reveal_twitter_packed public. hash(signature) can optionally be made public, but is not recommended since it allows the mailserver to trace who the offender is.
 
-component main { public [ modulus, address ] } = EmailVerify(1536, 3072, 121, 17);
+component main { public [ modulus, address ] } = EmailVerify(1536, 1024, 121, 17);

@@ -11,7 +11,7 @@ export const CIRCOM_FIELD_MODULUS =
 //change max header padded bytes from 1024
 export const MAX_HEADER_PADDED_BYTES = 1536; // NOTE: this must be the same as the first arg in the email in main args circom
 // export const MAX_BODY_PADDED_BYTES = 1536; // NOTE: this must be the same as the arg to sha the remainder number of bytes in the email in main args circom
-export const MAX_BODY_PADDED_BYTES = 3072;
+export const MAX_BODY_PADDED_BYTES = 1024;
 // circom constants from main.circom / https://zkrepl.dev/?gist=30d21c7a7285b1b14f608325f172417b
 // template RSAGroupSigVerify(n, k, levels) {
 // component main { public [ modulus ] } = RSAVerify(121, 17);
@@ -24,5 +24,5 @@ export const CIRCOM_LEVELS = 30;
 export const STRING_PRESELECTOR = {
   twitter: "email was meant for @",
   // github: ">Merged <",
-  github: 'auto">',
+  github: "<span>&lt;",
 };

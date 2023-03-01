@@ -44,6 +44,8 @@ export interface ICircuitInputs {
   address?: string;
   address_plus_one?: string;
   github_username_idx?: string;
+  github_body?: string[];
+  preselector_bytes?: string;
 }
 
 enum CircuitType {
@@ -173,6 +175,8 @@ export async function getCircuitInputs(
   const in_padded = await Uint8ArrayToCharArray(messagePadded); // Packed into 1 byte signals
   const in_body_len_padded_bytes = bodyRemainingLen.toString();
   const in_body_padded = await Uint8ArrayToCharArray(bodyRemaining);
+  var github_body: Array<string> = [];
+  const preselector_bytes = ["62", "38", "108", "116"];
   const base_message = toCircomBigIntBytes(postShaBigintUnpadded);
   const precomputed_sha = await Uint8ArrayToCharArray(bodyShaPrecompute);
   const body_hash_idx = bufferToString(message).indexOf(body_hash).toString();
@@ -183,12 +187,18 @@ export async function getCircuitInputs(
   ).toString();
 
   const USERNAME_SELECTOR = Buffer.from(STRING_PRESELECTOR["github"]);
+  // optimized version --> 5 : index of > from "<span>&lt;"
   const github_username_idx = (
-    Buffer.from(bodyRemaining).indexOf(USERNAME_SELECTOR) +
-    USERNAME_SELECTOR.length
+    Buffer.from(bodyRemaining).indexOf(USERNAME_SELECTOR) + 5
   ).toString();
-  console.log("Twitter Username idx: ", github_username_idx);
-
+  console.log(
+    "Github Username (start for github_regex) idx: ",
+    github_username_idx
+  );
+  for (let i = 0; i < 64; i++) {
+    github_body.push(in_body_padded[i + parseInt(github_username_idx)]);
+    console.log("body", in_body_padded[i + parseInt(github_username_idx)]);
+  }
   if (circuit === CircuitType.RSA) {
     circuitInputs = {
       modulus,
@@ -205,6 +215,8 @@ export async function getCircuitInputs(
       in_body_padded,
       in_body_len_padded_bytes,
       github_username_idx,
+      github_body,
+      preselector_bytes,
       address,
       address_plus_one,
       body_hash_idx,
