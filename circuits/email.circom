@@ -19,6 +19,8 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     assert(k < 255 / 2); // we want a multiplication to fit into a circom signal
 
     var max_packed_bytes = (max_header_bytes - 1) \ 7 + 1; // ceil(max_num_bytes / 7)
+    var max_email_len = 50;
+    var max_email_packed_bytes = (max_email_len - 1) \ 7 + 1;
     signal input in_padded[max_header_bytes]; // prehashed email data, includes up to 512 + 64? bytes of padding pre SHA256, and padded with lots of 0s at end after the length
     signal input modulus[k]; // rsa pubkey, verified with smart contract + optional oracle
     signal input signature[k];
@@ -33,6 +35,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     signal input in_body_padded[max_body_bytes];
     signal input in_body_len_padded_bytes;
 
+    signal input email_from_idx;
     signal reveal[max_header_bytes]; // bytes to reveal
     signal output reveal_packed[max_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
 
@@ -149,7 +152,6 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     // TWITTER REGEX: 328,044 constraints
     // This computes the regex states on each character in the email body. For new emails, this is the
     // section that you want to swap out via using the zk-regex library.
-
     component twitter_regex = TwitterResetRegex(max_body_bytes);
     for (var i = 0; i < max_body_bytes; i++) {
         twitter_regex.msg[i] <== in_body_padded[i];
@@ -157,8 +159,9 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     // This ensures we found a match at least once
     component found_twitter = IsZero();
     found_twitter.in <== twitter_regex.out;
-    found_twitter.out === 0;
     log(twitter_regex.out);
+    found_twitter.out === 0;
+
     // We isolate where the username begins: twitter_eq there is 1, everywhere else is 0
     component twitter_eq[max_body_bytes];
     for (var i = 0; i < max_body_bytes; i++) {
@@ -201,13 +204,35 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         log(reveal_twitter_packed[i]);
     }
 
-    component packed_output[max_packed_bytes];
-    for (var i = 0; i < max_packed_bytes; i++) {
+    component packed_output[max_email_packed_bytes];
+    // We isolate where the email begins: twitter_eq there is 1, everywhere else is 0
+    component packed_email_eq[max_body_bytes];
+    for (var i = 0; i < max_header_bytes; i++) {
+        packed_email_eq[i] = IsEqual();
+        packed_email_eq[i].in[0] <== i;
+        packed_email_eq[i].in[1] <== packed_email_username_idx;
+    }
+    for (var j = 0; j < max_packed_email_len; j++) {
+        // This vector is 0 everywhere except at one value
+        // [x][x] is the starting character of the packed_email username
+        reveal_packed_email[j][j] <== packed_email_eq[j].out * reveal[j];
+        for (var i = j + 1; i < max_header_bytes; i++) {
+            // This shifts the username back to the start of the string. For example,
+            // [0][k0] = y, where k0 >= packed_email_username_idx + 0
+            // [1][k1] = u, where k1 >= packed_email_username_idx + 1
+            // [2][k2] = s, where k2 >= packed_email_username_idx + 2
+            // [3][k3] = h, where k3 >= packed_email_username_idx + 3
+            // [4][k4] = _, where k4 >= packed_email_username_idx + 4
+            // [5][k5] = g, where k5 >= packed_email_username_idx + 5
+            reveal_packed_email[j][i] <== reveal_packed_email[j][i - 1] + packed_email_eq[i-j].out * reveal[i];
+        }
+    }
+    for (var i = 0; i < max_email_packed_bytes; i++) {
         packed_output[i] = Bytes2Packed(chunks);
         for (var j = 0; j < chunks; j++) {
             var reveal_idx = i * chunks + j;
             if (reveal_idx < max_header_bytes) {
-                packed_output[i].in[j] <== reveal[i * chunks + j];
+                packed_output[i].in[j] <== reveal_packed_email[i * chunks + j][max_header_bytes - 1];
             } else {
                 packed_output[i].in[j] <== 0;
             }
