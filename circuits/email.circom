@@ -23,7 +23,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     var max_packed_bytes = (max_header_bytes - 1) \ chunks + 1; // ceil(max_num_bytes / 7)
     var max_email_from_len = 50;
     var max_email_from_packed_bytes = (max_email_from_len - 1) \ chunks + 1;
-    assert(chunks * max_email_from_packed_bytes <= max_email_from_len);
+    // assert(chunks * max_email_from_packed_bytes <= max_email_from_len); // TODO: Not true for 7 * 8 <= 50
     assert(max_email_from_packed_bytes < max_header_bytes);
     signal input in_padded[max_header_bytes]; // prehashed email data, includes up to 512 + 64? bytes of padding pre SHA256, and padded with lots of 0s at end after the length
     signal input modulus[k]; // rsa pubkey, verified with smart contract + optional oracle
@@ -198,7 +198,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         for (var j = 0; j < chunks; j++) {
             var reveal_idx = i * chunks + j;
             if (reveal_idx < max_body_bytes) {
-                packed_twitter_output[i].in[j] <== reveal_twitter[i * chunks + j][max_body_bytes - 1];
+                packed_twitter_output[i].in[j] <== reveal_twitter[reveal_idx][max_body_bytes - 1];
             } else {
                 packed_twitter_output[i].in[j] <== 0;
             }
@@ -236,8 +236,8 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         packed_email_output[i] = Bytes2Packed(chunks);
         for (var j = 0; j < chunks; j++) {
             var reveal_idx = i * chunks + j;
-            if (reveal_idx < max_header_bytes) {
-                packed_email_output[i].in[j] <== reveal_email_from[i * chunks + j][max_header_bytes - 1];
+            if (reveal_idx < max_email_from_len) {
+                packed_email_output[i].in[j] <== reveal_email_from[reveal_idx][max_header_bytes - 1];
             } else {
                 packed_email_output[i].in[j] <== 0;
             }
