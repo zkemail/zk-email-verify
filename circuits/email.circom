@@ -27,9 +27,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     var max_github_len = 35;
     var max_github_packed_bytes = (max_github_len - 1) \ 7 + 1; // ceil(max_num_bytes / 7)
 
-    signal input github_username_idx;
     signal input github_body[64];
-    signal input merge_body[10];
     //optimized
     signal reveal_github[max_github_len][max_github_len+2];
     signal output reveal_github_packed[max_github_packed_bytes];

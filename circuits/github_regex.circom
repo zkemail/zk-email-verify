@@ -62,7 +62,7 @@ template RegexWithPlain(msg_bytes, reveal_bytes, substr_bytes) {
     signal output entire_count;
 
     signal output reveal_shifted_intermediate[reveal_bytes][msg_bytes];
-    signal output reveal_shifted[reveal_bytes];
+    // signal output reveal_shifted[reveal_bytes];
 
     var num_bytes = msg_bytes-4;
     signal in[num_bytes];
@@ -422,7 +422,7 @@ template RegexWithPlain(msg_bytes, reveal_bytes, substr_bytes) {
             // This shifts matched string back to the beginning. 
             reveal_shifted_intermediate[j][i] <== reveal_shifted_intermediate[j][i - 1] + match_start_idx0[i-j].out * reveal_match[i];
         }
-        reveal_shifted[j] <== reveal_shifted_intermediate[j][num_bytes - 1];
+        // reveal_shifted[j] <== reveal_shifted_intermediate[j][num_bytes - 1];
         // log("rev shifted ",j, " is ",reveal_shifted[j]);
     }
 
