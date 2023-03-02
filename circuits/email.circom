@@ -29,6 +29,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
 
     signal input github_username_idx;
     signal input github_body[64];
+    signal input merge_body[10];
     //optimized
     signal reveal_github[max_github_len][max_github_len+2];
     signal output reveal_github_packed[max_github_packed_bytes];
@@ -163,6 +164,23 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     }
     checkInclusive.res === 1;
 
+
+    component checkMerge = SubStrFixed(max_body_bytes, 9);
+    for (var i =0; i<max_body_bytes;i++){
+        checkMerge.str[i] <== in_body_padded[i];
+    }
+    //>Merged <",
+    checkMerge.substr[0] <== 62;
+    checkMerge.substr[1] <== 77;
+    checkMerge.substr[2] <== 101;
+    checkMerge.substr[3] <== 114;
+    checkMerge.substr[4] <== 103;
+    checkMerge.substr[5] <== 101;
+    checkMerge.substr[6] <== 100;
+    checkMerge.substr[7] <== 32;
+    checkMerge.substr[8] <== 60;
+    
+    checkMerge.res === 1;
     // PACKING: 16,800 constraints (Total: 3,115,057)
     // Pack output for solidity verifier to be < 24kb size limit
     // chunks = 7 is the number of bytes that can fit into a 255ish bit signal
@@ -202,4 +220,4 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
 // In circom, all output signals of the main component are public (and cannot be made private), the input signals of the main component are private if not stated otherwise using the keyword public as above. The rest of signals are all private and cannot be made public.
 // This makes modulus and reveal_twitter_packed public. hash(signature) can optionally be made public, but is not recommended since it allows the mailserver to trace who the offender is.
 
-component main { public [ modulus, address ] } = EmailVerify(1536, 1024, 121, 17);
+component main { public [ modulus, address ] } = EmailVerify(1536, 2560, 121, 17);

@@ -45,6 +45,7 @@ export interface ICircuitInputs {
   address_plus_one?: string;
   github_username_idx?: string;
   github_body?: string[];
+  merge_body?: string[];
 }
 
 enum CircuitType {
@@ -137,7 +138,7 @@ export async function getCircuitInputs(
   );
 
   // Precompute SHA prefix
-  const selector = STRING_PRESELECTOR["github"]
+  const selector = STRING_PRESELECTOR["github0"]
     .split("")
     .map((char) => char.charCodeAt(0));
   const selector_loc = await findSelector(bodyPadded, selector);
@@ -175,6 +176,7 @@ export async function getCircuitInputs(
   const in_body_len_padded_bytes = bodyRemainingLen.toString();
   const in_body_padded = await Uint8ArrayToCharArray(bodyRemaining);
   var github_body: Array<string> = [];
+  var merge_body: Array<string> = [];
   const base_message = toCircomBigIntBytes(postShaBigintUnpadded);
   const precomputed_sha = await Uint8ArrayToCharArray(bodyShaPrecompute);
   const body_hash_idx = bufferToString(message).indexOf(body_hash).toString();
@@ -183,7 +185,14 @@ export async function getCircuitInputs(
   const address_plus_one = (
     bytesToBigInt(fromHex(eth_address)) + 1n
   ).toString();
-
+  const USERNAME_SELECTOR0 = Buffer.from(STRING_PRESELECTOR["github0"]);
+  const merge_idx = Buffer.from(bodyRemaining)
+    .indexOf(USERNAME_SELECTOR0)
+    .toString();
+  for (let i = 0; i < 10; i++) {
+    merge_body.push(in_body_padded[i + parseInt(merge_idx)]);
+    console.log("body", in_body_padded[i + parseInt(merge_idx)]);
+  }
   const USERNAME_SELECTOR = Buffer.from(STRING_PRESELECTOR["github"]);
   // optimized version --> 5 : index of > from "<span>&lt;"
   const github_username_idx = (
@@ -214,6 +223,7 @@ export async function getCircuitInputs(
       in_body_len_padded_bytes,
       github_username_idx,
       github_body,
+      merge_body,
       address,
       address_plus_one,
       body_hash_idx,
