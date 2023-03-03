@@ -145,6 +145,7 @@ export async function getCircuitInputs(
   console.log("Body selector found at: ", selector_loc);
   let shaCutoffIndex =
     Math.floor((await findSelector(bodyPadded, selector)) / 64) * 64;
+  console.log("shaCutoff", shaCutoffIndex);
   const precomputeText = bodyPadded.slice(0, shaCutoffIndex);
   let bodyRemaining = bodyPadded.slice(shaCutoffIndex);
   const bodyRemainingLen = bodyPaddedLen - precomputeText.length;
@@ -162,10 +163,8 @@ export async function getCircuitInputs(
     bodyRemaining = mergeUInt8Arrays(bodyRemaining, int64toBytes(0));
     // console.log("after", bodyRemaining.length);
   }
-  console.log("jer");
   assert(bodyRemaining.length === MAX_BODY_PADDED_BYTES, "Invalid slice");
   const bodyShaPrecompute = await partialSha(precomputeText, shaCutoffIndex);
-
   // Compute identity revealer
   let circuitInputs;
   const modulus = toCircomBigIntBytes(modulusBigInt);
@@ -179,6 +178,7 @@ export async function getCircuitInputs(
   // var merge_body: Array<string> = [];
   const base_message = toCircomBigIntBytes(postShaBigintUnpadded);
   const precomputed_sha = await Uint8ArrayToCharArray(bodyShaPrecompute);
+  console.log("prec: ", precomputed_sha);
   const body_hash_idx = bufferToString(message).indexOf(body_hash).toString();
 
   const address = bytesToBigInt(fromHex(eth_address)).toString();
@@ -202,9 +202,10 @@ export async function getCircuitInputs(
     "Github Username (start for github_regex) idx: ",
     github_username_idx
   );
-  for (let i = 0; i < 64; i++) {
+  // op_github_body
+  for (let i = 0; i < 18; i++) {
     github_body.push(in_body_padded[i + parseInt(github_username_idx)]);
-    console.log("body", in_body_padded[i + parseInt(github_username_idx)]);
+    // console.log("body", in_body_padded[i + parseInt(github_username_idx)]);
   }
   if (circuit === CircuitType.RSA) {
     circuitInputs = {

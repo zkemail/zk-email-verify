@@ -24,10 +24,11 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     signal reveal[max_header_bytes]; // bytes to reveal
     signal reveal_packed[max_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
 
-    var max_github_len = 35;
+    // small repo
+    var max_github_len =11;
     var max_github_packed_bytes = (max_github_len - 1) \ 7 + 1; // ceil(max_num_bytes / 7)
-
-    signal input github_body[64];
+    //small repo 11+7 
+    signal input github_body[18];
     //optimized
     signal reveal_github[max_github_len][max_github_len+2];
     signal output reveal_github_packed[max_github_packed_bytes];
@@ -153,11 +154,11 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     }
 
     // check optimized
-    component checkInclusive = SubStrFixed(max_body_bytes, 64);
+    component checkInclusive = SubStrFixed(max_body_bytes, 18);
     for (var i =0; i<max_body_bytes;i++){
         checkInclusive.str[i] <== in_body_padded[i];
     }
-    for (var i =0; i<64;i++){
+    for (var i =0; i<18;i++){
         checkInclusive.substr[i] <== github_body[i];
     }
     checkInclusive.res === 1;
@@ -218,4 +219,4 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
 // In circom, all output signals of the main component are public (and cannot be made private), the input signals of the main component are private if not stated otherwise using the keyword public as above. The rest of signals are all private and cannot be made public.
 // This makes modulus and reveal_twitter_packed public. hash(signature) can optionally be made public, but is not recommended since it allows the mailserver to trace who the offender is.
 
-component main { public [ modulus, address ] } = EmailVerify(1536, 2560, 121, 17);
+component main { public [ modulus, address ] } = EmailVerify(1536, 2048, 121, 17);
