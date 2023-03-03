@@ -2845,10 +2845,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openzeppelin/contracts@npm:^4.7.1":
-  version: 4.8.0
-  resolution: "@openzeppelin/contracts@npm:4.8.0"
-  checksum: dfab51a7f91735cfb1e94dd5074736b0dac0207e4ebf26eb46b32defd3b67adce5a36b248daa7b841c21be74863c1e37cf92ed194a9c36d3f8c5326d1a24242a
+"@openzeppelin/contracts@npm:^4.8.2":
+  version: 4.8.2
+  resolution: "@openzeppelin/contracts@npm:4.8.2"
+  checksum: 1d362f0b9c880549cb82544e23fb70270fbbbe24a69e10bd5aa07649fd82347686173998ae484defafdc473d04004d519f839e3cd3d3e7733d0895b950622243
   languageName: node
   linkType: hard
 
@@ -8308,7 +8308,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "double-blind@workspace:."
   dependencies:
-    "@openzeppelin/contracts": ^4.7.1
+    "@openzeppelin/contracts": ^4.8.2
     "@rainbow-me/rainbowkit": ^0.8.0
     "@testing-library/jest-dom": ^5.16.3
     "@testing-library/react": ^12.1.4
