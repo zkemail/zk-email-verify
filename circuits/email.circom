@@ -53,7 +53,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     signal input address;
     signal input address_plus_one;
 
-    var LEN_SHA_B64 = 44;     // ceil(32/3) * 4, should be automatically calculated.
+    var LEN_SHA_B64 = 44;     // ceil(32/3) * 4, due to base64 encoding.
     signal input body_hash_idx;
     signal body_hash[LEN_SHA_B64][max_header_bytes];
 
@@ -144,6 +144,8 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     for (var i = 0; i < LEN_SHA_B64; i++) {
         sha_b64.in[i] <== body_hash[i][max_header_bytes - 1];
     }
+    // When we convert the manually hashed email sha_body into bytes, it matches the
+    // base64 decoding of the final hash state that the signature signs (sha_b64)
     component sha_body_bytes[32];
     for (var i = 0; i < 32; i++) {
         sha_body_bytes[i] = Bits2Num(8);

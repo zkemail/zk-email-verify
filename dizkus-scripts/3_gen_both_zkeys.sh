@@ -16,7 +16,10 @@ fi
 
 # First, chunked snarkjs
 yarn remove snarkjs
+mv yarn.lock yarn.lock_old
+mv node_modules node_modules_old
 yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8
+yarn
 
 echo "****GENERATING ZKEY 0****"
 start=$(date +%s)
@@ -48,6 +51,8 @@ echo
 
 # Then, nonchunked snarkjs
 yarn remove snarkjs
+mv yarn.lock yarn.lock_old2
+mv node_modules node_modules_old2
 yarn add snarkjs@latest
 
 echo "****GENERATING ZKEY NONCHUNKED 0****"
@@ -76,3 +81,9 @@ NODE_OPTIONS='--max-old-space-size=56000' node ../node_modules/.bin/snarkjs zkey
 end=$(date +%s)
 echo "DONE ($((end - start))s)"
 echo
+
+yarn remove snarkjs
+mv yarn.lock yarn.lock_old3
+mv node_modules node_modules_old3
+yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8
+yarn
