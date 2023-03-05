@@ -8201,6 +8201,7 @@ __metadata:
     ts-node-dev: ^2.0.0
     typescript: ^4.8.3
     wagmi: ^0.6.8
+    wasmlibfp: ^0.9.1
     web-vitals: ^2.1.4
   languageName: unknown
   linkType: soft
@@ -20320,6 +20321,13 @@ __metadata:
   dependencies:
     wasmbuilder: 0.0.16
   checksum: 0769ca2d0c2f99619436f86dcab16294d94cc0c8a114b0c5e6ed71df49625a6ad35000011fee57471b7647838eeb75f631e74b200996ac2513e8ca0c47e5b8d0
+  languageName: node
+  linkType: hard
+
+"wasmlibfp@npm:^0.9.1":
+  version: 0.9.1
+  resolution: "wasmlibfp@npm:0.9.1"
+  checksum: d1821f2f87beb0394352ab415b3b7c1084b3051fffa2b838b519a4344ecf5a6ae28608c0a3daea6ec1e33708b9fd9171ebe4e3aca609cacecde929d2f91a8941
   languageName: node
   linkType: hard
 

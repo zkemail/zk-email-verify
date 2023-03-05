@@ -16,7 +16,7 @@ const App = () => {
   return (
     <Router>
       <div>
-        <NavSection />
+        {/* <NavSection /> */}
 
         <Routes>
           <Route path="/" element={<Main />} />

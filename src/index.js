@@ -13,30 +13,30 @@ import {
 import "./index.css";
 import "@rainbow-me/rainbowkit/styles.css";
 
-const { chains, provider, webSocketProvider } = configureChains(
-  [chain.goerli],
-  [publicProvider()]
-);
+// const { chains, provider, webSocketProvider } = configureChains(
+//   [chain.goerli],
+//   [publicProvider()]
+// );
 
-const { connectors } = getDefaultWallets({
-  appName: "ZK Email",
-  chains,
-});
+// const { connectors } = getDefaultWallets({
+//   appName: "ZK Email",
+//   chains,
+// });
 
-const client = createClient({
-  autoConnect: true,
-  connectors,
-  provider,
-  webSocketProvider,
-});
+// const client = createClient({
+//   autoConnect: true,
+//   connectors,
+//   provider,
+//   webSocketProvider,
+// });
 
 ReactDOM.render(
   <React.StrictMode>
-    <WagmiConfig client={client}>
-      <RainbowKitProvider chains={chains} theme={darkTheme()}>
-        <App />
-      </RainbowKitProvider>
-    </WagmiConfig>
+    {/*    <WagmiConfig client={client}>
+       <RainbowKitProvider chains={chains} theme={darkTheme()}> */}
+    <App />
+    {/*    </RainbowKitProvider>
+     </WagmiConfig> */}
   </React.StrictMode>,
   document.getElementById("root")
 );
