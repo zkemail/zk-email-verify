@@ -1,33 +1,32 @@
 # ZK Github using zkEmail
    Enable github proof using zk-email
 
-What is zkRepo?
+## What is zkRepo?
 zkRepo is a website where people can create a proof that they contributed to a certain github repo without revealing who they are. In this demo, we show the use case of a DAO that wants to reward github contributors who contribute to their repo. Hence, a github contributor can use zkRepo to create a proof and get verified to claim reward without revealing who they are, hence not being able to be tracked and associated with his github background/history.
 This anonymous property doesn’t only serve as a “good to have” privacy but can also serve as a critical factor in how a person lives their developer life as seen in more use cases below.
 
 
-Why contribute to a Github project anonymously?
+## Why contribute to a Github project anonymously?
 
-Government - you may live in a country/region where the government tracks your contributions online 
-Career - you may be contributing to a project that your employer may not approve of
-Security - you may want to contribute to a project that implies financial interest
-Prove a point - you may want to write something controversial to start a discussion.
-Privacy - You just value your privacy.
+- Government - you may live in a country/region where the government tracks your contributions online 
+- Career - you may be contributing to a project that your employer may not approve of
+- Security - you may want to contribute to a project that implies financial interest
+- Prove a point - you may want to write something controversial to start a discussion.
+- Privacy - You just value your privacy.
 
 In the future, we can have a more fine-grained anonymity. For example, we can Categorize severity of bug by pull tag number and award the anonymous claimer in that category accordingly. Interestingly, we can also make it possible to claim their merit without revealing contributions e.g. I contributed to 100 githubs with each 100k+ stars.
 
 
+## Innovation
+- We’re hugely inspired by zkEmail (https://github.com/zk-email-verify/zk-email-verify) in being able to use email to prove that you have a certain twitter handler. Here are our innovations.
+- Optimized string matching. Instead of using Regex state machine to parse and match all strings which is very expensive because we also parse plaintext into the state machine, we make sure to match the plaintext using string comparison first, and precisely identify the point of string that is necessary to use Regex state machine, and just start from that, saving a lot of constraint.
+- Generalized matching group. Instead of being able to reveal a certain arbitrary group of Regex, we make it possible to create a generalized circom circuit that allows it to extract any combination of groups all at once. For example, a string of github repo (username/reponame/pull/1/ …) can be easily revealed only as username/repo
+- Multiple matches. Instead of matching only the part where there is an arbitrary regex, we wrote a framework that makes it easy to match plaintext in addition as well. For example, we make sure to match “merge” and reveal username/repo which are in different chunks.
 
-Innovation
-We’re hugely inspired by zkEmail (https://github.com/zk-email-verify/zk-email-verify) in being able to use email to prove that you have a certain twitter handler. Here are our innovations.
-Optimized string matching. Instead of using Regex state machine to parse and match all strings which is very expensive because we also parse plaintext into the state machine, we make sure to match the plaintext using string comparison first, and precisely identify the point of string that is necessary to use Regex state machine, and just start from that, saving a lot of constraint.
-Generalized matching group. Instead of being able to reveal a certain arbitrary group of Regex, we make it possible to create a generalized circom circuit that allows it to extract any combination of groups all at once. For example, a string of github repo (username/reponame/pull/1/ …) can be easily revealed only as username/repo
-Multiple matches. Instead of matching only the part where there is an arbitrary regex, we wrote a framework that makes it easy to match plaintext in addition as well. For example, we make sure to match “merge” and reveal username/repo which are in different chunks.
 
-
-Upcoming Innovation
-Automated DFA locator. Right now, we need to manually see the state machine that we generate and see where the state we want to extract from. We will automate this process.
-etc.
+## Upcoming Innovation
+- Automated DFA locator. Right now, we need to manually see the state machine that we generate and see where the state we want to extract from. We will automate this process.
+- etc.
 
 
 
