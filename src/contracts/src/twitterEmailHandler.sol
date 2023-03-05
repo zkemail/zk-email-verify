@@ -13,20 +13,22 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
 
   Counters.Counter private tokenCounter;
 
-  mapping(string => uint256[17]) public verifiedMailserverKeys;
-  mapping(uint256 => string) public tokenToName;
-  string constant domain = "twitter.com";
 
   uint16 public constant msg_len = 21; // header + body
   uint256 public constant body_len = 3;
+  uint256 public constant rsa_modulus_chunks_len = 17;
   uint256 public constant header_len = msg_len - body_len;
-  uint256 public constant addressIndexInSignals = 20; // TODO: FIX CONSTANT
+  uint256 public constant addressIndexInSignals = msg_len - 1; // TODO: FIX CONSTANT
+
+  mapping(string => uint256[rsa_modulus_chunks_len]) public verifiedMailserverKeys;
+  mapping(uint256 => string) public tokenToName;
+  string constant domain = "twitter.com";
 
   constructor() ERC721("VerifiedEmail", "VerifiedEmail") {
     // Do dig TXT outgoing._domainkey.twitter.com to verify these.
     // This is the base 2^121 representation of that key.
     // Circom bigint: represent a = a[0] + a[1] * 2**n + .. + a[k - 1] * 2**(n * k)
-
+    require(rsa_modulus_chunks_len + body_len + 1 == msg_len, "Variable counts are wrong!");
     verifiedMailserverKeys["twitter.com"][0] = 1634582323953821262989958727173988295;
     verifiedMailserverKeys["twitter.com"][1] = 1938094444722442142315201757874145583;
     verifiedMailserverKeys["twitter.com"][2] = 375300260153333632727697921604599470;
@@ -173,7 +175,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
     }
     string memory returnValue = string(nonzeroBytesArray);
     require(state == 2, "Invalid final state of packed bytes in email");
-    console.log(nonzeroBytesArrayIndex);
+    // console.log("Characters in username: ", nonzeroBytesArrayIndex);
     require(nonzeroBytesArrayIndex <= maxBytes, "Twitter username more than 15 chars!");
     return returnValue;
     // Have to end at the end of the email -- state cannot be 1 since there should be an email footer
@@ -197,20 +199,19 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
 
     // 3 public signals are the masked packed message bytes, 17 are the modulus.
     uint256[] memory bodySignals = new uint256[](body_len);
-    uint256[] memory headerSignals = new uint256[](header_len);
+    uint256[] memory rsaModulusSignals = new uint256[](header_len);
     for (uint256 i = 0; i < body_len; i++) bodySignals[i] = signals[i];
-    for (uint256 i = body_len; i < msg_len; i++) headerSignals[i - body_len] = signals[i];
+    for (uint256 i = body_len; i < msg_len - 1; i++) rsaModulusSignals[i - body_len] = signals[i];
 
     // Check eth address committed to in proof matches msg.sender, to avoid replayability
     require(address(uint160(signals[addressIndexInSignals])) == msg.sender, "Invalid address");
 
     // Check from/to email domains are correct [in this case, only from domain is checked]
-    require(_domainCheck(headerSignals), "Invalid domain");
+    // require(_domainCheck(headerSignals), "Invalid domain");
 
     // Verify that the public key for RSA matches the hardcoded one
-    for (uint i = body_len - 1; i < msg_len; i++) {
-      console.log(signals[i], verifiedMailserverKeys[domain][i - body_len + 1]);
-      require(signals[i] == verifiedMailserverKeys[domain][i - body_len + 1], "Invalid modulus not matched");
+    for (uint i = body_len; i < msg_len - 1; i++) {
+      require(signals[i] == verifiedMailserverKeys[domain][i - body_len], "Invalid: RSA modulus not matched");
     }
     require(verifyProof(a, b, c, signals), "Invalid Proof"); // checks effects iteractions, this should come first
 

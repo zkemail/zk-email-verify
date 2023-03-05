@@ -38,6 +38,7 @@ export interface ICircuitInputs {
   address?: string;
   address_plus_one?: string;
   twitter_username_idx?: string;
+  email_from_idx?: string;
 }
 
 enum CircuitType {
@@ -136,6 +137,7 @@ export async function getCircuitInputs(
   const address_plus_one = (bytesToBigInt(fromHex(eth_address)) + 1n).toString();
 
   const USERNAME_SELECTOR = Buffer.from(STRING_PRESELECTOR);
+  const email_from_idx = Buffer.from(prehash_message_string).indexOf("from:").toString();
   const twitter_username_idx = (Buffer.from(bodyRemaining).indexOf(USERNAME_SELECTOR) + USERNAME_SELECTOR.length).toString();
   console.log("Twitter Username idx: ", twitter_username_idx);
 
@@ -158,6 +160,7 @@ export async function getCircuitInputs(
       address,
       address_plus_one,
       body_hash_idx,
+      email_from_idx,
     };
   } else {
     assert(circuit === CircuitType.SHA, "Invalid circuit type");
