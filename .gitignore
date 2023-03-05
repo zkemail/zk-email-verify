@@ -30,9 +30,9 @@ circuits/*_js/*
 *.sym
 circuits/*.wasm
 circuits/*.wtns
-src/circuits/*.wasm
+# src/circuits/*.wasm
 *.ptau
-*.zkey
+# *.zkey
 circuits/inputs/*.json
 
 .pnp.*
@@ -45,7 +45,7 @@ circuits/inputs/*.json
 
 # Added by yush
 out/
-circuits/circuit*zkey*
+# circuits/circuit*zkey*
 circuits/email/
 cache/
 test.log
