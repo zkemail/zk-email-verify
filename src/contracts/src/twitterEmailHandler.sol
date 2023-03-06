@@ -13,8 +13,8 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
 
   Counters.Counter private tokenCounter;
 
-
   uint16 public constant msg_len = 21; // header + body
+  uint16 public constant bytesInPackedBytes = 7; // 7 bytes in a packed item returned from circom
   uint256 public constant body_len = 3;
   uint256 public constant rsa_modulus_chunks_len = 17;
   uint256 public constant header_len = msg_len - body_len;
@@ -139,7 +139,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
   // Only extracts contiguous non-zero characters and ensures theres only 1 such state
   // Note that unpackedLen may be more than packedBytes.length * 8 since there may be 0s
   // TODO: Remove console.logs and define this as a pure function instead of a view
-  function convert7PackedBytesToBytes(uint256[] memory packedBytes, uint256 maxBytes) public view returns (string memory extractedString) {
+  function convertPackedBytesToBytes(uint256[] memory packedBytes, uint256 maxBytes) public view returns (string memory extractedString) {
     uint8 state = 0;
     // bytes: 0 0 0 0 y u s h _ g 0 0 0
     // state: 0 0 0 0 1 1 1 1 1 1 2 2 2
@@ -147,16 +147,11 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
     uint256 nonzeroBytesArrayIndex = 0;
     for (uint16 i = 0; i < packedBytes.length; i++) {
       uint256 packedByte = packedBytes[i];
-      uint8[7] memory unpackedBytes = [
-        uint8(packedByte),
-        uint8(packedByte >> 8),
-        uint8(packedByte >> 16),
-        uint8(packedByte >> 24),
-        uint8(packedByte >> 32),
-        uint8(packedByte >> 40),
-        uint8(packedByte >> 48)
-      ];
-      for (uint256 j = 0; j < 7; j++) {
+      uint8[] memory unpackedBytes = new uint8[](bytesInPackedBytes);
+      for (uint j = 0; j < bytesInPackedBytes; j++) {
+        unpackedBytes[j] = uint8(packedByte >> (j * 8));
+      }
+      for (uint256 j = 0; j < bytesInPackedBytes; j++) {
         uint256 unpackedByte = unpackedBytes[j]; //unpackedBytes[j];
         // console.log(i, j, state, unpackedByte);
         if (unpackedByte != 0) {
@@ -187,7 +182,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
 
   // TODO: Remove console.logs and define this as a pure function instead of a view
   function _domainCheck(uint256[] memory headerSignals) public view returns (bool) {
-    string memory senderBytes = convert7PackedBytesToBytes(headerSignals, 15);
+    string memory senderBytes = convertPackedBytesToBytes(headerSignals, 18);
     string[2] memory domainStrings = ["verify@twitter.com", "info@twitter.com"];
     return _stringEq(senderBytes, domainStrings[0]) || _stringEq(senderBytes, domainStrings[1]);
     // Usage: require(_domainCheck(senderBytes, domainStrings), "Invalid domain");
@@ -217,7 +212,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
 
     // Effects: Mint token
     uint256 tokenId = tokenCounter.current() + 1;
-    string memory messageBytes = convert7PackedBytesToBytes(bodySignals, 5000);
+    string memory messageBytes = convertPackedBytesToBytes(bodySignals, bytesInPackedBytes * body_len);
     tokenToName[tokenId] = messageBytes;
     _mint(msg.sender, tokenId);
     tokenCounter.increment();

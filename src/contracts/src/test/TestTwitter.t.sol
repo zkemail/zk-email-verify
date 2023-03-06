@@ -27,7 +27,7 @@ contract TwitterUtilsTest is Test {
     packedBytes[2] = 0;
 
     // This is 0x797573685f670000000000000000000000000000000000000000000000000000
-    string memory byteList = testVerifier.convert7PackedBytesToBytes(packedBytes, 15);
+    string memory byteList = testVerifier.convertPackedBytesToBytes(packedBytes, 15);
     // This is 0x797573685f67, since strings are internally arbitrary length arrays
     string memory intended_value = "yush_g";
 
@@ -40,11 +40,10 @@ contract TwitterUtilsTest is Test {
     assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
     console.logString(byteList);
 
-
     packedBytes[0] = 28557011619965818;
     packedBytes[1] = 1818845549;
     packedBytes[2] = 0;
-    byteList = testVerifier.convert7PackedBytesToBytes(packedBytes, 15);
+    byteList = testVerifier.convertPackedBytesToBytes(packedBytes, 15);
     intended_value = "zktestemail";
     assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
     console.logString(byteList);
@@ -82,13 +81,8 @@ contract TwitterUtilsTest is Test {
     ];
     // Note: you need to swap the order of the two elements in each subarray
     uint256[2][2] memory proof_b = [
-      [
-        7137251977000396921187211482543276383286499202727947375560240664952053065760,
-        13876127660294685598627130750542098746667235071325948077323047871936291383165
-      ],[
-        14638760282053729656283850853839612853026876699152633302805709762247334168353,
-        5306466054152524902400380774329999556148766793013496242284114650812813364132
-      ]
+      [7137251977000396921187211482543276383286499202727947375560240664952053065760, 13876127660294685598627130750542098746667235071325948077323047871936291383165],
+      [14638760282053729656283850853839612853026876699152633302805709762247334168353, 5306466054152524902400380774329999556148766793013496242284114650812813364132]
     ];
     uint256[2] memory proof_c = [
       12060931860841152285454518314820865992567081987338134389462649672166704174317,
@@ -131,25 +125,20 @@ contract TwitterUtilsTest is Test {
     publicSignals[19] = 3933359104846508935112096715593287;
     publicSignals[20] = 556307310756571904145052207427031380052712977221;
 
-     // TODO switch order
-     uint256[2] memory proof_a = [
+    // TODO switch order
+    uint256[2] memory proof_a = [
       9363006867611269678582925935753021647889027030446896413835957187406043727690,
       21630169556253404895678159104497446719574525736987888783761908716313881927992
-     ];
-     // Note: you need to swap the order of the two elements in each subarray
-     uint256[2][2] memory proof_b = [
-       [
-        16566593201830840943252718762249962483142131594763397873538075518277702645082,
-        18567659038303546225106951504886253604470228016916658528973206870511276829533
-       ],[
-        2266080565824575322432873090363833504418041632970946239667340737263413898232,
-        2242723441612422425510136818011613824051492998493014918147869951941405078798
-       ]
-     ];
-     uint256[2] memory proof_c = [
+    ];
+    // Note: you need to swap the order of the two elements in each subarray
+    uint256[2][2] memory proof_b = [
+      [16566593201830840943252718762249962483142131594763397873538075518277702645082, 18567659038303546225106951504886253604470228016916658528973206870511276829533],
+      [2266080565824575322432873090363833504418041632970946239667340737263413898232, 2242723441612422425510136818011613824051492998493014918147869951941405078798]
+    ];
+    uint256[2] memory proof_c = [
       12224501323997049527817799755022184802988108888333268634200461535503052305125,
       3177656185967472916322211236519001250723481802804621893491948147849123768548
-     ];
+    ];
 
     // Test proof verification
     bool verified = proofVerifier.verifyProof(proof_a, proof_b, proof_c, publicSignals);
@@ -160,5 +149,11 @@ contract TwitterUtilsTest is Test {
     vm.startPrank(0x6171aeBcC9e9B9E1D90EC9C2E124982932297345);
     testVerifier.mint(proof_a, proof_b, proof_c, publicSignals);
     vm.stopPrank();
+  }
+
+  function testGetTokenSVG() public {
+    string memory svgValue = testVerifier.tokenURI(1);
+    console.log(svgValue);
+    // assertEq(svgValue, "", "SVG doesn't match!");
   }
 }
