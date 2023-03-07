@@ -160,7 +160,7 @@ export async function getCircuitInputs(
       address,
       address_plus_one,
       body_hash_idx,
-      email_from_idx,
+      // email_from_idx,
     };
   } else {
     assert(circuit === CircuitType.SHA, "Invalid circuit type");
@@ -178,26 +178,26 @@ export async function getCircuitInputs(
 
 export async function generate_inputs(email: Buffer, eth_address: string): Promise<ICircuitInputs> {
   var result;
-  try {
-    console.log("DKIM verification starting");
-    result = await dkimVerify(email);
-    if (!result.results[0].publicKey) {
-      if (result.results[0].status.message) {
-        throw new Error(result.results[0].status.message);
-      } else {
-        throw new Error("No public key found on generate_inputs");
-      }
+  console.log("DKIM verification starting");
+  result = await dkimVerify(email);
+  if (!result.results[0].publicKey) {
+    if (result.results[0].status.message) {
+      throw new Error(result.results[0].status.message);
+    } else {
+      throw new Error("No public key found on generate_inputs");
     }
-    const _ = result.results[0].publicKey.toString();
-    console.log("DKIM verification successful");
-    // TODO: Condiiton code on if there is an internet connection, run this code
-    var frozen = Cryo.stringify(result);
-    fs.writeFileSync(`./email_cache_2.json`, frozen, { flag: "w" });
-  } catch (e) {
-    console.log("Reading cached email instead!");
-    let frozen = fs.readFileSync(`./email_cache.json`, { encoding: "utf-8" });
-    result = Cryo.parse(frozen);
   }
+  const _ = result.results[0].publicKey.toString();
+  console.log("DKIM verification successful");
+  // try {
+  //   // TODO: Condiiton code on if there is an internet connection, run this code
+  //   var frozen = Cryo.stringify(result);
+  //   fs.writeFileSync(`./email_cache_2.json`, frozen, { flag: "w" });
+  // } catch (e) {
+  //   console.log("Reading cached email instead!");
+  //   let frozen = fs.readFileSync(`./email_cache.json`, { encoding: "utf-8" });
+  //   result = Cryo.parse(frozen);
+  // }
   let sig = BigInt("0x" + Buffer.from(result.results[0].signature, "base64").toString("hex"));
   let message = result.results[0].status.signature_header;
   let body = result.results[0].body;

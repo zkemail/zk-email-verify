@@ -62,7 +62,8 @@
     "test:e2e-zkp": "CI=true react-scripts test --runInBand --testPathPattern='e2e-dl-zkp' --reporters=default --reporters=jest-junit",
     "eject": "react-scripts eject",
     "compile": "node circuits/scripts/compile.js",
-    "compile-all": "npx tsx src/scripts/generate_input.ts && yarn compile email true"
+    "gen-input": "npx tsx src/scripts/generate_input.ts",
+    "compile-all": "yarn gen-input && yarn compile email true"
   },
   "eslintConfig": {
     "extends": [
