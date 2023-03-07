@@ -21,7 +21,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     // chunks = 7 is the number of bytes that can fit into a 255ish bit signal (can increase later)
     var chunks = 7;
     var max_packed_bytes = (max_header_bytes - 1) \ chunks + 1; // ceil(max_num_bytes / 7)
-    var max_email_from_len = 50;
+    var max_email_from_len = 30;
     var max_email_from_packed_bytes = (max_email_from_len - 1) \ chunks + 1;
     // assert(chunks * max_email_from_packed_bytes <= max_email_from_len); // TODO: Not true for 7 * 8 <= 50
     assert(max_email_from_packed_bytes < max_header_bytes);
@@ -105,6 +105,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     // for (var i = 0; i < max_header_bytes; i++) {
     //     reveal_email_from[i] <== dkim_header_regex.reveal[i+1];
     // }
+    log(dkim_header_regex.reveal[0]);
     log(dkim_header_regex.out);
 
     // BODY HASH REGEX: 617,597 constraints

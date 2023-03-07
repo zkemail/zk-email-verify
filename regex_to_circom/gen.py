@@ -10,7 +10,6 @@ graph = [{} for i in range(N)]
 # Incoming Nodes
 rev_graph = [[] for i in range(N)]
 accept_nodes = set()
-
 for i in range(N):
     for k in graph_json[i]['edges']:
         # assert len(k) == 1
@@ -20,6 +19,10 @@ for i in range(N):
         rev_graph[v].append((k, i))
     if graph_json[i]['type'] == 'accept':
         accept_nodes.add(i)
+
+print(graph_json)
+print(rev_graph)
+print(graph)
 
 accept_nodes = list(accept_nodes)
 assert len(accept_nodes) == 1
