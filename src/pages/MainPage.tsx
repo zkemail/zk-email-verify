@@ -33,8 +33,8 @@ export const MainPage: React.FC<{}> = (props) => {
 
   const [emailSignals, setEmailSignals] = useState<string>("");
   const [emailFull, setEmailFull] = useState<string>(localStorage.emailFull || "");
-  const [proof, setProof] = useState<string>("");
-  const [publicSignals, setPublicSignals] = useState<string>("");
+  const [proof, setProof] = useState<string>(localStorage.proof || "");
+  const [publicSignals, setPublicSignals] = useState<string>(localStorage.publicSignals || "");
   const [displayMessage, setDisplayMessage] = useState<string>("Prove");
   const [emailHeader, setEmailHeader] = useState<string>("");
   const { address } = useAccount();
@@ -154,6 +154,18 @@ export const MainPage: React.FC<{}> = (props) => {
         localStorage.emailFull = emailFull;
       }
     }
+    if (proof) {
+      if (localStorage.proof !== proof) {
+        console.info("Wrote proof to localStorage");
+        localStorage.proof = proof;
+      }
+    }
+    if (publicSignals) {
+      if (localStorage.publicSignals !== publicSignals) {
+        console.info("Wrote publicSignals to localStorage");
+        localStorage.publicSignals = publicSignals;
+      }
+    }
   }, [value]);
 
   if (error) console.error(error);
@@ -174,8 +186,9 @@ export const MainPage: React.FC<{}> = (props) => {
         }}
       >
         <span style={{ color: "rgba(255, 255, 255, 0.7)" }}>
-          Note that we are actively developing and debugging this page, it is likely unstable. Due to download limits of incognito mode and non-chrome browsers, you must use Chrome
-          to generate proofs right now. If you wish to generate a ZK proof of Twitter badge, you must do these:
+          Note that we are <a href="https://github.com/zk-email-verify/zk-email-verify/">actively developing</a> and debugging this page, it is likely unstable. Due to download
+          limits of incognito mode and non-chrome browsers, you must use Chrome to generate proofs right now. If you wish to generate a ZK proof of Twitter badge, you must do
+          these:
         </span>
         <NumberedStep step={1}>
           Send yourself a <a href="https://twitter.com/i/flow/password_reset">password reset email</a> from Twitter in incognito.
@@ -189,8 +202,11 @@ export const MainPage: React.FC<{}> = (props) => {
           Paste in your sending Ethereum address. This ensures that no one else can "steal" your proof for another account (frontrunning protection!).
         </NumberedStep>
         <NumberedStep step={5}>
-          Click "Generate Proof". Since it is completely client side and open source, and you are not trusting us with any private information. We will soon have the ability to
-          send this proof on-chain!
+          Click <b>"Generate Proof"</b>. Since it is completely client side and open source, and you are not trusting us with any private information.
+        </NumberedStep>
+        <NumberedStep step={6}>
+          Click <b>"Verify"</b> and then <b>"Mint Twitter Badge On-Chain"</b>, and approve to mint the NFT badge that proves Twitter ownership! Note that it is 700K gas right now
+          so only feasible on Goerli, though we intend to reduce this soon.
         </NumberedStep>
       </Col>
       <Main>
@@ -349,11 +365,7 @@ export const MainPage: React.FC<{}> = (props) => {
             disabled={!verificationPassed || isLoading || isSuccess}
             onClick={async () => {
               setStatus("sending-on-chain");
-              setDisplayMessage("Attempting to send on chain...");
               write?.();
-              setLastAction("send");
-              setDisplayMessage("Finished sending on chain!");
-              setStatus("sent");
             }}
           >
             {isSuccess
@@ -364,7 +376,11 @@ export const MainPage: React.FC<{}> = (props) => {
               ? "Mint Twitter badge on-chain"
               : "Verify first, before minting on-chain!"}
           </Button>
-          {isSuccess && <div>Transaction: {JSON.stringify(data)}</div>}
+          {isSuccess && (
+            <div>
+              Transaction: <a href={"https://goerli.etherscan.io/tx/" + data?.hash}>{data?.hash}</a>
+            </div>
+          )}
         </Column>
       </Main>
     </Container>
