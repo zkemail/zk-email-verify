@@ -187,16 +187,16 @@ export const MainPage: React.FC<{}> = (props) => {
       >
         <span style={{ color: "rgba(255, 255, 255, 0.7)" }}>
           Note that we are <a href="https://github.com/zk-email-verify/zk-email-verify/">actively developing</a> and debugging this page, it is likely unstable. Due to download
-          limits of incognito mode and non-chrome browsers, you must use Chrome to generate proofs right now. If you wish to generate a ZK proof of Twitter badge, you must do
-          these:
+          limits of incognito mode and non-chrome browsers, you must use Chrome to generate proofs right now. Our goal for March 2023 is to make this process 10x faster and
+          smaller. If you wish to generate a ZK proof of Twitter badge, you must do these:
         </span>
         <NumberedStep step={1}>
           Send yourself a <a href="https://twitter.com/i/flow/password_reset">password reset email</a> from Twitter in incognito.
         </NumberedStep>
         <NumberedStep step={2}>In your inbox, find the email from Twitter and download headers (three dots, then download message).</NumberedStep>
         <NumberedStep step={3}>
-          Copy paste the entire contents of the .eml file into the box below. Note that your reset code is one-time-use and we never get your password (in fact, we don't have a
-          server at all).
+          Copy paste the entire contents of the .eml file into the box below. Note that we cannot use this to phish you: we do not know your password, and we never get this email
+          info because we have no server at all. We are actively searching for a less sketchy email.
         </NumberedStep>
         <NumberedStep step={4}>
           Paste in your sending Ethereum address. This ensures that no one else can "steal" your proof for another account (frontrunning protection!).
