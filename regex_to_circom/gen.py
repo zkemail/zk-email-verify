@@ -20,10 +20,6 @@ for i in range(N):
     if graph_json[i]['type'] == 'accept':
         accept_nodes.add(i)
 
-print(graph_json)
-print(rev_graph)
-print(graph)
-
 accept_nodes = list(accept_nodes)
 assert len(accept_nodes) == 1
 
