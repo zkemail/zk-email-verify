@@ -146,14 +146,14 @@ contract TwitterUtilsTest is Test {
     // Test mint after spoofing msg.sender
     Vm vm = Vm(VM_ADDR);
     vm.startPrank(0x6171aeBcC9e9B9E1D90EC9C2E124982932297345);
-    vm.startPrank(0x0000000000000000000000000000000000000001);
     testVerifier.mint(proof_a, proof_b, proof_c, publicSignals);
     vm.stopPrank();
-  }
 
-  function testGetTokenSVG() public {
     string memory svgValue = testVerifier.tokenURI(1);
     console.log(svgValue);
-    // assertEq(svgValue, "", "SVG doesn't match!");
   }
+
+  // function testGetTokenSVG() public {
+  //   // assertEq(svgValue, "", "SVG doesn't match!");
+  // }
 }

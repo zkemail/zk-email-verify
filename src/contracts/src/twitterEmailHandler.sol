@@ -5,7 +5,8 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "forge-std/console.sol";
-import "./base64.sol";
+// import "./base64.sol";
+import "./NFTSVG.sol";
 import "./emailVerifier.sol";
 
 contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
@@ -21,7 +22,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
   uint256 public constant addressIndexInSignals = msg_len - 1; // TODO: FIX CONSTANT
 
   mapping(string => uint256[rsa_modulus_chunks_len]) public verifiedMailserverKeys;
-  mapping(uint256 => string) public tokenToName;
+  mapping(uint256 => string) public tokenIDToName;
   string constant domain = "twitter.com";
 
   constructor() ERC721("VerifiedEmail", "VerifiedEmail") {
@@ -46,6 +47,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
     verifiedMailserverKeys["twitter.com"][14] = 16021263889082005631675788949457422;
     verifiedMailserverKeys["twitter.com"][15] = 299744519975649772895460843780023483;
     verifiedMailserverKeys["twitter.com"][16] = 3933359104846508935112096715593287;
+    // tokenIDToName[0] = "<this is a null username>";
   }
 
   // function getDesc(
@@ -78,35 +80,43 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
   // }
 
   function tokenURI(uint256 tokenId) public view override returns (string memory) {
-    string[3] memory parts;
-    parts[
-      0
-    ] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="black" /><text x="10" y="20" class="base">';
-
-    // parts[1] = tokenDesc(tokenId);
-
-    parts[2] = "</text></svg>";
-
-    string memory output = string(abi.encodePacked(parts[0], parts[1], parts[2]));
+    string memory username = tokenIDToName[tokenId];
+    address owner = ownerOf(tokenId);
+    NFTSVG.SVGParams memory svgParams = NFTSVG.SVGParams({
+      username: username,
+      tokenId: tokenId,
+      color0: NFTSVG.tokenToColorHex(uint256(uint160(owner)), 136),
+      color1: NFTSVG.tokenToColorHex(uint256(uint160(owner)), 136),
+      color2: NFTSVG.tokenToColorHex(uint256(uint160(owner)), 0),
+      color3: NFTSVG.tokenToColorHex(uint256(uint160(owner)), 0),
+      x1: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 16, tokenId), 0, 255, 16, 274),
+      y1: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 16, tokenId), 0, 255, 100, 484),
+      x2: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 32, tokenId), 0, 255, 16, 274),
+      y2: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 32, tokenId), 0, 255, 100, 484),
+      x3: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 48, tokenId), 0, 255, 16, 274),
+      y3: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 48, tokenId), 0, 255, 100, 484)
+    });
+    string memory svgOutput = NFTSVG.generateSVG(svgParams);
 
     string memory json = Base64.encode(
       bytes(
         string(
           abi.encodePacked(
-            '{"domain": "',
-            domain,
-            '", "tokenId": ',
-            toString(tokenId),
-            "}",
-            '", "description": "VerifiedEmails are ZK verified proofs of email recieving on Ethereum. They only reveal parts of the email body, and are verified via mailserver signature verification: there are no special party attesters. We are working to ship more verifiable proofs of signed data including zk blind, and avoid terrible tragedy of the commons scenarios where instituition reputation is slowly spent by its members. VerifiedEmail uses ZK SNARKs to insinuate this social dynamic.", "image": "data:image/svg+xml;base64,',
-            Base64.encode(bytes(output)),
+            '{"attributes":[ ',
+            '{"trait_type": "Name",',
+            '"value": "',
+            tokenIDToName[tokenId],
+            '"}, {"trait_type": "Owner",',
+            '"value": "',
+            HexStrings.toHexString(uint256(uint160(ownerOf(tokenId))), 42),
+            '"}], "description": "ZK VerifiedEmails are ZK verified proofs of email recieving on Ethereum. They only reveal parts of the email headers and body body, and are verified via mailserver signature verification: there are no special party attesters. We are working to ship more verifiable proofs of signed data including zk blind, and avoid terrible tragedy of the commons scenarios where instituition reputation is slowly spent by its members. VerifiedEmail uses ZK SNARKs to insinuate this social dynamic, with a first demo at zkemail.xyz.", "image": "data:image/svg+xml;base64,',
+            Base64.encode(bytes(svgOutput)),
             '"}'
           )
         )
       )
     );
-    output = string(abi.encodePacked("data:application/json;base64,", json));
-
+    string memory output = string(abi.encodePacked("data:application/json;base64,", json));
     return output;
   }
 
@@ -213,7 +223,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
     // Effects: Mint token
     uint256 tokenId = tokenCounter.current() + 1;
     string memory messageBytes = convertPackedBytesToBytes(bodySignals, bytesInPackedBytes * body_len);
-    tokenToName[tokenId] = messageBytes;
+    tokenIDToName[tokenId] = messageBytes;
     _mint(msg.sender, tokenId);
     tokenCounter.increment();
   }
