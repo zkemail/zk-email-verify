@@ -98,7 +98,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
             '", "tokenId": ',
             toString(tokenId),
             "}",
-            '", "description": "VerifiedEmails are ZK verified proofs of email ownership on Ethereum. They only reveal your email domain, nothing about your identity. We can construct both goods like Glassdoor and Blind, and terrible tragedy of the commons scenarios where instituition reputation is slowly spent by its members. VerifiedEmail uses ZK SNARKs to insinuate this social dynamic.", "image": "data:image/svg+xml;base64,',
+            '", "description": "VerifiedEmails are ZK verified proofs of email recieving on Ethereum. They only reveal parts of the email body, and are verified via mailserver signature verification: there are no special party attesters. We are working to ship more verifiable proofs of signed data including zk blind, and avoid terrible tragedy of the commons scenarios where instituition reputation is slowly spent by its members. VerifiedEmail uses ZK SNARKs to insinuate this social dynamic.", "image": "data:image/svg+xml;base64,',
             Base64.encode(bytes(output)),
             '"}'
           )
@@ -139,7 +139,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
   // Only extracts contiguous non-zero characters and ensures theres only 1 such state
   // Note that unpackedLen may be more than packedBytes.length * 8 since there may be 0s
   // TODO: Remove console.logs and define this as a pure function instead of a view
-  function convertPackedBytesToBytes(uint256[] memory packedBytes, uint256 maxBytes) public view returns (string memory extractedString) {
+  function convertPackedBytesToBytes(uint256[] memory packedBytes, uint256 maxBytes) public pure returns (string memory extractedString) {
     uint8 state = 0;
     // bytes: 0 0 0 0 y u s h _ g 0 0 0
     // state: 0 0 0 0 1 1 1 1 1 1 2 2 2
@@ -181,7 +181,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
   }
 
   // TODO: Remove console.logs and define this as a pure function instead of a view
-  function _domainCheck(uint256[] memory headerSignals) public view returns (bool) {
+  function _domainCheck(uint256[] memory headerSignals) public pure returns (bool) {
     string memory senderBytes = convertPackedBytesToBytes(headerSignals, 18);
     string[2] memory domainStrings = ["verify@twitter.com", "info@twitter.com"];
     return _stringEq(senderBytes, domainStrings[0]) || _stringEq(senderBytes, domainStrings[1]);

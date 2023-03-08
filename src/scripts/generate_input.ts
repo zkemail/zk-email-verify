@@ -180,11 +180,15 @@ export async function generate_inputs(email: Buffer, eth_address: string): Promi
   var result;
   console.log("DKIM verification starting");
   result = await dkimVerify(email);
-  if (!result.results[0].publicKey) {
-    if (result.results[0].status.message) {
-      throw new Error(result.results[0].status.message);
-    } else {
-      throw new Error("No public key found on generate_inputs");
+  if (!result.results[0]) {
+    throw new Error(`No result found on dkim output ${result}`);
+  } else {
+    if (!result.results[0].publicKey) {
+      if (result.results[0].status.message) {
+        throw new Error(result.results[0].status.message);
+      } else {
+        throw new Error(`No public key found on generate_inputs result ${JSON.stringify(result)}`);
+      }
     }
   }
   const _ = result.results[0].publicKey.toString();
