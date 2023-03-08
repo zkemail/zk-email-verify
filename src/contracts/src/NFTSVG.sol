@@ -27,7 +27,7 @@ library NFTSVG {
     string y3;
   }
 
-  function generateSVG(SVGParams memory params) internal pure returns (string memory svg) {
+  function generateSVG(SVGParams memory params) public pure returns (string memory svg) {
     return string(abi.encodePacked(generateSVGDefs(params), generateSVGBorderText(params.username), generateSVGCardMantle(params.username), generateSVGLogo(), "</svg>"));
   }
 
@@ -158,19 +158,19 @@ library NFTSVG {
   }
 
   // Helper Fns
-  function tokenToColorHex(uint256 token, uint256 offset) internal pure returns (string memory str) {
+  function tokenToColorHex(uint256 token, uint256 offset) public pure returns (string memory str) {
     return string(HexStrings.toHexStringNoPrefix(token >> offset, 3));
   }
 
-  function getCircleCoord(uint256 tokenAddress, uint256 offset, uint256 tokenId) internal pure returns (uint256) {
+  function getCircleCoord(uint256 tokenAddress, uint256 offset, uint256 tokenId) public pure returns (uint256) {
     return (sliceTokenHex(tokenAddress, offset) * tokenId) % 255;
   }
 
-  function sliceTokenHex(uint256 token, uint256 offset) internal pure returns (uint256) {
+  function sliceTokenHex(uint256 token, uint256 offset) public pure returns (uint256) {
     return uint256(uint8(token >> offset));
   }
 
-  function scale(uint256 n, uint256 inMn, uint256 inMx, uint256 outMn, uint256 outMx) internal pure returns (string memory) {
+  function scale(uint256 n, uint256 inMn, uint256 inMx, uint256 outMn, uint256 outMx) public pure returns (string memory) {
     return (((n - inMn) * (outMx - outMn)) / (inMx - inMn) + (outMn)).toString();
   }
 }

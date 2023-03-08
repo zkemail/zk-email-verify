@@ -124,7 +124,7 @@ export const MainPage: React.FC<{}> = (props) => {
   };
 
   const { config } = usePrepareContractWrite({
-    addressOrName: "0xc168C0609696cf00eA7847e0fed20F4FE865065d", // TODO: get address
+    addressOrName: "0x72D9d080853f1AfA52662D71A24D92498Ef84799", // TODO: get address
     contractInterface: abi, // TODO: get abi
     functionName: "mint",
     args: [...reformatProofForChain(proof), publicSignals ? JSON.parse(publicSignals) : null],

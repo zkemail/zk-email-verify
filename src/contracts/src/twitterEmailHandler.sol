@@ -52,7 +52,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
   function tokenDesc(uint256 tokenId) public view returns (string memory) {
     string memory twitter_username = tokenIDToName[tokenId];
     address address_owner = ownerOf(tokenId);
-    string memory result = string(abi.encodePacked("Twitter username", twitter_username, "is owned by", toString(address_owner)));
+    string memory result = string(abi.encodePacked("Twitter username", twitter_username, "is owned by", HexStrings.toString(address_owner)));
     return result;
   }
 
@@ -95,31 +95,6 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
     );
     string memory output = string(abi.encodePacked("data:application/json;base64,", json));
     return output;
-  }
-
-  function toString(address account) public pure returns (string memory) {
-    return toString(abi.encodePacked(account));
-  }
-
-  function toString(uint256 value) public pure returns (string memory) {
-    return toString(abi.encodePacked(value));
-  }
-
-  function toString(bytes32 value) public pure returns (string memory) {
-    return toString(abi.encodePacked(value));
-  }
-
-  function toString(bytes memory data) public pure returns (string memory) {
-    bytes memory alphabet = "0123456789abcdef";
-
-    bytes memory str = new bytes(2 + data.length * 2);
-    str[0] = "0";
-    str[1] = "x";
-    for (uint256 i = 0; i < data.length; i++) {
-      str[2 + i * 2] = alphabet[uint256(uint8(data[i] >> 4))];
-      str[3 + i * 2] = alphabet[uint256(uint8(data[i] & 0x0f))];
-    }
-    return string(str);
   }
 
   // Unpacks uint256s into bytes and then extracts the non-zero characters
