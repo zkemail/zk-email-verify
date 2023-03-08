@@ -47,37 +47,14 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
     verifiedMailserverKeys["twitter.com"][14] = 16021263889082005631675788949457422;
     verifiedMailserverKeys["twitter.com"][15] = 299744519975649772895460843780023483;
     verifiedMailserverKeys["twitter.com"][16] = 3933359104846508935112096715593287;
-    // tokenIDToName[0] = "<this is a null username>";
   }
 
-  // function getDesc(
-  //     address origin,
-  //     address sink,
-  //     uint256 degree
-  // ) private view returns (string memory) {
-  //     // convert address to string
-  //     string memory originStr = toString(origin);
-  //     string memory sinkStr = toString(sink);
-  //     // concatenate strings
-  //     string memory result = string(
-  //         abi.encodePacked(
-  //             sinkStr,
-  //             "is ",
-  //             toString(degree),
-  //             "th degree friends with ",
-  //             originStr
-  //         )
-  //     );
-
-  //     return result;
-  // }
-
-  // function tokenDesc(uint256 tokenId) public view returns (string memory) {
-  //     address origin = originAddress[tokenId];
-  //     address sink = sinkAddress[tokenId];
-  //     uint256 degree = degree[tokenId];
-  //     return getDesc(origin, sink, degree);
-  // }
+  function tokenDesc(uint256 tokenId) public view returns (string memory) {
+    string memory twitter_username = tokenIDToName[tokenId];
+    address address_owner = ownerOf(tokenId);
+    string memory result = string(abi.encodePacked("Twitter username", twitter_username, "is owned by", toString(address_owner)));
+    return result;
+  }
 
   function tokenURI(uint256 tokenId) public view override returns (string memory) {
     string memory username = tokenIDToName[tokenId];
@@ -212,6 +189,8 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
     require(address(uint160(signals[addressIndexInSignals])) == msg.sender, "Invalid address");
 
     // Check from/to email domains are correct [in this case, only from domain is checked]
+    // Right now, we just check that any email was received from anyone at Twitter, which is good enough for now
+    // We will upload the version with these domain checks soon!
     // require(_domainCheck(headerSignals), "Invalid domain");
 
     // Verify that the public key for RSA matches the hardcoded one

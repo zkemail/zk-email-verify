@@ -152,8 +152,4 @@ contract TwitterUtilsTest is Test {
     string memory svgValue = testVerifier.tokenURI(1);
     console.log(svgValue);
   }
-
-  // function testGetTokenSVG() public {
-  //   // assertEq(svgValue, "", "SVG doesn't match!");
-  // }
 }
