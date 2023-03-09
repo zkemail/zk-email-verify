@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo " * Please remember to run 'yarn run test:e2e-zkp' before opening a PR. *\n * This will ensure that the ZKP tests pass. *\n"

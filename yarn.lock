@@ -8332,6 +8332,7 @@ __metadata:
     ethereumjs-abi: ^0.6.8
     ethers: ^5.7.1
     forge-std: ^1.1.2
+    husky: ^8.0.3
     jest-junit: ^15.0.0
     libmime: ^5.1.0
     localforage: ^1.10.0
@@ -11086,6 +11087,15 @@ __metadata:
   dependencies:
     ms: ^2.0.0
   checksum: 9c7a74a2827f9294c009266c82031030eae811ca87b0da3dceb8d6071b9bde22c9f3daef0469c3c533cc67a97d8a167cd9fc0389350e5f415f61a79b171ded16
+  languageName: node
+  linkType: hard
+
+"husky@npm:^8.0.3":
+  version: 8.0.3
+  resolution: "husky@npm:8.0.3"
+  bin:
+    husky: lib/bin.js
+  checksum: 837bc7e4413e58c1f2946d38fb050f5d7324c6f16b0fd66411ffce5703b294bd21429e8ba58711cd331951ee86ed529c5be4f76805959ff668a337dbfa82a1b0
   languageName: node
   linkType: hard
 
