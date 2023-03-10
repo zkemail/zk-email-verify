@@ -212,7 +212,20 @@ To deploy contract to forked mainnet, do:
 ```
 anvil --fork-url https://eth-mainnet.alchemyapi.io/v2/***REMOVED*** --port 8547 # Run in tmux
 export ETH_RPC_URL=http://localhost:8547
-forge create --rpc-url $ETH_RPC_URL src/contracts/src/emailVerifier.sol:Verifier --private-key  0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 # Public anvil sk
+
+# Public anvil sk
+export SK=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+forge create --rpc-url $ETH_RPC_URL HexStrings --private-key $SK --via-ir --force
+forge create --rpc-url $ETH_RPC_URL NFTSVG --private-key $SK --via-ir --force
+
+# Edit the Cargo.toml to have the two deployment addresses, then call this
+forge create --rpc-url $ETH_RPC_URL VerifiedTwitterEmail --private-key $SK --via-ir --force
+```
+
+For just the contracts, can do
+
+```
+forge create --rpc-url $ETH_RPC_URL src/contracts/src/emailVerifier.sol:Verifier --private-key $SK
 ```
 
 ## Performance
