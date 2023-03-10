@@ -56,16 +56,16 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
     return result;
   }
 
-  function sliceTokenHex(uint256 token, uint256 offset) public pure returns (uint256) {
-    return uint256(uint8(token >> offset));
-  }
+  // function sliceTokenHex(uint256 token, uint256 offset) public pure returns (uint256) {
+  //   return uint256(uint8(token >> offset));
+  // }
 
   function tokenURI(uint256 tokenId) public view override returns (string memory) {
     string memory username = tokenIDToName[tokenId];
     address owner = ownerOf(tokenId);
 
     // This fails
-    console.log((sliceTokenHex(uint256(uint160(owner)), 16) * 1) % 255);
+    console.log((NFTSVG.sliceTokenHex(uint256(uint160(owner)), 16) * 1) % 255);
     return "a";
 
     NFTSVG.SVGParams memory svgParams = NFTSVG.SVGParams({
