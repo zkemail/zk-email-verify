@@ -365,9 +365,9 @@ Apologies, this part is some messy legacy code from previous projects. You use v
 
 zkp.ts is the key file that calls the important proving functions. You should be able to just call the exported functions from there, along with setting up your own s3 bucket and setting the constants at the top.
 
-### Why did you choose GPL over MIT licensing?
+### What is the licensing on this technology?
 
-Since circom is GPL, we are forced to use the GPL license, which is still a highly permissive license. You can dm us if you'd like to treat non-circom parts of the repo as MIT licensed, but broadly we are pro permissive open source usage with attribution! We hope that those who derive profit from this primitive contribute that money altruistically back to this technology.
+Everything we write is MIT licensed. Note that circom and circomlib is GPL. Broadly we are pro permissive open source usage with attribution! We hope that those who derive profit from this, contribute that money altruistically back to this technology and open source public good.
 
 ## To-Do
 

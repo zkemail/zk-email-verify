@@ -76,36 +76,46 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
   // }
 
   function tokenURI(uint256 tokenId) public view override returns (string memory) {
-    string[3] memory parts;
-    parts[
-      0
-    ] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="black" /><text x="10" y="20" class="base">';
-
-    // parts[1] = tokenDesc(tokenId);
-
-    parts[2] = "</text></svg>";
-
-    string memory output = string(abi.encodePacked(parts[0], parts[1], parts[2]));
-
-    string memory json = Base64.encode(
-      bytes(
-        string(
-          abi.encodePacked(
-            '{"domain": "',
-            domain,
-            '", "tokenId": ',
-            toString(tokenId),
-            "}",
-            '", "description": "VerifiedEmails are ZK verified proofs of email ownership on Ethereum. They only reveal your email domain, nothing about your identity. We can construct both goods like Glassdoor and Blind, and terrible tragedy of the commons scenarios where instituition reputation is slowly spent by its members. VerifiedEmail uses ZK SNARKs to insinuate this social dynamic.", "image": "data:image/svg+xml;base64,',
-            Base64.encode(bytes(output)),
-            '"}'
-          )
-        )
-      )
-    );
-    output = string(abi.encodePacked("data:application/json;base64,", json));
-
-    return output;
+    string memory username = tokenIDToName[tokenId];
+    address owner = ownerOf(tokenId);
+    console.log((NFTSVG.sliceTokenHex(uint256(uint160(owner)), 16) * 1) % 255);
+    return "";
+    // NFTSVG.SVGParams memory svgParams = NFTSVG.SVGParams({
+    //   username: username,
+    //   tokenId: tokenId,
+    //   color0: NFTSVG.tokenToColorHex(uint256(uint160(owner)), 136),
+    //   color1: NFTSVG.tokenToColorHex(uint256(uint160(owner)), 136),
+    //   color2: NFTSVG.tokenToColorHex(uint256(uint160(owner)), 0),
+    //   color3: NFTSVG.tokenToColorHex(uint256(uint160(owner)), 0),
+    //   x1: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 16, tokenId), 0, 255, 16, 274),
+    //   y1: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 16, tokenId), 0, 255, 100, 484),
+    //   x2: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 32, tokenId), 0, 255, 16, 274),
+    //   y2: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 32, tokenId), 0, 255, 100, 484),
+    //   x3: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 48, tokenId), 0, 255, 16, 274),
+    //   y3: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 48, tokenId), 0, 255, 100, 484)
+    // });
+    // string memory svgOutput = NFTSVG.generateSVG(svgParams);
+    // return svgOutput;
+    // string memory json = Base64.encode(
+    //   bytes(
+    //     string(
+    //       abi.encodePacked(
+    //         '{"attributes":[ ',
+    //         '{"trait_type": "Name",',
+    //         '"value": "',
+    //         tokenIDToName[tokenId],
+    //         '"}, {"trait_type": "Owner",',
+    //         '"value": "',
+    //         HexStrings.toHexString(uint256(uint160(ownerOf(tokenId))), 42),
+    //         '"}], "description": "ZK VerifiedEmails are ZK verified proofs of email recieving on Ethereum. They only reveal parts of the email headers and body body, and are verified via mailserver signature verification: there are no special party attesters. We are working to ship more verifiable proofs of signed data including zk blind, and avoid terrible tragedy of the commons scenarios where instituition reputation is slowly spent by its members. VerifiedEmail uses ZK SNARKs to insinuate this social dynamic, with a first demo at zkemail.xyz.", "image": "data:image/svg+xml;base64,',
+    //         Base64.encode(bytes(svgOutput)),
+    //         '"}'
+    //       )
+    //     )
+    //   )
+    // );
+    // string memory output = string(abi.encodePacked("data:application/json;base64,", json));
+    // return output;
   }
 
   function toString(address account) public pure returns (string memory) {
