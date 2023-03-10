@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useAsync, useMount, useUpdateEffect } from "react-use";
 // @ts-ignore
 // @ts-ignore
-import _ from "lodash";
+import _, { add } from "lodash";
 // @ts-ignore
 import { generate_inputs, insert13Before10 } from "../scripts/generate_input";
 import styled, { CSSProperties } from "styled-components";
@@ -11,7 +11,7 @@ import { sshSignatureToPubKey } from "../helpers/sshFormat";
 import { Link, useSearchParams } from "react-router-dom";
 import { dkimVerify } from "../helpers/dkim";
 import atob from "atob";
-import { downloadProofFiles, generateProof, verifyProof} from "../helpers/zkp";
+import { downloadProofFiles, generateProof, verifyProof } from "../helpers/zkp";
 import { packedNBytesToString } from "../helpers/binaryFormat";
 import { LabeledTextArea } from "../components/LabeledTextArea";
 import { SingleLineInput } from "../components/SingleLineInput";
@@ -21,6 +21,8 @@ import { NumberedStep } from "../components/NumberedStep";
 import { TopBanner } from "../components/TopBanner";
 import { useAccount, useContractWrite, usePrepareContractWrite } from "wagmi";
 import { ProgressBar } from "../components/ProgressBar";
+import { abi } from "../helpers/twitterEmailHandler.abi";
+import { isSetIterator } from "util/types";
 var Buffer = require("buffer/").Buffer; // note: the trailing slash is important!
 
 const generate_input = require("../scripts/generate_input");
@@ -31,13 +33,12 @@ export const MainPage: React.FC<{}> = (props) => {
 
   const [emailSignals, setEmailSignals] = useState<string>("");
   const [emailFull, setEmailFull] = useState<string>(localStorage.emailFull || "");
-  const [proof, setProof] = useState<string>("");
-  const [publicSignals, setPublicSignals] = useState<string>("");
+  const [proof, setProof] = useState<string>(localStorage.proof || "");
+  const [publicSignals, setPublicSignals] = useState<string>(localStorage.publicSignals || "");
   const [displayMessage, setDisplayMessage] = useState<string>("Prove");
   const [emailHeader, setEmailHeader] = useState<string>("");
   const { address } = useAccount();
   const [ethereumAddress, setEthereumAddress] = useState<string>(address ?? "");
-
   // computed state
   const { value, error } = useAsync(async () => {
     try {
@@ -53,7 +54,7 @@ export const MainPage: React.FC<{}> = (props) => {
 
   const [verificationMessage, setVerificationMessage] = useState("");
   const [verificationPassed, setVerificationPassed] = useState(false);
-  const [lastAction, setLastAction] = useState<"" | "sign" | "verify">("");
+  const [lastAction, setLastAction] = useState<"" | "sign" | "verify" | "send">("");
   const [showBrowserWarning, setShowBrowserWarning] = useState<boolean>(false);
   const [downloadProgress, setDownloadProgress] = useState<number>(0);
 
@@ -72,7 +73,18 @@ export const MainPage: React.FC<{}> = (props) => {
       setEthereumAddress("");
     }
   }, [address]);
-  const [status, setStatus] = useState<"not-started" | "generating-input" | "downloading-proof-files" | "generating-proof" | "error-bad-input" | "error-failed-to-download" | "error-failed-to-prove" | "done">("not-started");
+  const [status, setStatus] = useState<
+    | "not-started"
+    | "generating-input"
+    | "downloading-proof-files"
+    | "generating-proof"
+    | "error-bad-input"
+    | "error-failed-to-download"
+    | "error-failed-to-prove"
+    | "done"
+    | "sending-on-chain"
+    | "sent"
+  >("not-started");
   const [zkeyStatus, setzkeyStatus] = useState<Record<string, string>>({
     a: "not started",
     b: "not started",
@@ -97,7 +109,34 @@ export const MainPage: React.FC<{}> = (props) => {
       ...prev,
       [activity]: Date.now(),
     }));
-  }
+  };
+
+  const reformatProofForChain = (proof: string) => {
+    return [
+      proof ? JSON.parse(proof)["pi_a"].slice(0, 2) : null,
+      proof
+        ? JSON.parse(proof)
+            ["pi_b"].slice(0, 2)
+            .map((g2point: any[]) => g2point.reverse())
+        : null,
+      proof ? JSON.parse(proof)["pi_c"].slice(0, 2) : null,
+    ];
+  };
+
+  const { config } = usePrepareContractWrite({
+    addressOrName: "0x72D9d080853f1AfA52662D71A24D92498Ef84799", // TODO: get address
+    contractInterface: abi, // TODO: get abi
+    functionName: "mint",
+    args: [...reformatProofForChain(proof), publicSignals ? JSON.parse(publicSignals) : null],
+    onError: (error: { message: any }) => {
+      console.error(error.message);
+      // TODO: handle errors
+    },
+  });
+
+  const { data, isLoading, isSuccess, write } = useContractWrite(config);
+
+  console.log("Other values:", proof, publicSignals, write, data, isLoading, isSuccess, config);
 
   useMount(() => {
     function handleKeyDown() {
@@ -115,18 +154,19 @@ export const MainPage: React.FC<{}> = (props) => {
         localStorage.emailFull = emailFull;
       }
     }
+    if (proof) {
+      if (localStorage.proof !== proof) {
+        console.info("Wrote proof to localStorage");
+        localStorage.proof = proof;
+      }
+    }
+    if (publicSignals) {
+      if (localStorage.publicSignals !== publicSignals) {
+        console.info("Wrote publicSignals to localStorage");
+        localStorage.publicSignals = publicSignals;
+      }
+    }
   }, [value]);
-
-  const { config } = usePrepareContractWrite({
-    addressOrName: "", // TODO: get address
-    contractInterface: [], // TODO: get abi
-    functionName: "verifyProof",
-    onError: (error: { message: any }) => {
-      // TODO: handle errors
-    },
-  });
-
-  const { data, isLoading, isSuccess, write } = useContractWrite(config);
 
   if (error) console.error(error);
 
@@ -146,23 +186,27 @@ export const MainPage: React.FC<{}> = (props) => {
         }}
       >
         <span style={{ color: "rgba(255, 255, 255, 0.7)" }}>
-          Note that we are actively developing and debugging this page, it is likely unstable. Due to download limits of incognito mode and non-chrome browsers, you must use Chrome
-          to generate proofs right now. If you wish to generate a ZK proof of Twitter badge, you must do these:
+          Note that we are <a href="https://github.com/zk-email-verify/zk-email-verify/">actively developing</a> and debugging this page, it is likely unstable. Due to download
+          limits of incognito mode and non-chrome browsers, you must use Chrome to generate proofs right now. Our goal for March 2023 is to make this process 10x faster and
+          smaller. If you wish to generate a ZK proof of Twitter badge, you must do these:
         </span>
         <NumberedStep step={1}>
           Send yourself a <a href="https://twitter.com/i/flow/password_reset">password reset email</a> from Twitter in incognito.
         </NumberedStep>
         <NumberedStep step={2}>In your inbox, find the email from Twitter and download headers (three dots, then download message).</NumberedStep>
         <NumberedStep step={3}>
-          Copy paste the entire contents of the .eml file into the box below. Note that your reset code is one-time-use and we never get your password (in fact, we don't have a
-          server at all).
+          Copy paste the entire contents of the .eml file into the box below. Note that we cannot use this to phish you: we do not know your password, and we never get this email
+          info because we have no server at all. We are actively searching for a less sketchy email.
         </NumberedStep>
         <NumberedStep step={4}>
           Paste in your sending Ethereum address. This ensures that no one else can "steal" your proof for another account (frontrunning protection!).
         </NumberedStep>
         <NumberedStep step={5}>
-          Click "Generate Proof". Since it is completely client side and open source, and you are not trusting us with any private information. We will soon have the ability to
-          send this proof on-chain!
+          Click <b>"Generate Proof"</b>. Since it is completely client side and open source, and you are not trusting us with any private information.
+        </NumberedStep>
+        <NumberedStep step={6}>
+          Click <b>"Verify"</b> and then <b>"Mint Twitter Badge On-Chain"</b>, and approve to mint the NFT badge that proves Twitter ownership! Note that it is 700K gas right now
+          so only feasible on Goerli, though we intend to reduce this soon.
         </NumberedStep>
       </Col>
       <Main>
@@ -198,8 +242,8 @@ export const MainPage: React.FC<{}> = (props) => {
               console.log("buffFormArray", Buffer.from(formattedArray.buffer));
               console.log("buffFormArray", formattedArray.toString());
               console.log("ethereumAddress", ethereumAddress);
-              let input = '';
-              try{
+              let input = "";
+              try {
                 input = await generate_input.generate_inputs(Buffer.from(formattedArray.buffer), ethereumAddress);
               } catch (e) {
                 console.log("Error generating input", e);
@@ -245,7 +289,7 @@ export const MainPage: React.FC<{}> = (props) => {
               // setPublicSignals(`From: ${soln}\nTo: ${soln2}\nUsername: ${soln3}`);
               setPublicSignals(JSON.stringify(publicSignals));
 
-              if (!circuitInputs){
+              if (!circuitInputs) {
                 setStatus("error-failed-to-prove");
                 return;
               }
@@ -266,13 +310,14 @@ export const MainPage: React.FC<{}> = (props) => {
             <ProgressBar width={downloadProgress * 10} label={`${downloadProgress} / 10 items`} />
           )}
           <ProcessStatus status={status}>
-            {status!=="not-started" ?
+            {status !== "not-started" ? (
               <div>
                 Status:
-                <span data-testid={"status-"+status}>{status}</span>
+                <span data-testid={"status-" + status}>{status}</span>
               </div>
-              : <div data-testid={"status-"+status}></div>
-            }
+            ) : (
+              <div data-testid={"status-" + status}></div>
+            )}
             <TimerDisplay timers={stopwatch} />
           </ProcessStatus>
         </Column>
@@ -316,10 +361,26 @@ export const MainPage: React.FC<{}> = (props) => {
           >
             Verify
           </Button>
-          <Button disabled={!verificationPassed} onClick={() => write?.()}>
-            {isLoading ? "Confirm in wallet" : "Mint Twitter badge on-chain"}
+          <Button
+            disabled={!verificationPassed || isLoading || isSuccess}
+            onClick={async () => {
+              setStatus("sending-on-chain");
+              write?.();
+            }}
+          >
+            {isSuccess
+              ? "Successfully sent to chain!"
+              : isLoading
+              ? "Confirm in wallet"
+              : verificationPassed
+              ? "Mint Twitter badge on-chain"
+              : "Verify first, before minting on-chain!"}
           </Button>
-          {isSuccess && <div>Transaction: {JSON.stringify(data)}</div>}
+          {isSuccess && (
+            <div>
+              Transaction: <a href={"https://goerli.etherscan.io/tx/" + data?.hash}>{data?.hash}</a>
+            </div>
+          )}
         </Column>
       </Main>
     </Container>
@@ -338,19 +399,27 @@ const TimerDisplayContainer = styled.div`
   font-size: 8px;
 `;
 
-const TimerDisplay = ({ timers }: {timers: Record<string, number>}) => {
+const TimerDisplay = ({ timers }: { timers: Record<string, number> }) => {
   return (
     <TimerDisplayContainer>
-      { timers["startedDownloading"] && timers["finishedDownloading"] ?
-      <div>Zkey Download time:&nbsp;
-        <span data-testid="download-time">{timers["finishedDownloading"] - timers["startedDownloading"]}</span>ms
-      </div> : <div></div> }
-      { timers["startedProving"] && timers["finishedProving"] ?
-      <div>Proof generation time:&nbsp;
-        <span data-testid="proof-time">{timers["finishedProving"] - timers["startedProving"]}</span>ms
-      </div> : <div></div> }
+      {timers["startedDownloading"] && timers["finishedDownloading"] ? (
+        <div>
+          Zkey Download time:&nbsp;
+          <span data-testid="download-time">{timers["finishedDownloading"] - timers["startedDownloading"]}</span>ms
+        </div>
+      ) : (
+        <div></div>
+      )}
+      {timers["startedProving"] && timers["finishedProving"] ? (
+        <div>
+          Proof generation time:&nbsp;
+          <span data-testid="proof-time">{timers["finishedProving"] - timers["startedProving"]}</span>ms
+        </div>
+      ) : (
+        <div></div>
+      )}
     </TimerDisplayContainer>
-  )
+  );
 };
 
 const Header = styled.span`

@@ -122,6 +122,7 @@ cd dizkus-scripts/
 # optional: ./6_gen_proof_rapidsnark.sh
 
 # This part is to upload the zkeys, not critical
+# Remember to change bucket_name in upload_to_s3.py
 aws configure # Only needs to be run once
 pip3 install boto3
 python3 upload_to_s3.py
@@ -211,7 +212,20 @@ To deploy contract to forked mainnet, do:
 ```
 anvil --fork-url https://eth-mainnet.alchemyapi.io/v2/***REMOVED*** --port 8547 # Run in tmux
 export ETH_RPC_URL=http://localhost:8547
-forge create --rpc-url $ETH_RPC_URL src/contracts/src/emailVerifier.sol:Verifier --private-key  0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 # Public anvil sk
+
+# Public anvil sk
+export SK=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+forge create --rpc-url $ETH_RPC_URL HexStrings --private-key $SK --via-ir --force
+forge create --rpc-url $ETH_RPC_URL NFTSVG --private-key $SK --via-ir --force
+
+# Edit the Cargo.toml to have the two deployment addresses, then call this
+forge create --rpc-url $ETH_RPC_URL VerifiedTwitterEmail --private-key $SK --via-ir --force
+```
+
+For just the contracts, can do
+
+```
+forge create --rpc-url $ETH_RPC_URL src/contracts/src/emailVerifier.sol:Verifier --private-key $SK
 ```
 
 ## Performance
@@ -371,10 +385,10 @@ Everything we write is MIT licensed. Note that circom and circomlib is GPL. Broa
 
 ## To-Do
 
--   Make the frontend Solidity calls work
--   Make a general method to get formatted signatures and bodies from all email clients
--   Make versions for different size RSA keys
--   Add ENS DNSSEC code (possibly SNARKed), so anyone can add a website's RSA key via DNS record
--   Design the NFT/POAP to have the user's domain/verified identity on it
--   Make a testnet faucet as a PoC for Sybil resistance and to get developers interested
--   Dynamically tradeoff between gzip (2x faster decompression) and xz (30% smaller file size): https://www.rootusers.com/gzip-vs-bzip2-vs-xz-performance-comparison/ based on internet speed (i.e. minimize download time + unzip time)
+- Make the frontend Solidity calls work
+- Make a general method to get formatted signatures and bodies from all email clients
+- Make versions for different size RSA keys
+- Add ENS DNSSEC code (possibly SNARKed), so anyone can add a website's RSA key via DNS record
+- Design the NFT/POAP to have the user's domain/verified identity on it
+- Make a testnet faucet as a PoC for Sybil resistance and to get developers interested
+- Dynamically tradeoff between gzip (2x faster decompression) and xz (30% smaller file size): https://www.rootusers.com/gzip-vs-bzip2-vs-xz-performance-comparison/ based on internet speed (i.e. minimize download time + unzip time)
