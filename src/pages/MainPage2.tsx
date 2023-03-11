@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { redirect } from "react-router-dom";
-import OutputProof from "./OutputProof";
+import { redirect, useNavigation } from "react-router-dom";
+import { OutputProof } from "./OutputProof";
 // import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 type AppProps = {};
 type AppState = { input: string; inter: string };
 // interface MainPage2 {
@@ -15,8 +16,9 @@ declare global {
   }
 }
 // const MainPage2 extends React.Component<AppProps, AppState> {
-export default function MaingPage2() {
+function MainPage2() {
   const [inputValue, setInputValue] = useState("");
+  const navigate = useNavigate();
   //   constructor(props: AppProps) {
   //     super(props);
   //     this.state = { input: "", inter: "jern" };
@@ -40,14 +42,15 @@ export default function MaingPage2() {
     console.log(inputValue);
 
     // const navigate = useNavigate();
-    // redirect("/ouput_proof");
+    navigate("/OutputProof");
 
     // const history = useHistory();
-    // history.pushState("/output_proof");
+    // history.pushState("/OutputProof");
     // return <output_proof />;
-    // redirect("/outputProof");
+    // redirect("/OutputProof");
     e.preventDefault();
   };
+
   //   handleSubmit(e: React.FormEvent<HTMLFormElement>) {
   //     console.log(this.state.inter);
   //     const inputElement = e.currentTarget.elements.namedItem(
@@ -87,3 +90,4 @@ export default function MaingPage2() {
   );
   //   }
 }
+export default MainPage2;

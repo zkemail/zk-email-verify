@@ -21,7 +21,7 @@ const App = () => {
 
         <Routes>
           <Route path="/" element={<MainPage2 />} />
-          <Route path="/outputProof" element={<OutputProof />} />
+          <Route path="/OutputProof" element={<OutputProof />} />
           {/* <Route path="/" element={<Navigate to={"/"} replace={true} />} />
           <Route element={<>Not found</>} /> */}
         </Routes>
