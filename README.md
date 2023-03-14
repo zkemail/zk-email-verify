@@ -1,6 +1,22 @@
 # ZK Github using zkEmail
    Enable github proof using zk-email
 
+[WIP] 
+All backend main features are done, feel free to test by
+-delete yarn.lock and then call yarn
+-create github.eml into src folder, and paste original pull request merge confirmation email into it.
+-run generate_input.ts
+-install poweroftau
+-run scripts in dizkus-scripts folder
+
+Frontend is almost the same as scripts, but just use fullProve. Not put zkey stuffs on aws yet, will push production frontend soon :)
+
+Note that there are still tons of things to improve on backend to be more optimized and generalized. 
+
+This doc (and the code comment) are also needed to be written and refined.
+
+
+
 ## What is zkRepo?
 zkRepo is a website where people can create a proof that they contributed to a certain github repo without revealing who they are. In this demo, we show the use case of a DAO that wants to reward github contributors who contribute to their repo. Hence, a github contributor can use zkRepo to create a proof and get verified to claim reward without revealing who they are, hence not being able to be tracked and associated with his github background/history.
 This anonymous property doesn’t only serve as a “good to have” privacy but can also serve as a critical factor in how a person lives their developer life as seen in more use cases below.
@@ -27,6 +43,7 @@ In the future, we can have a more fine-grained anonymity. For example, we can Ca
 ## Upcoming Innovation
 - Automated DFA locator. Right now, we need to manually see the state machine that we generate and see where the state we want to extract from. We will automate this process.
 - etc.
+
 
 
 
