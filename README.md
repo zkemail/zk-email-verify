@@ -314,11 +314,17 @@ const word_char = '(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|
 let regex = `email was meant for @${word_char}+`;
 ```
 
+To understand these better, use https://cyberzhg.github.io/toolbox/ and use the 3 regex tools for visualization of the min-DFA state.
+
 ## FAQ/Possible Errors
 
 ### I'm having issues with the intricacies of the SHA hashing. How do I understand the function better?
 
 Use https://sha256algorithm.com/ as an explainer! It's a great visualization of what is going on, and our code should match what is going on there.
+
+### I'm having trouble with regex or base64 understanding. How do I understand that better?
+
+Use https://cyberzhg.github.io/toolbox/ to experiement with conversions to/from base64 and to/from DFAs and NFAs.
 
 ### What are the differences between generating proofs (snarkjs.groth16.fullprove) on the client vs. on a server?
 

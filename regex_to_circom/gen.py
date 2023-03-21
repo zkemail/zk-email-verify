@@ -4,9 +4,6 @@ import string
 
 # Clear file
 OUTPUT_HALO2 = True
-if(OUTPUT_HALO2):
-    with open('halo2_regex_lookup.txt', 'w') as f:
-        print("", file=f)
 
 graph_json = json.loads(subprocess.check_output(['npx', 'tsx', 'lexical.js']))
 N = len(graph_json)
@@ -26,16 +23,20 @@ for i in range(N):
         rev_graph[v].append((k, i))
         # Iterates over value in set for halo2 lookup, append to file
 
-        if (OUTPUT_HALO2):
-            for val in json.loads(k):
-                with open('halo2_regex_lookup.txt', 'a') as f:
-                    print(i, v, ord(val), file=f)
-
     if graph_json[i]['type'] == 'accept':
         accept_nodes.add(i)
 
 accept_nodes = list(accept_nodes)
 assert len(accept_nodes) == 1
+
+if (OUTPUT_HALO2):
+    with open('halo2_regex_lookup.txt', 'w') as f:
+        print(accept_nodes, file=f)
+    for i in range(N):
+        for k in graph_json[i]['edges']:
+            for val in json.loads(k):
+                with open('halo2_regex_lookup.txt', 'a') as f:
+                    print(i, v, ord(val), file=f)
 
 print("Accept node:", accept_nodes)
 print("Rev graph:", rev_graph)

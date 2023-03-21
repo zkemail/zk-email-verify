@@ -197,7 +197,10 @@ export const MainPage: React.FC<{}> = (props) => {
           </a>{" "}
           from Twitter.
         </NumberedStep>
-        <NumberedStep step={2}>In your inbox, find the email from Twitter and click the three dot menu, then "Show original" then "Copy to clipboard".</NumberedStep>
+        <NumberedStep step={2}>
+          In your inbox, find the email from Twitter and click the three dot menu, then "Show original" then "Copy to clipboard". If on Outlook, download the original email as .eml
+          and copy it instead.
+        </NumberedStep>
         <NumberedStep step={3}>
           Copy paste that into the box below. Note that we cannot use this to phish you: we do not know your password, and we never get this email info because we have no server at
           all. We are actively searching for a less sketchy email.
