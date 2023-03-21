@@ -31,7 +31,9 @@ assert len(accept_nodes) == 1
 
 if (OUTPUT_HALO2):
     with open('halo2_regex_lookup.txt', 'w') as f:
-        print(accept_nodes, file=f)
+        for a in accept_nodes:
+            print(str(a) + " ", file=f, end='')
+        print("", file=f)
     for i in range(N):
         for k in graph_json[i]['edges']:
             for val in json.loads(k):
