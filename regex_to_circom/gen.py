@@ -2,6 +2,12 @@ import subprocess
 import json
 import string
 
+# Clear file
+OUTPUT_HALO2 = True
+if(OUTPUT_HALO2):
+    with open('halo2_regex_lookup.txt', 'w') as f:
+        print("", file=f)
+
 graph_json = json.loads(subprocess.check_output(['npx', 'tsx', 'lexical.js']))
 N = len(graph_json)
 
@@ -10,6 +16,7 @@ graph = [{} for i in range(N)]
 # Incoming Nodes
 rev_graph = [[] for i in range(N)]
 accept_nodes = set()
+
 for i in range(N):
     for k in graph_json[i]['edges']:
         # assert len(k) == 1
@@ -17,11 +24,23 @@ for i in range(N):
         v = graph_json[i]['edges'][k]
         graph[i][k] = v
         rev_graph[v].append((k, i))
+        # Iterates over value in set for halo2 lookup, append to file
+
+        if (OUTPUT_HALO2):
+            for val in json.loads(k):
+                with open('halo2_regex_lookup.txt', 'a') as f:
+                    print(i, v, ord(val), file=f)
+
     if graph_json[i]['type'] == 'accept':
         accept_nodes.add(i)
 
 accept_nodes = list(accept_nodes)
 assert len(accept_nodes) == 1
+
+print("Accept node:", accept_nodes)
+print("Rev graph:", rev_graph)
+print("Graph:", graph)
+print("Graph json:", graph_json)
 
 eq_i = 0
 lt_i = 0
@@ -33,10 +52,6 @@ lines.append("for (var i = 0; i < num_bytes; i++) {")
 
 assert 0 not in accept_nodes
 
-# Clear file
-with open('halo2_regex_lookup.txt', 'w') as f:
-    print("", file=f)
-
 for i in range(1, N):
     outputs = []
     for k, prev_i in rev_graph[i]:
@@ -47,13 +62,6 @@ for i in range(1, N):
         lowercase = set(string.ascii_lowercase)
         digits = set(string.digits)
         vals = set(vals)
-
-        # Iterates over value in set for halo2 lookup, append to file
-        OUTPUT_HALO2 = True
-        if (OUTPUT_HALO2):
-            for val in vals:
-                with open('halo2_regex_lookup.txt', 'a') as f:
-                    print(prev_i, prev_i + 1, ord(val), file=f)
 
         if uppercase <= vals:
             vals -= uppercase

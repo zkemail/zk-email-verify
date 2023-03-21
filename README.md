@@ -274,7 +274,7 @@ The full email header and body check circuit, with 7-byte packing and final publ
 
 In the browser, on a 2019 Intel Mac on Chrome, proving uses 7.3/8 cores. zk-gen takes 384 s, groth16 prove takes 375 s, and witness calculation takes 9 s.
 
-For baremetal, proof generation time on 16 CPUs took 97 seconds. Generating zkey 0 took 17 minutes. Unclear about zkey 1. Zkey 2 took 5 minutes. r1cs + wasm generation took 5 minutes. Witness generation took 16 seconds. cpp witness gen file generation (from script 6) took 210 minutes.
+For baremetal, proof generation time on 16 CPUs took 97 seconds. Generating zkey 0 took 17 minutes. Unclear about zkey 1. Zkey 2 took 5 minutes. r1cs + wasm generation took 5 minutes. Witness generation took 16 seconds. cpp generation of witness gen file (from script 6) took 210 minutes -- we do not run this pathway anymore.
 
 ### Scrubbing Sensitive Files
 
@@ -339,7 +339,21 @@ const = result.results[0].publicKey.toString();
 TypeError: Cannot read properties of undefined (reading 'toString')
 ```
 
-You need to have internet connection while running dkim verification locally, in order to fetch the public key. If you have internet connection, make sure you downloaded the email with the headers: you should see a DKIM section in the file.
+You need to have internet connection while running dkim verification locally, in order to fetch the public key. If you have internet connection, make sure you downloaded the email with the headers: you should see a DKIM section in the file. DKIM verifiction may also fail after the public keys rotate, though this has not been confirmed.
+
+### How do I lookup the RSA pubkey for a domain?
+
+Use [easydmarc.com/tools/dkim-lookup?domain=twitter.com](https://easydmarc.com/tools/dkim-lookup?domain=twitter.com).
+
+### DKIM parsing/public key errors with generate_input.ts
+
+```
+Writing to file...
+/Users/aayushgupta/Documents/.projects.nosync/zk-email-verify/src/scripts/generate_input.ts:190
+        throw new Error(`No public key found on generate_inputs result ${JSON.stringify(result)}`);
+```
+
+Depending on the "info" error at the end of the email, you probably need to go through src/helpers/dkim/\*.js and replace some ".replace" functions with ".replaceAll" instead (likely tools.js), and also potentially strip some quotes.
 
 ### No available storage method found.
 
@@ -379,9 +393,9 @@ Apologies, this part is some messy legacy code from previous projects. You use v
 
 zkp.ts is the key file that calls the important proving functions. You should be able to just call the exported functions from there, along with setting up your own s3 bucket and setting the constants at the top.
 
-### Why did you choose GPL over MIT licensing?
+### What is the licensing on this technology?
 
-Since circom is GPL, we are forced to use the GPL license, which is still a highly permissive license. You can dm us if you'd like to treat non-circom parts of the repo as MIT licensed, but broadly we are pro permissive open source usage with attribution! We hope that those who derive profit from this primitive contribute that money altruistically back to this technology.
+Everything we write is MIT licensed. Note that circom and circomlib is GPL. Broadly we are pro permissive open source usage with attribution! We hope that those who derive profit from this, contribute that money altruistically back to this technology and open source public good.
 
 ## To-Do
 

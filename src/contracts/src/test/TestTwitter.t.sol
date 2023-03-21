@@ -47,6 +47,14 @@ contract TwitterUtilsTest is Test {
     intended_value = "zktestemail";
     assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
     console.logString(byteList);
+
+    packedBytes[0] = 28557011619965818;
+    packedBytes[1] = 1818845549;
+    packedBytes[2] = 0;
+    byteList = testVerifier.convertPackedBytesToBytes(packedBytes, 15);
+    intended_value = "zktestemail";
+    assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
+    console.logString(byteList);
   }
 
   // Should pass (note that there are extra 0 bytes, which are filtered out but should be noted in audits)
@@ -148,8 +156,12 @@ contract TwitterUtilsTest is Test {
     vm.startPrank(0x6171aeBcC9e9B9E1D90EC9C2E124982932297345);
     testVerifier.mint(proof_a, proof_b, proof_c, publicSignals);
     vm.stopPrank();
+  }
 
+  function testSVG() public {
+    testVerifyYushEmail();
+    testVerifyTestEmail();
     string memory svgValue = testVerifier.tokenURI(1);
-    console.log(svgValue);
+    // console.log(svgValue);
   }
 }
