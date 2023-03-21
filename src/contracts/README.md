@@ -12,7 +12,7 @@ To test solidity,
 forge install foundry-rs/forge-std
 cp node_modules/forge-std src/contracts/lib/forge-std
 cd src/contracts
-forge test
+forge test --via-ir
 ```
 
 ## Deployment
