@@ -12,6 +12,9 @@ import "./emailVerifier.sol";
 
 contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
   using Counters for Counters.Counter;
+  using HexStrings for *;
+  using NFTSVG for *;
+
   Counters.Counter private tokenCounter;
 
   uint16 public constant msg_len = 21; // header + body
@@ -56,19 +59,6 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
     return result;
   }
 
-  // Helper Fns
-  function getCircleCoord(uint256 tokenAddress, uint256 offset, uint256 tokenId) internal pure returns (uint256) {
-    return (sliceTokenHex(tokenAddress, offset) * tokenId) % 255;
-  }
-
-  function sliceTokenHex(uint256 token, uint256 offset) internal pure returns (uint256) {
-    return uint256(uint8(token >> offset));
-  }
-
-  function scale(uint256 n, uint256 inMn, uint256 inMx, uint256 outMn, uint256 outMx) internal pure returns (string memory) {
-    return Strings.toString(((n - inMn) * (outMx - outMn)) / (inMx - inMn) + (outMn));
-  }
-
   function tokenURI(uint256 tokenId) public view override returns (string memory) {
     string memory username = tokenIDToName[tokenId];
     address owner = ownerOf(tokenId);
@@ -80,12 +70,12 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
       color1: NFTSVG.tokenToColorHex(uint256(uint160(owner)), 136),
       color2: NFTSVG.tokenToColorHex(uint256(uint160(owner)), 0),
       color3: NFTSVG.tokenToColorHex(uint256(uint160(owner)), 0),
-      x1: scale(getCircleCoord(uint256(uint160(owner)), 16, tokenId), 0, 255, 16, 274),
-      y1: scale(getCircleCoord(uint256(uint160(owner)), 16, tokenId), 0, 255, 100, 484),
-      x2: scale(getCircleCoord(uint256(uint160(owner)), 32, tokenId), 0, 255, 16, 274),
-      y2: scale(getCircleCoord(uint256(uint160(owner)), 32, tokenId), 0, 255, 100, 484),
-      x3: scale(getCircleCoord(uint256(uint160(owner)), 48, tokenId), 0, 255, 16, 274),
-      y3: scale(getCircleCoord(uint256(uint160(owner)), 48, tokenId), 0, 255, 100, 484)
+      x1: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 16, tokenId), 0, 255, 16, 274),
+      y1: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 16, tokenId), 0, 255, 100, 484),
+      x2: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 32, tokenId), 0, 255, 16, 274),
+      y2: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 32, tokenId), 0, 255, 100, 484),
+      x3: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 48, tokenId), 0, 255, 16, 274),
+      y3: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 48, tokenId), 0, 255, 100, 484)
     });
     string memory svgOutput = NFTSVG.generateSVG(svgParams);
 

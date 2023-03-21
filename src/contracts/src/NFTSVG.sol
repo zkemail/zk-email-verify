@@ -11,6 +11,7 @@ import "./hexStrings.sol";
 library NFTSVG {
   using Strings for uint256;
   using Strings for address;
+  using HexStrings for *;
 
   struct SVGParams {
     string username;
@@ -155,6 +156,19 @@ library NFTSVG {
         '<animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="10s" repeatCount="indefinite"/></g></g>'
       )
     );
+  }
+
+  // Helper Fns
+  function getCircleCoord(uint256 tokenAddress, uint256 offset, uint256 tokenId) public pure returns (uint256) {
+    return (sliceTokenHex(tokenAddress, offset) * tokenId) % 255;
+  }
+
+  function sliceTokenHex(uint256 token, uint256 offset) public pure returns (uint256) {
+    return uint256(uint8(token >> offset));
+  }
+
+  function scale(uint256 n, uint256 inMn, uint256 inMx, uint256 outMn, uint256 outMx) public pure returns (string memory) {
+    return Strings.toString(((n - inMn) * (outMx - outMn)) / (inMx - inMn) + (outMn));
   }
 
   function tokenToColorHex(uint256 token, uint256 offset) public pure returns (string memory str) {
