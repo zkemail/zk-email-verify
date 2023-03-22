@@ -36,6 +36,7 @@ if (OUTPUT_HALO2):
         print("", file=f)
     for i in range(N):
         for k in graph_json[i]['edges']:
+            v = graph_json[i]['edges'][k]
             for val in json.loads(k):
                 with open('halo2_regex_lookup.txt', 'a') as f:
                     print(i, v, ord(val), file=f)
