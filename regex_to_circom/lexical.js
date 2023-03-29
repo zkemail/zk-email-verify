@@ -12,10 +12,8 @@ const r0to9 = "0|1|2|3|4|5|6|7|8|9";
 const alphanum = `${a2z}|${A2Z}|${r0to9}`;
 
 const key_chars = `(${a2z})`;
-const catch_all =
-  "(0|1|2|3|4|5|6|7|8|9|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|!|\"|#|$|%|&|'|\\(|\\)|\\*|\\+|,|-|.|/|:|;|<|=|>|\\?|@|[|\\\\|]|^|_|`|{|\\||}|~| |\t|\n|\r|\x0b|\x0c)";
-const catch_all_without_semicolon =
-  "(0|1|2|3|4|5|6|7|8|9|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|!|\"|#|$|%|&|'|\\(|\\)|\\*|\\+|,|-|.|/|:|<|=|>|\\?|@|[|\\\\|]|^|_|`|{|\\||}|~| |\t|\n|\r|\x0b|\x0c)";
+const catch_all = `(${alphanum}` + "|!|\"|#|$|%|&|'|\\(|\\)|\\*|\\+|,|-|.|/|:|;|<|=|>|\\?|@|[|\\\\|]|^|_|`|{|\\||}|~| |\t|\n|\r|\x0b|\x0c)";
+const catch_all_without_semicolon = `(${alphanum}` + "|!|\"|#|$|%|&|'|\\(|\\)|\\*|\\+|,|-|.|/|:|<|=|>|\\?|@|[|\\\\|]|^|_|`|{|\\||}|~| |\t|\n|\r|\x0b|\x0c)";
 
 const email_chars = `${alphanum}|_|.|-`;
 const base_64 = `(${alphanum}|\\+|/|=)`;
@@ -31,7 +29,29 @@ const A2Z_nosep = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const r0to9_nosep = "0123456789";
 
 // Note that in order to specify this string in regex, we must use \\ to escape \'s i.e. in the \r\n
-let order_invariant_header_regex_raw = `(((\\n|^)(((from):([A-Za-z0-9 _."@-]+<)?[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.]+>)?|(subject:[a-zA-Z 0-9]+)?|((to):([A-Za-z0-9 _."@-]+<)?[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.]+>)?)(\\r))+)`;
+let order_invariant_header_regex_raw = `(((\n|^)(((from):([A-Za-z0-9 _."@-]+<)?[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.]+>)?|(subject:[a-zA-Z 0-9]+)?|((to):([A-Za-z0-9 _."@-]+<)?[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.]+>)?)(\r))+)`;
+
+// The part of the header after the invariant part
+let additional_sig_regex = `${catch_all_without_semicolon}\r\ndkim-signature:(${key_chars}=${catch_all_without_semicolon}+; )+bh=${base_64}+; `;
+
+// function unescape(s) {
+//   // work for \t|\n|\r|\x0b|\x0c
+//   return s.replaceAll("\\n", "\n").replaceAll("\\r", "\r").replaceAll("\\t", "\t");
+// }
+
+// function escape_whitespace(s) {
+//   return s.replaceAll("\n", "\\n").replaceAll("\r", "\\r").replaceAll("\t", "\\t").replaceAll("\x0c", "\\x0c").replaceAll("\x0b", "\\x0b");
+// }
+
+function format_regex_printable(s) {
+  const escaped_string_json = JSON.stringify(s);
+  const escaped_string = escaped_string_json.slice(1, escaped_string_json.length - 1);
+  return escaped_string.replaceAll("\\\\\\\\", "\\").replaceAll("\\\\", "\\").replaceAll("\\|", "\\\\|");
+  //   let escaped = escape_whitespace(escape_whitespace(s.replaceAll("\\\\", "ZZZZZZZ")));
+  //   let fixed = escaped.replaceAll("\\(", "(").replaceAll("\\)", ")").replaceAll("\\+", "+").replaceAll("\\*", "*").replaceAll("\\?", "?");
+}
+
+// Code edited from https://github.com/CyberZHG/toolbox/blob/gh-pages/js/lexical.js
 
 // Note that this is not complete and very case specific i.e. can only handle a-z and not a-c.
 function regexToMinDFASpec(str) {
@@ -62,8 +82,12 @@ function regexToMinDFASpec(str) {
   return combined;
 }
 
-let header_regex = regexToMinDFASpec(order_invariant_header_regex_raw);
-console.log(order_invariant_header_regex_raw, "\n", header_regex);
+let header_regex_partial = regexToMinDFASpec(order_invariant_header_regex_raw);
+// console.log(order_invariant_header_regex_raw, "\n", header_regex_partial);
+let header_regex = header_regex_partial + additional_sig_regex;
+console.log(format_regex_printable(header_regex));
+console.log(header_regex);
+
 let regex = header_regex;
 
 // let order_invariant_regex_raw = `((\\n|\x80|^)(((from):([A-Za-z0-9 _."@-]+<)?[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.]+>)?|(subject:[a-zA-Z 0-9]+)?|((to):([A-Za-z0-9 _."@-]+<)?[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.]+>)?|(dkim-signature:((a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)=(0|1|2|3|4|5|6|7|8|9|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|!|"|#|$|%|&|\'|\\(|\\)|\\*|\\+|,|-|.|/|:|<|=|>|\\?|@|[|\\\\|]|^|_|\`|{|\\||}|~| |\t|\n|\r|\x0B|\f)+; ))?)(\\r))+` // Uses a-z syntax instead of | for each char
