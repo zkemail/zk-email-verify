@@ -33,7 +33,7 @@ const r0to9_nosep = "0123456789";
 // Note that in order to specify this string in regex, we must use \\ to escape \'s i.e. in the \r\n
 let order_invariant_header_regex_raw = `(((\\n|^)(((from):([A-Za-z0-9 _."@-]+<)?[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.]+>)?|(subject:[a-zA-Z 0-9]+)?|((to):([A-Za-z0-9 _."@-]+<)?[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.]+>)?)(\\r))+)`;
 
-// Note that this is not complete and very case specific
+// Note that this is not complete and very case specific i.e. can only handle a-z and not a-c.
 function regexToMinDFASpec(str) {
   // Replace all A-Z with A2Z etc
   let combined_nosep = str
