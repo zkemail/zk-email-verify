@@ -168,6 +168,33 @@ export const MainPage: React.FC<{}> = (props) => {
     }
   }, [value]);
 
+  const steps = [
+    {
+      title: "Send a Twitter Password Reset Email",
+      description: "Send yourself a Twitter password reset email from Twitter."
+    },
+    {
+      title: "Download Email Contents",
+      description: "In your inbox, find the email from Twitter and click the three dot menu, then 'Show original' then 'Copy to clipboard'. If on Outlook, download the original email as .eml and copy it instead.' "
+    },
+    {
+      title: "Paste Input",
+      description: "Copy paste that into the box below. Note that we cannot use this to phish you: we do not know your password, and we never get this email info because we have no server at all. We are actively searching for a less sketchy email."
+    },
+    {
+      title: "Add Ethereum Address",
+      description: "Paste in your sending Ethereum address. This ensures that no one else can 'steal' your proof for another account (frontrunning protection!)."
+    },
+    {
+      title: "Generate Proof",
+      description: "Click 'Generate Proof'. Since it is completely client side and open source, and you are not trusting us with any private information."
+    },
+    {
+      title: "Verify & Mint NFT Soul Token",
+      description: "Click 'Verify' and then 'Mint Twitter Badge On-Chain', and approve to mint the NFT badge that proves Twitter ownership! Note that it is 700K gas right now so only feasible on Goerli, though we intend to reduce this soon."
+    }
+  ];
+
   if (error) console.error(error);
 
   return (
@@ -190,24 +217,7 @@ export const MainPage: React.FC<{}> = (props) => {
           limits of incognito mode and non-chrome browsers, you must use Chrome to generate proofs right now. Our goal for March 2023 is to make this process 10x faster and
           smaller. If you wish to generate a ZK proof of Twitter badge, you must do these:
         </span>
-        <NumberedStep step={1}>
-          Send yourself a <a href="https://twitter.com/i/flow/password_reset">password reset email</a> from Twitter in incognito.
-        </NumberedStep>
-        <NumberedStep step={2}>In your inbox, find the email from Twitter and download headers (three dots, then download message).</NumberedStep>
-        <NumberedStep step={3}>
-          Copy paste the entire contents of the .eml file into the box below. Note that we cannot use this to phish you: we do not know your password, and we never get this email
-          info because we have no server at all. We are actively searching for a less sketchy email.
-        </NumberedStep>
-        <NumberedStep step={4}>
-          Paste in your sending Ethereum address. This ensures that no one else can "steal" your proof for another account (frontrunning protection!).
-        </NumberedStep>
-        <NumberedStep step={5}>
-          Click <b>"Generate Proof"</b>. Since it is completely client side and open source, and you are not trusting us with any private information.
-        </NumberedStep>
-        <NumberedStep step={6}>
-          Click <b>"Verify"</b> and then <b>"Mint Twitter Badge On-Chain"</b>, and approve to mint the NFT badge that proves Twitter ownership! Note that it is 700K gas right now
-          so only feasible on Goerli, though we intend to reduce this soon.
-        </NumberedStep>
+        {<NumberedStep steps={steps} />}
       </Col>
       <Main>
         <Column>
