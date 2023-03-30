@@ -274,7 +274,7 @@ The full email header and body check circuit, with 7-byte packing and final publ
 
 In the browser, on a 2019 Intel Mac on Chrome, proving uses 7.3/8 cores. zk-gen takes 384 s, groth16 prove takes 375 s, and witness calculation takes 9 s.
 
-For baremetal, proof generation time on 16 CPUs took 97 seconds. Generating zkey 0 took 17 minutes. Unclear about zkey 1. Zkey 2 took 5 minutes. r1cs + wasm generation took 5 minutes. Witness generation took 16 seconds. cpp generation of witness gen file (from script 6) took 210 minutes -- we do not run this pathway anymore.
+For baremetal, proof generation time on 16 CPUs took 97 seconds. Generating zkey 0 took 17 minutes. Unclear about zkey 1. Zkey 2 took 5 minutes. r1cs + wasm generation took 5 minutes. Witness generation took 16 seconds. cpp witness gen file generation (from script 6) took 210 minutes.
 
 ### Scrubbing Sensitive Files
 
@@ -314,25 +314,11 @@ const word_char = '(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|
 let regex = `email was meant for @${word_char}+`;
 ```
 
-To understand these better, use https://cyberzhg.github.io/toolbox/ and use the 3 regex tools for visualization of the min-DFA state.
-
 ## FAQ/Possible Errors
-
-### Can you provide an example header for me to understand what exactly is signed?
-
-We are hijacking DKIM signatures in order to verify parts of emails, which can be verified on chain via succinct zero knowledge proofs. Here is an example of the final, canoncalized actual header string that is signed by google.com's public key:
-
-`to:"zkemailverify@gmail.com" <zkemailverify@gmail.com>\r\nsubject:test email\r\nmessage-id:<CAOmXgjU78_L7d-H7Wqf2qph=-uED3Kw6NEU2PzSP6jiUH0Bb+Q@mail.gmail.com>\r\ndate:Fri, 24 Mar 2023 13:02:10 +0700\r\nfrom:ZK Email <zkemailverify2@gmail.com>\r\nmime-version:1.0\r\ndkim-signature:v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112; t=1679637743; h=to:subject:message-id:date:from:mime-version:from:to:cc:subject :date:message-id:reply-to; bh=gCRK/FdzAYnMHic55yb00uF8AHZ/3HvyLVQJbWQ2T8o=; b=`
-
-Thus, we can extract whatever information we want out of here via regex, including to/from/body hash! We can do the same for an email body.
 
 ### I'm having issues with the intricacies of the SHA hashing. How do I understand the function better?
 
 Use https://sha256algorithm.com/ as an explainer! It's a great visualization of what is going on, and our code should match what is going on there.
-
-### I'm having trouble with regex or base64 understanding. How do I understand that better?
-
-Use https://cyberzhg.github.io/toolbox/ to experiement with conversions to/from base64 and to/from DFAs and NFAs.
 
 ### What are the differences between generating proofs (snarkjs.groth16.fullprove) on the client vs. on a server?
 
@@ -353,21 +339,7 @@ const = result.results[0].publicKey.toString();
 TypeError: Cannot read properties of undefined (reading 'toString')
 ```
 
-You need to have internet connection while running dkim verification locally, in order to fetch the public key. If you have internet connection, make sure you downloaded the email with the headers: you should see a DKIM section in the file. DKIM verifiction may also fail after the public keys rotate, though this has not been confirmed.
-
-### How do I lookup the RSA pubkey for a domain?
-
-Use [easydmarc.com/tools/dkim-lookup?domain=twitter.com](https://easydmarc.com/tools/dkim-lookup?domain=twitter.com).
-
-### DKIM parsing/public key errors with generate_input.ts
-
-```
-Writing to file...
-/Users/aayushgupta/Documents/.projects.nosync/zk-email-verify/src/scripts/generate_input.ts:190
-        throw new Error(`No public key found on generate_inputs result ${JSON.stringify(result)}`);
-```
-
-Depending on the "info" error at the end of the email, you probably need to go through src/helpers/dkim/\*.js and replace some ".replace" functions with ".replaceAll" instead (likely tools.js), and also potentially strip some quotes.
+You need to have internet connection while running dkim verification locally, in order to fetch the public key. If you have internet connection, make sure you downloaded the email with the headers: you should see a DKIM section in the file.
 
 ### No available storage method found.
 
@@ -407,9 +379,9 @@ Apologies, this part is some messy legacy code from previous projects. You use v
 
 zkp.ts is the key file that calls the important proving functions. You should be able to just call the exported functions from there, along with setting up your own s3 bucket and setting the constants at the top.
 
-### What is the licensing on this technology?
+### Why did you choose GPL over MIT licensing?
 
-Everything we write is MIT licensed. Note that circom and circomlib is GPL. Broadly we are pro permissive open source usage with attribution! We hope that those who derive profit from this, contribute that money altruistically back to this technology and open source public good.
+Since circom is GPL, we are forced to use the GPL license, which is still a highly permissive license. You can dm us if you'd like to treat non-circom parts of the repo as MIT licensed, but broadly we are pro permissive open source usage with attribution! We hope that those who derive profit from this primitive contribute that money altruistically back to this technology.
 
 ## To-Do
 

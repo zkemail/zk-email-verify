@@ -191,19 +191,12 @@ export const MainPage: React.FC<{}> = (props) => {
           smaller. If you wish to generate a ZK proof of Twitter badge, you must do these:
         </span>
         <NumberedStep step={1}>
-          Send yourself a{" "}
-          <a href="https://twitter.com/i/flow/password_reset" target="_blank" rel="noreferrer">
-            password reset email
-          </a>{" "}
-          from Twitter.
+          Send yourself a <a href="https://twitter.com/i/flow/password_reset">password reset email</a> from Twitter in incognito.
         </NumberedStep>
-        <NumberedStep step={2}>
-          In your inbox, find the email from Twitter and click the three dot menu, then "Show original" then "Copy to clipboard". If on Outlook, download the original email as .eml
-          and copy it instead.
-        </NumberedStep>
+        <NumberedStep step={2}>In your inbox, find the email from Twitter and download headers (three dots, then download message).</NumberedStep>
         <NumberedStep step={3}>
-          Copy paste that into the box below. Note that we cannot use this to phish you: we do not know your password, and we never get this email info because we have no server at
-          all. We are actively searching for a less sketchy email.
+          Copy paste the entire contents of the .eml file into the box below. Note that we cannot use this to phish you: we do not know your password, and we never get this email
+          info because we have no server at all. We are actively searching for a less sketchy email.
         </NumberedStep>
         <NumberedStep step={4}>
           Paste in your sending Ethereum address. This ensures that no one else can "steal" your proof for another account (frontrunning protection!).

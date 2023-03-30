@@ -21,7 +21,7 @@ var Cryo = require("cryo");
 const pki = require("node-forge").pki;
 
 // const email_file = "monia_email.eml"; // "./test_email.txt", "./twitter_msg.eml", kaylee_phone_number_email_twitter
-const email_file = "zktestemail.eml";
+const email_file = "./nathan_twitter_email.eml";
 export interface ICircuitInputs {
   modulus?: string[];
   signature?: string[];
@@ -39,6 +39,7 @@ export interface ICircuitInputs {
   address_plus_one?: string;
   twitter_username_idx?: string;
   email_from_idx?: string;
+  email_to_idx?: string;
 }
 
 enum CircuitType {
@@ -100,12 +101,8 @@ export async function getCircuitInputs(
   const [messagePadded, messagePaddedLen] = await sha256Pad(prehashBytesUnpadded, MAX_HEADER_PADDED_BYTES);
   const [bodyPadded, bodyPaddedLen] = await sha256Pad(body, Math.max(MAX_BODY_PADDED_BYTES, calc_length));
 
-  // Convet messagePadded to string to print the specific header data that is signed
-  // console.log(message.toString());
-
   // Ensure SHA manual unpadded is running the correct function
   const shaOut = await partialSha(messagePadded, messagePaddedLen);
-
   assert((await Uint8ArrayToString(shaOut)) === (await Uint8ArrayToString(Uint8Array.from(await shaHash(prehashBytesUnpadded)))), "SHA256 calculation did not match!");
 
   // Precompute SHA prefix
@@ -141,7 +138,8 @@ export async function getCircuitInputs(
   const address_plus_one = (bytesToBigInt(fromHex(eth_address)) + 1n).toString();
 
   const USERNAME_SELECTOR = Buffer.from(STRING_PRESELECTOR);
-  const email_from_idx = Buffer.from(prehash_message_string).indexOf("From: ").toString();
+  const email_from_idx = Buffer.from(prehash_message_string).indexOf("from:").toString();
+  const email_to_idx = Buffer.from(prehash_message_string).indexOf("to:").toString();
   const twitter_username_idx = (Buffer.from(bodyRemaining).indexOf(USERNAME_SELECTOR) + USERNAME_SELECTOR.length).toString();
   console.log("Twitter Username idx: ", twitter_username_idx);
 
@@ -165,6 +163,7 @@ export async function getCircuitInputs(
       address_plus_one,
       body_hash_idx,
       // email_from_idx,
+      // email_to_idx,
     };
   } else {
     assert(circuit === CircuitType.SHA, "Invalid circuit type");
@@ -201,7 +200,7 @@ export async function generate_inputs(email: Buffer, eth_address: string): Promi
   //   // TODO: Condiiton code on if there is an internet connection, run this code
   //   var frozen = Cryo.stringify(result);
   //   fs.writeFileSync(`./email_cache_2.json`, frozen, { flag: "w" });
-  // } catch (e) {
+  // } catch (e) {i
   //   console.log("Reading cached email instead!");
   //   let frozen = fs.readFileSync(`./email_cache.json`, { encoding: "utf-8" });
   //   result = Cryo.parse(frozen);
@@ -223,7 +222,7 @@ async function do_generate() {
   const email = fs.readFileSync(email_file);
   console.log(email);
   const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000");
-  console.log(JSON.stringify(gen_inputs));
+  // console.log(JSON.stringify(gen_inputs));
   return gen_inputs;
 }
 

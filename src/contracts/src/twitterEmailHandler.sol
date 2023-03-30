@@ -6,14 +6,11 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "forge-std/console.sol";
 // import "./base64.sol";
-import "./hexStrings.sol";
 import "./NFTSVG.sol";
 import "./emailVerifier.sol";
 
 contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
   using Counters for Counters.Counter;
-  using HexStrings for *;
-  using NFTSVG for *;
 
   Counters.Counter private tokenCounter;
 
@@ -62,7 +59,6 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
   function tokenURI(uint256 tokenId) public view override returns (string memory) {
     string memory username = tokenIDToName[tokenId];
     address owner = ownerOf(tokenId);
-
     NFTSVG.SVGParams memory svgParams = NFTSVG.SVGParams({
       username: username,
       tokenId: tokenId,
