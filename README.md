@@ -1,6 +1,6 @@
 # ZK Email Verify
 
-**WIP: This tech is extremely tricky to use and very much a work in progress, and we do not recommend use in any production application right now. This is both due to unaudited code, and several theoretical issues such as nullifiers, bcc’s, non-nested signatures, and hash sizings. These are all resolved for our Twitter MVP usecase, but may not be generally gauranteed. If you have a possible usecase, please run it by us so we can ensure that your guarantees are in fact correct!**
+**WIP: This tech is extremely tricky to use and very much a work in progress, and we do not recommend use in any production application right now. This is both due to unaudited code, and several theoretical issues such as nullifiers, bcc’s, non-nested signatures, and hash sizings. These are all resolved for our Twitter MVP usecase, but may not be generally gauranteed. If you have a possible usecase, please run it by us so we can ensure that your trust assumptions are in fact correct!**
 
 Join the conversation via [dm'ing us](https://twitter.com/yush_g/)! We will have a broader Discord soon.
 
@@ -371,10 +371,10 @@ Since circom is GPL, we are forced to use the GPL license, which is still a high
 
 ## To-Do
 
--   Make the frontend Solidity calls work
--   Make a general method to get formatted signatures and bodies from all email clients
--   Make versions for different size RSA keys
--   Add ENS DNSSEC code (possibly SNARKed), so anyone can add a website's RSA key via DNS record
--   Design the NFT/POAP to have the user's domain/verified identity on it
--   Make a testnet faucet as a PoC for Sybil resistance and to get developers interested
--   Dynamically tradeoff between gzip (2x faster decompression) and xz (30% smaller file size): https://www.rootusers.com/gzip-vs-bzip2-vs-xz-performance-comparison/ based on internet speed (i.e. minimize download time + unzip time)
+- Make the frontend Solidity calls work
+- Make a general method to get formatted signatures and bodies from all email clients
+- Make versions for different size RSA keys
+- Add ENS DNSSEC code (possibly SNARKed), so anyone can add a website's RSA key via DNS record
+- Design the NFT/POAP to have the user's domain/verified identity on it
+- Make a testnet faucet as a PoC for Sybil resistance and to get developers interested
+- Dynamically tradeoff between gzip (2x faster decompression) and xz (30% smaller file size): https://www.rootusers.com/gzip-vs-bzip2-vs-xz-performance-comparison/ based on internet speed (i.e. minimize download time + unzip time)
