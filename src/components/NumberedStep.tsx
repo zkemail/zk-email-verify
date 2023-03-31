@@ -17,7 +17,7 @@ const Step = ({ index, title, description, active, onClick }: any) => (
 
 );
 
-export const NNS: React.FC<{
+export const NumberedStep: React.FC<{
   steps: Step[];
 }> = ({ steps }) => {
   const [activeStep, setActiveStep] = useState(0);
