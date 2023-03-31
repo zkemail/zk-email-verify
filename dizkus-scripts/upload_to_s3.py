@@ -16,7 +16,7 @@ bucket_name = 'zkemail-zkey-chunks'  # us-east-1
 
 
 def upload_to_s3(filename, dir=""):
-    with open(d ir + filename, 'rb') as file:
+    with open(dir + filename, 'rb') as file:
         print("Starting upload...")
         s3.upload_fileobj(file, bucket_name, filename, ExtraArgs={
                           'ACL': 'public-read', 'ContentType': 'binary/octet-stream'})

@@ -1,4 +1,4 @@
-import puppeteer from "puppeteer";
+import puppeteer, { Page } from "puppeteer";
 import fs from "fs";
 
 const testEthAddress = "0x00000000000000000000";
@@ -8,22 +8,27 @@ const testEmailText = fs.readFileSync(__dirname + testEmailFile, "utf8");
 // puppeteer test helpers
 const emailInputSelector = "textarea[aria-label='Full Email with Headers']";
 const ethInputSelector = "input[placeholder='Ethereum Address']";
+const proofTextareaSelector = "textarea[aria-label='Proof Output']";
 const pageUrl = "http://localhost:3000";
 
 const downloadTimeout = 10000000;
 const proofTimeout = 10000000;
 
-const setTextAreaValue = async (page, selector, value) => {
+const setTextAreaValue = async (page: Page, selector: string, value: string) => {
     // This is a workaround for the fact that page.keyboard.type() is too slow.
-    return await page.$eval(selector, async (element, value) => {
-      function setNativeValue(element, value) {
+    return await page.$eval(selector, async (element: any, value: string) => {
+      function setNativeValue(element: any, value: string) {
+        // @ts-ignore
         const valueSetter = Object.getOwnPropertyDescriptor(element, 'value').set;
         const prototype = Object.getPrototypeOf(element);
+        // @ts-ignore
         const prototypeValueSetter = Object.getOwnPropertyDescriptor(prototype, 'value').set;
         
         if (valueSetter && valueSetter !== prototypeValueSetter) {
+          // @ts-ignore
         	prototypeValueSetter.call(element, value);
         } else {
+          // @ts-ignore
           valueSetter.call(element, value);
         }
         element.dispatchEvent(new Event('input', { bubbles: true }));
@@ -32,7 +37,7 @@ const setTextAreaValue = async (page, selector, value) => {
     }, value);
 };
 
-const gotToPageAndEnterInputs = async (page, emailInputSelector, ethInputSelector, testEmailText, testEthAddress) => {
+const gotToPageAndEnterInputs = async (page: Page, emailInputSelector: string, ethInputSelector: string, testEmailText: string, testEthAddress: string) => {
     await page.goto(pageUrl);
     await page.waitForSelector(emailInputSelector);
     // 'page.keyboard.type()' takes too long. Use workaround.
@@ -45,8 +50,8 @@ const gotToPageAndEnterInputs = async (page, emailInputSelector, ethInputSelecto
 }
 
 describe("App.js", () => {
-  let browser;
-  let page;
+  let browser: puppeteer.Browser;
+  let page: Page;
 
   beforeAll(async () => {
     browser = await puppeteer.launch({
@@ -65,7 +70,7 @@ describe("App.js", () => {
     await page.click(proveButtonSelector);
     // starting download
     console.log("starting download...this will take up to 10 minutes and consume bandwidth");
-    const proveButtonIsDisabled = await page.$eval(proveButtonSelector, button => button.disabled);
+    const proveButtonIsDisabled = await page.$eval(proveButtonSelector, button => (button as HTMLButtonElement).disabled);
     expect(proveButtonIsDisabled).toBe(true);
 
     let status;
@@ -82,6 +87,15 @@ describe("App.js", () => {
     await page.waitForSelector("[data-testid='status-done']", {timeout: proofTimeout});
     status = await page.$eval("[data-testid='status-done']", e => e.attributes['data-testid'].value);
     expect(status).toBe("status-done");
+
+    // check proof
+    const proofValue = await page.$eval(proofTextareaSelector, e => (e as HTMLInputElement).value);
+    const proofObj = JSON.parse(proofValue);
+    expect(proofObj["pi_a"]).toBeTruthy();
+    expect(proofObj["pi_b"]).toBeTruthy();
+    expect(proofObj["pi_c"]).toBeTruthy();
+    expect(proofObj["protocol"]).toBe("groth16");
+    expect(proofObj["curve"]).toBe("bn128");
 
     // report times
     const downloadTime = await page.$eval("[data-testid='download-time']", e => e.textContent);

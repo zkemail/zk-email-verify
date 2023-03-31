@@ -109,7 +109,7 @@ contract VerifiedEmail is ERC721Enumerable, Verifier {
     return string(str);
   }
 
-  uint16 public constant msg_len = 163;
+  uint16 public constant msg_len = 21;
   string domain = "mit.edu";
 
   // Unpacks uint256s into bytes and then extracts the non-zero characters

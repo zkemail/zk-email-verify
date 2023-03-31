@@ -21,7 +21,7 @@ var Cryo = require("cryo");
 const pki = require("node-forge").pki;
 
 // const email_file = "monia_email.eml"; // "./test_email.txt", "./twitter_msg.eml", kaylee_phone_number_email_twitter
-const email_file = "jacob_email.eml";
+const email_file = "zktestemail.eml";
 export interface ICircuitInputs {
   modulus?: string[];
   signature?: string[];
@@ -38,6 +38,7 @@ export interface ICircuitInputs {
   address?: string;
   address_plus_one?: string;
   twitter_username_idx?: string;
+  email_from_idx?: string;
 }
 
 enum CircuitType {
@@ -94,12 +95,17 @@ export async function getCircuitInputs(
   const postShaBigintUnpadded = bytesToBigInt(stringToBytes((await shaHash(prehashBytesUnpadded)).toString())) % CIRCOM_FIELD_MODULUS;
 
   // Sha add padding
+  // 65 comes from the 64 at the end and the 1 bit in the start, then 63 comes from the formula to round it up to the nearest 64. see sha256algorithm.com for a more full explanation of paddnig length
+  const calc_length = Math.floor((body.length + 63 + 65) / 64) * 64;
   const [messagePadded, messagePaddedLen] = await sha256Pad(prehashBytesUnpadded, MAX_HEADER_PADDED_BYTES);
-  const calc_length = Math.floor((body.length + 63 + 65) / 64) * 64; // 65 comes from the 64 at the end and the 1 bit in the start, then rounded up to the nearest 64
   const [bodyPadded, bodyPaddedLen] = await sha256Pad(body, Math.max(MAX_BODY_PADDED_BYTES, calc_length));
+
+  // Convet messagePadded to string to print the specific header data that is signed
+  // console.log(message.toString());
 
   // Ensure SHA manual unpadded is running the correct function
   const shaOut = await partialSha(messagePadded, messagePaddedLen);
+
   assert((await Uint8ArrayToString(shaOut)) === (await Uint8ArrayToString(Uint8Array.from(await shaHash(prehashBytesUnpadded)))), "SHA256 calculation did not match!");
 
   // Precompute SHA prefix
@@ -135,6 +141,7 @@ export async function getCircuitInputs(
   const address_plus_one = (bytesToBigInt(fromHex(eth_address)) + 1n).toString();
 
   const USERNAME_SELECTOR = Buffer.from(STRING_PRESELECTOR);
+  const email_from_idx = Buffer.from(prehash_message_string).indexOf("From: ").toString();
   const twitter_username_idx = (Buffer.from(bodyRemaining).indexOf(USERNAME_SELECTOR) + USERNAME_SELECTOR.length).toString();
   console.log("Twitter Username idx: ", twitter_username_idx);
 
@@ -157,6 +164,7 @@ export async function getCircuitInputs(
       address,
       address_plus_one,
       body_hash_idx,
+      // email_from_idx,
     };
   } else {
     assert(circuit === CircuitType.SHA, "Invalid circuit type");
@@ -174,23 +182,27 @@ export async function getCircuitInputs(
 
 export async function generate_inputs(email: Buffer, eth_address: string): Promise<ICircuitInputs> {
   var result;
-  // try {
-  // debugger;
   console.log("DKIM verification starting");
   result = await dkimVerify(email);
-  if(!result.results[0].publicKey) {
-    if(result.results[0].status.message) {
-      throw new Error(result.results[0].status.message);
-    } else {
-      throw new Error("No public key found on generate_inputs");
+  if (!result.results[0]) {
+    throw new Error(`No result found on dkim output ${result}`);
+  } else {
+    if (!result.results[0].publicKey) {
+      if (result.results[0].status.message) {
+        throw new Error(result.results[0].status.message);
+      } else {
+        throw new Error(`No public key found on generate_inputs result ${JSON.stringify(result)}`);
+      }
     }
   }
   const _ = result.results[0].publicKey.toString();
   console.log("DKIM verification successful");
-  // var frozen = Cryo.stringify(result);
-  // fs.writeFileSync(`./email_cache.json`, frozen, { flag: "w" });
+  // try {
+  //   // TODO: Condiiton code on if there is an internet connection, run this code
+  //   var frozen = Cryo.stringify(result);
+  //   fs.writeFileSync(`./email_cache_2.json`, frozen, { flag: "w" });
   // } catch (e) {
-  //   console.log("Reading cached email instead!")
+  //   console.log("Reading cached email instead!");
   //   let frozen = fs.readFileSync(`./email_cache.json`, { encoding: "utf-8" });
   //   result = Cryo.parse(frozen);
   // }
