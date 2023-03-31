@@ -90,12 +90,28 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size) {
     rsa.modulus <== modulus;
     rsa.signature <== signature;
 
-    // DKIM HEADER REGEX: 736,553 constraints
-    // This extracts the from and the to emails, and the precise regex format can be viewed in the README
-    signal dkim_header_regex_out, dkim_header_regex_reveal[max_header_bytes];
-    (dkim_header_regex_out, dkim_header_regex_reveal) <== DKIMHeaderRegex(max_header_bytes)(in_padded);
-    dkim_header_regex_out === 2;
-    reveal_email_from_packed <== ShiftAndPack(max_header_bytes, max_email_from_len, pack_size)(dkim_header_regex_reveal, email_from_idx);
+    // FROM HEADER REGEX: 736,553 constraints
+    // This extracts the from email, and the precise regex format can be viewed in the README
+    signal from_regex_out, from_regex_reveal[max_header_bytes];
+    (from_regex_out, from_regex_reveal) <== DKIMHeaderRegex(max_header_bytes)(in_padded);
+    from_regex_out === 2;
+    reveal_email_from_packed <== ShiftAndPack(max_header_bytes, max_email_from_len, pack_size)(from_regex_reveal, email_from_idx);
+
+/*
+    // // TO HEADER REGEX: 736,553 constraints
+    // // This extracts the to email, and the precise regex format can be viewed in the README
+    // signal to_regex_out, to_regex_reveal[max_header_bytes];
+    // (to_regex_out, to_regex_reveal) <== ToRegex(max_header_bytes)(in_padded);
+    // to_regex_out === 1;
+    // reveal_email_to_packed <== ShiftAndPack(max_header_bytes, max_email_to_len, pack_size)(to_regex_reveal, email_to_idx);
+*/  // We cannot use to: field at all due to Hotmail
+
+    // // SUBJECT HEADER REGEX: 736,553 constraints
+    // // This extracts the subject, and the precise regex format can be viewed in the README
+    // signal subject_regex_out, subject_regex_reveal[max_header_bytes];
+    // (subject_regex_out, subject_regex_reveal) <== FromRegex(max_header_bytes)(in_padded);
+    // subject_regex_out === 1;
+    // reveal_email_subject_packed <== ShiftAndPack(max_header_bytes, max_email_subject_len, pack_size)(subject_regex_reveal, email_subject_idx);
 
     // BODY HASH REGEX: 617,597 constraints
     // This extracts the body hash from the header (i.e. the part after bh= within the DKIM-signature section)

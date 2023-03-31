@@ -242,6 +242,11 @@ function nfaToDfa(nfa) {
     }
     while (stack.length > 0) {
       top = stack.pop();
+      // If top is of type string and starts with "Error" then return error
+      if (typeof top === "string" && top[0] === "E") {
+        console.log(top);
+        continue;
+      }
       for (i = 0; i < top.edges.length; i += 1) {
         if (top.edges[i][0] === "ϵ") {
           if (closure.indexOf(top.edges[i][1]) < 0) {
