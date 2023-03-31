@@ -17,7 +17,7 @@ fi
 # First, chunked snarkjs
 yarn remove snarkjs
 mv ../yarn.lock ../yarn.lock_old
-rm -rf ../node_modules_old
+rm -r ../node_modules_old
 mv ../node_modules ../node_modules_old
 yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8
 yarn

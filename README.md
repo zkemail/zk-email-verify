@@ -85,12 +85,13 @@ curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh # Install rust if
 source "$HOME/.cargo/env" # Also rust installation step
 
 git clone https://github.com/iden3/circom.git
+sudo apt update
+sudo apt-get install nlohmann-json3-dev libgmp-dev nasm # Ubuntu packages needed for C-based witness generator
+sudo apt install build-essential # Ubuntu
+brew install nlohmann-json gmp nasm # OSX
 cd circom
 cargo build --release
 cargo install --path circom
-sudo apt update
-sudo apt-get install nlohmann-json3-dev libgmp-dev nasm # Ubuntu packages needed for C-based witness generator
-brew install nlohmann-json gmp nasm # OSX
 ```
 
 Inside `zk-email-verify` folder, do
@@ -108,11 +109,11 @@ To get the ptau, do (note that you only need the 22 file right now)
 
 ```bash
 wget https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_22.ptau
-mv powersOfTau28_hez_final_22.ptau powersoftau/powersOfTau28_hez_final_22.ptau
+mv powersOfTau28_hez_final_22.ptau circuits/powersOfTau28_hez_final_22.ptau
 
 wget https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_21.ptau
 # shasum pot21_final.ptau: e0ef07ede5c01b1f7ddabb14b60c0b740b357f70
-mv powersOfTau28_hez_final_21.ptau powersoftau/powersOfTau28_hez_final_21.ptau
+mv powersOfTau28_hez_final_21.ptau circuits/powersOfTau28_hez_final_21.ptau
 ```
 
 <!-- Previously snarkjs@git+https://github.com/vb7401/snarkjs.git#fae4fe381bdad2da13eee71010dfe477fc694ac1 -->
@@ -123,7 +124,7 @@ Put the email into ...\*.eml. Edit the constant filename at the top of generate_
 To create a chunked zkey for in-browser proving, run the following (likely on a high CPU computer):
 
 ```bash
-yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8 # Swap to chunked generation version
+yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8 # Swap to chunked generation version for browser
 cd dizkus-scripts/
 ./1_compile.sh && ./2_gen_wtns.sh && ./3_gen_chunk_zkey.sh && ./4_gen_vkey.sh && ./5_gen_proof.sh
 # optional: ./6_gen_proof_rapidsnark.sh
