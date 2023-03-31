@@ -41,11 +41,6 @@ if (OUTPUT_HALO2):
                 with open('halo2_regex_lookup.txt', 'a') as f:
                     print(i, v, ord(val), file=f)
 
-print("Accept node:", accept_nodes)
-print("Rev graph:", rev_graph)
-print("Graph:", graph)
-print("Graph json:", graph_json)
-
 eq_i = 0
 lt_i = 0
 and_i = 0

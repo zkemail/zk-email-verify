@@ -109,7 +109,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size) {
     // // SUBJECT HEADER REGEX: 736,553 constraints
     // // This extracts the subject, and the precise regex format can be viewed in the README
     // signal subject_regex_out, subject_regex_reveal[max_header_bytes];
-    // (subject_regex_out, subject_regex_reveal) <== FromRegex(max_header_bytes)(in_padded);
+    // (subject_regex_out, subject_regex_reveal) <== WalletSubjectRegex(max_header_bytes)(in_padded);
     // subject_regex_out === 1;
     // reveal_email_subject_packed <== ShiftAndPack(max_header_bytes, max_email_subject_len, pack_size)(subject_regex_reveal, email_subject_idx);
 

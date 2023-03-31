@@ -142,9 +142,58 @@ function regexToMinDFASpec(str) {
 // let regex = regexToMinDFASpec(raw_regex) + sig_regex;
 // console.log(format_regex_printable(sig_regex));
 
-let raw_subject_regex = `subject:[Ss]end (\\$)?[0-9]+(\\.[0-9])? (ETH|DAI|USDC|eth|usdc|dai) to [a-zA-Z0-9\\._%+-]+@[a-zA-Z0-9\\.-]+.[a-zA-Z0-9]`;
+// This raw subject line (with \\ replaced with \) can be put into regexr.com to test new match strings and sanity check that it works
+let raw_subject_regex = `((\\\\r\\\\n)|\^)subject:[Ss]end (\\$)?[0-9]+(\\.[0-9])? (ETH|DAI|USDC|eth|usdc|dai) to (([a-zA-Z0-9\\._%\\+-]+@[a-zA-Z0-9\\.-]+.[a-zA-Z0-9]+)|0x[0-9]+)\\\\r\\\\n`;
+// This can be pasted into the first line of zkregex.com/min_dfa
+// ((\\r\\n)|\^)subject:[Ss]end (\$)?[0-9]+(\.[0-9])? (ETH|DAI|USDC|eth|usdc|dai) to (([a-zA-Z0-9\._%\+-]+@[a-zA-Z0-9\.-]+.[a-zA-Z0-9]+)|0x[0-9]+)\\r\\n
+// console.log(raw_subject_regex);
 let regex = regexToMinDFASpec(raw_subject_regex);
-console.log(format_regex_printable(regex));
+// This can be pasted into the second line of zkregex.com/min_dfa
+// console.log(format_regex_printable(regex));
+// TODO" change \^ into \0x80
+
+/*
+One indexed! Need to subtract 1 from the DFA state!
+// Transition states--
+// Amount:
+53 2
+54 2
+2 2
+2 4
+4 11
+// Currency:
+3 5
+5 13
+13 19
+3 6
+6 14
+14 19
+3 7
+7 15
+15 20
+20 19
+3 8
+8 16
+16 19
+3 9
+9 17
+17 19
+3 10
+10 18
+18 21
+21 19
+// Dest states only
+// Recipient:
+28
+34
+38
+39
+26
+32
+35
+40
+44
+*/
 // console.log(raw_regex, "\n", regex);
 // let order_invariant_header_regex_raw = `(((\\n|^)(((from):([A-Za-z0-9 _."@-]+<)?[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.]+>)?|(subject:[a-zA-Z 0-9]+)?|((to):([A-Za-z0-9 _."@-]+<)?[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.]+>)?)(\\r))+)`;
 // let order_invariant_full_regex_raw = `(dkim-signature:((a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)=(0|1|2|3|4|5|6|7|8|9|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|!|"|#|$|%|&|\'|\\(|\\)|\\*|\\+|,|-|.|/|:|<|=|>|\\?|@|[|\\\\|]|^|_|\`|{|\\||}|~| |\t|\n|\r|\x0B|\f)+; ))?)(\\r))+` // Uses a-z syntax instead of | for each char
