@@ -9,32 +9,9 @@ include "./twitter_reset_regex.circom";
 include "./base64.circom";
 
 // These sizes are in signals
-// Constraints are O(max_input_size_signals) roughly
+// Constraints are O(max_in_signals) roughly
 // Will compress by the compression constant
-template PackBits(max_input_size_signals) {
-    var max_twitter_len = 21;
-    var max_twitter_packed_bytes = (max_twitter_len - 1) \ 7 + 1; // ceil(max_num_bytes / 7)
 
-    signal input twitter_username_idx;
-    signal reveal_twitter[max_twitter_len][max_body_bytes];
-    signal output reveal_twitter_packed[max_twitter_packed_bytes];
-
-
-    component packed_twitter_output[max_twitter_packed_bytes];
-    for (var i = 0; i < max_twitter_packed_bytes; i++) {
-        packed_twitter_output[i] = Bytes2Packed(chunks);
-        for (var j = 0; j < chunks; j++) {
-            var reveal_idx = i * chunks + j;
-            if (reveal_idx < max_body_bytes) {
-                packed_twitter_output[i].in[j] <== reveal_twitter[i * chunks + j][max_body_bytes - 1];
-            } else {
-                packed_twitter_output[i].in[j] <== 0;
-            }
-        }
-        reveal_twitter_packed[i] <== packed_twitter_output[i].out;
-        log(reveal_twitter_packed[i]);
-    }
-}
 
 // From https://demo.hedgedoc.org/s/Le0R3xUhB
 template VarShiftLeft(n, nBits) {
