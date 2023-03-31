@@ -12,6 +12,35 @@ include "./base64.circom";
 // Constraints are O(max_in_signals) roughly
 // Will compress by the compression constant
 
+// twitter_packer = PackBits(max_twitter_len, chunks) // Twitter
+// for (var i = 0; i < max_twitter_bytes; i++) {
+    // twitter_packer.in[0] <== reveal_twitter[i][max_body_bytes - 1];
+// }
+// for (var i = 0; i < max_twitter_packed_bytes; i++) {
+    // reveal_twitter_packed[0] <== twitter_packer.out[0];
+// }
+// Are raw assigned simplified to 1 variable in circom?
+
+template PackBits(max_in_signals, max_out_signals, pack_size) {
+    assert(max_out_signals == ((max_in_signals - 1) \ pack_size + 1)) // Packing constant is wrong
+
+    signal input in[max_in_signals];
+    signal output out[max_out_signals];
+
+    component packer[max_out_signals];
+    for (var i = 0; i < max_out_signals; i++) {
+        packer[i] = Bytes2Packed(chunks);
+        for (var j = 0; j < chunks; j++) {
+            var reveal_idx = i * chunks + j;
+            if (reveal_idx < max_body_bytes) {
+                packer[i].in[j] <== reveal_twitter[i * chunks + j];
+            } else {
+                packer[i].in[j] <== 0;
+            }
+        }
+        out[i] <== packer[i].out;
+    }
+}
 
 // From https://demo.hedgedoc.org/s/Le0R3xUhB
 template VarShiftLeft(n, nBits) {
