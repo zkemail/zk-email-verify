@@ -13,7 +13,7 @@ import {
     mergeUInt8Arrays,
     int64toBytes,
   } from "../helpers/binaryFormat";
-  import { CIRCOM_FIELD_MODULUS, MAX_HEADER_PADDED_BYTES, MAX_BODY_PADDED_BYTES, STRING_PRESELECTOR, STRING_PRESELECTOR_AIRBNB, STRING_PRESELECTOR_COINBASE, CIRCUIT_INPUTS } from "../../src/helpers/constants";
+  import { CIRCOM_FIELD_MODULUS, MAX_HEADER_PADDED_BYTES, MAX_BODY_PADDED_BYTES, STRING_PRESELECTOR, STRING_PRESELECTOR_AIRBNB, STRING_PRESELECTOR_COINBASE } from "../../src/helpers/constants";
   import { shaHash, partialSha, sha256Pad } from "../../src/helpers/shaHash";
   import { dkimVerify } from "../../src/helpers/dkim";
   import * as fs from "fs";
@@ -275,10 +275,10 @@ import {
     fs.writeFileSync(`./circuits/inputs/input_airbnb.json`, JSON.stringify(circuitInputs_airbnb), { flag: "w"});
     fs.writeFileSync(`./circuits/inputs/input_coinbase.json`, JSON.stringify(circuitInputs_coinbase), { flag: "w"});
 
-    let input_kyc = {};
-    for (const key of Object.keys(circuitInputs_airbnb)) {
-      input_kyc[key.concat("_airbnb")] = circuitInputs_airbnb[key];
-      input_kyc[key.concat("_coinbase")] = circuitInputs_coinbase[key];
+    let input_kyc: {[key:string]: any} = {};
+    for (const key in circuitInputs_airbnb) {
+      input_kyc[key.concat("_airbnb")] = circuitInputs_airbnb[key as keyof ICircuitInputs];
+      input_kyc[key.concat("_coinbase")] = circuitInputs_coinbase[key as keyof ICircuitInputs];
     }
     fs.writeFileSync(`./circuits/inputs/input_kyc.json`, JSON.stringify(input_kyc), { flag: "w"});
   }

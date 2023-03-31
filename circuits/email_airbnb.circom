@@ -16,7 +16,8 @@ include "./base64.circom";
 template AirbnbEmailVerify(max_header_bytes, n, k) {
     assert(max_header_bytes % 64 == 0);
     // assert(max_body_bytes % 64 == 0);
-    assert(n * k > 2048); // constraints for 2048 bit RSA
+    // assert(n * k > 2048); // constraints for 2048 bit RSA
+    assert(n * k > 1024); // costraints for 1024 bit RSA
     assert(k < 255 \ 2); // we want a multiplication to fit into a circom signal
 
     var max_packed_bytes = (max_header_bytes - 1) \ 7 + 1; // ceil(max_num_bytes / 7)

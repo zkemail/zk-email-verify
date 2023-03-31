@@ -15,7 +15,8 @@ export const MAX_BODY_PADDED_BYTES = 1536; // NOTE: this must be the same as the
 // component main { public [ modulus ] } = RSAVerify(121, 17);
 // component main { public [ root, payload1 ] } = RSAGroupSigVerify(121, 17, 30);
 export const CIRCOM_BIGINT_N = 121;
-export const CIRCOM_BIGINT_K = 17;
+// export const CIRCOM_BIGINT_K = 17;
+export const CIRCOM_BIGINT_K = 9;
 export const CIRCOM_LEVELS = 30;
 
 // This is the string that comes right before the target string in the email. Ideally as close to the end of the email as possible.
