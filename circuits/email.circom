@@ -7,69 +7,7 @@ include "./dkim_header_regex.circom";
 include "./body_hash_regex.circom";
 include "./twitter_reset_regex.circom";
 include "./base64.circom";
-
-// These sizes are in signals
-// Constraints are O(max_in_signals) roughly
-// Will compress by the compression constant
-
-// twitter_packer = PackBits(max_twitter_len, chunks) // Twitter
-// for (var i = 0; i < max_twitter_bytes; i++) {
-    // twitter_packer.in[0] <== reveal_twitter[i][max_body_bytes - 1];
-// }
-// for (var i = 0; i < max_twitter_packed_bytes; i++) {
-    // reveal_twitter_packed[0] <== twitter_packer.out[0];
-// }
-// Are raw assigned simplified to 1 variable in circom?
-
-template PackBits(max_in_signals, max_out_signals, pack_size) {
-    assert(max_out_signals == ((max_in_signals - 1) \ pack_size + 1)) // Packing constant is wrong
-
-    signal input in[max_in_signals];
-    signal output out[max_out_signals];
-
-    component packer[max_out_signals];
-    for (var i = 0; i < max_out_signals; i++) {
-        packer[i] = Bytes2Packed(chunks);
-        for (var j = 0; j < chunks; j++) {
-            var reveal_idx = i * chunks + j;
-            if (reveal_idx < max_body_bytes) {
-                packer[i].in[j] <== reveal_twitter[i * chunks + j];
-            } else {
-                packer[i].in[j] <== 0;
-            }
-        }
-        out[i] <== packer[i].out;
-    }
-}
-
-// From https://demo.hedgedoc.org/s/Le0R3xUhB
-template VarShiftLeft(n, nBits) {
-    signal input in[n]; // x
-    signal input shift; // k
-
-    signal output out[n]; // y
-
-    component n2b = Num2Bits(nBits);
-    n2b.in <== shift;
-
-    signal tmp[nBits][n];
-    for (var j = 0; j < nBits; j++) {
-        for (var i = 0; i < n; i++) {
-            var offset = (i + (1 << j)) % n;
-            // Shift left by 2^j indices if bit is 1
-            if (j == 0) {
-                tmp[j][i] <== n2b.out[j] * (in[offset] - in[i]) + in[i];
-            } else {
-                tmp[j][i] <== n2b.out[j] * (tmp[j-1][offset] - tmp[j-1][i]) + tmp[j-1][i];
-            }
-        }
-    }
-
-    // Return last row
-    for (var i = 0; i < n; i++) {
-        out[i] <== tmp[nBits - 1][i];
-    }
-}
+include "./extract.circom";
 
 // Here, n and k are the biginteger parameters for RSA
 // This is because the number is chunked into k chunks of n bits each
@@ -165,9 +103,13 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         dkim_header_regex.msg[i] <== in_padded[i];
     }
     dkim_header_regex.out === 2;
-    // for (var i = 0; i < max_header_bytes; i++) {
-    //     reveal_email_from[i] <== dkim_header_regex.reveal[i+1];
-    // }
+    component from_revealer = ShiftAndPack(max_header_bytes, max_email_from_len, pack_size);
+    for (var i = 0; i < max_header_bytes; i++) {
+        // TODO: WARNING!!!!!!! CHECK FOR OFF BY ONE ERROR
+        from_revealer.in[i] <== dkim_header_regex.reveal[i+1];
+    }
+    from_revealer.shift <== email_from_idx;
+    reveal_email_from_packed[i] <== from_revealer.out[i];
     log(dkim_header_regex.reveal[0]);
     log(dkim_header_regex.out);
 
@@ -179,19 +121,12 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         body_hash_regex.msg[i] <== in_padded[i];
     }
     body_hash_regex.out === 1;
-    log(body_hash_regex.out);
-    component body_hash_eq[max_header_bytes];
+    component bh_packer = VarShiftLeft(max_header_bytes, LEN_SHA_B64, chunks);
     for (var i = 0; i < max_header_bytes; i++) {
-        body_hash_eq[i] = IsEqual();
-        body_hash_eq[i].in[0] <== i;
-        body_hash_eq[i].in[1] <== body_hash_idx;
+        bh_packer.in[i] <== body_hash_regex.reveal[j];
     }
-    for (var j = 0; j < LEN_SHA_B64; j++) {
-        body_hash[j][j] <== body_hash_eq[j].out * body_hash_regex.reveal[j];
-        for (var i = j + 1; i < max_header_bytes; i++) {
-            body_hash[j][i] <== body_hash[j][i - 1] + body_hash_eq[i-j].out * body_hash_regex.reveal[i];
-        }
-    }
+    bh_packer.shift = body_hash_idx;
+    log(body_hash_regex.out);
 
     // SHA BODY: 760,142 constraints
     // This verifies that the hash of the body, when calculated from the precomputed part forwards,
@@ -206,7 +141,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     sha_body.in_len_padded_bytes <== in_body_len_padded_bytes;
     component sha_b64 = Base64Decode(32);
     for (var i = 0; i < LEN_SHA_B64; i++) {
-        sha_b64.in[i] <== body_hash[i][max_header_bytes - 1];
+        sha_b64.in[i] <== bh_packer.out[i];
     }
     // When we convert the manually hashed email sha_body into bytes, it matches the
     // base64 decoding of the final hash state that the signature signs (sha_b64)
@@ -226,90 +161,20 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     for (var i = 0; i < max_body_bytes; i++) {
         twitter_regex.msg[i] <== in_body_padded[i];
     }
+
     // This ensures we found a match at least once
     component found_twitter = IsZero();
     found_twitter.in <== twitter_regex.out;
-    log(twitter_regex.out);
     found_twitter.out === 0;
 
-    // Extract regex match from Twitter regex
-    // We isolate where the username begins: twitter_eq there is 1, everywhere else is 0
-    component twitter_eq[max_body_bytes];
-    for (var i = 0; i < max_body_bytes; i++) {
-        twitter_eq[i] = IsEqual();
-        twitter_eq[i].in[0] <== i;
-        twitter_eq[i].in[1] <== twitter_username_idx;
-    }
-    for (var j = 0; j < max_twitter_len; j++) {
-        // This vector is 0 everywhere except at one value
-        // [x][x] is the starting character of the twitter username
-        reveal_twitter[j][j] <== twitter_eq[j].out * twitter_regex.reveal[j];
-        for (var i = j + 1; i < max_body_bytes; i++) {
-            // This shifts the username back to the start of the string. For example,
-            // [0][k0] = y, where k0 >= twitter_username_idx + 0
-            // [1][k1] = u, where k1 >= twitter_username_idx + 1
-            // [2][k2] = s, where k2 >= twitter_username_idx + 2
-            // [3][k3] = h, where k3 >= twitter_username_idx + 3
-            // [4][k4] = _, where k4 >= twitter_username_idx + 4
-            // [5][k5] = g, where k5 >= twitter_username_idx + 5
-            reveal_twitter[j][i] <== reveal_twitter[j][i - 1] + twitter_eq[i-j].out * twitter_regex.reveal[i];
-        }
-    }
-
     // PACKING: 16,800 constraints (Total: 3,115,057)
-    // Pack output for solidity verifier to be < 24kb size limit
-    component packed_twitter_output[max_twitter_packed_bytes];
-    for (var i = 0; i < max_twitter_packed_bytes; i++) {
-        packed_twitter_output[i] = Bytes2Packed(chunks);
-        for (var j = 0; j < chunks; j++) {
-            var reveal_idx = i * chunks + j;
-            if (reveal_idx < max_body_bytes) {
-                packed_twitter_output[i].in[j] <== reveal_twitter[reveal_idx][max_body_bytes - 1];
-            } else {
-                packed_twitter_output[i].in[j] <== 0;
-            }
-        }
-        reveal_twitter_packed[i] <== packed_twitter_output[i].out;
-        log(reveal_twitter_packed[i]);
-    }
-
-    // Email
-    component packed_email_output[max_email_from_packed_bytes];
-    // We isolate where the email begins: twitter_eq there is 1, everywhere else is 0
-    component packed_email_eq[max_header_bytes];
+    component twitter_revealer = ShiftAndPack(max_body_bytes, max_twitter_len, chunks);
     for (var i = 0; i < max_header_bytes; i++) {
-        packed_email_eq[i] = IsEqual();
-        packed_email_eq[i].in[0] <== i;
-        packed_email_eq[i].in[1] <== email_from_idx;
+        // TODO: WARNING!!!!!!! CHECK FOR OFF BY ONE ERROR
+        twitter_revealer.in[i] <== twitter_regex.reveal[i];
     }
-    for (var j = 0; j < max_email_from_len; j++) {
-        // This vector is 0 everywhere except at one value
-        // [x][x] is the starting character of the packed_email username
-        reveal_email_from[j][j] <== packed_email_eq[j].out * dkim_header_regex.reveal[j + 1];
-        for (var i = j + 1; i < max_header_bytes; i++) {
-            // This shifts the username back to the start of the string. For example,
-            // [0][k0] = y, where k0 >= email_from_idx + 0
-            // [1][k1] = u, where k1 >= email_from_idx + 1
-            // [2][k2] = s, where k2 >= email_from_idx + 2
-            // [3][k3] = h, where k3 >= email_from_idx + 3
-            // [4][k4] = _, where k4 >= email_from_idx + 4
-            // [5][k5] = g, where k5 >= email_from_idx + 5
-            // The dkim header regex reveal has one extra so is ok to go beyond
-            reveal_email_from[j][i] <== reveal_email_from[j][i - 1] + packed_email_eq[i-j].out * dkim_header_regex.reveal[i + 1];
-        }
-    }
-    for (var i = 0; i < max_email_from_packed_bytes; i++) {
-        packed_email_output[i] = Bytes2Packed(chunks);
-        for (var j = 0; j < chunks; j++) {
-            var reveal_idx = i * chunks + j;
-            if (reveal_idx < max_email_from_len) {
-                packed_email_output[i].in[j] <== reveal_email_from[reveal_idx][max_header_bytes - 1];
-            } else {
-                packed_email_output[i].in[j] <== 0;
-            }
-        }
-        reveal_email_from_packed[i] <== packed_email_output[i].out;
-    }
+    twitter_revealer.shift <== twitter_username_idx;
+    reveal_twitter_packed[i] <== twitter_revealer.out[i];
 }
 
 // In circom, all output signals of the main component are public (and cannot be made private), the input signals of the main component are private if not stated otherwise using the keyword public as above. The rest of signals are all private and cannot be made public.
