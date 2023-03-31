@@ -109,6 +109,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size) {
     // This extracts the from email, and the precise regex format can be viewed in the README
     signal from_regex_out, from_regex_reveal[max_header_bytes];
     (from_regex_out, from_regex_reveal) <== DKIMHeaderRegex(max_header_bytes)(in_padded);
+    log(from_regex_out);
     from_regex_out === 2;
     reveal_email_from_packed <== ShiftAndPack(max_header_bytes, max_email_from_len, pack_size)(from_regex_reveal, email_from_idx);
 
@@ -125,6 +126,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size) {
     // This extracts the subject, and the precise regex format can be viewed in the README
     signal subject_regex_out, subject_regex_reveal_amount[max_header_bytes], subject_regex_reveal_currency[max_header_bytes], subject_regex_reveal_recipient[max_header_bytes];
     (subject_regex_out, subject_regex_reveal_amount, subject_regex_reveal_currency, subject_regex_reveal_recipient) <== WalletSubjectRegex(max_header_bytes)(in_padded);
+    log(subject_regex_out);
     subject_regex_out === 1;
 
     reveal_amount_packed <== ShiftAndPack(max_header_bytes, max_subject_amount_len, pack_size)(subject_regex_reveal_amount, amount_idx);

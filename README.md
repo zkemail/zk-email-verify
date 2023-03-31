@@ -88,6 +88,7 @@ git clone https://github.com/iden3/circom.git
 cd circom
 cargo build --release
 cargo install --path circom
+sudo apt update
 sudo apt-get install nlohmann-json3-dev libgmp-dev nasm # Ubuntu packages needed for C-based witness generator
 brew install nlohmann-json gmp nasm # OSX
 ```
@@ -95,7 +96,11 @@ brew install nlohmann-json gmp nasm # OSX
 Inside `zk-email-verify` folder, do
 
 ```
-sudo npm i -g yarn # If don't have yarn
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash # If don't have npm
+. ~/.nvm/nvm.sh # If don't have npm
+nvm install 16 # If don't have node 16
+nvm use 16 # If not using node 16
+sudo npm i -g yarn # If don't have yarn (may need to remove sudo)
 yarn install # If this fails, delete yarn.lock and try again
 ```
 

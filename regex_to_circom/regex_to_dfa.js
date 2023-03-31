@@ -143,7 +143,7 @@ function regexToMinDFASpec(str) {
 // console.log(format_regex_printable(sig_regex));
 
 // This raw subject line (with \\ replaced with \) can be put into regexr.com to test new match strings and sanity check that it works
-let raw_subject_regex = `((\\\\r\\\\n)|\^)subject:[Ss]end (\\$)?[0-9]+(\\.[0-9])? (ETH|DAI|USDC|eth|usdc|dai) to (([a-zA-Z0-9\\._%\\+-]+@[a-zA-Z0-9\\.-]+.[a-zA-Z0-9]+)|0x[0-9]+)\\\\r\\\\n`;
+let raw_subject_regex = `((\r\n)|\^)subject:[Ss]end (\\$)?[0-9]+(\\.[0-9])? (ETH|DAI|USDC|eth|usdc|dai) to (([a-zA-Z0-9\\._%\\+-]+@[a-zA-Z0-9\\.-]+.[a-zA-Z0-9]+)|0x[0-9]+)\r\n`;
 // This can be pasted into the first line of zkregex.com/min_dfa
 // ((\\r\\n)|\^)subject:[Ss]end (\$)?[0-9]+(\.[0-9])? (ETH|DAI|USDC|eth|usdc|dai) to (([a-zA-Z0-9\._%\+-]+@[a-zA-Z0-9\.-]+.[a-zA-Z0-9]+)|0x[0-9]+)\\r\\n
 // console.log(raw_subject_regex);

@@ -21,7 +21,7 @@ var Cryo = require("cryo");
 const pki = require("node-forge").pki;
 
 // const email_file = "monia_email.eml"; // "./test_email.txt", "./twitter_msg.eml", kaylee_phone_number_email_twitter
-const email_file = "zktestemail.eml";
+const email_file = "wallet.eml";
 export interface ICircuitInputs {
   modulus?: string[];
   signature?: string[];
@@ -105,7 +105,7 @@ export async function getCircuitInputs(
   const [bodyPadded, bodyPaddedLen] = await sha256Pad(body, Math.max(MAX_BODY_PADDED_BYTES, calc_length));
 
   // Convet messagePadded to string to print the specific header data that is signed
-  // console.log(message.toString());
+  console.log(JSON.stringify(message).toString());
 
   // Ensure SHA manual unpadded is running the correct function
   const shaOut = await partialSha(messagePadded, messagePaddedLen);
@@ -179,10 +179,10 @@ export async function getCircuitInputs(
       address,
       address_plus_one,
       body_hash_idx,
-      email_from_idx,
-      amount_idx: email_from_idx,
-      currency_idx: email_from_idx,
-      recipient_idx: email_from_idx,
+      email_from_idx: 0,
+      amount_idx: 0,
+      currency_idx: 0,
+      recipient_idx: 0,
     };
   } else {
     assert(circuit === CircuitType.SHA, "Invalid circuit type");
