@@ -13,7 +13,8 @@ include "./email_coinbase.circom";
 template KYCVerify(max_header_bytes, n, k) {
     assert(max_header_bytes % 64 == 0);
     // assert(max_body_bytes % 64 == 0);
-    assert(n * k > 2048); // constraints for 2048 bit RSA
+    // assert(n * k > 2048); // constraints for 2048 bit RSA, e.g., Twitter
+    assert(n * k > 1024); // constraints for 1024 bit RSA, e.g., Airbnb and Coinbase
     assert(k < 255 \ 2); // we want a multiplication to fit into a circom signal
 
     // max_num_bytes must be a multiple of 64
@@ -45,9 +46,8 @@ template KYCVerify(max_header_bytes, n, k) {
     signal input address_coinbase;
     signal input address_plus_one_coinbase;
 
-    // OUTPUT SIGNALS
     // Outputs the packed version of the from/to emails from both emails
-    signal output reveal_packed[2 * max_packed_bytes];
+    signal reveal_packed[2 * max_packed_bytes];
 
     component airbnb_verify = AirbnbEmailVerify(max_header_bytes, n, k);
     component coinbase_verify = CoinbaseEmailVerify(max_header_bytes, n, k);
@@ -107,4 +107,4 @@ template KYCVerify(max_header_bytes, n, k) {
 // In circom, all output signals of the main component are public (and cannot be made private), the input signals of the main component are private if not stated otherwise using the keyword public as above. The rest of signals are all private and cannot be made public.
 // This makes modulus and reveal_twitter_packed public. hash(signature) can optionally be made public, but is not recommended since it allows the mailserver to trace who the offender is.
 
-component main { public [ modulus_airbnb, modulus_coinbase, address_airbnb, address_coinbase ] } = KYCVerify(1024, 121, 17);
+component main { public [ modulus_airbnb, modulus_coinbase, address_airbnb, address_coinbase ] } = KYCVerify(1024, 121, 9);
