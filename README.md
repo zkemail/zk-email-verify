@@ -72,7 +72,9 @@ public/ # Should contain vkey/wasm, but we end up fetching those from AWS server
 
 ### Regex to Circom
 
-Modify the `let regex = ` in lexical.js and then run `python3 gen.py`
+First, generate a regex. Go to our [min_dfa fork](https://mindfa.onrender.com/min_dfa) of cyberzhg's toolbox and insert your regex on the top line. We've forked [min-dfa into a UI here](https://mindfa.onrender.com/min_dfa) to create a UI that converts existing regexes with [] support, as well as escapes \_, and the character classes a-z, A-Z, and 0-9. It also shows the DFA states very clearly so you can choose accept states easily. This should make converting regexes into DFA form way cleaner.
+
+Modify either `let raw_regex = ` (that supports actual regex strings like `[A-Za-z0-9]` [but no other character ranges]) or modify `let regex = ` (that does not support brackets or character ranges and supports only the limited syntax in https://cyberzhg.github.io/toolbox/min_dfa) in regex_to_circom/regex_to_dfa.js and then run `python3 gen.py`.
 
 ### Email Circuit Build Steps
 

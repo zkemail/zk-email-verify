@@ -5,7 +5,7 @@ import string
 # Clear file
 OUTPUT_HALO2 = True
 
-graph_json = json.loads(subprocess.check_output(['npx', 'tsx', 'lexical.js']))
+graph_json = json.loads(subprocess.check_output(['npx', 'tsx', 'regex_to_dfa.js']))
 N = len(graph_json)
 
 # Outgoing nodes
