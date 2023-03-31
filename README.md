@@ -161,7 +161,7 @@ npm install typescript ts-node -g
 # uncomment do_generate function call at end of file
 # go to tsconfig.json and change esnext to CommonJS
 # if weird things dont work with this and yarn start, go go node_modules/react-scripts/config/webpack.config.ts and add/cut `target: 'node',` after like 793 after `node:`.
-npx tsc --moduleResolution node --target esnext circuits/scripts/generate_input.ts
+npx tsc --moduleResolution node --target esnext src/scripts/generate_input.ts
 ```
 
 which will autowrite input\_<circuitName>.json to the inputs folder.

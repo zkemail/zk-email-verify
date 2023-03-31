@@ -39,6 +39,9 @@ export interface ICircuitInputs {
   address_plus_one?: string;
   twitter_username_idx?: string;
   email_from_idx?: string;
+  amount_idx?: string;
+  currency_idx?: string;
+  recipient_idx?: string;
 }
 
 enum CircuitType {
@@ -46,6 +49,7 @@ enum CircuitType {
   SHA = "sha",
   TEST = "test",
   EMAIL = "email",
+  EMAILWALLET = "emailwallet",
 }
 
 async function findSelector(a: Uint8Array, selector: number[]): Promise<number> {
@@ -166,6 +170,20 @@ export async function getCircuitInputs(
       body_hash_idx,
       // email_from_idx,
     };
+  } else if (circuit === CircuitType.EMAILWALLET) {
+    circuitInputs = {
+      in_padded,
+      modulus,
+      signature,
+      in_len_padded_bytes,
+      address,
+      address_plus_one,
+      body_hash_idx,
+      email_from_idx,
+      amount_idx: email_from_idx,
+      currency_idx: email_from_idx,
+      recipient_idx: email_from_idx,
+    };
   } else {
     assert(circuit === CircuitType.SHA, "Invalid circuit type");
     circuitInputs = {
@@ -210,7 +228,7 @@ export async function generate_inputs(email: Buffer, eth_address: string): Promi
   let message = result.results[0].status.signature_header;
   let body = result.results[0].body;
   let body_hash = result.results[0].bodyHash;
-  let circuitType = CircuitType.EMAIL;
+  let circuitType = CircuitType.EMAILWALLET;
 
   let pubkey = result.results[0].publicKey;
   const pubKeyData = pki.publicKeyFromPem(pubkey.toString());
@@ -256,6 +274,6 @@ if (typeof require !== "undefined" && require.main === module) {
   // debug_file();
   const circuitInputs = do_generate();
   console.log("Writing to file...");
-  circuitInputs.then((inputs) => fs.writeFileSync(`./circuits/inputs/input_twitter.json`, JSON.stringify(inputs), { flag: "w" }));
+  circuitInputs.then((inputs) => fs.writeFileSync(`./circuits/inputs/input_wallet.json`, JSON.stringify(inputs), { flag: "w" }));
   // gen_test();
 }

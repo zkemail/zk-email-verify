@@ -8,6 +8,7 @@ include "./body_hash_regex.circom";
 include "./twitter_reset_regex.circom";
 include "./base64.circom";
 include "./extract.circom";
+include "./subject_regex.circom";
 
 // Here, n and k are the biginteger parameters for RSA
 // This is because the number is chunked into k pack_size of n bits each
@@ -57,10 +58,10 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size) {
     assert(max_email_from_packed_bytes < max_header_bytes);
 
     // Body reveal vars
-    var max_twitter_len = 21;
-    var max_twitter_packed_bytes = count_packed(max_twitter_len, pack_size); // ceil(max_num_bytes / 7)
-    signal input twitter_username_idx;
-    signal output reveal_twitter_packed[max_twitter_packed_bytes];
+    // var max_twitter_len = 21;
+    // var max_twitter_packed_bytes = count_packed(max_twitter_len, pack_size); // ceil(max_num_bytes / 7)
+    // signal input twitter_username_idx;
+    // signal output reveal_twitter_packed[max_twitter_packed_bytes];
 
     // Identity commitment variables
     // (note we don't need to constrain the +1 due to https://geometry.xyz/notebook/groth16-malleability)
