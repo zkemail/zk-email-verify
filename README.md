@@ -415,10 +415,22 @@ Everything we write is MIT licensed. Note that circom and circomlib is GPL. Broa
 
 ## To-Do
 
-- Make the frontend Solidity calls work
 - Make a general method to get formatted signatures and bodies from all email clients
 - Make versions for different size RSA keys
 - Add ENS DNSSEC code (possibly SNARKed), so anyone can add a website's RSA key via DNS record
-- Design the NFT/POAP to have the user's domain/verified identity on it
+- Design the NFT/POAP to have the user's domain/verified identity on it and display SVG properly on opensea
 - Make a testnet faucet as a PoC for Sybil resistance and to get developers interested
 - Dynamically tradeoff between gzip (2x faster decompression) and xz (30% smaller file size): https://www.rootusers.com/gzip-vs-bzip2-vs-xz-performance-comparison/ based on internet speed (i.e. minimize download time + unzip time)
+- Fix these circom bugs from `circom email.circom --inspect`:
+  - warning[CA02]: In template "Base64Decode(32)": Subcomponent input/output signal bits_out[10][2].out does not appear in any constraint of the father component
+  - warning[CA01]: In template "TwitterResetRegex(1536)": Local signal states[1536][0] does not appear in any constraint
+  - warning[CA02]: In template "EmailVerify(1024,1536,121,17,7)": Subcomponent input/output signal dkim_header_regex.reveal[0] does not appear in any constraint of the father component
+  - warning[CA02]: In template "RSAVerify65537(121,17)": Array of subcomponent input/output signals signatureRangeCheck[13].out contains a total of 121 signals that do not appear in any constraint of the father component
+    = For example: signatureRangeCheck[13].out[0], signatureRangeCheck[13].out[100].
+  - warning[CA02]: In template "LessThan(8)": Array of subcomponent input/output signals n2b.out contains a total of 8 signals that do not appear in any constraint of the father component
+    = For example: n2b.out[0], n2b.out[1].
+  - warning[CA01]: In template "DKIMHeaderRegex(1024)": Local signal states[1025][0] does not appear in any constraint
+  - warning[CA01]: In template "Bytes2Packed(7)": Array of local signals in_prefix_sum contains a total of 8 signals that do not appear in any constraint
+    = For example: in_prefix_sum[0], in_prefix_sum[1].
+  - warning[CA01]: In template "Bytes2Packed(7)": Array of local signals pow2 contains a total of 8 signals that do not appear in any constraint
+    = For example: pow2[0], pow2[1].

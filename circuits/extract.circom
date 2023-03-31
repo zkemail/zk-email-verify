@@ -18,19 +18,20 @@ function log2(a) {
     return r;
 }
 
+// Pack size is # of chunks i.e. number of char signals that fit into a signal (default 7 but can be 30)
 template PackBytes(max_in_signals, max_out_signals, pack_size) {
-    assert(max_out_signals == ((max_in_signals - 1) \ pack_size + 1)) // Packing constant is wrong
+    assert(max_out_signals == ((max_in_signals - 1) \ pack_size + 1)); // Packing constant is wrong
 
     signal input in[max_in_signals];
     signal output out[max_out_signals];
 
     component packer[max_out_signals];
     for (var i = 0; i < max_out_signals; i++) {
-        packer[i] = Bytes2Packed(chunks);
-        for (var j = 0; j < chunks; j++) {
-            var reveal_idx = i * chunks + j;
-            if (reveal_idx < max_body_bytes) {
-                packer[i].in[j] <== reveal_twitter[i * chunks + j];
+        packer[i] = Bytes2Packed(pack_size);
+        for (var j = 0; j < pack_size; j++) {
+            var reveal_idx = i * pack_size + j;
+            if (reveal_idx < max_in_signals) {
+                packer[i].in[j] <== in[i * pack_size + j];
             } else {
                 packer[i].in[j] <== 0;
             }
@@ -91,11 +92,13 @@ template ClearSubarrayAfterEndIndex(n, nBits) {
     }
 }
 
+// Lengths here are in signals, even though the final output array is 1/7 the size of max_substr_len
+// TODO: Maybe a better architectural decision to avoid mistakes is to require both values and assert their equality
 template ShiftAndPack(in_array_len, max_substr_len, pack_size) {
     var max_substr_len_packed = ((max_substr_len - 1) \ pack_size + 1);
 
     component shifter = VarShiftLeft(in_array_len, max_substr_len);
-    component packer = PackBits(max_substr_len, max_substr_len_packed, pack_size);
+    component packer = PackBytes(max_substr_len, max_substr_len_packed, pack_size);
 
     signal input in[in_array_len];
     signal input shift;

@@ -1,4 +1,4 @@
-pragma circom 2.0.3;
+pragma circom 2.1.5;
 
 include "../node_modules/circomlib/circuits/bitify.circom";
 include "./sha.circom";
@@ -10,53 +10,52 @@ include "./base64.circom";
 include "./extract.circom";
 
 // Here, n and k are the biginteger parameters for RSA
-// This is because the number is chunked into k chunks of n bits each
+// This is because the number is chunked into k pack_size of n bits each
 // Max header bytes shouldn't need to be changed much per email,
 // but the max mody bytes may need to be changed to be larger if the email has a lot of i.e. HTML formatting
-template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
+template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size) {
     assert(max_header_bytes % 64 == 0);
     assert(max_body_bytes % 64 == 0);
     assert(n * k > 2048); // constraints for 2048 bit RSA
     assert(n < (255 \ 2)); // we want a multiplication to fit into a circom signal
 
-    // chunks = 7 is the number of bytes that can fit into a 255ish bit signal (can increase later)
-    var chunks = 7;
-    var max_packed_bytes = (max_header_bytes - 1) \ chunks + 1; // ceil(max_num_bytes / 7)
-    var max_email_from_len = 30;
-    var max_email_from_packed_bytes = (max_email_from_len - 1) \ chunks + 1;
-    // assert(chunks * max_email_from_packed_bytes <= max_email_from_len); // TODO: Not true for 7 * 8 <= 50
-    assert(max_email_from_packed_bytes < max_header_bytes);
     signal input in_padded[max_header_bytes]; // prehashed email data, includes up to 512 + 64? bytes of padding pre SHA256, and padded with lots of 0s at end after the length
-    signal input modulus[k]; // rsa pubkey, verified with smart contract + optional oracle
-    signal input signature[k];
+    signal input modulus[k]; // rsa pubkey, verified with smart contract + DNSSEC proof. split up into k parts of n bits each.
+    signal input signature[k]; // rsa signature. split up into k parts of n bits each.
     signal input in_len_padded_bytes; // length of in email data including the padding, which will inform the sha256 block length
 
+    // Precomputed sha vars
     // Next 3 signals are for decreasing SHA constraints for parsing out information from the in-body text
     // The precomputed_sha value is the Merkle-Damgard state of our SHA hash uptil our first regex match
     // This allows us to save a ton of SHA constraints by only hashing the relevant part of the body
     // It doesn't have an impact on security since a user must have known the pre-image of a signed message to be able to fake it
+    // The lower two body signals describe the suffix of the body that we care about
+    // The part before these signals, a significant prefix of the body, has been pre-hashed into precomputed_sha.
     signal input precomputed_sha[32];
-    // The lower two body signals are only the part we care about, a significant prefix of the body has been pre-hashed into precomputed_sha.
     signal input in_body_padded[max_body_bytes];
     signal input in_body_len_padded_bytes;
 
+    // Header reveal vars
+    var max_email_from_len = 30;
+    var max_email_from_packed_bytes = count_packed(max_email_from_len, pack_size);
     signal input email_from_idx;
-    signal reveal_email_from[max_email_from_len][max_header_bytes]; // bytes to reveal
     signal output reveal_email_from_packed[max_email_from_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
+    assert(max_email_from_packed_bytes < max_header_bytes);
 
+    // Body reveal vars
     var max_twitter_len = 21;
-    var max_twitter_packed_bytes = (max_twitter_len - 1) \ chunks + 1; // ceil(max_num_bytes / 7)
-
+    var max_twitter_packed_bytes = count_packed(max_twitter_len, pack_size); // ceil(max_num_bytes / 7)
     signal input twitter_username_idx;
-    signal reveal_twitter[max_twitter_len][max_body_bytes];
     signal output reveal_twitter_packed[max_twitter_packed_bytes];
 
+    // Identity commitment variables
+    // (note we don't need to constrain the +1 due to https://geometry.xyz/notebook/groth16-malleability)
     signal input address;
     signal input address_plus_one;
 
+    // Base 64 body hash variables
     var LEN_SHA_B64 = 44;     // ceil(32/3) * 4, due to base64 encoding.
     signal input body_hash_idx;
-    signal body_hash[LEN_SHA_B64][max_header_bytes];
 
     // SHA HEADER: 506,670 constraints
     // This calculates the SHA256 hash of the header, which is the "base_msg" that is RSA signed.
@@ -109,7 +108,9 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         from_revealer.in[i] <== dkim_header_regex.reveal[i+1];
     }
     from_revealer.shift <== email_from_idx;
-    reveal_email_from_packed[i] <== from_revealer.out[i];
+    for (var i = 0; i < max_email_from_packed_bytes; i++) {
+        reveal_email_from_packed[i] <== from_revealer.out[i];
+    }
     log(dkim_header_regex.reveal[0]);
     log(dkim_header_regex.out);
 
@@ -121,11 +122,12 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
         body_hash_regex.msg[i] <== in_padded[i];
     }
     body_hash_regex.out === 1;
-    component bh_packer = VarShiftLeft(max_header_bytes, LEN_SHA_B64, chunks);
+    component bh_packer = VarShiftLeft(max_header_bytes, LEN_SHA_B64);
     for (var i = 0; i < max_header_bytes; i++) {
-        bh_packer.in[i] <== body_hash_regex.reveal[j];
+        // TODO: Verify off by 1 error
+        bh_packer.in[i] <== body_hash_regex.reveal[i];
     }
-    bh_packer.shift = body_hash_idx;
+    bh_packer.shift <== body_hash_idx;
     log(body_hash_regex.out);
 
     // SHA BODY: 760,142 constraints
@@ -168,16 +170,20 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k) {
     found_twitter.out === 0;
 
     // PACKING: 16,800 constraints (Total: 3,115,057)
-    component twitter_revealer = ShiftAndPack(max_body_bytes, max_twitter_len, chunks);
-    for (var i = 0; i < max_header_bytes; i++) {
+    component twitter_revealer = ShiftAndPack(max_body_bytes, max_twitter_len, pack_size);
+    for (var i = 0; i < max_body_bytes; i++) {
         // TODO: WARNING!!!!!!! CHECK FOR OFF BY ONE ERROR
         twitter_revealer.in[i] <== twitter_regex.reveal[i];
     }
     twitter_revealer.shift <== twitter_username_idx;
-    reveal_twitter_packed[i] <== twitter_revealer.out[i];
+    for (var i = 0; i < max_twitter_packed_bytes; i++) {
+        reveal_twitter_packed[i] <== twitter_revealer.out[i];
+    }
 }
 
 // In circom, all output signals of the main component are public (and cannot be made private), the input signals of the main component are private if not stated otherwise using the keyword public as above. The rest of signals are all private and cannot be made public.
 // This makes modulus and reveal_twitter_packed public. hash(signature) can optionally be made public, but is not recommended since it allows the mailserver to trace who the offender is.
 
-component main { public [ modulus, address ] } = EmailVerify(1024, 1536, 121, 17);
+component main { public [ modulus, address ] } = EmailVerify(1024, 1536, 121, 17, 7);
+// Args:
+// * pack_size = 7 is the number of bytes that can fit into a 255ish bit signal (can increase later)
