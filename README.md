@@ -124,17 +124,65 @@ Put the email into ...\*.eml. Edit the constant filename at the top of generate_
 To create a chunked zkey for in-browser proving, run the following (likely on a high CPU computer):
 
 ```bash
-yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8 # Swap to chunked generation version for browser
+yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8 # Swap to chunked generation version for browser, leave this line out for serverside proofs onluy
 cd dizkus-scripts/
-./1_compile.sh && ./2_gen_wtns.sh && ./3_gen_chunk_zkey.sh && ./4_gen_vkey.sh && ./5_gen_proof.sh
-# optional: ./6_gen_proof_rapidsnark.sh
+cp entropy.env.example entropy.env
+```
 
-# This part is to upload the zkeys, not critical
-# Remember to change bucket_name in upload_to_s3.py
+Not put random characters into the values for entropy1 and entropy2, and hexadecimal characters into the beacon. These scripts will compile and test your zkey for you.
+
+```
+./1_compile.sh && ./2_gen_wtns.sh && ./3_gen_chunk_zkey.sh && ./4_gen_vkey.sh && ./5_gen_proof.sh
+```
+
+If you want to run a fast server side prover, install rapidsnark and test proofgen:
+
+```
+cd ../../
+git clone https://github.com/iden3/rapidsnark
+cd rapidsnark
+npm install
+git submodule init
+git submodule update
+npx task createFieldSources
+```
+
+You're supposed to run `npx task buildPistache` next, but that errored, so I had to manually build the pistache lib first:
+
+```
+cd depends/pistache
+sudo apt-get install meson ninja-build
+meson setup build --buildtype=release
+ninja -C build
+sudo ninja -C build install
+sudo ldconfig
+cd ../..
+```
+
+Then, from rapidsnark/ I could run
+
+```
+npx task buildProverServer
+```
+
+And from zk-email-verify, convert your proof params to a rapidsnark friendly version:
+
+```
+
+cd ../zk-email-verify/dizkus-scripts
+./6_gen_proof_rapidsnark.sh
+
+```
+
+To upload zkeys to an s3 box on AWS, change bucket_name in upload_to_s3.py and run:
+
+```
+
 aws configure # Only needs to be run once
 pip3 install boto3
 python3 upload_to_s3.py
 yarn add snarkjs@https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e # Revert to frontend version
+
 ```
 
 Note that there's no .zkeya file, only .zkeyb ... .zkeyk. The script will automatically zip into .tar.gz files and load into s3 bucket.
@@ -142,7 +190,9 @@ Note that there's no .zkeya file, only .zkeyb ... .zkeyk. The script will automa
 We use a fork of [zkp.ts](https://github.com/personaelabs/heyanon/blob/main/lib/zkp.ts) to load these keys into localforage. In the browser, to read off of localforage, you have to use this fork when running the frontend locally/in prod:
 
 ```
+
 yarn install snarkjs@git+https://github.com/vb7401/snarkjs.git#53e86631b5e409e5bd30300611b495ca469503bc
+
 ```
 
 Manually copy paste the modulus in the resulting generated file into solidity verified mailserver keys.
@@ -152,7 +202,9 @@ Change s3 address in the frontend to your bucket.
 To do a non-chunked zkey for non-browser running,
 
 ```
+
 yarn compile-all
+
 ```
 
 ### Compiling Subcircuits
@@ -282,7 +334,7 @@ The full email header and body check circuit, with 7-byte packing and final publ
 
 In the browser, on a 2019 Intel Mac on Chrome, proving uses 7.3/8 cores. zk-gen takes 384 s, groth16 prove takes 375 s, and witness calculation takes 9 s.
 
-For baremetal, proof generation time on 16 CPUs took 97 seconds. Generating zkey 0 took 17 minutes. Unclear about zkey 1. Zkey 2 took 5 minutes. r1cs + wasm generation took 5 minutes. Witness generation took 16 seconds. cpp generation of witness gen file (from script 6) took 210 minutes -- we do not run this pathway anymore.
+For baremetal, proof generation time on 16 CPUs took 97 seconds. Generating zkey 0 took 17 minutes. zkey 1 and zkey 2 each took 5 minutes. r1cs + wasm generation took 5 minutes. Witness generation took 16 seconds. cpp generation of witness gen file (from script 6) took 210 minutes -- we do not run this pathway anymore.
 
 ### Scrubbing Sensitive Files
 
@@ -297,7 +349,7 @@ git push --set-upstream origin main --force
 
 ## Regexes we compiled
 
-The regex to get out the from/to emails is:
+Test these on cyberzhg's toolbox modified at [zkregex.com/min_dfa](https://zkregex.com/min_dfa). The regex to get out the from/to emails is:
 
 ```
 // '(\r\n|\x80)(to|from):([A-Za-z0-9 _."@-]+<)?[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.]+>?\r\n';
@@ -440,3 +492,4 @@ Everything we write is MIT licensed. Note that circom and circomlib is GPL. Broa
     = For example: in_prefix_sum[0], in_prefix_sum[1].
   - warning[CA01]: In template "Bytes2Packed(7)": Array of local signals pow2 contains a total of 8 signals that do not appear in any constraint
     = For example: pow2[0], pow2[1].
+- Enable parsing of emails via tagged-dfa/lookahead/lookbehinds in all cases where 1) from:email [rare, only gcal] and 2) from:<email> and 3) from:text <email>

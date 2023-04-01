@@ -2,7 +2,7 @@ pragma circom 2.1.5;
 
 include "./regex_helpers.circom";
 
-template DKIMHeaderRegex (msg_bytes) {
+template ToFromDomainRegex (msg_bytes) {
     signal input msg[msg_bytes];
     signal output out;
 

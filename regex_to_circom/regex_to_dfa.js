@@ -143,11 +143,13 @@ function regexToMinDFASpec(str) {
 // console.log(format_regex_printable(sig_regex));
 
 // This raw subject line (with \\ replaced with \) can be put into regexr.com to test new match strings and sanity check that it works
-let raw_subject_regex = `((\r\n)|\^)subject:[Ss]end (\\$)?[0-9]+(\\.[0-9])? (ETH|DAI|USDC|eth|usdc|dai) to (([a-zA-Z0-9\\._%\\+-]+@[a-zA-Z0-9\\.-]+.[a-zA-Z0-9]+)|0x[0-9]+)\r\n`;
+let email_address_regex = `([a-zA-Z0-9\\._%\\+-]+@[a-zA-Z0-9\\.-]+.[a-zA-Z0-9]+)`;
+let raw_subject_regex = `((\r\n)|\^)subject:[Ss]end (\\$)?[0-9]+(\\.[0-9])? (ETH|DAI|USDC|eth|usdc|dai) to (${email_address_regex}|0x[0-9]+)\r\n`;
+let raw_from_regex = `(\r\n|^)from:([A-Za-z0-9 _.,"@-]+)<[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.-]+>\r\n`;
 // This can be pasted into the first line of zkregex.com/min_dfa
 // ((\\r\\n)|\^)subject:[Ss]end (\$)?[0-9]+(\.[0-9])? (ETH|DAI|USDC|eth|usdc|dai) to (([a-zA-Z0-9\._%\+-]+@[a-zA-Z0-9\.-]+.[a-zA-Z0-9]+)|0x[0-9]+)\\r\\n
 // console.log(raw_subject_regex);
-let regex = regexToMinDFASpec(raw_subject_regex);
+let regex = regexToMinDFASpec(raw_from_regex);
 // This can be pasted into the second line of zkregex.com/min_dfa
 // console.log(format_regex_printable(regex));
 // TODO" change \^ into \0x80

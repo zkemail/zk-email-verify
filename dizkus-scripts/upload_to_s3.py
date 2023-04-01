@@ -3,17 +3,25 @@ import os
 import tarfile
 import time
 import gzip
+import argparse
 
 # Set up the client for the AWS S3 service
 s3 = boto3.client('s3')  # Ask Aayush for the access key and secret access key
 
+parser = argparse.ArgumentParser(description='Upload files to S3 bucket')
+parser.add_argument('--bucket_name', type=str, default='zkemail-zkey-chunks', help='Name of the S3 bucket')
+parser.add_argument('--build_dir', type=str, default='chunked_build', help='Name of the build directory directory with the circuitname/ folder')
+parser.add_argument('--circuit_name', type=str, default='email', help='Name of the circuit (i.e. the foldername in build_dir/)')
+args = parser.parse_args()
+bucket_name = args.bucket_name
+build_dir = args.build_dir
+circuit_name = args.circuit_name
+
 # Set the name of the remote directory and the AWS bucket
 source = '~/Documents/projects/zk-email-verify'
 source = '.'
-zkey_dir = source + '/chunked_build/email/'
-wasm_dir = source + '/chunked_build/email/email_js/'
-bucket_name = 'zkemail-zkey-chunks'  # us-east-1
-
+zkey_dir = source + '/{build_dir}/{circuit_name}/'
+wasm_dir = source + '/{build_dir}/{circuit_name}/{circuit_name}_js/'
 
 def upload_to_s3(filename, dir=""):
     with open(dir + filename, 'rb') as file:

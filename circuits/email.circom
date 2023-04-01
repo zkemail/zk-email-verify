@@ -3,17 +3,19 @@ pragma circom 2.1.5;
 include "../node_modules/circomlib/circuits/bitify.circom";
 include "./sha.circom";
 include "./rsa.circom";
-include "./dkim_header_regex.circom";
+include "./tofrom_domain_regex.circom";
 include "./body_hash_regex.circom";
 include "./twitter_reset_regex.circom";
 include "./base64.circom";
 include "./extract.circom";
 include "./subject_regex.circom";
+include "./from_regex.circom";
 
 // Here, n and k are the biginteger parameters for RSA
 // This is because the number is chunked into k pack_size of n bits each
 // Max header bytes shouldn't need to be changed much per email,
 // but the max mody bytes may need to be changed to be larger if the email has a lot of i.e. HTML formatting
+// TODO: split into header and body
 template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size) {
     assert(max_header_bytes % 64 == 0);
     assert(max_body_bytes % 64 == 0);
@@ -48,12 +50,12 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size) {
     var max_subject_recipient_packed_bytes = count_packed(max_subject_recipient_len, pack_size);
 
     signal input email_from_idx;
-    signal output reveal_email_from_packed[max_email_from_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
     signal input amount_idx;
-    signal output reveal_amount_packed[max_subject_amount_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
     signal input currency_idx;
-    signal output reveal_currency_packed[max_subject_currency_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
     signal input recipient_idx;
+    signal output reveal_email_from_packed[max_email_from_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
+    signal output reveal_amount_packed[max_subject_amount_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
+    signal output reveal_currency_packed[max_subject_currency_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
     signal output reveal_recipient_packed[max_subject_recipient_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
     assert(max_email_from_packed_bytes < max_header_bytes);
 
@@ -108,9 +110,9 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size) {
     // FROM HEADER REGEX: 736,553 constraints
     // This extracts the from email, and the precise regex format can be viewed in the README
     signal from_regex_out, from_regex_reveal[max_header_bytes];
-    (from_regex_out, from_regex_reveal) <== DKIMHeaderRegex(max_header_bytes)(in_padded);
+    (from_regex_out, from_regex_reveal) <== FromRegex(max_header_bytes)(in_padded);
     log(from_regex_out);
-    from_regex_out === 2;
+    from_regex_out === 1;
     reveal_email_from_packed <== ShiftAndPack(max_header_bytes, max_email_from_len, pack_size)(from_regex_reveal, email_from_idx);
 
 /*

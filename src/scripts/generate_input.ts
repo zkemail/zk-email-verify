@@ -17,6 +17,7 @@ import { CIRCOM_FIELD_MODULUS, MAX_HEADER_PADDED_BYTES, MAX_BODY_PADDED_BYTES, S
 import { shaHash, partialSha, sha256Pad } from "../../src/helpers/shaHash";
 import { dkimVerify } from "../../src/helpers/dkim";
 import * as fs from "fs";
+import { stubObject } from "lodash";
 var Cryo = require("cryo");
 const pki = require("node-forge").pki;
 
@@ -145,9 +146,23 @@ export async function getCircuitInputs(
   const address_plus_one = (bytesToBigInt(fromHex(eth_address)) + 1n).toString();
 
   const USERNAME_SELECTOR = Buffer.from(STRING_PRESELECTOR);
-  const email_from_idx = Buffer.from(prehash_message_string).indexOf("From: ").toString();
+  
+  function trimStrByStr(str: string, substr: string) {
+    const index = str.indexOf(substr);
+    if (index === -1) {
+      return str;
+    }
+    return str.slice(0, index + substr.length);
+  }
+
+  let raw_header = Buffer.from(prehash_message_string).toString();
+  const email_from_idx = raw_header.length - trimStrByStr(trimStrByStr(raw_header, "from:"), "<").length;
+  let email_subject = trimStrByStr(raw_header, "subject:");
+  const amount_idx = raw_header.length - trimStrByStr(email_subject, "end ").length;
+  const currency_idx = raw_header.length - trimStrByStr(trimStrByStr(email_subject, "end "), " ").length;
+  const recipient_idx = raw_header.length - trimStrByStr(email_subject, "to ").length;
   const twitter_username_idx = (Buffer.from(bodyRemaining).indexOf(USERNAME_SELECTOR) + USERNAME_SELECTOR.length).toString();
-  console.log("Twitter Username idx: ", twitter_username_idx);
+  console.log("Indexes into header string are: ", email_from_idx, amount_idx, currency_idx, recipient_idx, twitter_username_idx);
 
   if (circuit === CircuitType.RSA) {
     circuitInputs = {
@@ -179,10 +194,10 @@ export async function getCircuitInputs(
       address,
       address_plus_one,
       body_hash_idx,
-      email_from_idx: 0,
-      amount_idx: 0,
-      currency_idx: 0,
-      recipient_idx: 0,
+      email_from_idx: email_from_idx.toString(),
+      amount_idx: amount_idx.toString(),
+      currency_idx: currency_idx.toString(),
+      recipient_idx: recipient_idx.toString(),
     };
   } else {
     assert(circuit === CircuitType.SHA, "Invalid circuit type");
