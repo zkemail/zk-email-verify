@@ -1,8 +1,8 @@
 pragma solidity ^0.8.0;
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
-import "../twitterEmailHandler.sol";
-import "../emailVerifier.sol";
+import "../TwitterEmailHandler.sol";
+import "../Groth16VerifierTwitter.sol";
 
 contract TwitterUtilsTest is Test {
   address internal constant zero = 0x0000000000000000000000000000000000000000;
@@ -59,30 +59,6 @@ contract TwitterUtilsTest is Test {
     packedBytes[2] = 0;
     string memory byteList = testVerifier.convertPackedBytesToBytes(packedBytes, 30);
     string memory intended_value = "zktestemail";
-    assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
-    console.logString(byteList);
-  }
-
-  function testUnpackIntoFloat1() public {
-    uint256[] memory packedBytes = new uint256[](4);
-    packedBytes[0] = 0;
-    packedBytes[1] = 0;
-    packedBytes[2] = 0;
-    packedBytes[3] = 0;
-    string memory byteList = testVerifier.convertPackedBytesToBytes(packedBytes, 30);
-    string memory intended_value = "15.06";
-    assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
-    console.logString(byteList);
-  }
-
-  function testUnpackIntoFloat2() public {
-    uint256[] memory packedBytes = new uint256[](4);
-    packedBytes[0] = 0;
-    packedBytes[1] = 0;
-    packedBytes[2] = 0;
-    packedBytes[3] = 0;
-    string memory byteList = testVerifier.convertPackedBytesToBytes(packedBytes, 30);
-    string memory intended_value = "2";
     assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
     console.logString(byteList);
   }

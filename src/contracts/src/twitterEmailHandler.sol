@@ -6,9 +6,9 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "forge-std/console.sol";
 // import "./base64.sol";
-import "./hexStrings.sol";
+import "./HexStrings.sol";
 import "./NFTSVG.sol";
-import "./emailVerifier.sol";
+import "./Groth16VerifierTwitter.sol";
 
 contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
   using Counters for Counters.Counter;
