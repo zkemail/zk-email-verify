@@ -59,23 +59,23 @@ contract WalletEmail is Verifier {
     verifiedMailserverKeys["twitter.com"][15] = 299744519975649772895460843780023483;
     verifiedMailserverKeys["twitter.com"][16] = 3933359104846508935112096715593287;
 
-    verifiedMailserverKeys["gmail.com"][0] = 1634582323953821262989958727173988295;
-    verifiedMailserverKeys["gmail.com"][1] = 1938094444722442142315201757874145583;
-    verifiedMailserverKeys["gmail.com"][2] = 375300260153333632727697921604599470;
-    verifiedMailserverKeys["gmail.com"][3] = 1369658125109277828425429339149824874;
-    verifiedMailserverKeys["gmail.com"][4] = 1589384595547333389911397650751436647;
-    verifiedMailserverKeys["gmail.com"][5] = 1428144289938431173655248321840778928;
-    verifiedMailserverKeys["gmail.com"][6] = 1919508490085653366961918211405731923;
-    verifiedMailserverKeys["gmail.com"][7] = 2358009612379481320362782200045159837;
-    verifiedMailserverKeys["gmail.com"][8] = 518833500408858308962881361452944175;
-    verifiedMailserverKeys["gmail.com"][9] = 1163210548821508924802510293967109414;
-    verifiedMailserverKeys["gmail.com"][10] = 1361351910698751746280135795885107181;
-    verifiedMailserverKeys["gmail.com"][11] = 1445969488612593115566934629427756345;
-    verifiedMailserverKeys["gmail.com"][12] = 2457340995040159831545380614838948388;
-    verifiedMailserverKeys["gmail.com"][13] = 2612807374136932899648418365680887439;
-    verifiedMailserverKeys["gmail.com"][14] = 16021263889082005631675788949457422;
-    verifiedMailserverKeys["gmail.com"][15] = 299744519975649772895460843780023483;
-    verifiedMailserverKeys["gmail.com"][16] = 3933359104846508935112096715593287;
+    verifiedMailserverKeys["gmail.com"][0] = 1634582323953821262989958727173988295
+    verifiedMailserverKeys["gmail.com"][1] = 1938094444722442142315201757874145583
+    verifiedMailserverKeys["gmail.com"][2] = 375300260153333632727697921604599470
+    verifiedMailserverKeys["gmail.com"][3] = 1369658125109277828425429339149824874
+    verifiedMailserverKeys["gmail.com"][4] = 1589384595547333389911397650751436647
+    verifiedMailserverKeys["gmail.com"][5] = 1428144289938431173655248321840778928
+    verifiedMailserverKeys["gmail.com"][6] = 1919508490085653366961918211405731923
+    verifiedMailserverKeys["gmail.com"][7] = 2358009612379481320362782200045159837
+    verifiedMailserverKeys["gmail.com"][8] = 518833500408858308962881361452944175
+    verifiedMailserverKeys["gmail.com"][9] = 1163210548821508924802510293967109414
+    verifiedMailserverKeys["gmail.com"][10] = 1361351910698751746280135795885107181
+    verifiedMailserverKeys["gmail.com"][11] = 1445969488612593115566934629427756345
+    verifiedMailserverKeys["gmail.com"][12] = 2457340995040159831545380614838948388
+    verifiedMailserverKeys["gmail.com"][13] = 2612807374136932899648418365680887439
+    verifiedMailserverKeys["gmail.com"][14] = 16021263889082005631675788949457422
+    verifiedMailserverKeys["gmail.com"][15] = 299744519975649772895460843780023483
+    verifiedMailserverKeys["gmail.com"][16] = 3933359104846508935112096715593287
 
     verifiedMailserverKeys["hotmail.com"][0] = 1634582323953821262989958727173988295;
     verifiedMailserverKeys["hotmail.com"][1] = 1938094444722442142315201757874145583;
@@ -113,24 +113,26 @@ contract WalletEmail is Verifier {
     verifiedMailserverKeys["ethereum.org"][15] = 299744519975649772895460843780023483;
     verifiedMailserverKeys["ethereum.org"][16] = 3933359104846508935112096715593287;
 
-    verifiedMailserverKeys["skiff.com"][0] = 1634582323953821262989958727173988295;
-    verifiedMailserverKeys["skiff.com"][1] = 1938094444722442142315201757874145583;
-    verifiedMailserverKeys["skiff.com"][2] = 375300260153333632727697921604599470;
-    verifiedMailserverKeys["skiff.com"][3] = 1369658125109277828425429339149824874;
-    verifiedMailserverKeys["skiff.com"][4] = 1589384595547333389911397650751436647;
-    verifiedMailserverKeys["skiff.com"][5] = 1428144289938431173655248321840778928;
-    verifiedMailserverKeys["skiff.com"][6] = 1919508490085653366961918211405731923;
-    verifiedMailserverKeys["skiff.com"][7] = 2358009612379481320362782200045159837;
-    verifiedMailserverKeys["skiff.com"][8] = 518833500408858308962881361452944175;
-    verifiedMailserverKeys["skiff.com"][9] = 1163210548821508924802510293967109414;
-    verifiedMailserverKeys["skiff.com"][10] = 1361351910698751746280135795885107181;
-    verifiedMailserverKeys["skiff.com"][11] = 1445969488612593115566934629427756345;
-    verifiedMailserverKeys["skiff.com"][12] = 2457340995040159831545380614838948388;
-    verifiedMailserverKeys["skiff.com"][13] = 2612807374136932899648418365680887439;
-    verifiedMailserverKeys["skiff.com"][14] = 16021263889082005631675788949457422;
-    verifiedMailserverKeys["skiff.com"][15] = 299744519975649772895460843780023483;
-    verifiedMailserverKeys["skiff.com"][16] = 3933359104846508935112096715593287;
+    verifiedMailserverKeys["skiff.com"][0] = 2637270478154147701703365710201556843
+    verifiedMailserverKeys["skiff.com"][1] = 2082690054369201099288110516791254232
+    verifiedMailserverKeys["skiff.com"][2] = 1108253255381437937379143813840625818
+    verifiedMailserverKeys["skiff.com"][3] = 1535554154331979875086566323552212673
+    verifiedMailserverKeys["skiff.com"][4] = 273019276149049264013012583938735085
+    verifiedMailserverKeys["skiff.com"][5] = 741436192387359949728618527229215889
+    verifiedMailserverKeys["skiff.com"][6] = 1851608307869135205473270393049341043
+    verifiedMailserverKeys["skiff.com"][7] = 1428718881138594152975742734455140338
+    verifiedMailserverKeys["skiff.com"][8] = 778850382237088374273157869416671135
+    verifiedMailserverKeys["skiff.com"][9] = 549599381370898291203601849666570597
+    verifiedMailserverKeys["skiff.com"][10] = 221161044322752364431317167498442512
+    verifiedMailserverKeys["skiff.com"][11] = 2041801755941244198449288035460748224
+    verifiedMailserverKeys["skiff.com"][12] = 1083114189020989870026920716001138899
+    verifiedMailserverKeys["skiff.com"][13] = 1380362773644527202561949550864154963
+    verifiedMailserverKeys["skiff.com"][14] = 1366599807917971505788646146248798329
+    verifiedMailserverKeys["skiff.com"][15] = 391565989352979266796804441125988853
+    verifiedMailserverKeys["skiff.com"][16] = 3704766395208948862861103932863036
   }
+
+
 
   function tokenDesc(uint256 tokenId) public view returns (string memory) {
     string memory twitter_username = tokenIDToName[tokenId];
