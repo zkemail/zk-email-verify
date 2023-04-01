@@ -63,6 +63,30 @@ contract TwitterUtilsTest is Test {
     console.logString(byteList);
   }
 
+  function testUnpackIntoFloat1() public {
+    uint256[] memory packedBytes = new uint256[](4);
+    packedBytes[0] = 0;
+    packedBytes[1] = 0;
+    packedBytes[2] = 0;
+    packedBytes[3] = 0;
+    string memory byteList = testVerifier.convertPackedBytesToBytes(packedBytes, 30);
+    string memory intended_value = "15.06";
+    assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
+    console.logString(byteList);
+  }
+
+  function testUnpackIntoFloat2() public {
+    uint256[] memory packedBytes = new uint256[](4);
+    packedBytes[0] = 0;
+    packedBytes[1] = 0;
+    packedBytes[2] = 0;
+    packedBytes[3] = 0;
+    string memory byteList = testVerifier.convertPackedBytesToBytes(packedBytes, 30);
+    string memory intended_value = "2";
+    assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
+    console.logString(byteList);
+  }
+
   // Should pass (note that there are extra 0 bytes, which are filtered out but should be noted in audits)
   function testVerifyTestEmail() public {
     uint256[21] memory publicSignals;

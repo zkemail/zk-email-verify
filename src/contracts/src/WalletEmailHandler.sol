@@ -11,11 +11,7 @@ import "./NFTSVG.sol";
 import "./emailVerifier.sol";
 
 contract WalletEmail is Verifier {
-  using Counters for Counters.Counter;
   using HexStrings for *;
-  using NFTSVG for *;
-
-  Counters.Counter private tokenCounter;
 
   uint16 public constant packSize = 7; // 7 bytes in a packed item returned from circom
 
@@ -29,6 +25,7 @@ contract WalletEmail is Verifier {
 
   mapping(string => uint256[rsa_modulus_chunks_len]) public verifiedMailserverKeys;
   mapping(uint256 => string) public tokenIDToName;
+  mapping(uint256 => bool) public nullifier;
   string constant domain = "twitter.com";
 
   constructor() ERC721("VerifiedEmail", "VerifiedEmail") {
@@ -41,24 +38,6 @@ contract WalletEmail is Verifier {
   function initMailserverKeys() internal {
     // TODO: Create a type that takes in a raw RSA key, the bit count,
     // and whether or not its base64 encoded, and converts it to either 8 or 16 signals
-    verifiedMailserverKeys["twitter.com"][0] = 1634582323953821262989958727173988295;
-    verifiedMailserverKeys["twitter.com"][1] = 1938094444722442142315201757874145583;
-    verifiedMailserverKeys["twitter.com"][2] = 375300260153333632727697921604599470;
-    verifiedMailserverKeys["twitter.com"][3] = 1369658125109277828425429339149824874;
-    verifiedMailserverKeys["twitter.com"][4] = 1589384595547333389911397650751436647;
-    verifiedMailserverKeys["twitter.com"][5] = 1428144289938431173655248321840778928;
-    verifiedMailserverKeys["twitter.com"][6] = 1919508490085653366961918211405731923;
-    verifiedMailserverKeys["twitter.com"][7] = 2358009612379481320362782200045159837;
-    verifiedMailserverKeys["twitter.com"][8] = 518833500408858308962881361452944175;
-    verifiedMailserverKeys["twitter.com"][9] = 1163210548821508924802510293967109414;
-    verifiedMailserverKeys["twitter.com"][10] = 1361351910698751746280135795885107181;
-    verifiedMailserverKeys["twitter.com"][11] = 1445969488612593115566934629427756345;
-    verifiedMailserverKeys["twitter.com"][12] = 2457340995040159831545380614838948388;
-    verifiedMailserverKeys["twitter.com"][13] = 2612807374136932899648418365680887439;
-    verifiedMailserverKeys["twitter.com"][14] = 16021263889082005631675788949457422;
-    verifiedMailserverKeys["twitter.com"][15] = 299744519975649772895460843780023483;
-    verifiedMailserverKeys["twitter.com"][16] = 3933359104846508935112096715593287;
-
     verifiedMailserverKeys["gmail.com"][0] = 1634582323953821262989958727173988295
     verifiedMailserverKeys["gmail.com"][1] = 1938094444722442142315201757874145583
     verifiedMailserverKeys["gmail.com"][2] = 375300260153333632727697921604599470
@@ -77,41 +56,41 @@ contract WalletEmail is Verifier {
     verifiedMailserverKeys["gmail.com"][15] = 299744519975649772895460843780023483
     verifiedMailserverKeys["gmail.com"][16] = 3933359104846508935112096715593287
 
-    verifiedMailserverKeys["hotmail.com"][0] = 1634582323953821262989958727173988295;
-    verifiedMailserverKeys["hotmail.com"][1] = 1938094444722442142315201757874145583;
-    verifiedMailserverKeys["hotmail.com"][2] = 375300260153333632727697921604599470;
-    verifiedMailserverKeys["hotmail.com"][3] = 1369658125109277828425429339149824874;
-    verifiedMailserverKeys["hotmail.com"][4] = 1589384595547333389911397650751436647;
-    verifiedMailserverKeys["hotmail.com"][5] = 1428144289938431173655248321840778928;
-    verifiedMailserverKeys["hotmail.com"][6] = 1919508490085653366961918211405731923;
-    verifiedMailserverKeys["hotmail.com"][7] = 2358009612379481320362782200045159837;
-    verifiedMailserverKeys["hotmail.com"][8] = 518833500408858308962881361452944175;
-    verifiedMailserverKeys["hotmail.com"][9] = 1163210548821508924802510293967109414;
-    verifiedMailserverKeys["hotmail.com"][10] = 1361351910698751746280135795885107181;
-    verifiedMailserverKeys["hotmail.com"][11] = 1445969488612593115566934629427756345;
-    verifiedMailserverKeys["hotmail.com"][12] = 2457340995040159831545380614838948388;
-    verifiedMailserverKeys["hotmail.com"][13] = 2612807374136932899648418365680887439;
-    verifiedMailserverKeys["hotmail.com"][14] = 16021263889082005631675788949457422;
-    verifiedMailserverKeys["hotmail.com"][15] = 299744519975649772895460843780023483;
-    verifiedMailserverKeys["hotmail.com"][16] = 3933359104846508935112096715593287;
+    verifiedMailserverKeys["hotmail.com"][0] = 128339925410438117770406273090474249
+    verifiedMailserverKeys["hotmail.com"][1] = 2158906895782814996316644028571725310
+    verifiedMailserverKeys["hotmail.com"][2] = 2278019331164769360372919938620729773
+    verifiedMailserverKeys["hotmail.com"][3] = 1305319804455735154587383372570664109
+    verifiedMailserverKeys["hotmail.com"][4] = 2358345194772578919713586294428642696
+    verifiedMailserverKeys["hotmail.com"][5] = 1333692900109074470874155333266985021
+    verifiedMailserverKeys["hotmail.com"][6] = 2252956899717870524129098594286063236
+    verifiedMailserverKeys["hotmail.com"][7] = 1963190090223950324858653797870319519
+    verifiedMailserverKeys["hotmail.com"][8] = 2099240641399560863760865662500577339
+    verifiedMailserverKeys["hotmail.com"][9] = 1591320380606901546957315803395187883
+    verifiedMailserverKeys["hotmail.com"][10] = 1943831890994545117064894677442719428
+    verifiedMailserverKeys["hotmail.com"][11] = 2243327453964709681573059557263184139
+    verifiedMailserverKeys["hotmail.com"][12] = 1078181067739519006314708889181549671
+    verifiedMailserverKeys["hotmail.com"][13] = 2209638307239559037039565345615684964
+    verifiedMailserverKeys["hotmail.com"][14] = 1936371786309180968911326337008120155
+    verifiedMailserverKeys["hotmail.com"][15] = 2611115500285740051274748743252547506
+    verifiedMailserverKeys["hotmail.com"][16] = 3841983033048617585564391738126779
 
-    verifiedMailserverKeys["ethereum.org"][0] = 1634582323953821262989958727173988295;
-    verifiedMailserverKeys["ethereum.org"][1] = 1938094444722442142315201757874145583;
-    verifiedMailserverKeys["ethereum.org"][2] = 375300260153333632727697921604599470;
-    verifiedMailserverKeys["ethereum.org"][3] = 1369658125109277828425429339149824874;
-    verifiedMailserverKeys["ethereum.org"][4] = 1589384595547333389911397650751436647;
-    verifiedMailserverKeys["ethereum.org"][5] = 1428144289938431173655248321840778928;
-    verifiedMailserverKeys["ethereum.org"][6] = 1919508490085653366961918211405731923;
-    verifiedMailserverKeys["ethereum.org"][7] = 2358009612379481320362782200045159837;
-    verifiedMailserverKeys["ethereum.org"][8] = 518833500408858308962881361452944175;
-    verifiedMailserverKeys["ethereum.org"][9] = 1163210548821508924802510293967109414;
-    verifiedMailserverKeys["ethereum.org"][10] = 1361351910698751746280135795885107181;
-    verifiedMailserverKeys["ethereum.org"][11] = 1445969488612593115566934629427756345;
-    verifiedMailserverKeys["ethereum.org"][12] = 2457340995040159831545380614838948388;
-    verifiedMailserverKeys["ethereum.org"][13] = 2612807374136932899648418365680887439;
-    verifiedMailserverKeys["ethereum.org"][14] = 16021263889082005631675788949457422;
-    verifiedMailserverKeys["ethereum.org"][15] = 299744519975649772895460843780023483;
-    verifiedMailserverKeys["ethereum.org"][16] = 3933359104846508935112096715593287;
+    verifiedMailserverKeys["ethereum.org"][0] = 119886678941863893035426121053426453
+    verifiedMailserverKeys["ethereum.org"][1] = 1819786846289142128062035525540154587
+    verifiedMailserverKeys["ethereum.org"][2] = 18664768675154515296388092785538021
+    verifiedMailserverKeys["ethereum.org"][3] = 2452916380017370778812419704280324749
+    verifiedMailserverKeys["ethereum.org"][4] = 147541693845229442834461965414634823
+    verifiedMailserverKeys["ethereum.org"][5] = 714676313158744653841521918164405002
+    verifiedMailserverKeys["ethereum.org"][6] = 1495951612535183023869749054624579068
+    verifiedMailserverKeys["ethereum.org"][7] = 974892773071523448175479681445882254
+    verifiedMailserverKeys["ethereum.org"][8] = 53117264910028079
+    verifiedMailserverKeys["ethereum.org"][9] = 0
+    verifiedMailserverKeys["ethereum.org"][10] = 0
+    verifiedMailserverKeys["ethereum.org"][11] = 0
+    verifiedMailserverKeys["ethereum.org"][12] = 0
+    verifiedMailserverKeys["ethereum.org"][13] = 0
+    verifiedMailserverKeys["ethereum.org"][14] = 0
+    verifiedMailserverKeys["ethereum.org"][15] = 0
+    verifiedMailserverKeys["ethereum.org"][16] = 0
 
     verifiedMailserverKeys["skiff.com"][0] = 2637270478154147701703365710201556843
     verifiedMailserverKeys["skiff.com"][1] = 2082690054369201099288110516791254232
@@ -130,57 +109,6 @@ contract WalletEmail is Verifier {
     verifiedMailserverKeys["skiff.com"][14] = 1366599807917971505788646146248798329
     verifiedMailserverKeys["skiff.com"][15] = 391565989352979266796804441125988853
     verifiedMailserverKeys["skiff.com"][16] = 3704766395208948862861103932863036
-  }
-
-
-
-  function tokenDesc(uint256 tokenId) public view returns (string memory) {
-    string memory twitter_username = tokenIDToName[tokenId];
-    address address_owner = ownerOf(tokenId);
-    string memory result = string(abi.encodePacked("Twitter username", twitter_username, "is owned by", HexStrings.toString(address_owner)));
-    return result;
-  }
-
-  function tokenURI(uint256 tokenId) public view override returns (string memory) {
-    string memory username = tokenIDToName[tokenId];
-    address owner = ownerOf(tokenId);
-
-    NFTSVG.SVGParams memory svgParams = NFTSVG.SVGParams({
-      username: username,
-      tokenId: tokenId,
-      color0: NFTSVG.tokenToColorHex(uint256(uint160(owner)), 136),
-      color1: NFTSVG.tokenToColorHex(uint256(uint160(owner)), 136),
-      color2: NFTSVG.tokenToColorHex(uint256(uint160(owner)), 0),
-      color3: NFTSVG.tokenToColorHex(uint256(uint160(owner)), 0),
-      x1: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 16, tokenId), 0, 255, 16, 274),
-      y1: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 16, tokenId), 0, 255, 100, 484),
-      x2: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 32, tokenId), 0, 255, 16, 274),
-      y2: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 32, tokenId), 0, 255, 100, 484),
-      x3: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 48, tokenId), 0, 255, 16, 274),
-      y3: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 48, tokenId), 0, 255, 100, 484)
-    });
-    string memory svgOutput = NFTSVG.generateSVG(svgParams);
-
-    string memory json = Base64.encode(
-      bytes(
-        string(
-          abi.encodePacked(
-            '{"attributes":[ ',
-            '{"trait_type": "Name",',
-            '"value": "',
-            tokenIDToName[tokenId],
-            '"}, {"trait_type": "Owner",',
-            '"value": "',
-            HexStrings.toHexString(uint256(uint160(ownerOf(tokenId))), 42),
-            '"}], "description": "ZK VerifiedEmails are ZK verified proofs of email recieving on Ethereum. They only reveal parts of the email headers and body body, and are verified via mailserver signature verification: there are no special party attesters. We are working to ship more verifiable proofs of signed data including zk blind, and avoid terrible tragedy of the commons scenarios where instituition reputation is slowly spent by its members. VerifiedEmail uses ZK SNARKs to insinuate this social dynamic, with a first demo at zkemail.xyz.", "image": "data:image/svg+xml;base64,',
-            Base64.encode(bytes(svgOutput)),
-            '"}'
-          )
-        )
-      )
-    );
-    string memory output = string(abi.encodePacked("data:application/json;base64,", json));
-    return output;
   }
 
   // Unpacks uint256s into bytes and then extracts the non-zero characters
@@ -228,14 +156,6 @@ contract WalletEmail is Verifier {
     return keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b));
   }
 
-  // TODO: Remove console.logs and define this as a pure function instead of a view
-  function _domainCheck(uint256[] memory headerSignals) public pure returns (bool) {
-    string memory senderBytes = convertPackedBytesToBytes(headerSignals, 18);
-    string[2] memory domainStrings = ["verify@twitter.com", "info@twitter.com"];
-    return _stringEq(senderBytes, domainStrings[0]) || _stringEq(senderBytes, domainStrings[1]);
-    // Usage: require(_domainCheck(senderBytes, domainStrings), "Invalid domain");
-  }
-
   function mint(uint256[2] memory a, uint256[2][2] memory b, uint256[2] memory c, uint256[msg_len] memory signals) public {
     // Checks: Verify proof and check signals
     // require(signals[0] == 1337, "invalid signals"); // TODO no invalid signal check yet, which is fine since the zk proof does it
@@ -246,13 +166,19 @@ contract WalletEmail is Verifier {
     for (uint256 i = 0; i < body_len; i++) bodySignals[i] = signals[i];
     for (uint256 i = body_len; i < msg_len - 1; i++) rsaModulusSignals[i - body_len] = signals[i];
 
-    // Check eth address committed to in proof matches msg.sender, to avoid replayability
-    require(address(uint160(signals[addressIndexInSignals])) == msg.sender, "Invalid address");
+    // Check eth address committed to in proof matches msg.sender, to avoid doublespend
+    // TODO: Note that this is buggy since it is malleable
+    // nullifier[a[0]] = 1;
+    // require(address(uint160(signals[addressIndexInSignals])) == msg.sender, "Invalid address");
 
     // Check from/to email domains are correct [in this case, only from domain is checked]
     // Right now, we just check that any email was received from anyone at Twitter, which is good enough for now
     // We will upload the version with these domain checks soon!
     // require(_domainCheck(headerSignals), "Invalid domain");
+    string memory fromEmail = convertPackedBytesToBytes(bodySignals, packSize * body_len);
+    string memory recipientEmail = convertPackedBytesToBytes(bodySignals, packSize * body_len);
+    string memory amount = convertPackedBytesToBytes(bodySignals, packSize * body_len);
+    string memory currency = convertPackedBytesToBytes(bodySignals, packSize * body_len);
 
     // Verify that the public key for RSA matches the hardcoded one
     for (uint i = body_len; i < msg_len - 1; i++) {
@@ -260,12 +186,8 @@ contract WalletEmail is Verifier {
     }
     require(verifyProof(a, b, c, signals), "Invalid Proof"); // checks effects iteractions, this should come first
 
-    // Effects: Mint token
-    uint256 tokenId = tokenCounter.current() + 1;
-    string memory messageBytes = convertPackedBytesToBytes(bodySignals, packSize * body_len);
-    tokenIDToName[tokenId] = messageBytes;
-    _mint(msg.sender, tokenId);
-    tokenCounter.increment();
+    // Effects: Send money
+
   }
 
   function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal {

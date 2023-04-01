@@ -493,3 +493,4 @@ Everything we write is MIT licensed. Note that circom and circomlib is GPL. Broa
   - warning[CA01]: In template "Bytes2Packed(7)": Array of local signals pow2 contains a total of 8 signals that do not appear in any constraint
     = For example: pow2[0], pow2[1].
 - Enable parsing of emails via tagged-dfa/lookahead/lookbehinds in all cases where 1) from:email [rare, only gcal] and 2) from:<email> and 3) from:text <email>
+- Fix it so only a recent email after deploy cutoff can be used to send money
