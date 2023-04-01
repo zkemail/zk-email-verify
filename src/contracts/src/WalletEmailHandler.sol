@@ -10,19 +10,22 @@ import "./hexStrings.sol";
 import "./NFTSVG.sol";
 import "./emailVerifier.sol";
 
-contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
+contract WalletEmail is Verifier {
   using Counters for Counters.Counter;
   using HexStrings for *;
   using NFTSVG for *;
 
   Counters.Counter private tokenCounter;
 
-  uint16 public constant msg_len = 21; // header + body
-  uint16 public constant bytesInPackedBytes = 7; // 7 bytes in a packed item returned from circom
-  uint256 public constant body_len = 3;
-  uint256 public constant rsa_modulus_chunks_len = 17;
-  uint256 public constant header_len = msg_len - body_len;
-  uint256 public constant addressIndexInSignals = msg_len - 1; // TODO: FIX CONSTANT
+  uint16 public constant packSize = 7; // 7 bytes in a packed item returned from circom
+
+  uint16 public constant body_len = 4 * 4;
+  uint16 public constant rsa_modulus_chunks_len = 17;
+  uint16 public constant commitment_len = 1;
+  uint16 public constant msg_len = body_len + rsa_modulus_chunks_len + commitment_len;
+
+  uint16 public constant header_len = msg_len - body_len;
+  uint16 public constant addressIndexInSignals = msg_len - 1; // The last index is the commitment
 
   mapping(string => uint256[rsa_modulus_chunks_len]) public verifiedMailserverKeys;
   mapping(uint256 => string) public tokenIDToName;
@@ -33,7 +36,9 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
     // This is the base 2^121 representation of that key.
     // Circom bigint: represent a = a[0] + a[1] * 2**n + .. + a[k - 1] * 2**(n * k)
     require(rsa_modulus_chunks_len + body_len + 1 == msg_len, "Variable counts are wrong!");
+  }
 
+  function initMailserverKeys() internal {
     // TODO: Create a type that takes in a raw RSA key, the bit count,
     // and whether or not its base64 encoded, and converts it to either 8 or 16 signals
     verifiedMailserverKeys["twitter.com"][0] = 1634582323953821262989958727173988295;
@@ -53,6 +58,78 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
     verifiedMailserverKeys["twitter.com"][14] = 16021263889082005631675788949457422;
     verifiedMailserverKeys["twitter.com"][15] = 299744519975649772895460843780023483;
     verifiedMailserverKeys["twitter.com"][16] = 3933359104846508935112096715593287;
+
+    verifiedMailserverKeys["gmail.com"][0] = 1634582323953821262989958727173988295;
+    verifiedMailserverKeys["gmail.com"][1] = 1938094444722442142315201757874145583;
+    verifiedMailserverKeys["gmail.com"][2] = 375300260153333632727697921604599470;
+    verifiedMailserverKeys["gmail.com"][3] = 1369658125109277828425429339149824874;
+    verifiedMailserverKeys["gmail.com"][4] = 1589384595547333389911397650751436647;
+    verifiedMailserverKeys["gmail.com"][5] = 1428144289938431173655248321840778928;
+    verifiedMailserverKeys["gmail.com"][6] = 1919508490085653366961918211405731923;
+    verifiedMailserverKeys["gmail.com"][7] = 2358009612379481320362782200045159837;
+    verifiedMailserverKeys["gmail.com"][8] = 518833500408858308962881361452944175;
+    verifiedMailserverKeys["gmail.com"][9] = 1163210548821508924802510293967109414;
+    verifiedMailserverKeys["gmail.com"][10] = 1361351910698751746280135795885107181;
+    verifiedMailserverKeys["gmail.com"][11] = 1445969488612593115566934629427756345;
+    verifiedMailserverKeys["gmail.com"][12] = 2457340995040159831545380614838948388;
+    verifiedMailserverKeys["gmail.com"][13] = 2612807374136932899648418365680887439;
+    verifiedMailserverKeys["gmail.com"][14] = 16021263889082005631675788949457422;
+    verifiedMailserverKeys["gmail.com"][15] = 299744519975649772895460843780023483;
+    verifiedMailserverKeys["gmail.com"][16] = 3933359104846508935112096715593287;
+
+    verifiedMailserverKeys["hotmail.com"][0] = 1634582323953821262989958727173988295;
+    verifiedMailserverKeys["hotmail.com"][1] = 1938094444722442142315201757874145583;
+    verifiedMailserverKeys["hotmail.com"][2] = 375300260153333632727697921604599470;
+    verifiedMailserverKeys["hotmail.com"][3] = 1369658125109277828425429339149824874;
+    verifiedMailserverKeys["hotmail.com"][4] = 1589384595547333389911397650751436647;
+    verifiedMailserverKeys["hotmail.com"][5] = 1428144289938431173655248321840778928;
+    verifiedMailserverKeys["hotmail.com"][6] = 1919508490085653366961918211405731923;
+    verifiedMailserverKeys["hotmail.com"][7] = 2358009612379481320362782200045159837;
+    verifiedMailserverKeys["hotmail.com"][8] = 518833500408858308962881361452944175;
+    verifiedMailserverKeys["hotmail.com"][9] = 1163210548821508924802510293967109414;
+    verifiedMailserverKeys["hotmail.com"][10] = 1361351910698751746280135795885107181;
+    verifiedMailserverKeys["hotmail.com"][11] = 1445969488612593115566934629427756345;
+    verifiedMailserverKeys["hotmail.com"][12] = 2457340995040159831545380614838948388;
+    verifiedMailserverKeys["hotmail.com"][13] = 2612807374136932899648418365680887439;
+    verifiedMailserverKeys["hotmail.com"][14] = 16021263889082005631675788949457422;
+    verifiedMailserverKeys["hotmail.com"][15] = 299744519975649772895460843780023483;
+    verifiedMailserverKeys["hotmail.com"][16] = 3933359104846508935112096715593287;
+
+    verifiedMailserverKeys["ethereum.org"][0] = 1634582323953821262989958727173988295;
+    verifiedMailserverKeys["ethereum.org"][1] = 1938094444722442142315201757874145583;
+    verifiedMailserverKeys["ethereum.org"][2] = 375300260153333632727697921604599470;
+    verifiedMailserverKeys["ethereum.org"][3] = 1369658125109277828425429339149824874;
+    verifiedMailserverKeys["ethereum.org"][4] = 1589384595547333389911397650751436647;
+    verifiedMailserverKeys["ethereum.org"][5] = 1428144289938431173655248321840778928;
+    verifiedMailserverKeys["ethereum.org"][6] = 1919508490085653366961918211405731923;
+    verifiedMailserverKeys["ethereum.org"][7] = 2358009612379481320362782200045159837;
+    verifiedMailserverKeys["ethereum.org"][8] = 518833500408858308962881361452944175;
+    verifiedMailserverKeys["ethereum.org"][9] = 1163210548821508924802510293967109414;
+    verifiedMailserverKeys["ethereum.org"][10] = 1361351910698751746280135795885107181;
+    verifiedMailserverKeys["ethereum.org"][11] = 1445969488612593115566934629427756345;
+    verifiedMailserverKeys["ethereum.org"][12] = 2457340995040159831545380614838948388;
+    verifiedMailserverKeys["ethereum.org"][13] = 2612807374136932899648418365680887439;
+    verifiedMailserverKeys["ethereum.org"][14] = 16021263889082005631675788949457422;
+    verifiedMailserverKeys["ethereum.org"][15] = 299744519975649772895460843780023483;
+    verifiedMailserverKeys["ethereum.org"][16] = 3933359104846508935112096715593287;
+
+    verifiedMailserverKeys["skiff.com"][0] = 1634582323953821262989958727173988295;
+    verifiedMailserverKeys["skiff.com"][1] = 1938094444722442142315201757874145583;
+    verifiedMailserverKeys["skiff.com"][2] = 375300260153333632727697921604599470;
+    verifiedMailserverKeys["skiff.com"][3] = 1369658125109277828425429339149824874;
+    verifiedMailserverKeys["skiff.com"][4] = 1589384595547333389911397650751436647;
+    verifiedMailserverKeys["skiff.com"][5] = 1428144289938431173655248321840778928;
+    verifiedMailserverKeys["skiff.com"][6] = 1919508490085653366961918211405731923;
+    verifiedMailserverKeys["skiff.com"][7] = 2358009612379481320362782200045159837;
+    verifiedMailserverKeys["skiff.com"][8] = 518833500408858308962881361452944175;
+    verifiedMailserverKeys["skiff.com"][9] = 1163210548821508924802510293967109414;
+    verifiedMailserverKeys["skiff.com"][10] = 1361351910698751746280135795885107181;
+    verifiedMailserverKeys["skiff.com"][11] = 1445969488612593115566934629427756345;
+    verifiedMailserverKeys["skiff.com"][12] = 2457340995040159831545380614838948388;
+    verifiedMailserverKeys["skiff.com"][13] = 2612807374136932899648418365680887439;
+    verifiedMailserverKeys["skiff.com"][14] = 16021263889082005631675788949457422;
+    verifiedMailserverKeys["skiff.com"][15] = 299744519975649772895460843780023483;
+    verifiedMailserverKeys["skiff.com"][16] = 3933359104846508935112096715593287;
   }
 
   function tokenDesc(uint256 tokenId) public view returns (string memory) {
@@ -116,11 +193,11 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
     uint256 nonzeroBytesArrayIndex = 0;
     for (uint16 i = 0; i < packedBytes.length; i++) {
       uint256 packedByte = packedBytes[i];
-      uint8[] memory unpackedBytes = new uint8[](bytesInPackedBytes);
-      for (uint j = 0; j < bytesInPackedBytes; j++) {
+      uint8[] memory unpackedBytes = new uint8[](packSize);
+      for (uint j = 0; j < packSize; j++) {
         unpackedBytes[j] = uint8(packedByte >> (j * 8));
       }
-      for (uint256 j = 0; j < bytesInPackedBytes; j++) {
+      for (uint256 j = 0; j < packSize; j++) {
         uint256 unpackedByte = unpackedBytes[j]; //unpackedBytes[j];
         // console.log(i, j, state, unpackedByte);
         if (unpackedByte != 0) {
@@ -183,7 +260,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
 
     // Effects: Mint token
     uint256 tokenId = tokenCounter.current() + 1;
-    string memory messageBytes = convertPackedBytesToBytes(bodySignals, bytesInPackedBytes * body_len);
+    string memory messageBytes = convertPackedBytesToBytes(bodySignals, packSize * body_len);
     tokenIDToName[tokenId] = messageBytes;
     _mint(msg.sender, tokenId);
     tokenCounter.increment();

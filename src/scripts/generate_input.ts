@@ -146,13 +146,13 @@ export async function getCircuitInputs(
   const address_plus_one = (bytesToBigInt(fromHex(eth_address)) + 1n).toString();
 
   const USERNAME_SELECTOR = Buffer.from(STRING_PRESELECTOR);
-  
+
   function trimStrByStr(str: string, substr: string) {
     const index = str.indexOf(substr);
     if (index === -1) {
       return str;
     }
-    return str.slice(0, index + substr.length);
+    return str.slice(index + substr.length, str.length);
   }
 
   let raw_header = Buffer.from(prehash_message_string).toString();

@@ -141,7 +141,6 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size) {
     signal bh_regex_out, bh_reveal[max_header_bytes];
     (bh_regex_out, bh_reveal) <== BodyHashRegex(max_header_bytes)(in_padded);
     bh_regex_out === 1;
-    // TODO: Verify no off by 1 error
     signal shifted_bh_out[LEN_SHA_B64] <== VarShiftLeft(max_header_bytes, LEN_SHA_B64)(bh_reveal, body_hash_idx);
     // log(body_hash_regex.out);
 
