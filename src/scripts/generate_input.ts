@@ -18,11 +18,23 @@ import { shaHash, partialSha, sha256Pad } from "../../src/helpers/shaHash";
 import { dkimVerify } from "../../src/helpers/dkim";
 import * as fs from "fs";
 import { stubObject } from "lodash";
+import * as yargs from "yargs";
 var Cryo = require("cryo");
 const pki = require("node-forge").pki;
 
 // const email_file = "monia_email.eml"; // "./test_email.txt", "./twitter_msg.eml", kaylee_phone_number_email_twitter
-const email_file = "ethereum_eml.eml";
+const email = yargs
+  .option("email_file", {
+    alias: "e",
+    description: "Path to email file",
+    type: "string",
+    default: "test_sendgrid.eml",
+  })
+  .help()
+  .alias("help", "h").argv;
+
+const email_file = email.email_file;
+
 export interface ICircuitInputs {
   modulus?: string[];
   signature?: string[];
