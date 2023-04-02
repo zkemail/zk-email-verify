@@ -213,8 +213,13 @@ export async function getCircuitInputs(
   };
 }
 
-export async function generate_inputs(email: Buffer, eth_address: string): Promise<ICircuitInputs> {
-  var result;
+// Nonce is useful to disambiguate files for input/output when calling from the command line, it is usually null or hash(email)
+export async function generate_inputs(raw_email: Buffer | string, eth_address: string, nonce: number | null | string = null): Promise<ICircuitInputs> {
+  var result, email: Buffer;
+  if (typeof raw_email === "string") {
+    email = Buffer.from(raw_email);
+  } else email = raw_email;
+
   console.log("DKIM verification starting");
   result = await dkimVerify(email);
   if (!result.results[0]) {
@@ -249,6 +254,9 @@ export async function generate_inputs(email: Buffer, eth_address: string): Promi
   const pubKeyData = pki.publicKeyFromPem(pubkey.toString());
   let modulus = BigInt(pubKeyData.n.toString());
   let fin_result = await getCircuitInputs(sig, modulus, message, body, body_hash, eth_address, circuitType);
+  if (nonce !== null) {
+    fs.writeFileSync(`./circuits/inputs/input_wallet_${nonce}.json`, JSON.stringify(fin_result.circuitInputs), { flag: "w" });
+  }
   return fin_result.circuitInputs;
 }
 
