@@ -30,10 +30,17 @@ const email = yargs
     type: "string",
     default: "test_sendgrid.eml",
   })
+  .option("nonce", {
+    alias: "n",
+    description: "Nonce to disambiguate input/output files",
+    type: "string",
+    default: null,
+  })
   .help()
   .alias("help", "h").argv;
 
 const email_file = email.email_file;
+const nonce = email.nonce;
 
 export interface ICircuitInputs {
   modulus?: string[];
@@ -267,7 +274,8 @@ export async function generate_inputs(raw_email: Buffer | string, eth_address: s
   let modulus = BigInt(pubKeyData.n.toString());
   let fin_result = await getCircuitInputs(sig, modulus, message, body, body_hash, eth_address, circuitType);
   if (nonce !== null) {
-    fs.writeFileSync(`~/input_wallet_${nonce}.json`, JSON.stringify(fin_result.circuitInputs), { flag: "w" });
+    console.log(`Writing to ../input_wallet_${nonce}.json`);
+    fs.writeFileSync(`../input_wallet_${nonce}.json`, JSON.stringify(fin_result.circuitInputs), { flag: "w" });
   }
   return fin_result.circuitInputs;
 }
@@ -275,7 +283,7 @@ export async function generate_inputs(raw_email: Buffer | string, eth_address: s
 async function do_generate() {
   const email = fs.readFileSync(email_file);
   console.log(email);
-  const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000");
+  const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000", nonce);
   console.log(JSON.stringify(gen_inputs));
   return gen_inputs;
 }
@@ -309,6 +317,7 @@ if (typeof require !== "undefined" && require.main === module) {
   // debug_file();
   const circuitInputs = do_generate();
   console.log("Writing to file...");
-  circuitInputs.then((inputs) => fs.writeFileSync(`./circuits/inputs/input_wallet.json`, JSON.stringify(inputs), { flag: "w" }));
-  // gen_test();
+  if (nonce == null) {
+    circuitInputs.then((inputs) => fs.writeFileSync(`./circuits/inputs/input_wallet.json`, JSON.stringify(inputs), { flag: "w" }));
+  } // gen_test();
 }
