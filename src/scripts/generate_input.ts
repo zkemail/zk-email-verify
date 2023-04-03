@@ -233,7 +233,9 @@ export async function getCircuitInputs(
 }
 
 // Nonce is useful to disambiguate files for input/output when calling from the command line, it is usually null or hash(email)
-export async function generate_inputs(raw_email: Buffer | string, eth_address: string, nonce: number | null | string = null): Promise<ICircuitInputs> {
+export async function generate_inputs(raw_email: Buffer | string, eth_address: string, nonce_raw: number | null | string = null): Promise<ICircuitInputs> {
+  const nonce = typeof nonce_raw == "string" ? nonce_raw.trim() : nonce_raw;
+
   var result, email: Buffer;
   if (typeof raw_email === "string") {
     email = Buffer.from(raw_email);
@@ -281,7 +283,7 @@ export async function generate_inputs(raw_email: Buffer | string, eth_address: s
 }
 
 async function do_generate() {
-  const email = fs.readFileSync(email_file);
+  const email = fs.readFileSync(email_file.trim());
   console.log(email);
   const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000", nonce);
   console.log(JSON.stringify(gen_inputs));
