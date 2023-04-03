@@ -267,7 +267,7 @@ export async function generate_inputs(raw_email: Buffer | string, eth_address: s
   let modulus = BigInt(pubKeyData.n.toString());
   let fin_result = await getCircuitInputs(sig, modulus, message, body, body_hash, eth_address, circuitType);
   if (nonce !== null) {
-    fs.writeFileSync(`./circuits/inputs/input_wallet_${nonce}.json`, JSON.stringify(fin_result.circuitInputs), { flag: "w" });
+    fs.writeFileSync(`~/input_wallet_${nonce}.json`, JSON.stringify(fin_result.circuitInputs), { flag: "w" });
   }
   return fin_result.circuitInputs;
 }
