@@ -1,6 +1,6 @@
 # ZK Email Verify
 
-**WIP: This tech is extremely tricky to use and very much a work in progress, and we do not recommend use in any production application right now. This is both due to unaudited code, and several theoretical issues such as nullifiers, bcc’s, non-nested signatures, and hash sizings. These are all resolved for our Twitter MVP usecase, but may not be generally gauranteed. If you have a possible usecase, please run it by us so we can ensure that your guarantees are in fact correct!**
+**WIP: This tech is extremely tricky to use and very much a work in progress, and we do not recommend use in any production application right now. This is both due to unaudited code, and several theoretical issues such as nullifiers, bcc’s, non-nested signatures, and hash sizings. These are all resolved for our Twitter MVP usecase, but may not be generally gauranteed. If you have a possible usecase, please run it by us so we can ensure that your trust assumptions are in fact correct!**
 
 Join the conversation via [dm'ing us](https://twitter.com/yush_g/)! We will have a broader Discord soon.
 
