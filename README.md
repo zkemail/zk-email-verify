@@ -177,12 +177,13 @@ cd ../zk-email-verify/dizkus-scripts
 To upload zkeys to an s3 box on AWS, change bucket_name in upload_to_s3.py and run:
 
 ```
+sudo apt install awscli # Ubuntu
+brew install awscli # Mac
 
 aws configure # Only needs to be run once
 pip3 install boto3
 python3 upload_to_s3.py
 yarn add snarkjs@https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e # Revert to frontend version
-
 ```
 
 Note that there's no .zkeya file, only .zkeyb ... .zkeyk. The script will automatically zip into .tar.gz files and load into s3 bucket.

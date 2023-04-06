@@ -5,6 +5,8 @@ import time
 import gzip
 import argparse
 
+# python3 dizkus-scripts/upload_to_s3.py --dirs ~/rapidsnark/build/ --bucket_name zk-wallet --prefix prover
+
 # Set up the client for the AWS S3 service
 s3 = boto3.client('s3')  # Ask Aayush for the access key and secret access key
 
@@ -17,8 +19,8 @@ parser.add_argument('--prefix_to_tar', type=str, default='email.zkey', help='Pre
 parser.add_argument('--prefix', type=str, default='vkey.json,email.wasm', help='Comma-seperated prefixes to upload without compression')
 args = parser.parse_args()
 bucket_name = args.bucket_name
-build_dir = args.build_dir
-circuit_name = args.circuit_name
+# build_dir = args.build_dir
+# circuit_name = args.circuit_name
 prefix_to_tar = args.prefix_to_tar
 prefixes = args.prefix.split(',')
 dirs = args.dirs.split(',')
