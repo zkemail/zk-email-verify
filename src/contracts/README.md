@@ -13,6 +13,7 @@ forge install foundry-rs/forge-std
 cp node_modules/forge-std src/contracts/lib/forge-std
 cd src/contracts
 forge test --via-ir
+forge build --sizes --via-ir # Make sure these are all below 24kB
 ```
 
 ## Deployment
@@ -38,5 +39,5 @@ forge create --rpc-url $ETH_RPC_URL VerifiedTwitterEmail --private-key $SK --via
 sed -i '' -e '$ d' foundry.toml
 forge create --rpc-url $ETH_RPC_URL VerifiedTwitterEmail --private-key $SK --via-ir --force --libraries "HexStrings:${HEXSTRINGS_ADDR}","NFTSVG:${NFTSVG_ADDR}" | tee /dev/tty | export EMAIL_ADDR=$(sed -n 's/.*Deployed to: //p')
 
-forge verify-contract $EMAIL_ADDR VerifiedTwitterEmail --watch --etherscan-api-key $GORLII_ETHERSCAN_API_KEY
+forge verify-contract $EMAIL_ADDR VerifiedTwitterEmail --watch --etherscan-api-key $GOERLI_ETHERSCAN_API_KEY
 ```

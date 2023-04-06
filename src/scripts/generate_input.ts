@@ -32,7 +32,7 @@ const email = yargs
   })
   .option("nonce", {
     alias: "n",
-    description: "Nonce to disambiguate input/output files",
+    description: "Nonce to disambiguate input/output files (optional, only useful for monolithic server side provers)",
     type: "string",
     default: null,
   })
