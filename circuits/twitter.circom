@@ -31,26 +31,9 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size, expose_f
     signal input signature[k]; // rsa signature. split up into k parts of n bits each.
     signal input in_len_padded_bytes; // length of in email data including the padding, which will inform the sha256 block length
 
-    // Header reveal vars
-    // TODO: In reality, this max value is 320, and would allow people to break our gaurantees and spoof arbitrary email addresses by registering disgustingly subdomains and going past the end of the 30
-    var max_subject_amount_len = 30;
-    var max_subject_amount_packed_bytes = count_packed(max_subject_amount_len, pack_size);
-    var max_subject_currency_len = 5;
-    var max_subject_currency_packed_bytes = count_packed(max_subject_currency_len, pack_size);
-    var max_subject_recipient_len = 30;
-    var max_subject_recipient_packed_bytes = count_packed(max_subject_recipient_len, pack_size);
-
-    signal input amount_idx;
-    signal input currency_idx;
-    signal input recipient_idx;
-    signal output reveal_amount_packed[max_subject_amount_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
-    signal output reveal_currency_packed[max_subject_currency_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
-    signal output reveal_recipient_packed[max_subject_recipient_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
-
     // Identity commitment variables
     // (note we don't need to constrain the +1 due to https://geometry.xyz/notebook/groth16-malleability)
     signal input address;
-    signal input address_plus_one;
 
     // Base 64 body hash variables
     var LEN_SHA_B64 = 44;     // ceil(32/3) * 4, due to base64 encoding.
