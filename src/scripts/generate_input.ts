@@ -18,34 +18,23 @@ import { shaHash, partialSha, sha256Pad } from "../../src/helpers/shaHash";
 import { dkimVerify } from "../../src/helpers/dkim";
 import * as fs from "fs";
 import { stubObject } from "lodash";
-const _yargs = require("yargs");
-const { hideBin } = require("yargs/helpers");
-const yargs = _yargs(hideBin(process.argv));
 
 // const argv = yargs(hideBin(process.argv))
 // import * as yargs from "yargs";
 var Cryo = require("cryo");
 const pki = require("node-forge").pki;
 
-async function getArgs() {
-  const email = await yargs
-    .option("email_file", {
-      alias: "e",
-      description: "Path to email file",
-      type: "string",
-      default: "test_sendgrid.eml",
-    })
-    .option("nonce", {
-      alias: "n",
-      description: "Nonce to disambiguate input/output files (optional, only useful for monolithic server side provers)",
-      type: "string",
-      default: null,
-    })
-    .help()
-    .alias("help", "h").argv;
+// email_file: Path to email file
+// nonce: Nonce to disambiguate input/output files (optional, only useful for monolithic server side provers)
 
-  const email_file = email.email_file;
-  const nonce = email.nonce;
+async function getArgs() {
+  const args = process.argv.slice(2);
+  const emailFileArg = args.find((arg) => arg.startsWith("--email_file="));
+  const nonceArg = args.find((arg) => arg.startsWith("--nonce="));
+
+  const email_file = emailFileArg ? emailFileArg.split("=")[1] : "test_sendgrid.eml";
+  const nonce = nonceArg ? nonceArg.split("=")[1] : null;
+
   return { email_file, nonce };
 }
 
