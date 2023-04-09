@@ -18,10 +18,11 @@ import { shaHash, partialSha, sha256Pad } from "../../src/helpers/shaHash";
 import { dkimVerify } from "../../src/helpers/dkim";
 import * as fs from "fs";
 import { stubObject } from "lodash";
-
-import _yargs from "yargs";
-import { hideBin } from "yargs/helpers";
+const _yargs = require("yargs");
+const { hideBin } = require("yargs/helpers");
 const yargs = _yargs(hideBin(process.argv));
+
+// const argv = yargs(hideBin(process.argv))
 // import * as yargs from "yargs";
 var Cryo = require("cryo");
 const pki = require("node-forge").pki;
