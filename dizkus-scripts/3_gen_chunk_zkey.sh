@@ -1,7 +1,7 @@
 #!/bin/bash
 
-CIRCUIT_NAME=email
-BUILD_DIR="../build/$CIRCUIT_NAME"
+source circuit.env
+
 R1CS_FILE="$BUILD_DIR/$CIRCUIT_NAME.r1cs"
 PARTIAL_ZKEYS="$BUILD_DIR"/partial_zkeys
 PHASE1=../circuits/powersOfTau28_hez_final_22.ptau

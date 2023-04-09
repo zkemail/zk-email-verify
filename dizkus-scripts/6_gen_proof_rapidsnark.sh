@@ -1,7 +1,6 @@
 #!/bin/bash
 
-CIRCUIT_NAME=email
-BUILD_DIR="../build/$CIRCUIT_NAME"
+source circuit.env
 
 echo "****MAKE CPP FILE FOR WITNESS GENERATION****"
 start=$(date +%s)

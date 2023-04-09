@@ -1,6 +1,6 @@
 # ZK Email Verify
 
-**WIP: This tech is extremely tricky to use and very much a work in progress, and we do not recommend use in any production application right now. This is both due to unaudited code, and several theoretical issues such as nullifiers, bcc’s, non-nested signatures, and hash sizings. These are all resolved for our Twitter MVP usecase, but may not be generally guaranteed. If you have a possible usecase, please run it by us so we can ensure that your trust assumptions are in fact correct!**
+**WIP: This tech is extremely tricky to use and very much a work in progress, and we do not recommend use in any production application right now. This is both due to unaudited code, and several theoretical gotchas such as lack of nullifiers, no signed bcc’s, non-nested reply signatures, upgradability of DNS, and hash sizings. None of these affect our current Twitter MVP usecase, but are not generally guaranteed. If you have a possible usecase, we are happy to help brainstorm if your trust assumptions are in fact correct!**
 
 Join the conversation via [dm'ing us](https://twitter.com/yush_g/)! We will have a broader Discord soon.
 
@@ -121,7 +121,7 @@ mv powersOfTau28_hez_final_21.ptau circuits/powersOfTau28_hez_final_21.ptau
 
 Put the email into ...\*.eml. Edit the constant filename at the top of generate_input.ts to import that file, then use the output of running that file as the input file (you may need to rename it). You'll need this for both zkey and verifier generation.
 
-To create a chunked zkey for in-browser proving, run the following (likely on a high CPU computer):
+To create a chunked zkey for in-browser proving, run the following on a high CPU computer:
 
 ```bash
 yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8 # Swap to chunked generation version for browser, leave this line out for serverside proofs onluy
@@ -177,12 +177,19 @@ cd ../zk-email-verify/dizkus-scripts
 To upload zkeys to an s3 box on AWS, change bucket_name in upload_to_s3.py and run:
 
 ```
+sudo apt install awscli # Ubuntu
+brew install awscli # Mac
 
 aws configure # Only needs to be run once
 pip3 install boto3
 python3 upload_to_s3.py
 yarn add snarkjs@https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e # Revert to frontend version
+```
 
+If you want to upload different files, you can parameterize the script as well:
+
+```
+python3 dizkus-scripts/upload_to_s3.py --dirs ~/zk-email-verify/build/email/email_js/ --bucket_name zkemail-zkey-chunks --prefix email.wasm
 ```
 
 Note that there's no .zkeya file, only .zkeyb ... .zkeyk. The script will automatically zip into .tar.gz files and load into s3 bucket.
@@ -202,10 +209,12 @@ Change s3 address in the frontend to your bucket.
 To do a non-chunked zkey for non-browser running,
 
 ```
-
 yarn compile-all
-
 ```
+
+### Really Large Circuits
+
+If your circuit ends up being > 20M constraints, you will need to follow [these guidelines](https://hackmd.io/V-7Aal05Tiy-ozmzTGBYPA?view#Compilation-and-proving) to compile it.
 
 ### Compiling Subcircuits
 
@@ -275,7 +284,7 @@ export ETH_RPC_URL=http://localhost:8547
 
 # Public anvil sk
 export SK=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
-forge create --rpc-url $ETH_RPC_URL HexStrings --private-key $SK --via-ir --force
+forge create --rpc-url $ETH_RPC_URL StringUtils --private-key $SK --via-ir --force
 forge create --rpc-url $ETH_RPC_URL NFTSVG --private-key $SK --via-ir --force
 
 # Edit the Cargo.toml to have the two deployment addresses, then call this

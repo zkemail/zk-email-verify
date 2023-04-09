@@ -1,7 +1,18 @@
 version: 2.1
 orbs:
   node: circleci/node@5.1.0
+  rust: circleci/rust@1.6.0
 jobs:
+  run_forge_tests:
+    docker:
+      - image: ghcr.io/foundry-rs/foundry:latest
+    steps:
+      - checkout
+      - run:
+          name: run foundry tests
+          command: forge test --via-ir
+          working_directory: src/contracts
+
   run_unit_and_e2e_tests:
     docker:
       - image: cimg/node:16.19-browsers
@@ -39,3 +50,4 @@ workflows:
   build_test: 
     jobs:
       - run_unit_and_e2e_tests
+      - run_forge_tests

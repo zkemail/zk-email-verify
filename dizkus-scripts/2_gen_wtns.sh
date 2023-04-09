@@ -1,7 +1,5 @@
 #!/bin/bash
-
-CIRCUIT_NAME=email
-BUILD_DIR="../build/$CIRCUIT_NAME"
+source circuit.env
 
 echo "****GENERATING WITNESS FOR SAMPLE INPUT****"
 start=$(date +%s)

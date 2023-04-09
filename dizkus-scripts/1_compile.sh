@@ -1,7 +1,5 @@
 #!/bin/bash
-
-CIRCUIT_NAME=email
-BUILD_DIR="../build/$CIRCUIT_NAME"
+source circuit.env
 
 if [ ! -d "$BUILD_DIR" ]; then
     echo "No build directory found. Creating build directory..."
