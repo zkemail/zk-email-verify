@@ -1,7 +1,7 @@
-pragma circom 2.0.3;
+pragma circom 2.1.5;
 
-include "../node_modules/circomlib/circuits/bitify.circom";
-include "../node_modules/circomlib/circuits/comparators.circom";
+include "../../node_modules/circomlib/circuits/bitify.circom";
+include "../../node_modules/circomlib/circuits/comparators.circom";
 include "./fp.circom";
 
 // returns ceil(log2(a+1))
@@ -13,6 +13,11 @@ function log2_ceil(a) {
         n \= 2;
     }
     return r;
+}
+
+// returns ceil(log2(a+1))
+function count_packed(n, chunks) {
+    return (n - 1) \ chunks + 1;
 }
 
 // Lifted from MACI https://github.com/privacy-scaling-explorations/maci/blob/v1/circuits/circom/trees/incrementalQuinTree.circom#L29

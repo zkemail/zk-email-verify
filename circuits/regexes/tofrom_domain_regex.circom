@@ -1,8 +1,8 @@
-pragma circom 2.0.3;
+pragma circom 2.1.5;
 
 include "./regex_helpers.circom";
 
-template DKIMHeaderRegex (msg_bytes) {
+template ToFromDomainRegex (msg_bytes) {
     signal input msg[msg_bytes];
     signal output out;
 
@@ -709,8 +709,8 @@ template DKIMHeaderRegex (msg_bytes) {
     }
     out <== final_state_sum[num_bytes];
 
-    signal output reveal[num_bytes];
-    for (var i = 0; i < num_bytes; i++) {
-        reveal[i] <== in[i] * (states[i+1][18] + states[i+1][14]);
+    signal output reveal[msg_bytes];
+    for (var i = 0; i < msg_bytes; i++) {
+        reveal[i] <== in[i+1] * (states[i+2][18] + states[i+2][14]);
     }
 }
