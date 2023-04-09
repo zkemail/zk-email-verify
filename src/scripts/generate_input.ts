@@ -18,7 +18,7 @@ import { shaHash, partialSha, sha256Pad } from "../../src/helpers/shaHash";
 import { dkimVerify } from "../../src/helpers/dkim";
 import * as fs from "fs";
 import { stubObject } from "lodash";
-import * as yargs from "yargs";
+import yargs from "yargs";
 var Cryo = require("cryo");
 const pki = require("node-forge").pki;
 
