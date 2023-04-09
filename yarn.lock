@@ -3837,6 +3837,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/yargs@npm:^17.0.24":
+  version: 17.0.24
+  resolution: "@types/yargs@npm:17.0.24"
+  dependencies:
+    "@types/yargs-parser": "*"
+  checksum: 5f3ac4dc4f6e211c1627340160fbe2fd247ceba002190da6cf9155af1798450501d628c9165a183f30a224fc68fa5e700490d740ff4c73e2cdef95bc4e8ba7bf
+  languageName: node
+  linkType: hard
+
 "@types/yargs@npm:^17.0.8":
   version: 17.0.15
   resolution: "@types/yargs@npm:17.0.15"
@@ -8320,6 +8329,7 @@ __metadata:
     "@types/pako": ^2.0.0
     "@types/styled-components": ^5.1.24
     "@types/tar-stream": ^2.2.2
+    "@types/yargs": ^17.0.24
     addressparser: ^1.0.1
     atob: ^2.1.2
     base64-sol: ^1.1.0

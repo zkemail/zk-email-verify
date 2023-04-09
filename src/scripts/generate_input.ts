@@ -18,29 +18,35 @@ import { shaHash, partialSha, sha256Pad } from "../../src/helpers/shaHash";
 import { dkimVerify } from "../../src/helpers/dkim";
 import * as fs from "fs";
 import { stubObject } from "lodash";
-import yargs from "yargs";
+
+import _yargs from "yargs";
+import { hideBin } from "yargs/helpers";
+const yargs = _yargs(hideBin(process.argv));
+// import * as yargs from "yargs";
 var Cryo = require("cryo");
 const pki = require("node-forge").pki;
 
-// const email_file = "monia_email.eml"; // "./test_email.txt", "./twitter_msg.eml", kaylee_phone_number_email_twitter
-const email = yargs
-  .option("email_file", {
-    alias: "e",
-    description: "Path to email file",
-    type: "string",
-    default: "test_sendgrid.eml",
-  })
-  .option("nonce", {
-    alias: "n",
-    description: "Nonce to disambiguate input/output files (optional, only useful for monolithic server side provers)",
-    type: "string",
-    default: null,
-  })
-  .help()
-  .alias("help", "h").argv;
+async function getArgs() {
+  const email = await yargs
+    .option("email_file", {
+      alias: "e",
+      description: "Path to email file",
+      type: "string",
+      default: "test_sendgrid.eml",
+    })
+    .option("nonce", {
+      alias: "n",
+      description: "Nonce to disambiguate input/output files (optional, only useful for monolithic server side provers)",
+      type: "string",
+      default: null,
+    })
+    .help()
+    .alias("help", "h").argv;
 
-const email_file = email.email_file;
-const nonce = email.nonce;
+  const email_file = email.email_file;
+  const nonce = email.nonce;
+  return { email_file, nonce };
+}
 
 export interface ICircuitInputs {
   modulus?: string[];
@@ -275,25 +281,25 @@ export async function generate_inputs(raw_email: Buffer | string, eth_address: s
   const pubKeyData = pki.publicKeyFromPem(pubkey.toString());
   let modulus = BigInt(pubKeyData.n.toString());
   let fin_result = await getCircuitInputs(sig, modulus, message, body, body_hash, eth_address, circuitType);
-  if (nonce !== null) {
-    console.log(`Writing to ../input_wallet_${nonce}.json`);
-    fs.writeFileSync(`../input_wallet_${nonce}.json`, JSON.stringify(fin_result.circuitInputs), { flag: "w" });
-  }
   return fin_result.circuitInputs;
 }
 
-async function do_generate() {
+// Only called when the whole function is called from the command line, to read inputs
+async function do_generate(writeToFile: boolean = true) {
+  const { email_file, nonce } = await getArgs();
   const email = fs.readFileSync(email_file.trim());
   console.log(email);
   const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000", nonce);
   console.log(JSON.stringify(gen_inputs));
+  if (writeToFile) {
+    const filename = nonce ? `../input_${nonce}.json` : "./circuits/inputs/input.json";
+    console.log(`Writing to default file ${filename}`);
+    fs.writeFileSync(filename, JSON.stringify(gen_inputs), { flag: "w" });
+  }
   return gen_inputs;
 }
 
-async function gen_test() {
-  console.log(packBytesIntoNBytes(Uint8Array.from([0, 121, 117, 115, 104, 95, 103, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])));
-}
-
+// Sometimes, newline encodings re-encode \r\n as just \n, so re-insert the \r so that the email hashes correctly
 export async function insert13Before10(a: Uint8Array): Promise<Uint8Array> {
   let ret = new Uint8Array(a.length + 1000);
   let j = 0;
@@ -308,18 +314,7 @@ export async function insert13Before10(a: Uint8Array): Promise<Uint8Array> {
   return ret.slice(0, j);
 }
 
-async function debug_file() {
-  const email = fs.readFileSync(email_file);
-  console.log(Uint8Array.from(email));
-  // Key difference: file load has 13 10, web version has just 10
-}
-
-// If main
+// If file called directly with `npx tsx generate_inputs.ts`
 if (typeof require !== "undefined" && require.main === module) {
-  // debug_file();
-  const circuitInputs = do_generate();
-  console.log("Writing to file...");
-  if (nonce == null) {
-    circuitInputs.then((inputs) => fs.writeFileSync(`./circuits/inputs/input_wallet.json`, JSON.stringify(inputs), { flag: "w" }));
-  } // gen_test();
+  do_generate(true);
 }

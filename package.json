@@ -11,6 +11,7 @@
     "@types/lodash": "^4.14.181",
     "@types/pako": "^2.0.0",
     "@types/styled-components": "^5.1.24",
+    "@types/yargs": "^17.0.24",
     "addressparser": "^1.0.1",
     "atob": "^2.1.2",
     "base64-sol": "^1.1.0",
