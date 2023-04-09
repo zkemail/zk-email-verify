@@ -5,8 +5,6 @@ import time
 import gzip
 import argparse
 
-# python3 dizkus-scripts/upload_to_s3.py --dirs ~/rapidsnark/build/ --bucket_name zk-wallet --prefix prover
-
 # Set up the client for the AWS S3 service
 s3 = boto3.client('s3')  # Ask Aayush for the access key and secret access key
 

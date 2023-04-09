@@ -65,7 +65,7 @@ enum CircuitType {
   SHA = "sha",
   TEST = "test",
   EMAIL = "email",
-  EMAILWALLET = "emailwallet",
+  SUBJECTPARSER = "subjectparser",
 }
 
 async function findSelector(a: Uint8Array, selector: number[]): Promise<number> {
@@ -200,7 +200,7 @@ export async function getCircuitInputs(
       body_hash_idx,
       // email_from_idx,
     };
-  } else if (circuit === CircuitType.EMAILWALLET) {
+  } else if (circuit === CircuitType.SUBJECTPARSER) {
     circuitInputs = {
       in_padded,
       modulus,
@@ -265,7 +265,7 @@ export async function generate_inputs(raw_email: Buffer | string, eth_address: s
   let message = result.results[0].status.signature_header;
   let body = result.results[0].body;
   let body_hash = result.results[0].bodyHash;
-  let circuitType = CircuitType.EMAILWALLET;
+  let circuitType = CircuitType.SUBJECTPARSER;
 
   let pubkey = result.results[0].publicKey;
   const pubKeyData = pki.publicKeyFromPem(pubkey.toString());
