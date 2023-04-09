@@ -23,7 +23,3 @@ export const dkimVerify = async (input, options) => {
 
   return result;
 };
-
-module.exports = {
-  dkimVerify,
-};
