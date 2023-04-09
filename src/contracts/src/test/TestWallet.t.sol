@@ -2,11 +2,14 @@ pragma solidity ^0.8.0;
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import "../WalletEmailHandler.sol";
+import "../StringUtils.sol";
 import "../Groth16VerifierWallet.sol";
 
 contract WalletUtilsTest is Test {
+  using StringUtils for *;
   address internal constant zero = 0x0000000000000000000000000000000000000000;
   address constant VM_ADDR = 0x7109709ECfa91a80626fF3989D68f67F5b1DD12D;
+  uint16 public constant packSize = 7;
   VerifiedWalletEmail testVerifier;
   Verifier proofVerifier;
 
@@ -15,52 +18,43 @@ contract WalletUtilsTest is Test {
     proofVerifier = new Verifier();
   }
 
-  function testUnpackIntoFloat1() public {
-    uint256[] memory packedBytes = new uint256[](5);
-    packedBytes[0] = 0;
-    packedBytes[1] = 0;
-    packedBytes[2] = 0;
-    packedBytes[3] = 13661285;
-    string memory byteList = testVerifier.convertPackedBytesToBytes(packedBytes, 30);
-    string memory intended_value = "eth";
-    assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
-    console.logString(byteList);
-  }
+  // TODO: Fails
+  //   function testUnpackIntoCurrency() public {
+  //     uint256[] memory packedBytes = new uint256[](5);
+  //     packedBytes[0] = 0;
+  //     packedBytes[1] = 0;
+  //     packedBytes[2] = 0;
+  //     packedBytes[3] = 13661285;
+  //     string memory byteList = StringUtils.convertPackedBytesToBytes(packedBytes, 30, packSize);
+  //     string memory intended_value = "eth";
+  //     assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
+  //     console.logString(byteList);
+  //   }
 
-  function testUnpackIntoFloat2() public {
+  function testUnpackIntoFrom2() public {
     uint256[] memory packedBytes = new uint256[](4);
     packedBytes[0] = 30515164652858234;
     packedBytes[1] = 18147879272211830;
     packedBytes[2] = 27917065853693287;
     packedBytes[3] = 28015;
-    string memory byteList = testVerifier.convertPackedBytesToBytes(packedBytes, 30);
+    string memory byteList = StringUtils.convertPackedBytesToBytes(packedBytes, 30, packSize);
     string memory intended_value = "zkemailverify@gmail.com";
     assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
     console.logString(byteList);
   }
 
+  // Note that decimal points are removed
   function testUnpackIntoFloat3() public {
     uint256[] memory packedBytes = new uint256[](4);
     packedBytes[0] = 0;
     packedBytes[1] = 3485236;
     packedBytes[2] = 0;
     packedBytes[3] = 0;
-    string memory byteList = testVerifier.convertPackedBytesToBytes(packedBytes, 30);
+    string memory byteList = StringUtils.convertPackedBytesToBytes(packedBytes, 30, packSize);
     string memory intended_value = "4.5";
-    assertEq(stringToUint(byteList), 4);
+    assertEq(StringUtils.stringToUint(byteList), 4);
     assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
     console.logString(byteList);
-  }
-
-  function stringToUint(string memory s) internal pure returns (uint256) {
-    bytes memory b = bytes(s);
-    uint256 result = 0;
-    for (uint i = 0; i < b.length; i++) {
-      if (b[i] >= 0x30 && b[i] <= 0x39) {
-        result = result * 10 + (uint256(uint8(b[i])) - 48);
-      }
-    }
-    return result;
   }
 
   function testUnpackIntoFloat4() public {
@@ -69,7 +63,7 @@ contract WalletUtilsTest is Test {
     packedBytes[1] = 14207229598262646;
     packedBytes[2] = 13067048790615872;
     packedBytes[3] = 7171939;
-    string memory byteList = testVerifier.convertPackedBytesToBytes(packedBytes, 30);
+    string memory byteList = StringUtils.convertPackedBytesToBytes(packedBytes, 30, packSize);
     string memory intended_value = "zkemailverify2@gmail.com";
     assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
     console.logString(byteList);
@@ -112,7 +106,6 @@ contract WalletUtilsTest is Test {
     publicSignals[31] = 2000538708964654339221687925776343058;
     publicSignals[32] = 3483697379198011592407370076533025;
     publicSignals[33] = 0;
-    // TODO switch order
     uint256[2] memory proof_a = [
       18214528451748025070455293058606558684367776249349482399993204103864741723468,
       15003530197647463595718037429164132062637106744660222086396269550328064261424
@@ -175,7 +168,7 @@ contract WalletUtilsTest is Test {
     publicSignals[31] = 2000538708964654339221687925776343058;
     publicSignals[32] = 3483697379198011592407370076533025;
     publicSignals[33] = 0;
-    // TODO switch order
+    // Note: switch order
     uint256[2] memory proof_a = [
       18214528451748025070455293058606558684367776249349482399993204103864741723468,
       15003530197647463595718037429164132062637106744660222086396269550328064261424

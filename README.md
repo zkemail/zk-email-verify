@@ -121,7 +121,7 @@ mv powersOfTau28_hez_final_21.ptau circuits/powersOfTau28_hez_final_21.ptau
 
 Put the email into ...\*.eml. Edit the constant filename at the top of generate_input.ts to import that file, then use the output of running that file as the input file (you may need to rename it). You'll need this for both zkey and verifier generation.
 
-To create a chunked zkey for in-browser proving, run the following (likely on a high CPU computer):
+To create a chunked zkey for in-browser proving, run the following on a high CPU computer:
 
 ```bash
 yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8 # Swap to chunked generation version for browser, leave this line out for serverside proofs onluy
@@ -186,6 +186,12 @@ python3 upload_to_s3.py
 yarn add snarkjs@https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e # Revert to frontend version
 ```
 
+If you want to upload different files, you can parameterize the script as well:
+
+```
+python3 dizkus-scripts/upload_to_s3.py --dirs ~/zk-email-verify/build/email/email_js/ --bucket_name zkemail-zkey-chunks --prefix email.wasm
+```
+
 Note that there's no .zkeya file, only .zkeyb ... .zkeyk. The script will automatically zip into .tar.gz files and load into s3 bucket.
 
 We use a fork of [zkp.ts](https://github.com/personaelabs/heyanon/blob/main/lib/zkp.ts) to load these keys into localforage. In the browser, to read off of localforage, you have to use this fork when running the frontend locally/in prod:
@@ -203,10 +209,12 @@ Change s3 address in the frontend to your bucket.
 To do a non-chunked zkey for non-browser running,
 
 ```
-
 yarn compile-all
-
 ```
+
+### Really Large Circuits
+
+If your circuit ends up being > 20M constraints, you will need to follow [these guidelines](https://hackmd.io/V-7Aal05Tiy-ozmzTGBYPA?view#Compilation-and-proving) to compile it.
 
 ### Compiling Subcircuits
 
@@ -276,7 +284,7 @@ export ETH_RPC_URL=http://localhost:8547
 
 # Public anvil sk
 export SK=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
-forge create --rpc-url $ETH_RPC_URL HexStrings --private-key $SK --via-ir --force
+forge create --rpc-url $ETH_RPC_URL StringUtils --private-key $SK --via-ir --force
 forge create --rpc-url $ETH_RPC_URL NFTSVG --private-key $SK --via-ir --force
 
 # Edit the Cargo.toml to have the two deployment addresses, then call this
