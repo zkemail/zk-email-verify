@@ -20,6 +20,8 @@ template KYCVerify(max_header_bytes, n, k) {
     // max_num_bytes must be a multiple of 64
     var max_packed_bytes = (max_header_bytes - 1) \ 7 + 1; // ceil(max_num_bytes / 7)
 
+    signal body_hash_concat[88]; // body hash output from each email has length 44
+
     // AIRBNB INPUT SIGNALS
     signal input in_padded_airbnb[max_header_bytes]; // prehashed email data, includes up to 512 + 64? bytes of padding pre SHA256, and padded with lots of 0s at end after the length
     signal input modulus_airbnb[k]; // rsa pubkey, verified with smart contract + optional oracle
@@ -46,8 +48,11 @@ template KYCVerify(max_header_bytes, n, k) {
     signal input address_coinbase;
     signal input address_plus_one_coinbase;
 
-    // Outputs the packed version of the from/to emails from both emails
+    // OUTPUT SIGNALS
+    // Outputs the hash of the two body hashes
+    // Currently doesn't output from/to emails for domain check but should probably add that later
     signal reveal_packed[2 * max_packed_bytes];
+    signal output nullifier_hash[256];
 
     component airbnb_verify = AirbnbEmailVerify(max_header_bytes, n, k);
     component coinbase_verify = CoinbaseEmailVerify(max_header_bytes, n, k);
@@ -95,13 +100,27 @@ template KYCVerify(max_header_bytes, n, k) {
     }
 
     // PACKED OUTPUT
-    // Output for solidity verifier
-    for (var i = 0; i < max_packed_bytes; i++) {
-        reveal_packed[i] <== airbnb_verify.reveal_packed[i];
+    // Nullifier output for solidity verifier
+    for (var i = 0; i < 44; i++) {
+        body_hash_concat[i] <== airbnb_verify.body_hash_reveal[i];
+        body_hash_concat[i + 44] <== coinbase_verify.body_hash_reveal[i];
     }
-    for (var i = 0; i < max_packed_bytes; i++) {
-        reveal_packed[i + max_packed_bytes] <== coinbase_verify.reveal_packed[i];
+    component sha = Sha256Bytes(128);
+    for (var i = 0; i < 88; i++) {
+        sha.in_padded[i] <== body_hash_concat[i];
     }
+    for (var i = 88; i < 128; i++) {
+        sha.in_padded[i] <== 0;
+    }
+    sha.in_len_padded_bytes <== 128;
+
+    var chunks = 7;
+    component packed_output[]
+    for (var i = 0; i < 256; i++) {
+        nullifier_hash[i] <== sha.out[i];
+    }
+    // TODO: pack output into chunks
+    // TODO: change public signals in smart contract to match new public signals
 }
 
 // In circom, all output signals of the main component are public (and cannot be made private), the input signals of the main component are private if not stated otherwise using the keyword public as above. The rest of signals are all private and cannot be made public.

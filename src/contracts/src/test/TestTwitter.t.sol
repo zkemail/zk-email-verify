@@ -1,8 +1,8 @@
 pragma solidity ^0.8.0;
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
-import "../twitterEmailHandler.sol";
-import "../emailVerifier.sol";
+import "../TwitterEmailHandler.sol";
+import "../Groth16VerifierTwitter.sol";
 
 contract TwitterUtilsTest is Test {
   address internal constant zero = 0x0000000000000000000000000000000000000000;
@@ -20,7 +20,7 @@ contract TwitterUtilsTest is Test {
   // }
 
   // Should pass (note that there are extra 0 bytes, which are filtered out but should be noted in audits)
-  function testUnpack() public {
+  function testUnpack1() public {
     uint256[] memory packedBytes = new uint256[](3);
     packedBytes[0] = 29096824819513600;
     packedBytes[1] = 0;
@@ -39,12 +39,26 @@ contract TwitterUtilsTest is Test {
     // ASCII should fit in 2 bytes but emails may not be ASCII
     assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
     console.logString(byteList);
+  }
 
+  function testUnpack2() public {
+    uint256[] memory packedBytes = new uint256[](3);
     packedBytes[0] = 28557011619965818;
     packedBytes[1] = 1818845549;
     packedBytes[2] = 0;
-    byteList = testVerifier.convertPackedBytesToBytes(packedBytes, 15);
-    intended_value = "zktestemail";
+    string memory byteList = testVerifier.convertPackedBytesToBytes(packedBytes, 15);
+    string memory intended_value = "zktestemail";
+    assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
+    console.logString(byteList);
+  }
+
+  function testUnpack3() public {
+    uint256[] memory packedBytes = new uint256[](3);
+    packedBytes[0] = 28991922601197568;
+    packedBytes[1] = 24941;
+    packedBytes[2] = 0;
+    string memory byteList = testVerifier.convertPackedBytesToBytes(packedBytes, 30);
+    string memory intended_value = "zktestemail";
     assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
     console.logString(byteList);
   }

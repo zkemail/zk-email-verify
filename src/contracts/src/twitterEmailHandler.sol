@@ -6,8 +6,9 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "forge-std/console.sol";
 // import "./base64.sol";
+import "./HexStrings.sol";
 import "./NFTSVG.sol";
-import "./emailVerifier.sol";
+import "./Groth16VerifierTwitter.sol";
 
 contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
   using Counters for Counters.Counter;
@@ -30,6 +31,9 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
     // This is the base 2^121 representation of that key.
     // Circom bigint: represent a = a[0] + a[1] * 2**n + .. + a[k - 1] * 2**(n * k)
     require(rsa_modulus_chunks_len + body_len + 1 == msg_len, "Variable counts are wrong!");
+
+    // TODO: Create a type that takes in a raw RSA key, the bit count,
+    // and whether or not its base64 encoded, and converts it to either 8 or 16 signals
     verifiedMailserverKeys["twitter.com"][0] = 1634582323953821262989958727173988295;
     verifiedMailserverKeys["twitter.com"][1] = 1938094444722442142315201757874145583;
     verifiedMailserverKeys["twitter.com"][2] = 375300260153333632727697921604599470;
@@ -133,7 +137,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
     string memory returnValue = string(nonzeroBytesArray);
     require(state == 2, "Invalid final state of packed bytes in email");
     // console.log("Characters in username: ", nonzeroBytesArrayIndex);
-    require(nonzeroBytesArrayIndex <= maxBytes, "Twitter username more than 15 chars!");
+    require(nonzeroBytesArrayIndex <= maxBytes, "Packed bytes more than allowed max length!");
     return returnValue;
     // Have to end at the end of the email -- state cannot be 1 since there should be an email footer
   }

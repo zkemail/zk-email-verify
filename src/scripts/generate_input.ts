@@ -17,11 +17,31 @@ import { CIRCOM_FIELD_MODULUS, MAX_HEADER_PADDED_BYTES, MAX_BODY_PADDED_BYTES, S
 import { shaHash, partialSha, sha256Pad } from "../../src/helpers/shaHash";
 import { dkimVerify } from "../../src/helpers/dkim";
 import * as fs from "fs";
+import { stubObject } from "lodash";
+import * as yargs from "yargs";
 var Cryo = require("cryo");
 const pki = require("node-forge").pki;
 
 // const email_file = "monia_email.eml"; // "./test_email.txt", "./twitter_msg.eml", kaylee_phone_number_email_twitter
-const email_file = "./nathan_twitter_email.eml";
+const email = yargs
+  .option("email_file", {
+    alias: "e",
+    description: "Path to email file",
+    type: "string",
+    default: "test_sendgrid.eml",
+  })
+  .option("nonce", {
+    alias: "n",
+    description: "Nonce to disambiguate input/output files (optional, only useful for monolithic server side provers)",
+    type: "string",
+    default: null,
+  })
+  .help()
+  .alias("help", "h").argv;
+
+const email_file = email.email_file;
+const nonce = email.nonce;
+
 export interface ICircuitInputs {
   modulus?: string[];
   signature?: string[];
@@ -39,7 +59,9 @@ export interface ICircuitInputs {
   address_plus_one?: string;
   twitter_username_idx?: string;
   email_from_idx?: string;
-  email_to_idx?: string;
+  amount_idx?: string;
+  currency_idx?: string;
+  recipient_idx?: string;
 }
 
 enum CircuitType {
@@ -47,6 +69,7 @@ enum CircuitType {
   SHA = "sha",
   TEST = "test",
   EMAIL = "email",
+  EMAILWALLET = "emailwallet",
 }
 
 async function findSelector(a: Uint8Array, selector: number[]): Promise<number> {
@@ -101,6 +124,9 @@ export async function getCircuitInputs(
   const [messagePadded, messagePaddedLen] = await sha256Pad(prehashBytesUnpadded, MAX_HEADER_PADDED_BYTES);
   const [bodyPadded, bodyPaddedLen] = await sha256Pad(body, Math.max(MAX_BODY_PADDED_BYTES, calc_length));
 
+  // Convet messagePadded to string to print the specific header data that is signed
+  console.log(JSON.stringify(message).toString());
+
   // Ensure SHA manual unpadded is running the correct function
   const shaOut = await partialSha(messagePadded, messagePaddedLen);
   assert((await Uint8ArrayToString(shaOut)) === (await Uint8ArrayToString(Uint8Array.from(await shaHash(prehashBytesUnpadded)))), "SHA256 calculation did not match!");
@@ -138,10 +164,23 @@ export async function getCircuitInputs(
   const address_plus_one = (bytesToBigInt(fromHex(eth_address)) + 1n).toString();
 
   const USERNAME_SELECTOR = Buffer.from(STRING_PRESELECTOR);
-  const email_from_idx = Buffer.from(prehash_message_string).indexOf("from:").toString();
-  const email_to_idx = Buffer.from(prehash_message_string).indexOf("to:").toString();
+
+  function trimStrByStr(str: string, substr: string) {
+    const index = str.indexOf(substr);
+    if (index === -1) {
+      return str;
+    }
+    return str.slice(index + substr.length, str.length);
+  }
+
+  let raw_header = Buffer.from(prehash_message_string).toString();
+  const email_from_idx = raw_header.length - trimStrByStr(trimStrByStr(raw_header, "from:"), "<").length;
+  let email_subject = trimStrByStr(raw_header, "subject:");
+  const amount_idx = raw_header.length - trimStrByStr(email_subject, "end ").length;
+  const currency_idx = raw_header.length - trimStrByStr(trimStrByStr(email_subject, "end "), " ").length;
+  const recipient_idx = raw_header.length - trimStrByStr(email_subject, "to ").length;
   const twitter_username_idx = (Buffer.from(bodyRemaining).indexOf(USERNAME_SELECTOR) + USERNAME_SELECTOR.length).toString();
-  console.log("Twitter Username idx: ", twitter_username_idx);
+  console.log("Indexes into header string are: ", email_from_idx, amount_idx, currency_idx, recipient_idx, twitter_username_idx);
 
   if (circuit === CircuitType.RSA) {
     circuitInputs = {
@@ -165,6 +204,20 @@ export async function getCircuitInputs(
       // email_from_idx,
       // email_to_idx,
     };
+  } else if (circuit === CircuitType.EMAILWALLET) {
+    circuitInputs = {
+      in_padded,
+      modulus,
+      signature,
+      in_len_padded_bytes,
+      address,
+      address_plus_one,
+      body_hash_idx,
+      email_from_idx: email_from_idx.toString(),
+      amount_idx: amount_idx.toString(),
+      currency_idx: currency_idx.toString(),
+      recipient_idx: recipient_idx.toString(),
+    };
   } else {
     assert(circuit === CircuitType.SHA, "Invalid circuit type");
     circuitInputs = {
@@ -179,8 +232,15 @@ export async function getCircuitInputs(
   };
 }
 
-export async function generate_inputs(email: Buffer, eth_address: string): Promise<ICircuitInputs> {
-  var result;
+// Nonce is useful to disambiguate files for input/output when calling from the command line, it is usually null or hash(email)
+export async function generate_inputs(raw_email: Buffer | string, eth_address: string, nonce_raw: number | null | string = null): Promise<ICircuitInputs> {
+  const nonce = typeof nonce_raw == "string" ? nonce_raw.trim() : nonce_raw;
+
+  var result, email: Buffer;
+  if (typeof raw_email === "string") {
+    email = Buffer.from(raw_email);
+  } else email = raw_email;
+
   console.log("DKIM verification starting");
   result = await dkimVerify(email);
   if (!result.results[0]) {
@@ -209,20 +269,24 @@ export async function generate_inputs(email: Buffer, eth_address: string): Promi
   let message = result.results[0].status.signature_header;
   let body = result.results[0].body;
   let body_hash = result.results[0].bodyHash;
-  let circuitType = CircuitType.EMAIL;
+  let circuitType = CircuitType.EMAILWALLET;
 
   let pubkey = result.results[0].publicKey;
   const pubKeyData = pki.publicKeyFromPem(pubkey.toString());
   let modulus = BigInt(pubKeyData.n.toString());
   let fin_result = await getCircuitInputs(sig, modulus, message, body, body_hash, eth_address, circuitType);
+  if (nonce !== null) {
+    console.log(`Writing to ../input_wallet_${nonce}.json`);
+    fs.writeFileSync(`../input_wallet_${nonce}.json`, JSON.stringify(fin_result.circuitInputs), { flag: "w" });
+  }
   return fin_result.circuitInputs;
 }
 
 async function do_generate() {
-  const email = fs.readFileSync(email_file);
+  const email = fs.readFileSync(email_file.trim());
   console.log(email);
-  const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000");
-  // console.log(JSON.stringify(gen_inputs));
+  const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000", nonce);
+  console.log(JSON.stringify(gen_inputs));
   return gen_inputs;
 }
 
@@ -255,6 +319,7 @@ if (typeof require !== "undefined" && require.main === module) {
   // debug_file();
   const circuitInputs = do_generate();
   console.log("Writing to file...");
-  circuitInputs.then((inputs) => fs.writeFileSync(`./circuits/inputs/input_twitter.json`, JSON.stringify(inputs), { flag: "w" }));
-  // gen_test();
+  if (nonce == null) {
+    circuitInputs.then((inputs) => fs.writeFileSync(`./circuits/inputs/input_wallet.json`, JSON.stringify(inputs), { flag: "w" }));
+  } // gen_test();
 }

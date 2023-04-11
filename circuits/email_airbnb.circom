@@ -26,9 +26,7 @@ template AirbnbEmailVerify(max_header_bytes, n, k) {
     signal input signature[k];
     signal input in_len_padded_bytes; // length of in email data including the padding, which will inform the sha256 block length
 
-    // Next 2 signals are for decreasing SHA constraints for parsing out information from the in-body text
-    signal reveal[max_header_bytes]; // bytes to reveal
-    signal output reveal_packed[max_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
+    // signal reveal[max_header_bytes]; // bytes to reveal
 
     signal output to_email[max_header_bytes]; // to email address of email
 
@@ -38,8 +36,13 @@ template AirbnbEmailVerify(max_header_bytes, n, k) {
     signal input email_to_idx;
 
     var LEN_SHA_B64 = 44;     // ceil(32/3) * 4, should be automatically calculated.
+    var max_bh_packed_bytes = 7; // ceil(44/7)
     signal input body_hash_idx;
     signal body_hash[LEN_SHA_B64][max_header_bytes];
+
+    signal output body_hash_reveal[LEN_SHA_B64];
+
+    // signal output reveal_packed[max_bh_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
 
     // SHA HEADER: 506,670 constraints
     // This calculates the SHA256 hash of the header, which is the "base_msg" that is RSA signed.
@@ -86,10 +89,10 @@ template AirbnbEmailVerify(max_header_bytes, n, k) {
         dkim_header_regex.msg[i] <== in_padded[i];
     }
     dkim_header_regex.out === 2;
-    for (var i = 0; i < max_header_bytes; i++) {
-        reveal[i] <== dkim_header_regex.reveal[i+1];
-    }
-    log(dkim_header_regex.out);
+    // for (var i = 0; i < max_header_bytes; i++) {
+    //     reveal[i] <== dkim_header_regex.reveal[i+1];
+    // }
+    // log(dkim_header_regex.out);
 
     // BODY HASH REGEX: 617,597 constraints
     // This extracts the body hash from the header (i.e. the part after bh= within the DKIM-signature section)
@@ -99,7 +102,7 @@ template AirbnbEmailVerify(max_header_bytes, n, k) {
         body_hash_regex.msg[i] <== in_padded[i];
     }
     body_hash_regex.out === 1;
-    log(body_hash_regex.out);
+    // log(body_hash_regex.out);
     component body_hash_eq[max_header_bytes];
     for (var i = 0; i < max_header_bytes; i++) {
         body_hash_eq[i] = IsEqual();
@@ -112,6 +115,9 @@ template AirbnbEmailVerify(max_header_bytes, n, k) {
             body_hash[j][i] <== body_hash[j][i - 1] + body_hash_eq[i-j].out * body_hash_regex.reveal[i];
         }
     }
+    for (var i = 0; i < 44; i++) {
+        body_hash_reveal[i] <== body_hash[i][max_header_bytes - 1];
+    }
 
     // AIRBNB REGEX
     // Checks Airbnb regex matches KYC confirmation email
@@ -123,25 +129,7 @@ template AirbnbEmailVerify(max_header_bytes, n, k) {
     component found_airbnb = IsZero();
     found_airbnb.in <== airbnb_regex.out;
     found_airbnb.out === 0;
-    log(airbnb_regex.out);
-
-    // PACKING: 16,800 constraints (Total: 3,115,057)
-    // Pack output for solidity verifier to be < 24kb size limit
-    // chunks = 7 is the number of bytes that can fit into a 255ish bit signal
-    var chunks = 7;
-    component packed_output[max_packed_bytes];
-    for (var i = 0; i < max_packed_bytes; i++) {
-        packed_output[i] = Bytes2Packed(chunks);
-        for (var j = 0; j < chunks; j++) {
-            var reveal_idx = i * chunks + j;
-            if (reveal_idx < max_header_bytes) {
-                packed_output[i].in[j] <== reveal[i * chunks + j];
-            } else {
-                packed_output[i].in[j] <== 0;
-            }
-        }
-        reveal_packed[i] <== packed_output[i].out;
-    }
+    // log(airbnb_regex.out);
 
     // EXTRACT TO EMAIL REGEX
     // This extracts the to email
@@ -156,4 +144,4 @@ template AirbnbEmailVerify(max_header_bytes, n, k) {
     }
 }
 
-// component main { public [ modulus, address ] } = AirbnbEmailVerify(1024, 121, 17);
+// component main { public [ modulus, address ] } = AirbnbEmailVerify(1024, 121, 9);

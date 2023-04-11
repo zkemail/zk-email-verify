@@ -1,6 +1,6 @@
 # ZK Email Verify
 
-**WIP: This tech is extremely tricky to use and very much a work in progress, and we do not recommend use in any production application right now. This is both due to unaudited code, and several theoretical issues such as nullifiers, bcc’s, non-nested signatures, and hash sizings. These are all resolved for our Twitter MVP usecase, but may not be generally gauranteed. If you have a possible usecase, please run it by us so we can ensure that your guarantees are in fact correct!**
+**WIP: This tech is extremely tricky to use and very much a work in progress, and we do not recommend use in any production application right now. This is both due to unaudited code, and several theoretical issues such as nullifiers, bcc’s, non-nested signatures, and hash sizings. These are all resolved for our Twitter MVP usecase, but may not be generally guaranteed. If you have a possible usecase, please run it by us so we can ensure that your trust assumptions are in fact correct!**
 
 Join the conversation via [dm'ing us](https://twitter.com/yush_g/)! We will have a broader Discord soon.
 
@@ -72,7 +72,9 @@ public/ # Should contain vkey/wasm, but we end up fetching those from AWS server
 
 ### Regex to Circom
 
-Modify the `let regex = ` in lexical.js and then run `python3 gen.py`
+First, generate a regex. Go to our [min_dfa fork](https://mindfa.onrender.com/min_dfa) of cyberzhg's toolbox and insert your regex on the top line. We've forked [min-dfa into a UI here](https://mindfa.onrender.com/min_dfa) to create a UI that converts existing regexes with [] support, as well as escapes \_, and the character classes a-z, A-Z, and 0-9. It also shows the DFA states very clearly so you can choose accept states easily. This should make converting regexes into DFA form way cleaner.
+
+Modify either `let raw_regex = ` (that supports actual regex strings like `[A-Za-z0-9]` [but no other character ranges]) or modify `let regex = ` (that does not support brackets or character ranges and supports only the limited syntax in https://cyberzhg.github.io/toolbox/min_dfa) in regex_to_circom/regex_to_dfa.js and then run `python3 gen.py`.
 
 ### Email Circuit Build Steps
 
@@ -83,17 +85,23 @@ curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh # Install rust if
 source "$HOME/.cargo/env" # Also rust installation step
 
 git clone https://github.com/iden3/circom.git
+sudo apt update
+sudo apt-get install nlohmann-json3-dev libgmp-dev nasm # Ubuntu packages needed for C-based witness generator
+sudo apt install build-essential # Ubuntu
+brew install nlohmann-json gmp nasm # OSX
 cd circom
 cargo build --release
 cargo install --path circom
-sudo apt-get install nlohmann-json3-dev libgmp-dev nasm # Ubuntu packages needed for C-based witness generator
-brew install nlohmann-json gmp nasm # OSX
 ```
 
 Inside `zk-email-verify` folder, do
 
 ```
-sudo npm i -g yarn # If don't have yarn
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash # If don't have npm
+. ~/.nvm/nvm.sh # If don't have npm
+nvm install 16 # If don't have node 16
+nvm use 16 # If not using node 16
+sudo npm i -g yarn # If don't have yarn (may need to remove sudo)
 yarn install # If this fails, delete yarn.lock and try again
 ```
 
@@ -101,11 +109,11 @@ To get the ptau, do (note that you only need the 22 file right now)
 
 ```bash
 wget https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_22.ptau
-mv powersOfTau28_hez_final_22.ptau powersoftau/powersOfTau28_hez_final_22.ptau
+mv powersOfTau28_hez_final_22.ptau circuits/powersOfTau28_hez_final_22.ptau
 
 wget https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_21.ptau
 # shasum pot21_final.ptau: e0ef07ede5c01b1f7ddabb14b60c0b740b357f70
-mv powersOfTau28_hez_final_21.ptau powersoftau/powersOfTau28_hez_final_21.ptau
+mv powersOfTau28_hez_final_21.ptau circuits/powersOfTau28_hez_final_21.ptau
 ```
 
 <!-- Previously snarkjs@git+https://github.com/vb7401/snarkjs.git#fae4fe381bdad2da13eee71010dfe477fc694ac1 -->
@@ -116,13 +124,62 @@ Put the email into ...\*.eml. Edit the constant filename at the top of generate_
 To create a chunked zkey for in-browser proving, run the following (likely on a high CPU computer):
 
 ```bash
-yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8 # Swap to chunked generation version
+yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8 # Swap to chunked generation version for browser, leave this line out for serverside proofs onluy
 cd dizkus-scripts/
-./1_compile.sh && ./2_gen_wtns.sh && ./3_gen_chunk_zkey.sh && ./4_gen_vkey.sh && ./5_gen_proof.sh
-# optional: ./6_gen_proof_rapidsnark.sh
+cp entropy.env.example entropy.env
+```
 
-# This part is to upload the zkeys, not critical
-# Remember to change bucket_name in upload_to_s3.py
+Not put random characters into the values for entropy1 and entropy2, and hexadecimal characters into the beacon. These scripts will compile and test your zkey for you.
+
+```
+./1_compile.sh && ./2_gen_wtns.sh && ./3_gen_chunk_zkey.sh && ./4_gen_vkey.sh && ./5_gen_proof.sh
+```
+
+If you want to run a fast server side prover, install rapidsnark and test proofgen:
+
+```
+cd ../../
+git clone https://github.com/iden3/rapidsnark
+cd rapidsnark
+npm install
+git submodule init
+git submodule update
+npx task createFieldSources
+```
+
+You're supposed to run `npx task buildPistache` next, but that errored, so I had to manually build the pistache lib first:
+
+```
+cd depends/pistache
+sudo apt-get install meson ninja-build
+meson setup build --buildtype=release
+ninja -C build
+sudo ninja -C build install
+sudo ldconfig
+cd ../..
+```
+
+Then, from rapidsnark/ I could run
+
+```
+npx task buildProverServer
+```
+
+And from zk-email-verify, convert your proof params to a rapidsnark friendly version:
+
+```
+
+cd ../zk-email-verify/dizkus-scripts
+./6_gen_proof_rapidsnark.sh
+
+```
+
+To upload zkeys to an s3 box on AWS, change bucket_name in upload_to_s3.py and run:
+
+```
+sudo apt install awscli # Ubuntu
+brew install awscli # Mac
+
 aws configure # Only needs to be run once
 pip3 install boto3
 python3 upload_to_s3.py
@@ -134,7 +191,9 @@ Note that there's no .zkeya file, only .zkeyb ... .zkeyk. The script will automa
 We use a fork of [zkp.ts](https://github.com/personaelabs/heyanon/blob/main/lib/zkp.ts) to load these keys into localforage. In the browser, to read off of localforage, you have to use this fork when running the frontend locally/in prod:
 
 ```
+
 yarn install snarkjs@git+https://github.com/vb7401/snarkjs.git#53e86631b5e409e5bd30300611b495ca469503bc
+
 ```
 
 Manually copy paste the modulus in the resulting generated file into solidity verified mailserver keys.
@@ -144,7 +203,9 @@ Change s3 address in the frontend to your bucket.
 To do a non-chunked zkey for non-browser running,
 
 ```
+
 yarn compile-all
+
 ```
 
 ### Compiling Subcircuits
@@ -159,7 +220,7 @@ npm install typescript ts-node -g
 # uncomment do_generate function call at end of file
 # go to tsconfig.json and change esnext to CommonJS
 # if weird things dont work with this and yarn start, go go node_modules/react-scripts/config/webpack.config.ts and add/cut `target: 'node',` after like 793 after `node:`.
-npx tsc --moduleResolution node --target esnext circuits/scripts/generate_input.ts
+npx tsc --moduleResolution node --target esnext src/scripts/generate_input.ts
 ```
 
 which will autowrite input\_<circuitName>.json to the inputs folder.
@@ -274,7 +335,7 @@ The full email header and body check circuit, with 7-byte packing and final publ
 
 In the browser, on a 2019 Intel Mac on Chrome, proving uses 7.3/8 cores. zk-gen takes 384 s, groth16 prove takes 375 s, and witness calculation takes 9 s.
 
-For baremetal, proof generation time on 16 CPUs took 97 seconds. Generating zkey 0 took 17 minutes. Unclear about zkey 1. Zkey 2 took 5 minutes. r1cs + wasm generation took 5 minutes. Witness generation took 16 seconds. cpp witness gen file generation (from script 6) took 210 minutes.
+For baremetal, proof generation time on 16 CPUs took 97 seconds. Generating zkey 0 took 17 minutes. zkey 1 and zkey 2 each took 5 minutes. r1cs + wasm generation took 5 minutes. Witness generation took 16 seconds. cpp generation of witness gen file (from script 6) took 210 minutes -- we do not run this pathway anymore.
 
 ### Scrubbing Sensitive Files
 
@@ -289,7 +350,7 @@ git push --set-upstream origin main --force
 
 ## Regexes we compiled
 
-The regex to get out the from/to emails is:
+Test these on cyberzhg's toolbox modified at [zkregex.com/min_dfa](https://zkregex.com/min_dfa). The regex to get out the from/to emails is:
 
 ```
 // '(\r\n|\x80)(to|from):([A-Za-z0-9 _."@-]+<)?[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.]+>?\r\n';
@@ -385,10 +446,24 @@ Since circom is GPL, we are forced to use the GPL license, which is still a high
 
 ## To-Do
 
-- Make the frontend Solidity calls work
 - Make a general method to get formatted signatures and bodies from all email clients
 - Make versions for different size RSA keys
 - Add ENS DNSSEC code (possibly SNARKed), so anyone can add a website's RSA key via DNS record
-- Design the NFT/POAP to have the user's domain/verified identity on it
+- Design the NFT/POAP to have the user's domain/verified identity on it and display SVG properly on opensea
 - Make a testnet faucet as a PoC for Sybil resistance and to get developers interested
 - Dynamically tradeoff between gzip (2x faster decompression) and xz (30% smaller file size): https://www.rootusers.com/gzip-vs-bzip2-vs-xz-performance-comparison/ based on internet speed (i.e. minimize download time + unzip time)
+- Fix these circom bugs from `circom email.circom --inspect`:
+  - warning[CA02]: In template "Base64Decode(32)": Subcomponent input/output signal bits_out[10][2].out does not appear in any constraint of the father component
+  - warning[CA01]: In template "TwitterResetRegex(1536)": Local signal states[1536][0] does not appear in any constraint
+  - warning[CA02]: In template "EmailVerify(1024,1536,121,17,7)": Subcomponent input/output signal dkim_header_regex.reveal[0] does not appear in any constraint of the father component
+  - warning[CA02]: In template "RSAVerify65537(121,17)": Array of subcomponent input/output signals signatureRangeCheck[13].out contains a total of 121 signals that do not appear in any constraint of the father component
+    = For example: signatureRangeCheck[13].out[0], signatureRangeCheck[13].out[100].
+  - warning[CA02]: In template "LessThan(8)": Array of subcomponent input/output signals n2b.out contains a total of 8 signals that do not appear in any constraint of the father component
+    = For example: n2b.out[0], n2b.out[1].
+  - warning[CA01]: In template "DKIMHeaderRegex(1024)": Local signal states[1025][0] does not appear in any constraint
+  - warning[CA01]: In template "Bytes2Packed(7)": Array of local signals in_prefix_sum contains a total of 8 signals that do not appear in any constraint
+    = For example: in_prefix_sum[0], in_prefix_sum[1].
+  - warning[CA01]: In template "Bytes2Packed(7)": Array of local signals pow2 contains a total of 8 signals that do not appear in any constraint
+    = For example: pow2[0], pow2[1].
+- Enable parsing of emails via tagged-dfa/lookahead/lookbehinds in all cases where 1) from:email [rare, only gcal] and 2) from:<email> and 3) from:text <email>
+- Fix it so only a recent email after deploy cutoff can be used to send money

@@ -2,7 +2,10 @@ import subprocess
 import json
 import string
 
-graph_json = json.loads(subprocess.check_output(['npx', 'tsx', 'lexical.js']))
+# Clear file
+OUTPUT_HALO2 = True
+
+graph_json = json.loads(subprocess.check_output(['npx', 'tsx', 'regex_to_dfa.js']))
 N = len(graph_json)
 
 # Outgoing nodes
@@ -22,6 +25,18 @@ for i in range(N):
 
 accept_nodes = list(accept_nodes)
 assert len(accept_nodes) == 1
+
+if (OUTPUT_HALO2):
+    with open('halo2_regex_lookup.txt', 'w') as f:
+        for a in accept_nodes:
+            print(str(a) + " ", file=f, end='')
+        print("", file=f)
+    for i in range(N):
+        for k in graph_json[i]['edges']:
+            v = graph_json[i]['edges'][k]
+            for val in json.loads(k):
+                with open('halo2_regex_lookup.txt', 'a') as f:
+                    print(i, v, ord(val), file=f)
 
 eq_i = 0
 lt_i = 0

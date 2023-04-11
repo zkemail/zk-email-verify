@@ -28,6 +28,9 @@ export async function sha256Pad(prehash_prepad_m: Uint8Array, maxShaBytes: numbe
   while (prehash_prepad_m.length < maxShaBytes) {
     prehash_prepad_m = mergeUInt8Arrays(prehash_prepad_m, int64toBytes(0));
   }
-  assert(prehash_prepad_m.length === maxShaBytes, "Padding to max length did not complete properly!");
+  assert(
+    prehash_prepad_m.length === maxShaBytes,
+    `Padding to max length did not complete properly! Your padded message is ${prehash_prepad_m.length} long but max is ${maxShaBytes}!`
+  );
   return [prehash_prepad_m, messageLen];
 }
