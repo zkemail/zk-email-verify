@@ -7,6 +7,7 @@ import "./Wallet.sol";
 
 contract WalletDeployer {
     using Counters for Counters.Counter;
+
     Counters.Counter private _walletIndex;
 
     address private immutable _owner;
@@ -37,7 +38,10 @@ contract WalletDeployer {
         wallet = Create2.computeAddress(salt, _bytecodeHash);
     }
 
-    function moveERC20(uint256 sourceIndex, uint256 destinationIndex, address tokenAddress, uint256 amount) public onlyOwner {
+    function moveERC20(uint256 sourceIndex, uint256 destinationIndex, address tokenAddress, uint256 amount)
+        public
+        onlyOwner
+    {
         require(wallets[sourceIndex] != address(0), "Source wallet not deployed");
         require(wallets[destinationIndex] != address(0), "Destination wallet not deployed");
 
