@@ -70,6 +70,43 @@ contract MailServer {
     verifiedMailserverKeys["ethereum.org"][15] = 0;
     verifiedMailserverKeys["ethereum.org"][16] = 0;
 
+    verifiedMailserverKeys["ethereum.org"][0] = 119886678941863893035426121053426453;
+    verifiedMailserverKeys["ethereum.org"][1] = 1819786846289142128062035525540154587;
+    verifiedMailserverKeys["ethereum.org"][2] = 18664768675154515296388092785538021;
+    verifiedMailserverKeys["ethereum.org"][3] = 2452916380017370778812419704280324749;
+    verifiedMailserverKeys["ethereum.org"][4] = 147541693845229442834461965414634823;
+    verifiedMailserverKeys["ethereum.org"][5] = 714676313158744653841521918164405002;
+    verifiedMailserverKeys["ethereum.org"][6] = 1495951612535183023869749054624579068;
+    verifiedMailserverKeys["ethereum.org"][7] = 974892773071523448175479681445882254;
+    verifiedMailserverKeys["ethereum.org"][8] = 53117264910028079;
+    verifiedMailserverKeys["ethereum.org"][9] = 0;
+    verifiedMailserverKeys["ethereum.org"][10] = 0;
+    verifiedMailserverKeys["ethereum.org"][11] = 0;
+    verifiedMailserverKeys["ethereum.org"][12] = 0;
+    verifiedMailserverKeys["ethereum.org"][13] = 0;
+    verifiedMailserverKeys["ethereum.org"][14] = 0;
+    verifiedMailserverKeys["ethereum.org"][15] = 0;
+    verifiedMailserverKeys["ethereum.org"][16] = 0;
+
+    verifiedMailserverKeys["twitter.com"][0] = 1634582323953821262989958727173988295;
+    verifiedMailserverKeys["twitter.com"][1] = 1938094444722442142315201757874145583;
+    verifiedMailserverKeys["twitter.com"][2] = 375300260153333632727697921604599470;
+    verifiedMailserverKeys["twitter.com"][3] = 1369658125109277828425429339149824874;
+    verifiedMailserverKeys["twitter.com"][4] = 1589384595547333389911397650751436647;
+    verifiedMailserverKeys["twitter.com"][5] = 1428144289938431173655248321840778928;
+    verifiedMailserverKeys["twitter.com"][6] = 1919508490085653366961918211405731923;
+    verifiedMailserverKeys["twitter.com"][7] = 2358009612379481320362782200045159837;
+    verifiedMailserverKeys["twitter.com"][8] = 518833500408858308962881361452944175;
+    verifiedMailserverKeys["twitter.com"][9] = 1163210548821508924802510293967109414;
+    verifiedMailserverKeys["twitter.com"][10] = 1361351910698751746280135795885107181;
+    verifiedMailserverKeys["twitter.com"][11] = 1445969488612593115566934629427756345;
+    verifiedMailserverKeys["twitter.com"][12] = 2457340995040159831545380614838948388;
+    verifiedMailserverKeys["twitter.com"][13] = 2612807374136932899648418365680887439;
+    verifiedMailserverKeys["twitter.com"][14] = 16021263889082005631675788949457422;
+    verifiedMailserverKeys["twitter.com"][15] = 299744519975649772895460843780023483;
+    verifiedMailserverKeys["twitter.com"][16] = 3933359104846508935112096715593287;
+    verifiedMailserverKeys["twitter.com"][17] = 556307310756571904145052207427031380052712977221;
+
     verifiedMailserverKeys["skiff.com"][0] = 2637270478154147701703365710201556843;
     verifiedMailserverKeys["skiff.com"][1] = 2082690054369201099288110516791254232;
     verifiedMailserverKeys["skiff.com"][2] = 1108253255381437937379143813840625818;
