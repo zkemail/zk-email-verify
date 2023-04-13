@@ -5,7 +5,6 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "forge-std/console.sol";
-// import "./base64.sol";
 import "./StringUtils.sol";
 import "./NFTSVG.sol";
 import { Verifier } from "./Groth16VerifierTwitter.sol";
@@ -34,9 +33,6 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
   constructor(Verifier v, MailServer m) ERC721("VerifiedEmail", "VerifiedEmail") {
     verifier = v;
     mailServer = m;
-    // Do dig TXT outgoing._domainkey.twitter.com to verify these.
-    // This is the base 2^121 representation of that key.
-    // Circom bigint: represent a = a[0] + a[1] * 2**n + .. + a[k - 1] * 2**(n * k)
     require(rsa_modulus_chunks_len + body_len + 1 == msg_len, "Variable counts are wrong!");
   }
 

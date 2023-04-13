@@ -4,12 +4,12 @@ import "forge-std/console.sol";
 
 contract MailServer {
   uint16 constant rsa_modulus_chunks_len = 17;
-  //   struct Server {
   mapping(string => uint256[rsa_modulus_chunks_len]) verifiedMailserverKeys;
 
-  //   }
-
   constructor() {
+    // Do dig TXT outgoing._domainkey.twitter.com to verify these.
+    // This is the base 2^121 representation of that key.
+    // Circom bigint: represent a = a[0] + a[1] * 2**n + .. + a[k - 1] * 2**(n * k)
     initMailserverKeys();
   }
 
