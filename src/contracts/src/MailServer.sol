@@ -105,7 +105,6 @@ contract MailServer {
     verifiedMailserverKeys["twitter.com"][14] = 16021263889082005631675788949457422;
     verifiedMailserverKeys["twitter.com"][15] = 299744519975649772895460843780023483;
     verifiedMailserverKeys["twitter.com"][16] = 3933359104846508935112096715593287;
-    verifiedMailserverKeys["twitter.com"][17] = 556307310756571904145052207427031380052712977221;
 
     verifiedMailserverKeys["skiff.com"][0] = 2637270478154147701703365710201556843;
     verifiedMailserverKeys["skiff.com"][1] = 2082690054369201099288110516791254232;
