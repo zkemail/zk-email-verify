@@ -2,7 +2,7 @@
 
 **WIP: This tech is extremely tricky to use and very much a work in progress, and we do not recommend use in any production application right now. This is both due to unaudited code, and several theoretical gotchas such as lack of nullifiers, no signed bcc’s, non-nested reply signatures, upgradability of DNS, and hash sizings. None of these affect our current Twitter MVP usecase, but are not generally guaranteed. If you have a possible usecase, we are happy to help brainstorm if your trust assumptions are in fact correct!**
 
-Join the conversation via [dm'ing us](https://twitter.com/yush_g/)! We will have a broader Discord soon.
+If you're interested in building a project with zk email or would like to contribute, [dm us](https://twitter.com/yush_g/)! Get up to date on our broad progress on the [higher level org readme](https://github.com/zkemail). While this circom code is complete, it is quite slow client side (see benchmarks below), and we are working quite hard to put up a secure, ultrafast version with halo2 by Q2 2023. We are also hoping to release a broader SDK so it will be very easy to put up new zk email applications.
 
 ## MVP App
 

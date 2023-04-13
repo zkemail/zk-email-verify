@@ -61,11 +61,7 @@ library StringUtils {
     // Only extracts contiguous non-zero characters and ensures theres only 1 such state
     // Note that unpackedLen may be more than packedBytes.length * 8 since there may be 0s
     // TODO: Remove console.logs and define this as a pure function instead of a view
-    function convertPackedBytesToBytes(uint256[] memory packedBytes, uint256 maxBytes, uint256 packSize)
-        internal
-        pure
-        returns (string memory extractedString)
-    {
+    function convertPackedBytesToBytes(uint256[] memory packedBytes, uint256 maxBytes, uint256 packSize) internal pure returns (string memory extractedString) {
         uint8 state = 0;
         // bytes: 0 0 0 0 y u s h _ g 0 0 0
         // state: 0 0 0 0 1 1 1 1 1 1 2 2 2

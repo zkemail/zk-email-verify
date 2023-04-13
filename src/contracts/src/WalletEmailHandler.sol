@@ -8,7 +8,7 @@ import "forge-std/console.sol";
 // import "./base64.sol";
 import "./StringUtils.sol";
 import "./NFTSVG.sol";
-import {Verifier} from "./Groth16VerifierWallet.sol";
+import { Verifier } from "./Groth16VerifierWallet.sol";
 import "./MailServer.sol";
 
 contract VerifiedWalletEmail {
@@ -32,17 +32,15 @@ contract VerifiedWalletEmail {
 
     // v is an Address
     constructor(Verifier v, MailServer m) {
+        verifier = v;
+        mailServer = m;
         // Do dig TXT outgoing._domainkey.twitter.com to verify these.
         // This is the base 2^121 representation of that key.
         // Circom bigint: represent a = a[0] + a[1] * 2**n + .. + a[k - 1] * 2**(n * k)
         require(rsa_modulus_chunks_len + body_len + 1 == msg_len, "Variable counts are wrong!");
-        verifier = v;
-        mailServer = m;
     }
 
-    function transfer(uint256[2] memory a, uint256[2][2] memory b, uint256[2] memory c, uint256[msg_len] memory signals)
-        public
-    {
+    function transfer(uint256[2] memory a, uint256[2][2] memory b, uint256[2] memory c, uint256[msg_len] memory signals) public {
         // TODO no invalid signal check yet, which is fine since the zk proof does it
         // Checks: Verify proof and check signals
         // require(signals[0] == 1337, "invalid signals");
@@ -68,14 +66,10 @@ contract VerifiedWalletEmail {
         // Right now, we just check that any email was received from anyone at Twitter, which is good enough for now
         // We will upload the version with these domain checks soon!
         // require(_domainCheck(headerSignals), "Invalid domain");
-        string memory fromEmail =
-            StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 0, 4), packSize * 4, packSize);
-        string memory recipientEmail =
-            StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 4, 8), packSize * 4, packSize);
-        string memory amount =
-            StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 8, 12), packSize * 4, packSize);
-        string memory currency =
-            StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 12, 16), packSize * 4, packSize);
+        string memory fromEmail = StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 0, 4), packSize * 4, packSize);
+        string memory recipientEmail = StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 4, 8), packSize * 4, packSize);
+        string memory amount = StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 8, 12), packSize * 4, packSize);
+        string memory currency = StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 12, 16), packSize * 4, packSize);
 
         string memory domain = StringUtils.getDomainFromEmail(fromEmail);
         console.log(domain);

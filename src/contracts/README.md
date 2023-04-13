@@ -18,27 +18,28 @@ forge build --sizes --via-ir # Make sure these are all below 24kB
 
 ## Deployment
 
-Goerli Address of Email Wallet: 0xA555F9E05402F8240AC99A0d045081E19C0eB9B3
+Goerli Address of Deployment: 0xA555F9E05402F8240AC99A0d045081E19C0eB9B3
 
-To deploy contract to local forked mainnet or prod, do:
+To deploy contract to local forked mainnet or prod, edit Deploy.s.sol to point to your contracts.
 
 ```
-cd src/contracts # If you haven't already sourced to this folder
-# anvil --fork-url https://eth-mainnet.alchemyapi.io/v2/$ALCHEMY_KEY
+# Set terminal to the folder with this README
+cd src/contracts
 
-# In tmux window 1
+# Run local chain in tmux window 1
 export ALCHEMY_GOERLI_KEY=...
-anvil --fork-url https://eth-goerli.alchemyapi.io/v2/$ALCHEMY_GOERLI_KEY --port 8547 # Run in tmux
+anvil --fork-url https://eth-goerli.g.alchemy.com/v2/$ALCHEMY_GOERLI_KEY --port 8548 # Run in tmux
 
-# In normal terminal
-export ETH_RPC_URL=https://eth-goerli.g.alchemy.com/v2/$ALCHEMY_GOERLI_KEY # Prod
-export ETH_RPC_URL=http://localhost:8548 # Dev
-export SK=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 # Public anvil sk
-export MAIN_CONTRACT_NAME=VerifiedTwitterEmail
-export MAIN_CONTRACT_NAME=VerifiedWalletEmail
+# Export to abi for relayers
+forge inspect src/TwitterEmailHandler.sol:$MAIN_CONTRACT_NAME abi --via-ir >> contract.abi
+source .env
 
-echo 'Note that this script modifies the foundry.toml in order to link libraries, so do not touch that file while this is running!'
-forge inspect src/WalletEmailHandler.sol:$MAIN_CONTRACT_NAME abi --via-ir >> wallet.abi
-source .env && forge script script/Deploy.s.sol:Deploy --via-ir -vvvv --rpc-url $RPC_URL --broadcas
+# First, test deploy without actually broadcasting it
+forge script script/Deploy.s.sol:Deploy --via-ir -vvvv --rpc-url $RPC_URL
+
+# Then, actually deploy
+forge script script/Deploy.s.sol:Deploy --via-ir -vvvv --rpc-url $RPC_URL --broadcast
+
+# Verify the contract with the raw one via Etherscan
 forge verify-contract $EMAIL_ADDR $MAIN_CONTRACT_NAME --watch --etherscan-api-key $GOERLI_ETHERSCAN_API_KEY
 ```

@@ -9,7 +9,6 @@ import "../Groth16VerifierWallet.sol";
 contract WalletUtilsTest is Test {
     using StringUtils for *;
 
-    address internal constant zero = 0x0000000000000000000000000000000000000000;
     address constant VM_ADDR = 0x7109709ECfa91a80626fF3989D68f67F5b1DD12D;
     uint16 public constant packSize = 7;
     uint16 public constant body_len = 4 * 4;
@@ -152,14 +151,8 @@ contract WalletUtilsTest is Test {
         ];
         // Note: you need to swap the order of the two elements in each subarray
         uint256[2][2] memory proof_b = [
-            [
-                6461911610358766053365043908758394834732672681413987884242698462904724197255,
-                342103975494932482608081876029483576044074727035168137477391964391537410934
-            ],
-            [
-                18351039964982209778799207158064219024562949371673722720718374575366986849311,
-                4669785024601609291633792167221088192727471283005169123961871153351390329210
-            ]
+            [6461911610358766053365043908758394834732672681413987884242698462904724197255, 342103975494932482608081876029483576044074727035168137477391964391537410934],
+            [18351039964982209778799207158064219024562949371673722720718374575366986849311, 4669785024601609291633792167221088192727471283005169123961871153351390329210]
         ];
         uint256[2] memory proof_c = [
             17308091971421169481892128502517801279695749002269857786558424203436590932091,
@@ -221,14 +214,8 @@ contract WalletUtilsTest is Test {
         ];
         // Note: you need to swap the order of the two elements in each subarray
         uint256[2][2] memory proof_b = [
-            [
-                6461911610358766053365043908758394834732672681413987884242698462904724197255,
-                342103975494932482608081876029483576044074727035168137477391964391537410934
-            ],
-            [
-                18351039964982209778799207158064219024562949371673722720718374575366986849311,
-                4669785024601609291633792167221088192727471283005169123961871153351390329210
-            ]
+            [6461911610358766053365043908758394834732672681413987884242698462904724197255, 342103975494932482608081876029483576044074727035168137477391964391537410934],
+            [18351039964982209778799207158064219024562949371673722720718374575366986849311, 4669785024601609291633792167221088192727471283005169123961871153351390329210]
         ];
         uint256[2] memory proof_c = [
             17308091971421169481892128502517801279695749002269857786558424203436590932091,
@@ -294,14 +281,8 @@ contract WalletUtilsTest is Test {
 
         // Note: you need to swap the order of the two elements in each subarray
         uint256[2][2] memory proof_b = [
-            [
-                21018592482427285124747706424039267462660929398766080719530157925461206934854,
-                826616849939707426563449307845248821004077776746519717876166975531282268029
-            ],
-            [
-                7996860319818949840189831534030304107524169719531239075708407220648106068679,
-                13349371602261842213286979969368483765650304812059096101934646354920916275785
-            ]
+            [21018592482427285124747706424039267462660929398766080719530157925461206934854, 826616849939707426563449307845248821004077776746519717876166975531282268029],
+            [7996860319818949840189831534030304107524169719531239075708407220648106068679, 13349371602261842213286979969368483765650304812059096101934646354920916275785]
         ];
 
         uint256[2] memory proof_c = [
@@ -323,14 +304,10 @@ contract WalletUtilsTest is Test {
             bodySignals[i] = publicSignals[i];
         }
 
-        string memory fromEmail =
-            StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 0, 4), packSize * 4, packSize);
-        string memory recipientEmail =
-            StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 4, 8), packSize * 4, packSize);
-        string memory amount =
-            StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 8, 12), packSize * 4, packSize);
-        string memory currency =
-            StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 12, 16), packSize * 4, packSize);
+        string memory fromEmail = StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 0, 4), packSize * 4, packSize);
+        string memory recipientEmail = StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 4, 8), packSize * 4, packSize);
+        string memory amount = StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 8, 12), packSize * 4, packSize);
+        string memory currency = StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 12, 16), packSize * 4, packSize);
         console.logString(fromEmail);
         console.logString(recipientEmail);
         console.logString(amount);
