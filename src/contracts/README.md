@@ -20,7 +20,7 @@ forge build --sizes --via-ir # Make sure these are all below 24kB
 
 Goerli Address of Deployment: 0xA555F9E05402F8240AC99A0d045081E19C0eB9B3
 
-To deploy contract to local forked mainnet or prod, edit Deploy.s.sol to point to your contracts.
+To deploy contract to local forked mainnet or prod, edit Deploy.s.sol to point to your contracts. You should also edit the `.env` file from cloning `   .env.example` to include your own private key.
 
 ```
 # Set terminal to the folder with this README

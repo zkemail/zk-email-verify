@@ -8,12 +8,21 @@ import "../src/StringUtils.sol";
 import "../src/Groth16VerifierTwitter.sol";
 
 contract Deploy is Script, Test {
-    function run() public {
-        uint256 sk = vm.envUint("PRIVATE_KEY");
-        vm.startBroadcast(sk);
-        Verifier proofVerifier = new Verifier();
-        MailServer mailServer = new MailServer();
-        VerifiedTwitterEmail testVerifier = new VerifiedTwitterEmail(proofVerifier, mailServer);
-        vm.stopBroadcast();
+  function getPrivateKey() internal returns (uint256) {
+    try vm.envUint("PRIVATE_KEY") returns (uint256 privateKey) {
+      return privateKey;
+    } catch {
+      // This is the anvil default exposed secret key
+      return 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
     }
+  }
+
+  function run() public {
+    uint256 sk = getPrivateKey();
+    vm.startBroadcast(sk);
+    Verifier proofVerifier = new Verifier();
+    MailServer mailServer = new MailServer();
+    VerifiedTwitterEmail testVerifier = new VerifiedTwitterEmail(proofVerifier, mailServer);
+    vm.stopBroadcast();
+  }
 }
