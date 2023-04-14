@@ -292,29 +292,31 @@ contract WalletUtilsTest is Test {
     ];
 
     // Test proof verification
-    // bool verified = proofVerifier.verifyProof(proof_a, proof_b, proof_c, publicSignals);
-    // assertEq(verified, true);
+    bool verified = proofVerifier.verifyProof(proof_a, proof_b, proof_c, publicSignals);
+    assertEq(verified, true);
 
     // Check from/to email domains are correct [in this case, only from domain is checked]
     // Right now, we just check that any email was received from anyone at Twitter, which is good enough for now
     // We will upload the version with these domain checks soon!
     // require(_domainCheck(headerSignals), "Invalid domain");
 
-    uint256[] memory bodySignals = new uint256[](body_len);
-    for (uint256 i = 0; i < body_len; i++) {
-      bodySignals[i] = publicSignals[i];
-    }
+    // uint256[] memory bodySignals = new uint256[](body_len);
+    // for (uint256 i = 0; i < body_len; i++) {
+    //   bodySignals[i] = publicSignals[i];
+    // }
 
-    string memory fromEmail = StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 0, 4), packSize * 4, packSize);
-    string memory recipientEmail = StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 4, 8), packSize * 4, packSize);
-    string memory amount = StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 8, 12), packSize * 4, packSize);
-    string memory currency = StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 12, 16), packSize * 4, packSize);
-    console.logString(fromEmail);
-    console.logString(recipientEmail);
-    console.logString(amount);
-    console.logString(currency);
-    string memory domain = StringUtils.getDomainFromEmail(fromEmail);
-    console.logString(domain);
+    // string memory fromEmail = StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 0, 4), packSize * 4, packSize);
+    // string memory recipientEmail = StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 4, 8), packSize * 4, packSize);
+    // string memory amount = StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 8, 12), packSize * 4, packSize);
+    // string memory currency = StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 12, 16), packSize * 4, packSize);
+    // console.logString(fromEmail);
+    // console.logString(recipientEmail);
+    // console.logString(amount);
+    // console.logString(currency);
+    // string memory domain = StringUtils.getDomainFromEmail(fromEmail);
+    // console.logString(domain);
+
+    console.log(abi.encode(proof_a, proof_b, proof_c, publicSignals));
 
     // Test mint after spoofing msg.sender
     Vm vm = Vm(VM_ADDR);

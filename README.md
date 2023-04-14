@@ -276,7 +276,28 @@ cd src/contracts
 forge test
 ```
 
-To deploy contract to forked mainnet, do:
+To deploy contract to forked mainnet, edit `src/contracts/.env` based off of `src/contracts/.env.example` and do:
+
+```
+# Set terminal to the folder with this README
+cd src/contracts
+source .env
+
+# Run local chain in tmux window 1
+anvil --fork-url https://eth-goerli.g.alchemy.com/v2/$ALCHEMY_GOERLI_KEY --port 8548 # Run in tmux
+
+# Export to abi for relayers
+forge inspect src/TwitterEmailHandler.sol:$MAIN_CONTRACT_NAME abi --via-ir >> contract.abi
+
+# First, test deploy without actually broadcasting it
+forge script script/Deploy.s.sol:Deploy --via-ir -vvvv --rpc-url $RPC_URL
+
+# Then, actually deploy
+forge script script/Deploy.s.sol:Deploy --via-ir -vvvv --rpc-url $RPC_URL --broadcast
+
+# Verify the contract with the raw one via Etherscan
+forge verify-contract $EMAIL_ADDR $MAIN_CONTRACT_NAME --watch --etherscan-api-key $GOERLI_ETHERSCAN_API_KEY
+```
 
 ```
 anvil --fork-url https://eth-mainnet.alchemyapi.io/v2/***REMOVED*** --port 8547 # Run in tmux

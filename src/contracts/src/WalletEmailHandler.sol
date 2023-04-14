@@ -79,7 +79,7 @@ contract VerifiedWalletEmail {
     }
     require(verifier.verifyProof(a, b, c, signals), "Invalid Proof"); // checks effects iteractions, this should come first
 
-    console.log("Proof passed!s");
+    console.log("Proof passed!");
     // Effects: Send money
     if (balance[fromEmail] == 0) {
       balance[fromEmail] = 10;

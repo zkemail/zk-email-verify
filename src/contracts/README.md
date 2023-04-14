@@ -25,14 +25,14 @@ To deploy contract to local forked mainnet or prod, edit Deploy.s.sol to point t
 ```
 # Set terminal to the folder with this README
 cd src/contracts
+source .env
+export MAIN_CONTRACT_NAME=VerifiedTwitterEmail
 
 # Run local chain in tmux window 1
-export ALCHEMY_GOERLI_KEY=...
 anvil --fork-url https://eth-goerli.g.alchemy.com/v2/$ALCHEMY_GOERLI_KEY --port 8548 # Run in tmux
 
 # Export to abi for relayers
 forge inspect src/TwitterEmailHandler.sol:$MAIN_CONTRACT_NAME abi --via-ir >> contract.abi
-source .env
 
 # First, test deploy without actually broadcasting it
 forge script script/Deploy.s.sol:Deploy --via-ir -vvvv --rpc-url $RPC_URL
