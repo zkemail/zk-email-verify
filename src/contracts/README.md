@@ -12,8 +12,8 @@ To test solidity,
 forge install foundry-rs/forge-std
 cp node_modules/forge-std src/contracts/lib/forge-std
 cd src/contracts
-forge test --via-ir
-forge build --sizes --via-ir # Make sure these are all below 24kB
+forge test
+forge build --sizes # Make sure these are all below 24kB
 ```
 
 ## Deployment
@@ -32,13 +32,13 @@ export MAIN_CONTRACT_NAME=VerifiedTwitterEmail
 anvil --fork-url https://eth-goerli.g.alchemy.com/v2/$ALCHEMY_GOERLI_KEY --port 8548 # Run in tmux
 
 # Export to abi for relayers
-forge inspect src/TwitterEmailHandler.sol:$MAIN_CONTRACT_NAME abi --via-ir >> contract.abi
+forge inspect src/TwitterEmailHandler.sol:$MAIN_CONTRACT_NAME abi >> contract.abi
 
 # First, test deploy without actually broadcasting it
-forge script script/Deploy.s.sol:Deploy --via-ir -vvvv --rpc-url $RPC_URL
+forge script script/Deploy.s.sol:Deploy -vvvv --rpc-url $RPC_URL
 
 # Then, actually deploy
-forge script script/Deploy.s.sol:Deploy --via-ir -vvvv --rpc-url $RPC_URL --broadcast
+forge script script/Deploy.s.sol:Deploy -vvvv --rpc-url $RPC_URL --broadcast
 
 # Verify the contract with the raw one via Etherscan
 forge verify-contract $EMAIL_ADDR $MAIN_CONTRACT_NAME --watch --etherscan-api-key $GOERLI_ETHERSCAN_API_KEY

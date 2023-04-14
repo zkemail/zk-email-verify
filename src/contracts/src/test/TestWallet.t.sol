@@ -316,7 +316,7 @@ contract WalletUtilsTest is Test {
     // string memory domain = StringUtils.getDomainFromEmail(fromEmail);
     // console.logString(domain);
 
-    console.log(abi.encode(proof_a, proof_b, proof_c, publicSignals));
+    console.logBytes(abi.encode(proof_a, proof_b, proof_c, publicSignals));
 
     // Test mint after spoofing msg.sender
     Vm vm = Vm(VM_ADDR);
