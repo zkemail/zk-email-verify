@@ -43,3 +43,11 @@ forge script script/Deploy.s.sol:Deploy -vvvv --rpc-url $RPC_URL --broadcast
 # Verify the contract with the raw one via Etherscan
 forge verify-contract $EMAIL_ADDR $MAIN_CONTRACT_NAME --watch --etherscan-api-key $GOERLI_ETHERSCAN_API_KEY
 ```
+
+### What if I get an error about request failed and not all the contracts deploy?
+
+Maybe fullnode is on [old geth](https://github.com/ethereum/go-ethereum/issues/26890) endpoint, like Alchemy is. Switch to infura or add `--slow` to deploy script:
+
+```
+forge script script/Deploy.s.sol:Deploy -vvvv --rpc-url $RPC_URL --broadcast --slow
+```
