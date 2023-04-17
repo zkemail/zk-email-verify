@@ -6,12 +6,18 @@ To get syntax highlighting in VSCode to work, you have to open this directory as
 
 ## Testing
 
-To test solidity,
+To setup,
 
 ```
+curl -L https://foundry.paradigm.xyz | bash && source ~/.bashrc && foundryup
 forge install foundry-rs/forge-std
 cp node_modules/forge-std src/contracts/lib/forge-std
 cd src/contracts
+```
+
+To test,
+
+```
 forge test
 forge build --sizes # Make sure these are all below 24kB
 ```
