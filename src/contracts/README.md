@@ -24,9 +24,9 @@ forge build --sizes # Make sure these are all below 24kB
 
 ## Deployment
 
-Goerli Address of Deployment: 0xA555F9E05402F8240AC99A0d045081E19C0eB9B3
+Goerli Address of Deployment: 0x3d22865c3a1e89bdd8d6ad5482d52b20699c6f38
 
-To deploy contract to local forked mainnet or prod, edit Deploy.s.sol to point to your contracts. You should also edit the `.env` file from cloning `   .env.example` to include your own private key.
+To deploy contract to local forked mainnet or prod, edit Deploy.s.sol to point to your contracts. You should also edit the `.env` file from cloning `.env.example` to include your own private key.
 
 ```
 # Set terminal to the folder with this README
@@ -35,7 +35,7 @@ source .env
 export MAIN_CONTRACT_NAME=VerifiedTwitterEmail
 
 # Run local chain in tmux window 1
-anvil --fork-url https://eth-goerli.g.alchemy.com/v2/$ALCHEMY_GOERLI_KEY --port 8548 # Run in tmux
+anvil --fork-url https://eth-goerli.g.alchemy.com/v2/$ALCHEMY_GOERLI_KEY --port 8548
 
 # Export to abi for relayers
 forge inspect src/TwitterEmailHandler.sol:$MAIN_CONTRACT_NAME abi >> contract.abi
@@ -44,7 +44,7 @@ forge inspect src/TwitterEmailHandler.sol:$MAIN_CONTRACT_NAME abi >> contract.ab
 forge script script/Deploy.s.sol:Deploy -vvvv --rpc-url $RPC_URL
 
 # Then, actually deploy
-forge script script/Deploy.s.sol:Deploy -vvvv --rpc-url $RPC_URL --broadcast
+forge script script/Deploy.s.sol:Deploy -vvvv --rpc-url $RPC_URL --broadcast --slow
 
 # Verify the contract with the raw one via Etherscan
 forge verify-contract $EMAIL_ADDR $MAIN_CONTRACT_NAME --watch --etherscan-api-key $GOERLI_ETHERSCAN_API_KEY
