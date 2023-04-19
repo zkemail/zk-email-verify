@@ -14,6 +14,7 @@ import atob from "atob";
 import { downloadProofFiles, generateProof, verifyProof } from "../helpers/zkp";
 import { packedNBytesToString } from "../helpers/binaryFormat";
 import { LabeledTextArea } from "../components/LabeledTextArea";
+import DragAndDropTextBox from '../components/DragAndDropTextBox';
 import { SingleLineInput } from "../components/SingleLineInput";
 import { Button } from "../components/Button";
 import { Col, Row } from "../components/Layout";
@@ -22,7 +23,6 @@ import { TopBanner } from "../components/TopBanner";
 import { useAccount, useContractWrite, usePrepareContractWrite } from "wagmi";
 import { ProgressBar } from "../components/ProgressBar";
 import { abi } from "../helpers/twitterEmailHandler.abi";
-import { useDragAndDrop } from "../hooks/useDragAndDrop";
 import { isSetIterator } from "util/types";
 var Buffer = require("buffer/").Buffer; // note: the trailing slash is important!
 
@@ -60,7 +60,6 @@ export const MainPage: React.FC<{}> = (props) => {
   const [lastAction, setLastAction] = useState<"" | "sign" | "verify" | "send">("");
   const [showBrowserWarning, setShowBrowserWarning] = useState<boolean>(false);
   const [downloadProgress, setDownloadProgress] = useState<number>(0);
-  const { dragging, handleDragEnter, handleDragLeave, handleDragOver, handleDrop } = useDragAndDrop();
 
   useEffect(() => {
     const userAgent = navigator.userAgent;
@@ -185,13 +184,7 @@ export const MainPage: React.FC<{}> = (props) => {
   };
 
   return (
-		<Container
-			onDragEnter={handleDragEnter}
-			onDragLeave={handleDragLeave}
-			onDragOver={handleDragOver}
-			onDrop={(e) => handleDrop(e, onFileDrop)}
-			style={dragging ? { backgroundColor: 'rgba(40, 40, 40, 1)' } : {}}
-		>
+		<Container>
 			{showBrowserWarning && (
 				<TopBanner
 					message={
@@ -241,7 +234,7 @@ export const MainPage: React.FC<{}> = (props) => {
 					.eml and copy it instead.
 				</NumberedStep>
 				<NumberedStep step={3}>
-					Copy paste that into the box below. Note that we cannot use
+					Copy paste or drop that into the box below. Note that we cannot use
 					this to phish you: we do not know your password, and we
 					never get this email info because we have no server at all.
 					We are actively searching for a less sketchy email.
@@ -267,6 +260,10 @@ export const MainPage: React.FC<{}> = (props) => {
 			<Main>
 				<Column>
 					<SubHeader>Input</SubHeader>
+					<DragAndDropTextBox
+						onFileDrop={onFileDrop}
+					/>
+					<h3 style={{textAlign: "center", marginTop: "0rem", marginBottom: "0rem"}}>OR</h3>
 					<LabeledTextArea
 						label="Full Email with Headers"
 						value={emailFull}

@@ -35,11 +35,17 @@ export const useDragAndDrop = () => {
     []
   );
 
+  const handleDragEnd = useCallback((e: React.DragEvent) => {
+		e.preventDefault();
+		setDragging(false);
+  }, []);
+
   return {
     dragging,
     handleDragEnter,
     handleDragLeave,
     handleDragOver,
     handleDrop,
+    handleDragEnd,
   };
 };
