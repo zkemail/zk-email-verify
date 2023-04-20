@@ -33,7 +33,7 @@ proof like this again.
 Because all web2 data is centralized to some extent, note that the Twitter mailserver
 or database may know other identifying metadata about you just from your username.
 
-Becaause we do not currently have a nullifier, email addresses can generate an infinite
+Because we do not currently have a nullifier, email addresses can generate an infinite
 number of password reset emails and thus Twitter badges corresponding to their username, meaning their credentials are safe if their Ethereum account is hijacked. This also means 'uniqueness' is hard to define,
 so anonymous voting protocols in some anonymity set based on zk-email verification would not be possible.
 

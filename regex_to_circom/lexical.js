@@ -1,28 +1,3 @@
-/*jslint browser: true*/
-/*global require, exports*/
-import { STRING_PRESELECTOR } from "../src/helpers/constants.ts";
-
-/** This section sets the 'regex' variable to the regex you want to use.
- * All of the relevant regexes are in the main repo README.
- */
-
-const key_chars = "(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)";
-const catch_all =
-  "(0|1|2|3|4|5|6|7|8|9|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|!|\"|#|$|%|&|'|\\(|\\)|\\*|\\+|,|-|.|/|:|;|<|=|>|\\?|@|[|\\\\|]|^|_|`|{|\\||}|~| |\t|\n|\r|\x0b|\x0c)";
-const catch_all_without_semicolon =
-  "(0|1|2|3|4|5|6|7|8|9|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|!|\"|#|$|%|&|'|\\(|\\)|\\*|\\+|,|-|.|/|:|<|=|>|\\?|@|[|\\\\|]|^|_|`|{|\\||}|~| |\t|\n|\r|\x0b|\x0c)";
-const base_64 = "(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|0|1|2|3|4|5|6|7|8|9|\\+|/|=)";
-const word_char = "(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|0|1|2|3|4|5|6|7|8|9|_)";
-
-// let old_regex = '(\r\n|\x80)(to|from):([A-Za-z0-9 _."@-]+<)?[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.]+>?\r\n';
-// let regex = '(\r\n|\x80)(to|from):((a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|0|1|2|3|4|5|6|7|8|9| |_|.|"|@|-)+<)?(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|0|1|2|3|4|5|6|7|8|9|_|.|-)+@(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|0|1|2|3|4|5|6|7|8|9|_|.|-)+>?\r\n';
-// let regex = `\r\ndkim-signature:(${key_chars}=${catch_all_without_semicolon}+; )+bh=${base_64}+; `;
-// 'dkim-signature:((a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)=(0|1|2|3|4|5|6|7|8|9|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|!|"|#|$|%|&|\'|\\(|\\)|\\*|\\+|,|-|.|/|:|<|=|>|\\?|@|[|\\\\|]|^|_|`|{|\\||}|~| |\t|\n|\r|\x0B|\f)+; )+bh=(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|0|1|2|3|4|5|6|7|8|9|\\+|/|=)+; '
-let regex = STRING_PRESELECTOR + `${word_char}+`;
-// let regex = 'hello(0|1|2|3|4|5|6|7|8|9)+world';
-// console.log(regex);
-// console.log(Buffer.from(regex).toString('base64'));
-
 /**
  * Try parsing simple regular expression to syntax tree.
  *
@@ -41,6 +16,8 @@ let regex = STRING_PRESELECTOR + `${word_char}+`;
  * @param {string} text The input regular expression
  * @return {string|object} Returns a string that is an error message if failed to parse the expression,
  *                         otherwise returns an object which is the syntax tree.
+ *
+ * Edited from https://github.com/CyberZHG/toolbox/blob/gh-pages/js/lexical.js
  */
 function parseRegex(text) {
   "use strict";
@@ -265,6 +242,11 @@ function nfaToDfa(nfa) {
     }
     while (stack.length > 0) {
       top = stack.pop();
+      // If top is of type string and starts with "Error" then return error
+      if (typeof top === "string" && top[0] === "E") {
+        console.log(top);
+        continue;
+      }
       for (i = 0; i < top.edges.length; i += 1) {
         if (top.edges[i][0] === "ϵ") {
           if (closure.indexOf(top.edges[i][1]) < 0) {
@@ -563,62 +545,9 @@ function minDfa(dfa) {
   return buildMinNfa(dfa, partitions, idMap, revEdges);
 }
 
-function toNature(col) {
-  var i,
-    j,
-    base = "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-    result = 0;
-  if ("1" <= col[0] && col[0] <= "9") {
-    result = parseInt(col, 10);
-  } else {
-    for (i = 0, j = col.length - 1; i < col.length; i += 1, j -= 1) {
-      result += Math.pow(base.length, j) * (base.indexOf(col[i]) + 1);
-    }
-  }
-  return result;
+if (typeof require === "function") {
+  exports.parseRegex = parseRegex;
+  exports.regexToNfa = regexToNfa;
+  exports.nfaToDfa = nfaToDfa;
+  exports.minDfa = minDfa;
 }
-
-let nfa = regexToNfa(regex);
-let dfa = minDfa(nfaToDfa(nfa));
-
-var i,
-  j,
-  states = {},
-  nodes = [],
-  stack = [dfa],
-  symbols = [],
-  top;
-
-while (stack.length > 0) {
-  top = stack.pop();
-  if (!states.hasOwnProperty(top.id)) {
-    states[top.id] = top;
-    top.nature = toNature(top.id);
-    nodes.push(top);
-    for (i = 0; i < top.edges.length; i += 1) {
-      if (top.edges[i][0] !== "ϵ" && symbols.indexOf(top.edges[i][0]) < 0) {
-        symbols.push(top.edges[i][0]);
-      }
-      stack.push(top.edges[i][1]);
-    }
-  }
-}
-nodes.sort(function (a, b) {
-  return a.nature - b.nature;
-});
-symbols.sort();
-
-let graph = [];
-for (let i = 0; i < nodes.length; i += 1) {
-  let curr = {};
-  curr.type = nodes[i].type;
-  curr.edges = {};
-  for (let j = 0; j < symbols.length; j += 1) {
-    if (nodes[i].trans.hasOwnProperty(symbols[j])) {
-      curr.edges[symbols[j]] = nodes[i].trans[symbols[j]].nature - 1;
-    }
-  }
-  graph[nodes[i].nature - 1] = curr;
-}
-
-console.log(JSON.stringify(graph));

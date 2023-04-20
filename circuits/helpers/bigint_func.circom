@@ -1,4 +1,4 @@
-pragma circom 2.0.2;
+pragma circom 2.1.5;
 
 function isNegative(x) {
     // half babyjubjub field size

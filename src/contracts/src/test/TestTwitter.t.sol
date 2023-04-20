@@ -1,18 +1,25 @@
 pragma solidity ^0.8.0;
+
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
-import "../twitterEmailHandler.sol";
-import "../emailVerifier.sol";
+import "../TwitterEmailHandler.sol";
+import "../Groth16VerifierTwitter.sol";
 
 contract TwitterUtilsTest is Test {
-  address internal constant zero = 0x0000000000000000000000000000000000000000;
-  address constant VM_ADDR = 0x7109709ECfa91a80626fF3989D68f67F5b1DD12D;
-  VerifiedTwitterEmail testVerifier;
+  using StringUtils for *;
+
+  address constant VM_ADDR = 0x7109709ECfa91a80626fF3989D68f67F5b1DD12D; // Hardcoded address of the VM from foundry
+
   Verifier proofVerifier;
+  MailServer mailServer;
+  VerifiedTwitterEmail testVerifier;
+
+  uint16 public constant packSize = 7;
 
   function setUp() public {
-    testVerifier = new VerifiedTwitterEmail();
     proofVerifier = new Verifier();
+    mailServer = new MailServer();
+    testVerifier = new VerifiedTwitterEmail(proofVerifier, mailServer);
   }
 
   // function testMint() public {
@@ -20,14 +27,15 @@ contract TwitterUtilsTest is Test {
   // }
 
   // Should pass (note that there are extra 0 bytes, which are filtered out but should be noted in audits)
-  function testUnpack() public {
+  function testUnpack1() public {
     uint256[] memory packedBytes = new uint256[](3);
     packedBytes[0] = 29096824819513600;
     packedBytes[1] = 0;
     packedBytes[2] = 0;
 
     // This is 0x797573685f670000000000000000000000000000000000000000000000000000
-    string memory byteList = testVerifier.convertPackedBytesToBytes(packedBytes, 15);
+    // packSize = 7
+    string memory byteList = StringUtils.convertPackedBytesToBytes(packedBytes, 15, packSize);
     // This is 0x797573685f67, since strings are internally arbitrary length arrays
     string memory intended_value = "yush_g";
 
@@ -39,20 +47,15 @@ contract TwitterUtilsTest is Test {
     // ASCII should fit in 2 bytes but emails may not be ASCII
     assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
     console.logString(byteList);
+  }
 
+  function testUnpack2() public {
+    uint256[] memory packedBytes = new uint256[](3);
     packedBytes[0] = 28557011619965818;
     packedBytes[1] = 1818845549;
     packedBytes[2] = 0;
-    byteList = testVerifier.convertPackedBytesToBytes(packedBytes, 15);
-    intended_value = "zktestemail";
-    assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
-    console.logString(byteList);
-
-    packedBytes[0] = 28557011619965818;
-    packedBytes[1] = 1818845549;
-    packedBytes[2] = 0;
-    byteList = testVerifier.convertPackedBytesToBytes(packedBytes, 15);
-    intended_value = "zktestemail";
+    string memory byteList = StringUtils.convertPackedBytesToBytes(packedBytes, 15, packSize);
+    string memory intended_value = "zktestemail";
     assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
     console.logString(byteList);
   }
@@ -82,7 +85,6 @@ contract TwitterUtilsTest is Test {
     publicSignals[19] = 3933359104846508935112096715593287;
     publicSignals[20] = 1;
 
-    // TODO switch order
     uint256[2] memory proof_a = [
       19927878014774420599335762081097643265718718256586894795640382494403322204498,
       14891682495744632566900850738763676245933032364192093662622519454269163038775
@@ -162,6 +164,7 @@ contract TwitterUtilsTest is Test {
     testVerifyYushEmail();
     testVerifyTestEmail();
     string memory svgValue = testVerifier.tokenURI(1);
-    // console.log(svgValue);
+    console.log(svgValue);
+    assert(bytes(svgValue).length > 0);
   }
 }
