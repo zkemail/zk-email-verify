@@ -50,7 +50,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
   }
 
   function _domainCheck(uint256[] memory headerSignals) public pure returns (bool) {
-    string memory senderBytes = StringUtils.convertPackedBytesToBytes(headerSignals, 18, bytesInPackedBytes);
+    string memory senderBytes = StringUtils.convertPackedBytesToString(headerSignals, 18, bytesInPackedBytes);
     string[2] memory domainStrings = ["verify@twitter.com", "info@twitter.com"];
     return StringUtils.stringEq(senderBytes, domainStrings[0]) || StringUtils.stringEq(senderBytes, domainStrings[1]);
     // Usage: require(_domainCheck(senderBytes, domainStrings), "Invalid domain");
@@ -87,7 +87,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
 
     // Effects: Mint token
     uint256 tokenId = tokenCounter.current() + 1;
-    string memory messageBytes = StringUtils.convertPackedBytesToBytes(bodySignals, bytesInPackedBytes * body_len, bytesInPackedBytes);
+    string memory messageBytes = StringUtils.convertPackedBytesToString(bodySignals, bytesInPackedBytes * body_len, bytesInPackedBytes);
     tokenIDToName[tokenId] = messageBytes;
     _mint(msg.sender, tokenId);
     tokenCounter.increment();

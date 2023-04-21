@@ -61,7 +61,7 @@ library StringUtils {
   // Only extracts contiguous non-zero characters and ensures theres only 1 such state
   // Note that unpackedLen may be more than packedBytes.length * 8 since there may be 0s
   // TODO: Remove console.logs and define this as a pure function instead of a view
-  function convertPackedBytesToBytes(uint256[] memory packedBytes, uint256 maxBytes, uint256 packSize) internal pure returns (string memory extractedString) {
+  function convertPackedBytesToString(uint256[] memory packedBytes, uint256 maxBytes, uint256 packSize) internal pure returns (string memory extractedString) {
     uint8 state = 0;
     // bytes: 0 0 0 0 y u s h _ g 0 0 0
     // state: 0 0 0 0 1 1 1 1 1 1 2 2 2
@@ -90,10 +90,9 @@ library StringUtils {
         packedByte = packedByte >> 8;
       }
     }
-    string memory returnValue = string(nonzeroBytesArray);
     require(state >= 1, "Invalid final state of packed bytes in email");
-    // console.log("Characters in username: ", nonzeroBytesArrayIndex);
     require(nonzeroBytesArrayIndex <= maxBytes, "Packed bytes more than allowed max length!");
+    string memory returnValue = removeTrailingZeros(string(nonzeroBytesArray));
     return returnValue;
     // Have to end at the end of the email -- state cannot be 1 since there should be an email footer
   }
@@ -151,5 +150,24 @@ library StringUtils {
       domainBytes[j] = emailBytes[atIndex + 1 + j];
     }
     return bytes32ToString(bytes32(bytes(domainBytes)));
+  }
+
+  function removeTrailingZeros(string memory input) public pure returns (string memory) {
+    bytes memory inputBytes = bytes(input);
+    uint256 endIndex = inputBytes.length;
+
+    for (uint256 i = 0; i < inputBytes.length; i++) {
+        if (inputBytes[i] == 0) {
+            endIndex = i;
+            break;
+        }
+    }
+
+    bytes memory resultBytes = new bytes(endIndex);
+    for (uint256 i = 0; i < endIndex; i++) {
+        resultBytes[i] = inputBytes[i];
+    }
+
+    return string(resultBytes);
   }
 }

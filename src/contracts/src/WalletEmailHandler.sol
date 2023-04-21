@@ -66,10 +66,10 @@ contract VerifiedWalletEmail {
     // Right now, we just check that any email was received from anyone at Twitter, which is good enough for now
     // We will upload the version with these domain checks soon!
     // require(_domainCheck(headerSignals), "Invalid domain");
-    string memory fromEmail = StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 0, 4), packSize * 4, packSize);
-    string memory recipientEmail = StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 4, 8), packSize * 4, packSize);
-    string memory amount = StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 8, 12), packSize * 4, packSize);
-    string memory currency = StringUtils.convertPackedBytesToBytes(StringUtils.sliceArray(bodySignals, 12, 16), packSize * 4, packSize);
+    string memory fromEmail = StringUtils.convertPackedBytesToString(StringUtils.sliceArray(bodySignals, 0, 4), packSize * 4, packSize);
+    string memory recipientEmail = StringUtils.convertPackedBytesToString(StringUtils.sliceArray(bodySignals, 4, 8), packSize * 4, packSize);
+    string memory amount = StringUtils.convertPackedBytesToString(StringUtils.sliceArray(bodySignals, 8, 12), packSize * 4, packSize);
+    string memory currency = StringUtils.convertPackedBytesToString(StringUtils.sliceArray(bodySignals, 12, 16), packSize * 4, packSize);
 
     string memory domain = StringUtils.getDomainFromEmail(fromEmail);
     console.log(domain);
@@ -80,12 +80,33 @@ contract VerifiedWalletEmail {
     require(verifier.verifyProof(a, b, c, signals), "Invalid Proof"); // checks effects iteractions, this should come first
 
     console.log("Proof passed!");
+    // Print StringUtils.stringToUint(amount)
+    console.log("Transferring", StringUtils.stringToUint(amount));
+    console.log("From", fromEmail, "to", recipientEmail);
+
     // Effects: Send money
     if (balance[fromEmail] == 0) {
       balance[fromEmail] = 10;
     }
-    balance[fromEmail] -= StringUtils.stringToUint(amount);
-    balance[recipientEmail] += StringUtils.stringToUint(amount);
+    console.log("Balance after topup", balance[fromEmail]);
+    uint amountToTransfer = StringUtils.stringToUint(amount);
+    // Check for underflow
+    if (balance[fromEmail] >= amountToTransfer) {
+      balance[fromEmail] -= amountToTransfer;
+      console.log("Balance after removal", balance[fromEmail]);
+      balance[recipientEmail] += amountToTransfer;
+      console.log("Balance after addition", balance[recipientEmail]);
+      console.log("Finished transfer!");
+    } else {
+      console.log("Insufficient balance to perform the transfer");
+    }
+  }
+
+  function getBalance(string memory email) public view returns (uint256) {
+    console.logBytes(bytes(email));
+    console.log(StringUtils.removeTrailingZeros(email));
+    return balance[StringUtils.removeTrailingZeros(email)];
+
   }
 
   function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal {

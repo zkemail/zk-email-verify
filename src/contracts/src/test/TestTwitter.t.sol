@@ -35,7 +35,7 @@ contract TwitterUtilsTest is Test {
 
     // This is 0x797573685f670000000000000000000000000000000000000000000000000000
     // packSize = 7
-    string memory byteList = StringUtils.convertPackedBytesToBytes(packedBytes, 15, packSize);
+    string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 15, packSize);
     // This is 0x797573685f67, since strings are internally arbitrary length arrays
     string memory intended_value = "yush_g";
 
@@ -54,7 +54,7 @@ contract TwitterUtilsTest is Test {
     packedBytes[0] = 28557011619965818;
     packedBytes[1] = 1818845549;
     packedBytes[2] = 0;
-    string memory byteList = StringUtils.convertPackedBytesToBytes(packedBytes, 15, packSize);
+    string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 15, packSize);
     string memory intended_value = "zktestemail";
     assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
     console.logString(byteList);
