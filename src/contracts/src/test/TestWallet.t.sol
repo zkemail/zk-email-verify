@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import "../WalletEmailHandler.sol";
+import "../TestERC20.sol";
 import "../StringUtils.sol";
 import "../Groth16VerifierWallet.sol";
 
@@ -17,11 +18,13 @@ contract WalletUtilsTest is Test {
   VerifiedWalletEmail testVerifier;
   MailServer mailServer;
   Verifier proofVerifier;
+  TestEmailToken erc20;
 
   function setUp() public {
     proofVerifier = new Verifier();
     mailServer = new MailServer();
-    testVerifier = new VerifiedWalletEmail(proofVerifier, mailServer);
+    erc20 = new TestEmailToken(5000);
+    testVerifier = new VerifiedWalletEmail(proofVerifier, mailServer, erc20);
   }
 
   // TODO: Fails
@@ -302,75 +305,16 @@ contract WalletUtilsTest is Test {
     vm.startPrank(0x0000000000000000000000000000000000000001);
     testVerifier.transfer(proof_a, proof_b, proof_c, publicSignals);
     vm.stopPrank();
+
+    console.log(testVerifier.getBalance("zkemailverify@gmail.com"));
   }
-    // Should pass (note that there are extra 0 bytes, which are filtered out but should be noted in audits)
-    function testTransferWalletEmail4() public {
-        // Define the data directly as if you were defining a test in Solidity
-        uint256[34] memory publicSignals = [
-            uint256(29106767702614369),
-            18072880419205237,
-            27917065853693287,
-            28015,
-            0,
-            49,
-            0,
-            0,
-            0,
-            0,
-            13661285,
-            29062529203466099,
-            31352773453373805,
-            109,
-            0,
-            0,
-            1886180949733815343726466520516992271,
-            1551366393280668736485689616947198994,
-            1279057759087427731263511728885611780,
-            1711061746895435768547617398484429347,
-            2329140368326888129406637741054282011,
-            2094858442222190249786465516374057361,
-            2584558507302599829894674874442909655,
-            1521552483858643935889582214011445675,
-            176847449040377757035522930003764000,
-            632921959964166974634188077062540145,
-            2172441457165086627497230906075093832,
-            248112436365636977369105357296082574,
-            1408592841800630696650784801114783401,
-            364610811473321782531041012695979858,
-            342338521965453258686441392321054163,
-            2269703683857229911110544415296249295,
-            3643644972862751728748413716653892,
-            0
-        ];
 
-        uint256[2] memory proof_a = [
-            10687953668191987517392196387504514822230984672860097871808921922847801079349,
-            20346317341180281726519757413208484842313061337575461584104035650527499548475
-        ];
-
-        uint256[2][2] memory proof_b = [
-            [13603199647496767115552850538492162630609330439987234289253949935113882094269, 5033167722154334558482916614540562222843846696126356496246663330853907444153],
-            [3379992915866880376823240796087731481300100522078035361284660996685568530169, 5649109831267304502037420487798321596959886518003375695881972222692809340073]
-        ];
-
-        uint256[2] memory proof_c = [
-            19745553451196459372102855343887239432409807669200352077619537981026083229333,
-            8811092433654826121949844926973750796185239522568840151644978652731017037632
-        ];
-
-        // Test proof verification
-        bool verified = proofVerifier.verifyProof(proof_a, proof_b, proof_c, publicSignals);
-        assertEq(verified, true);
-
-        console.logBytes(abi.encode(proof_a, proof_b, proof_c, publicSignals));
-
-        // Test mint after spoofing msg.sender
-        Vm vm = Vm(VM_ADDR);
-        vm.startPrank(0x0000000000000000000000000000000000000001);
-        testVerifier.transfer(proof_a, proof_b, proof_c, publicSignals);
-        vm.stopPrank();
-
-        console.log(testVerifier.getBalance("aayushgupta05@gmail.com"));
-        // assert(testVerifier.getBalance("aayushgupta05@gmail.com") > 0);
-    }
+  function testMoveERC20() public {
+    string memory fromEmail = "zkemailverify@gmail.com";
+    string memory recipientEmail = "zkemailverify2@gmail.com";
+    uint256 amountToTransfer = 1 * 10 ** erc20.decimals();
+    testVerifier.moveTokens(bytes32(bytes(fromEmail)), bytes32(bytes(recipientEmail)), amountToTransfer);
+    assert(testVerifier.getBalance(fromEmail) == 9 * 10 ** erc20.decimals());
+    assert(testVerifier.getBalance(recipientEmail) == 11 * 10 ** erc20.decimals());
+  }
 }

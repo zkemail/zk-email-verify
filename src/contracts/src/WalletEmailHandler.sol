@@ -7,6 +7,8 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "forge-std/console.sol";
 // import "./base64.sol";
 import "./StringUtils.sol";
+import "./AutoApproveWallet.sol";
+import "./TestERC20.sol";
 import "./NFTSVG.sol";
 import { Verifier } from "./Groth16VerifierWallet.sol";
 import "./MailServer.sol";
@@ -29,15 +31,67 @@ contract VerifiedWalletEmail {
   mapping(uint256 => bool) public nullifier;
   MailServer mailServer;
   Verifier public immutable verifier;
+  TestEmailToken public testToken;
 
-  // v is an Address
-  constructor(Verifier v, MailServer m) {
+  mapping(bytes32 => address) public wallets;
+
+  // Arguments are deployed contracts/addresses
+  constructor(Verifier v, MailServer m, TestEmailToken t) {
     // Do dig TXT outgoing._domainkey.twitter.com to verify these.
     // This is the base 2^121 representation of that key.
     // Circom bigint: represent a = a[0] + a[1] * 2**n + .. + a[k - 1] * 2**(n * k)
     require(rsa_modulus_chunks_len + body_len + 1 == msg_len, "Variable counts are wrong!");
     verifier = v;
     mailServer = m;
+    testToken = t;
+  }
+
+  // TODO: Make internal
+  function moveTokens(bytes32 salt1, bytes32 salt2, uint256 amount) public {
+    address wallet1 = getOrCreateWallet(salt1);
+    address wallet2 = getOrCreateWallet(salt2);
+
+    // Check for allowance and balance
+    require(testToken.allowance(wallet1, address(this)) >= amount, "Allowance too low");
+    require(testToken.balanceOf(wallet1) >= amount, "Insufficient balance to perform the transfer");
+    testToken.transferFrom(wallet1, wallet2, amount);
+  }
+
+  function getOrCreateWallet(bytes32 salt) internal returns (address) {
+    bytes32 hashedSalt = keccak256(abi.encodePacked(salt));
+    address wallet = wallets[hashedSalt];
+    if (wallet == address(0)) {
+      // Create wallet
+      bytes memory bytecode = type(AutoApproveWallet).creationCode;
+      assembly {
+        wallet := create2(0, add(bytecode, 0x20), mload(bytecode), hashedSalt)
+      }
+      console.log("Wallet index at:");
+      console.logBytes32(hashedSalt);
+      console.log("Wallet address created:", wallet);
+      require(wallet != address(0), "Wallet creation failed");
+      wallets[hashedSalt] = wallet;
+
+      // TODO: Remove this mint, it's only for test token
+      testToken.mint(wallet, 10 * 10 ** testToken.decimals()); // 10 tokens with 18 decimals
+
+      // Initialize the wallet with the token address and approver
+      AutoApproveWallet(wallet).initialize(address(testToken), address(this));
+    }
+    return wallet;
+  }
+
+  function convertEmailToIndex(string memory email) public pure returns (bytes32) {
+    return keccak256(abi.encodePacked(convertEmailToBytes(email)));
+  }
+
+  function convertEmailToBytes(string memory email) public pure returns (bytes32) {
+    return bytes32(bytes(StringUtils.removeTrailingZeros(email)));
+  }
+
+  // TODO: When anon, it shouldn't be possible to get this via email, you have to pass in the salt
+  function getBalance(string memory email) public view returns (uint256) {
+    return testToken.balanceOf(wallets[convertEmailToIndex(email)]);
   }
 
   function transfer(uint256[2] memory a, uint256[2][2] memory b, uint256[2] memory c, uint256[msg_len] memory signals) public {
@@ -78,35 +132,16 @@ contract VerifiedWalletEmail {
       require(mailServer.isVerified(domain, i - body_len, signals[i]), "Invalid: RSA modulus not matched");
     }
     require(verifier.verifyProof(a, b, c, signals), "Invalid Proof"); // checks effects iteractions, this should come first
-
     console.log("Proof passed!");
-    // Print StringUtils.stringToUint(amount)
-    console.log("Transferring", StringUtils.stringToUint(amount));
+
+    // Print transfer data
+    uint amountToTransfer = StringUtils.stringToUint(amount) * 10 ** testToken.decimals();
+    console.log("Transferring", amountToTransfer);
     console.log("From", fromEmail, "to", recipientEmail);
 
     // Effects: Send money
-    if (balance[fromEmail] == 0) {
-      balance[fromEmail] = 10;
-    }
-    console.log("Balance after topup", balance[fromEmail]);
-    uint amountToTransfer = StringUtils.stringToUint(amount);
-    // Check for underflow
-    if (balance[fromEmail] >= amountToTransfer) {
-      balance[fromEmail] -= amountToTransfer;
-      console.log("Balance after removal", balance[fromEmail]);
-      balance[recipientEmail] += amountToTransfer;
-      console.log("Balance after addition", balance[recipientEmail]);
-      console.log("Finished transfer!");
-    } else {
-      console.log("Insufficient balance to perform the transfer");
-    }
-  }
-
-  function getBalance(string memory email) public view returns (uint256) {
-    console.logBytes(bytes(email));
-    console.log(StringUtils.removeTrailingZeros(email));
-    return balance[StringUtils.removeTrailingZeros(email)];
-
+    // Transfer the tokens
+    moveTokens(convertEmailToBytes(fromEmail), convertEmailToBytes(recipientEmail), amountToTransfer);
   }
 
   function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal {
