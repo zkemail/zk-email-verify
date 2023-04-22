@@ -120,10 +120,10 @@ contract VerifiedWalletEmail {
     // Right now, we just check that any email was received from anyone at Twitter, which is good enough for now
     // We will upload the version with these domain checks soon!
     // require(_domainCheck(headerSignals), "Invalid domain");
-    string memory fromEmail = StringUtils.convertPackedBytesToString(StringUtils.sliceArray(bodySignals, 0, 4), packSize * 4, packSize);
-    string memory recipientEmail = StringUtils.convertPackedBytesToString(StringUtils.sliceArray(bodySignals, 4, 8), packSize * 4, packSize);
-    string memory amount = StringUtils.convertPackedBytesToString(StringUtils.sliceArray(bodySignals, 8, 12), packSize * 4, packSize);
-    string memory currency = StringUtils.convertPackedBytesToString(StringUtils.sliceArray(bodySignals, 12, 16), packSize * 4, packSize);
+    string memory fromEmail = StringUtils.convertPackedBytesToString(StringUtils.sliceArray(bodySignals, 0, 5), packSize * 4, packSize);
+    string memory amount = StringUtils.convertPackedBytesToString(StringUtils.sliceArray(bodySignals, 5, 10), packSize * 4, packSize);
+    string memory currency = StringUtils.convertPackedBytesToString(StringUtils.sliceArray(bodySignals, 10, 11), packSize * 4, packSize);
+    string memory recipientEmail = StringUtils.convertPackedBytesToString(StringUtils.sliceArray(bodySignals, 11, 16), packSize * 4, packSize);
 
     string memory domain = StringUtils.getDomainFromEmail(fromEmail);
     console.log(domain);
@@ -136,6 +136,10 @@ contract VerifiedWalletEmail {
 
     // Print transfer data
     uint amountToTransfer = StringUtils.stringToUint(amount) * 10 ** testToken.decimals();
+    console.log("Original amount", fromEmail);
+    console.log("Original amount", recipientEmail);
+    console.log("Original amount", amount);
+    console.log("Original amount", currency);
     console.log("Transferring", amountToTransfer);
     console.log("From", fromEmail, "to", recipientEmail);
 
