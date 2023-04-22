@@ -23,6 +23,9 @@ for i in range(N):
     if graph_json[i]['type'] == 'accept':
         accept_nodes.add(i)
 
+print(graph)
+print(rev_graph)
+
 accept_nodes = list(accept_nodes)
 assert len(accept_nodes) == 1
 

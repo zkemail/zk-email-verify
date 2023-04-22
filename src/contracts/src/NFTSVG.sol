@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
-import "./HexStrings.sol";
+import "./StringUtils.sol";
 
 /// https://github.com/nalinbhardwaj/ethdosnumber/blob/main/ethdos-contracts/src/NFTSVG.sol
 /// @title NFTSVG
@@ -11,6 +11,7 @@ import "./HexStrings.sol";
 library NFTSVG {
   using Strings for uint256;
   using Strings for address;
+  using StringUtils for *;
 
   struct SVGParams {
     string username;
@@ -171,6 +172,49 @@ library NFTSVG {
   }
 
   function scale(uint256 n, uint256 inMn, uint256 inMx, uint256 outMn, uint256 outMx) public pure returns (string memory) {
-    return (((n - inMn) * (outMx - outMn)) / (inMx - inMn) + (outMn)).toString();
+    return Strings.toString(((n - inMn) * (outMx - outMn)) / (inMx - inMn) + (outMn));
+  }
+
+  function tokenToColorHex(uint256 token, uint256 offset) public pure returns (string memory str) {
+    return string(StringUtils.toHexStringNoPrefix(token >> offset, 3));
+  }
+
+  function constructAndReturnSVG(string memory username, uint256 tokenId, address owner) public pure returns (string memory svg) {
+    SVGParams memory svgParams = SVGParams({
+      username: username,
+      tokenId: tokenId,
+      color0: tokenToColorHex(uint256(uint160(owner)), 136),
+      color1: tokenToColorHex(uint256(uint160(owner)), 136),
+      color2: tokenToColorHex(uint256(uint160(owner)), 0),
+      color3: tokenToColorHex(uint256(uint160(owner)), 0),
+      x1: scale(getCircleCoord(uint256(uint160(owner)), 16, tokenId), 0, 255, 16, 274),
+      y1: scale(getCircleCoord(uint256(uint160(owner)), 16, tokenId), 0, 255, 100, 484),
+      x2: scale(getCircleCoord(uint256(uint160(owner)), 32, tokenId), 0, 255, 16, 274),
+      y2: scale(getCircleCoord(uint256(uint160(owner)), 32, tokenId), 0, 255, 100, 484),
+      x3: scale(getCircleCoord(uint256(uint160(owner)), 48, tokenId), 0, 255, 16, 274),
+      y3: scale(getCircleCoord(uint256(uint160(owner)), 48, tokenId), 0, 255, 100, 484)
+    });
+    string memory svgOutput = generateSVG(svgParams);
+
+    string memory json = Base64.encode(
+      bytes(
+        string(
+          abi.encodePacked(
+            '{"attributes":[ ',
+            '{"trait_type": "Name",',
+            '"value": "',
+            username,
+            '"}, {"trait_type": "Owner",',
+            '"value": "',
+            StringUtils.toHexString(uint256(uint160(owner)), 42),
+            '"}], "description": "ZK VerifiedEmails are ZK verified proofs of email recieving on Ethereum. They only reveal parts of the email headers and body body, and are verified via mailserver signature verification: there are no special party attesters. We are working to ship more verifiable proofs of signed data including zk blind, and avoid terrible tragedy of the commons scenarios where instituition reputation is slowly spent by its members. VerifiedEmail uses ZK SNARKs to insinuate this social dynamic, with a first demo at zkemail.xyz.", "image": "data:image/svg+xml;base64,',
+            Base64.encode(bytes(svgOutput)),
+            '"}'
+          )
+        )
+      )
+    );
+    string memory output = string(abi.encodePacked("data:application/json;base64,", json));
+    return output;
   }
 }

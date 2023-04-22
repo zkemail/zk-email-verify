@@ -17,13 +17,31 @@ import {
   import { shaHash, partialSha, sha256Pad } from "../../src/helpers/shaHash";
   import { dkimVerify } from "../../src/helpers/dkim";
   import * as fs from "fs";
+  import { stubObject } from "lodash";
+
+  // const argv = yargs(hideBin(process.argv));
+  // import * as yargs from "yargs";
   var Cryo = require("cryo");
   const pki = require("node-forge").pki;
-  
-  // const email_file = "monia_email.eml"; // "./test_email.txt", "./twitter_msg.eml", kaylee_phone_number_email_twitter
+
+  // email_file: Path to email file
+  // nonce: Nonce to diambiguate input/output files (optional, only useful for monolithic server side provers)
   const email_file_airbnb = "./nathan_airbnb_email.eml";
   const email_file_coinbase = "./nathan_coinbase_email.eml";
   const email_file_default = "./nathan_twitter_email.eml";
+
+  // TODO: Edit function when hooking up to frontend
+  async function getArgs() {
+    const args = process.argv.slice(2);
+    const emailFileArg = args.find((arg) => arg.startsWith("--email_file="));
+    const nonceArg = args.find((arg) => arg.startsWith("--nonce="));
+  
+    const email_file = emailFileArg ? emailFileArg.split("=")[1] : "nathan_airbnb_email.eml";
+    const nonce = nonceArg ? nonceArg.split("=")[1] : null;
+  
+    return { email_file, nonce };
+  }
+  
   export interface ICircuitInputs {
     modulus?: string[];
     signature?: string[];
@@ -40,6 +58,9 @@ import {
     address?: string;
     address_plus_one?: string;
     email_from_idx?: string;
+    amount_idx?: string;
+    currency_idx?: string;
+    recipient_idx?: string;
     email_to_idx?: string;
   }
   
@@ -48,6 +69,7 @@ import {
     SHA = "sha",
     TEST = "test",
     EMAIL = "email",
+    SUBJECTPARSER = "subjectparser",
   }
 
   enum KYCType {
@@ -79,8 +101,8 @@ import {
     body: Buffer,
     body_hash: string,
     eth_address: string,
-    circuitType: CircuitType,
-    kycType: KYCType
+    circuit: CircuitType,
+    kyc: KYCType
   ): Promise<{
     valid: {
       validSignatureFormat?: boolean;
@@ -107,6 +129,9 @@ import {
     const calc_length = Math.floor((body.length + 63 + 65) / 64) * 64;
     const [messagePadded, messagePaddedLen] = await sha256Pad(prehashBytesUnpadded, MAX_HEADER_PADDED_BYTES);
     const [bodyPadded, bodyPaddedLen] = await sha256Pad(body, Math.max(MAX_BODY_PADDED_BYTES, calc_length));
+
+    // Convet messagePadded to string to print the specific header data that is signed
+    console.log(JSON.stringify(message).toString());
   
     // Ensure SHA manual unpadded is running the correct function
     const shaOut = await partialSha(messagePadded, messagePaddedLen);
@@ -114,9 +139,9 @@ import {
   
     // Precompute SHA prefix
     let selector;
-    if (kycType === KYCType.AIRBNB) {
+    if (kyc === KYCType.AIRBNB) {
       selector = STRING_PRESELECTOR_AIRBNB.split("").map((char) => char.charCodeAt(0));
-    } else if (kycType === KYCType.COINBASE) {
+    } else if (kyc === KYCType.COINBASE) {
       selector = STRING_PRESELECTOR_COINBASE.split("").map((char) => char.charCodeAt(0));
     } else {
       // this line is dumb as should never happen :/
@@ -151,17 +176,33 @@ import {
   
     const address = bytesToBigInt(fromHex(eth_address)).toString();
     const address_plus_one = (bytesToBigInt(fromHex(eth_address)) + 1n).toString();
+
+    function trimStrByStr(str: string, substr: string) {
+      const index = str.indexOf(substr);
+      if (index === -1) {
+        return str;
+      }
+      return str.slice(index + substr.length, str.length);
+    }
   
-    const email_from_idx = Buffer.from(prehash_message_string).indexOf("from:").toString();
-    const email_to_idx = Buffer.from(prehash_message_string).indexOf("to:").toString();
+    let raw_header = Buffer.from(prehash_message_string).toString();
+    const email_from_idx = raw_header.length - trimStrByStr(trimStrByStr(raw_header, "from:"), "<").length;
+    const email_to_idx = raw_header.length - trimStrByStr(trimStrByStr(raw_header, "to:"), "<").length;
+    // const email_from_idx = Buffer.from(prehash_message_string).indexOf("from:").toString();
+    // const email_to_idx = Buffer.from(prehash_message_string).indexOf("to:").toString();
+    let email_subject = trimStrByStr(raw_header, "subject:");
+    const amount_idx = raw_header.length - trimStrByStr(email_subject, "end ").length;
+    const currency_idx = raw_header.length - trimStrByStr(trimStrByStr(email_subject, "end "), " ").length;
+    const recipient_idx = raw_header.length - trimStrByStr(email_subject, "to ").length;
+    console.log("Indexes into header string are: ", email_from_idx, email_to_idx, amount_idx, currency_idx, recipient_idx);
   
-    if (circuitType === CircuitType.RSA) {
+    if (circuit === CircuitType.RSA) {
       circuitInputs = {
         modulus,
         signature,
         base_message,
       };
-    } else if (circuitType === CircuitType.EMAIL) {
+    } else if (circuit === CircuitType.EMAIL) {
       circuitInputs = {
         in_padded,
         modulus,
@@ -171,13 +212,27 @@ import {
         // in_body_padded,
         // in_body_len_padded_bytes,
         address,
+        // address_plus_one,
+        body_hash_idx,
+        // email_from_idx: email_from_idx.toString(),
+        email_to_idx: email_to_idx.toString(),
+      };
+    } else if (circuit === CircuitType.SUBJECTPARSER) {
+      circuitInputs = {
+        in_padded,
+        modulus,
+        signature,
+        in_len_padded_bytes,
+        address,
         address_plus_one,
         body_hash_idx,
-        // email_from_idx,
-        email_to_idx,
+        email_from_idx: email_from_idx.toString(),
+        amount_idx: amount_idx.toString(),
+        currency_idx: currency_idx.toString(),
+        recipient_idx: recipient_idx.toString(),
       };
     } else {
-      assert(circuitType === CircuitType.SHA, "Invalid circuit type");
+      assert(circuit === CircuitType.SHA, "Invalid circuit type");
       circuitInputs = {
         in_padded,
         in_len_padded_bytes,
@@ -190,8 +245,15 @@ import {
     };
   }
   
-  export async function generate_inputs(email: Buffer, eth_address: string, kycType: KYCType): Promise<ICircuitInputs> {
-    var result;
+  // Nonce is useful to disambiguate files for input/output when calling from the command line, it is usually null or hash(email)
+  export async function generate_inputs(raw_email: Buffer | string, eth_address: string, kycType: KYCType, nonce_raw: number | null | string = null): Promise<ICircuitInputs> {
+    const nonce = typeof nonce_raw == "string" ? nonce_raw.trim() : nonce_raw;
+    
+    var result, email: Buffer;
+    if (typeof raw_email === "string") {
+      email = Buffer.from(raw_email);
+    } else email = raw_email;
+
     console.log("DKIM verification starting");
     result = await dkimVerify(email);
     if (!result.results[0]) {
@@ -228,26 +290,38 @@ import {
     let fin_result = await getCircuitInputs(sig, modulus, message, body, body_hash, eth_address, circuitType, kycType);
     return fin_result.circuitInputs;
   }
-  
-  async function do_generate(kycType: KYCType) {
-    let email;
-    if (kycType === KYCType.AIRBNB) {
-      email = fs.readFileSync(email_file_airbnb);
-    } else if (kycType === KYCType.COINBASE) {
-      email = fs.readFileSync(email_file_coinbase);
-    } else {
-      email = fs.readFileSync(email_file_default);
+
+  // Only called when the whole function is called from the command line, to read inputs
+  async function do_generate(writeToFile: boolean = true) {
+    // const { email_file, nonce } = await getArgs();
+
+    const email_airbnb = fs.readFileSync(email_file_airbnb.trim());
+    const email_coinbase = fs.readFileSync(email_file_coinbase.trim());
+    const gen_inputs_airbnb = await generate_inputs(email_airbnb, "0x0000000000000000000000000000000000000000", KYCType.AIRBNB);
+    const gen_inputs_coinbase = await generate_inputs(email_coinbase, "0x0000000000000000000000000000000000000000", KYCType.COINBASE);
+
+    if (writeToFile) {
+      // const filename = nonce ? `../input_${nonce}.json` : "./circuits/inputs/input.json";
+      // console.log(`Writing to default file ${filename}`);
+      console.log("Writing to file ./circuits/inputs/input_airbnb.json");
+      fs.writeFileSync(`./circuits/inputs/input_airbnb.json`, JSON.stringify(gen_inputs_airbnb), { flag: "w"});
+      console.log("Writing to file ./circuits/inputs/input_coinbase.json");
+      fs.writeFileSync(`./circuits/inputs/input_coinbase.json`, JSON.stringify(gen_inputs_coinbase), { flag: "w"});
+
+      let input_kyc: { [key: string]: any } = {};
+      for (const key in gen_inputs_airbnb) {
+        input_kyc[key.concat("_airbnb")] = gen_inputs_airbnb[key as keyof ICircuitInputs];
+        input_kyc[key.concat("_coinbase")] = gen_inputs_coinbase[key as keyof ICircuitInputs];
+      }
+      fs.writeFileSync(`./circuits/inputs/input_kyc.json`, JSON.stringify(input_kyc), { flag: "w"});
     }
-    console.log(email);
-    const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000", kycType);
-    // console.log(JSON.stringify(gen_inputs_airbnb));
-    return gen_inputs;
   }
   
   async function gen_test() {
     console.log(packBytesIntoNBytes(Uint8Array.from([0, 121, 117, 115, 104, 95, 103, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])));
   }
   
+  // Sometimes, newline encodings re-encode \r\n as just \n, so re-insert the \r so that the email hashes correctly
   export async function insert13Before10(a: Uint8Array): Promise<Uint8Array> {
     let ret = new Uint8Array(a.length + 1000);
     let j = 0;
@@ -270,6 +344,7 @@ import {
     // Key difference: file load has 13 10, web version has just 10
   }
 
+  /*
   async function make_input_file() {
     const [circuitInputs_airbnb, circuitInputs_coinbase] = await Promise.all([do_generate(KYCType.AIRBNB), do_generate(KYCType.COINBASE)]);
     fs.writeFileSync(`./circuits/inputs/input_airbnb.json`, JSON.stringify(circuitInputs_airbnb), { flag: "w"});
@@ -280,19 +355,12 @@ import {
       input_kyc[key.concat("_airbnb")] = circuitInputs_airbnb[key as keyof ICircuitInputs];
       input_kyc[key.concat("_coinbase")] = circuitInputs_coinbase[key as keyof ICircuitInputs];
     }
-    fs.writeFileSync(`./circuits/inputs/input_kyc.json`, JSON.stringify(input_kyc), { flag: "w"});
+    // fs.writeFileSync(`./circuits/inputs/input_kyc.json`, JSON.stringify(input_kyc), { flag: "w"});
   }
+  */
   
-  // If main
+  // If file called directly with `npx tsx src/scripts/generate_two_inputs.ts`
   if (typeof require !== "undefined" && require.main === module) {
-    // debug_file();
-    // const circuitInputs_airbnb = do_generate(KYCType.AIRBNB);
-    // const circuitInputs_coinbase = do_generate(KYCType.COINBASE);
-    console.log("Writing to file...");
-    // circuitInputs_airbnb.then((inputs) => fs.writeFileSync(`./circuits/inputs/input_airbnb.json`, JSON.stringify(inputs), { flag: "w" }));
-    // circuitInputs_coinbase.then((inputs) => fs.writeFileSync(`./circuits/inputs/input_coinbase.json`, JSON.stringify(inputs), { flag: "w" }));
-    // gen_test();
-
-    make_input_file();
+    do_generate(true);
   }
   

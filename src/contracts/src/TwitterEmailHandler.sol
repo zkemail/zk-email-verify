@@ -6,12 +6,14 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "forge-std/console.sol";
 // import "./base64.sol";
-import "./HexStrings.sol";
+import "./StringUtils.sol";
 import "./NFTSVG.sol";
 import "./Groth16VerifierTwitter.sol";
 
 contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
   using Counters for Counters.Counter;
+  using StringUtils for *;
+  using NFTSVG for *;
 
   Counters.Counter private tokenCounter;
 
@@ -20,7 +22,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
   uint256 public constant body_len = 3;
   uint256 public constant rsa_modulus_chunks_len = 17;
   uint256 public constant header_len = msg_len - body_len;
-  uint256 public constant addressIndexInSignals = msg_len - 1; // TODO: FIX CONSTANT
+  uint256 public constant addressIndexInSignals = msg_len - 1;
 
   mapping(string => uint256[rsa_modulus_chunks_len]) public verifiedMailserverKeys;
   mapping(uint256 => string) public tokenIDToName;
@@ -56,107 +58,27 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
   function tokenDesc(uint256 tokenId) public view returns (string memory) {
     string memory twitter_username = tokenIDToName[tokenId];
     address address_owner = ownerOf(tokenId);
-    string memory result = string(abi.encodePacked("Twitter username", twitter_username, "is owned by", HexStrings.toString(address_owner)));
+    string memory result = string(abi.encodePacked("Twitter username", twitter_username, "is owned by", StringUtils.toString(address_owner)));
     return result;
   }
 
   function tokenURI(uint256 tokenId) public view override returns (string memory) {
     string memory username = tokenIDToName[tokenId];
     address owner = ownerOf(tokenId);
-    NFTSVG.SVGParams memory svgParams = NFTSVG.SVGParams({
-      username: username,
-      tokenId: tokenId,
-      color0: NFTSVG.tokenToColorHex(uint256(uint160(owner)), 136),
-      color1: NFTSVG.tokenToColorHex(uint256(uint160(owner)), 136),
-      color2: NFTSVG.tokenToColorHex(uint256(uint160(owner)), 0),
-      color3: NFTSVG.tokenToColorHex(uint256(uint160(owner)), 0),
-      x1: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 16, tokenId), 0, 255, 16, 274),
-      y1: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 16, tokenId), 0, 255, 100, 484),
-      x2: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 32, tokenId), 0, 255, 16, 274),
-      y2: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 32, tokenId), 0, 255, 100, 484),
-      x3: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 48, tokenId), 0, 255, 16, 274),
-      y3: NFTSVG.scale(NFTSVG.getCircleCoord(uint256(uint160(owner)), 48, tokenId), 0, 255, 100, 484)
-    });
-    string memory svgOutput = NFTSVG.generateSVG(svgParams);
-
-    string memory json = Base64.encode(
-      bytes(
-        string(
-          abi.encodePacked(
-            '{"attributes":[ ',
-            '{"trait_type": "Name",',
-            '"value": "',
-            tokenIDToName[tokenId],
-            '"}, {"trait_type": "Owner",',
-            '"value": "',
-            HexStrings.toHexString(uint256(uint160(ownerOf(tokenId))), 42),
-            '"}], "description": "ZK VerifiedEmails are ZK verified proofs of email recieving on Ethereum. They only reveal parts of the email headers and body body, and are verified via mailserver signature verification: there are no special party attesters. We are working to ship more verifiable proofs of signed data including zk blind, and avoid terrible tragedy of the commons scenarios where instituition reputation is slowly spent by its members. VerifiedEmail uses ZK SNARKs to insinuate this social dynamic, with a first demo at zkemail.xyz.", "image": "data:image/svg+xml;base64,',
-            Base64.encode(bytes(svgOutput)),
-            '"}'
-          )
-        )
-      )
-    );
-    string memory output = string(abi.encodePacked("data:application/json;base64,", json));
-    return output;
+    return NFTSVG.constructAndReturnSVG(username, tokenId, owner);
   }
 
-  // Unpacks uint256s into bytes and then extracts the non-zero characters
-  // Only extracts contiguous non-zero characters and ensures theres only 1 such state
-  // Note that unpackedLen may be more than packedBytes.length * 8 since there may be 0s
-  // TODO: Remove console.logs and define this as a pure function instead of a view
-  function convertPackedBytesToBytes(uint256[] memory packedBytes, uint256 maxBytes) public pure returns (string memory extractedString) {
-    uint8 state = 0;
-    // bytes: 0 0 0 0 y u s h _ g 0 0 0
-    // state: 0 0 0 0 1 1 1 1 1 1 2 2 2
-    bytes memory nonzeroBytesArray = new bytes(packedBytes.length * 7);
-    uint256 nonzeroBytesArrayIndex = 0;
-    for (uint16 i = 0; i < packedBytes.length; i++) {
-      uint256 packedByte = packedBytes[i];
-      uint8[] memory unpackedBytes = new uint8[](bytesInPackedBytes);
-      for (uint j = 0; j < bytesInPackedBytes; j++) {
-        unpackedBytes[j] = uint8(packedByte >> (j * 8));
-      }
-      for (uint256 j = 0; j < bytesInPackedBytes; j++) {
-        uint256 unpackedByte = unpackedBytes[j]; //unpackedBytes[j];
-        // console.log(i, j, state, unpackedByte);
-        if (unpackedByte != 0) {
-          nonzeroBytesArray[nonzeroBytesArrayIndex] = bytes1(uint8(unpackedByte));
-          nonzeroBytesArrayIndex++;
-          if (state % 2 == 0) {
-            state += 1;
-          }
-        } else {
-          if (state % 2 == 1) {
-            state += 1;
-          }
-        }
-        packedByte = packedByte >> 8;
-      }
-    }
-    string memory returnValue = string(nonzeroBytesArray);
-    require(state == 2, "Invalid final state of packed bytes in email");
-    // console.log("Characters in username: ", nonzeroBytesArrayIndex);
-    require(nonzeroBytesArrayIndex <= maxBytes, "Packed bytes more than allowed max length!");
-    return returnValue;
-    // Have to end at the end of the email -- state cannot be 1 since there should be an email footer
-  }
-
-  function _stringEq(string memory a, string memory b) public pure returns (bool) {
-    return keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b));
-  }
-
-  // TODO: Remove console.logs and define this as a pure function instead of a view
   function _domainCheck(uint256[] memory headerSignals) public pure returns (bool) {
-    string memory senderBytes = convertPackedBytesToBytes(headerSignals, 18);
+    string memory senderBytes = StringUtils.convertPackedBytesToBytes(headerSignals, 18, bytesInPackedBytes);
     string[2] memory domainStrings = ["verify@twitter.com", "info@twitter.com"];
-    return _stringEq(senderBytes, domainStrings[0]) || _stringEq(senderBytes, domainStrings[1]);
+    return StringUtils.stringEq(senderBytes, domainStrings[0]) || StringUtils.stringEq(senderBytes, domainStrings[1]);
     // Usage: require(_domainCheck(senderBytes, domainStrings), "Invalid domain");
   }
 
   function mint(uint256[2] memory a, uint256[2][2] memory b, uint256[2] memory c, uint256[msg_len] memory signals) public {
+    // TODO no invalid signal check yet, which is fine since the zk proof does it
     // Checks: Verify proof and check signals
-    // require(signals[0] == 1337, "invalid signals"); // TODO no invalid signal check yet, which is fine since the zk proof does it
+    // require(signals[0] == 1337, "invalid signals");
 
     // 3 public signals are the masked packed message bytes, 17 are the modulus.
     uint256[] memory bodySignals = new uint256[](body_len);
@@ -180,7 +102,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
 
     // Effects: Mint token
     uint256 tokenId = tokenCounter.current() + 1;
-    string memory messageBytes = convertPackedBytesToBytes(bodySignals, bytesInPackedBytes * body_len);
+    string memory messageBytes = StringUtils.convertPackedBytesToBytes(bodySignals, bytesInPackedBytes * body_len, bytesInPackedBytes);
     tokenIDToName[tokenId] = messageBytes;
     _mint(msg.sender, tokenId);
     tokenCounter.increment();

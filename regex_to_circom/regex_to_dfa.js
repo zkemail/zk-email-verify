@@ -1,7 +1,7 @@
 /*jslint browser: true*/
 /*global require, exports*/
 import { assert } from "console";
-import { STRING_PRESELECTOR, STRING_PRESELECTOR_AIRBNB, STRING_PRESELECTOR_COINBASE } from "../src/helpers/constants.ts";
+import { STRING_PRESELECTOR } from "../src/helpers/constants.ts";
 import { minDfa, nfaToDfa, regexToNfa } from "./lexical";
 
 /** This section sets the 'regex' variable to the regex you want to use.
@@ -145,8 +145,8 @@ function regexToMinDFASpec(str) {
 // This raw subject line (with \\ replaced with \) can be put into regexr.com to test new match strings and sanity check that it works
 let email_address_regex = `([a-zA-Z0-9\\._%\\+-]+@[a-zA-Z0-9\\.-]+.[a-zA-Z0-9]+)`;
 let raw_subject_regex = `((\r\n)|\^)subject:[Ss]end (\\$)?[0-9]+(\\.[0-9])? (ETH|DAI|USDC|eth|usdc|dai) to (${email_address_regex}|0x[0-9]+)\r\n`;
-let raw_from_regex = `(\r\n|^)from:([A-Za-z0-9 _.,"@-]+)<[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.-]+>\r\n`;
-let raw_to_regex = `(\r\n|^)to:([A-Za-z0-9 _.,"@-]+)<[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.-]+>\r\n`;
+let raw_from_regex = `(\r\n|^)from:([A-Za-z0-9 _.,"@-]+)<[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.-]+>\r\n`; // this regex forces the form <email>
+let raw_to_regex = `(\r\n|\x80)(to):([A-Za-z0-9 _."@-]+<)?[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.]+>?\r\n`;
 // This can be pasted into the first line of zkregex.com/min_dfa
 // ((\\r\\n)|\^)subject:[Ss]end (\$)?[0-9]+(\.[0-9])? (ETH|DAI|USDC|eth|usdc|dai) to (([a-zA-Z0-9\._%\+-]+@[a-zA-Z0-9\.-]+.[a-zA-Z0-9]+)|0x[0-9]+)\\r\\n
 // console.log(raw_subject_regex);
