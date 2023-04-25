@@ -36,7 +36,7 @@ import {
     const emailFileArg = args.find((arg) => arg.startsWith("--email_file="));
     const nonceArg = args.find((arg) => arg.startsWith("--nonce="));
   
-    const email_file = emailFileArg ? emailFileArg.split("=")[1] : "nathan_airbnb_email.eml";
+    const email_file = emailFileArg ? emailFileArg.split("=")[1] : "test_sendgrid.eml";
     const nonce = nonceArg ? nonceArg.split("=")[1] : null;
   
     return { email_file, nonce };
@@ -343,21 +343,6 @@ import {
     console.log(Uint8Array.from(email_coinbase));
     // Key difference: file load has 13 10, web version has just 10
   }
-
-  /*
-  async function make_input_file() {
-    const [circuitInputs_airbnb, circuitInputs_coinbase] = await Promise.all([do_generate(KYCType.AIRBNB), do_generate(KYCType.COINBASE)]);
-    fs.writeFileSync(`./circuits/inputs/input_airbnb.json`, JSON.stringify(circuitInputs_airbnb), { flag: "w"});
-    fs.writeFileSync(`./circuits/inputs/input_coinbase.json`, JSON.stringify(circuitInputs_coinbase), { flag: "w"});
-
-    let input_kyc: {[key:string]: any} = {};
-    for (const key in circuitInputs_airbnb) {
-      input_kyc[key.concat("_airbnb")] = circuitInputs_airbnb[key as keyof ICircuitInputs];
-      input_kyc[key.concat("_coinbase")] = circuitInputs_coinbase[key as keyof ICircuitInputs];
-    }
-    // fs.writeFileSync(`./circuits/inputs/input_kyc.json`, JSON.stringify(input_kyc), { flag: "w"});
-  }
-  */
   
   // If file called directly with `npx tsx src/scripts/generate_two_inputs.ts`
   if (typeof require !== "undefined" && require.main === module) {
