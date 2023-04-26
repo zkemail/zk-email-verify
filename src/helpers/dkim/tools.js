@@ -223,7 +223,7 @@ async function resolveDNSHTTP(name, type) {
       })
   );
   const out = await resp.json();
-  // For some DNS, the Answer response contains more than 1 elements in the array. The last element is the one containing the public key
+  // For some DNS, the Answer response here contains more than 1 element in the array. The last element is the one containing the public key
   return [out.Answer[out.Answer.length - 1].data];
 }
 
