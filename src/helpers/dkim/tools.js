@@ -223,7 +223,8 @@ async function resolveDNSHTTP(name, type) {
       })
   );
   const out = await resp.json();
-  return [out.Answer[0].data];
+  // For some DNS, the Answer response here contains more than 1 element in the array. The last element is the one containing the public key
+  return [out.Answer[out.Answer.length - 1].data];
 }
 
 // from https://developers.google.com/web/updates/2012/06/How-to-convert-ArrayBuffer-to-and-from-String
