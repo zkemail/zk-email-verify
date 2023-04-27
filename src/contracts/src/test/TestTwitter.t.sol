@@ -1,4 +1,5 @@
 pragma solidity ^0.8.0;
+
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import "../TwitterEmailHandler.sol";
@@ -6,15 +7,19 @@ import "../Groth16VerifierTwitter.sol";
 
 contract TwitterUtilsTest is Test {
   using StringUtils for *;
-  address internal constant zero = 0x0000000000000000000000000000000000000000;
-  address constant VM_ADDR = 0x7109709ECfa91a80626fF3989D68f67F5b1DD12D;
-  VerifiedTwitterEmail testVerifier;
+
+  address constant VM_ADDR = 0x7109709ECfa91a80626fF3989D68f67F5b1DD12D; // Hardcoded address of the VM from foundry
+
   Verifier proofVerifier;
+  MailServer mailServer;
+  VerifiedTwitterEmail testVerifier;
+
   uint16 public constant packSize = 7;
 
   function setUp() public {
-    testVerifier = new VerifiedTwitterEmail();
     proofVerifier = new Verifier();
+    mailServer = new MailServer();
+    testVerifier = new VerifiedTwitterEmail(proofVerifier, mailServer);
   }
 
   // function testMint() public {

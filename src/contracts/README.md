@@ -4,32 +4,46 @@ These contracts need to be modified for each usecase. This includes manually spl
 
 ## Testing
 
-To test solidity,
+To setup,
 
 ```
+curl -L https://foundry.paradigm.xyz | bash && source ~/.bashrc && foundryup
 forge install foundry-rs/forge-std
 cp node_modules/forge-std src/contracts/lib/forge-std
 cd src/contracts
-forge test --via-ir
-forge build --sizes --via-ir # Make sure these are all below 24kB
+```
+
+To test,
+
+```
+forge test
+forge build --sizes # Make sure these are all below 24kB
 ```
 
 ## Deployment
 
-To deploy contract to forked mainnet, do:
+Goerli Address of Deployment: 0xA555F9E05402F8240AC99A0d045081E19C0eB9B3
+
+To deploy contract to local forked mainnet or prod, edit Deploy.s.sol to point to your contracts. You should also edit the `.env` file from cloning `   .env.example` to include your own private key.
 
 ```
-anvil --fork-url https://eth-mainnet.alchemyapi.io/v2/***REMOVED*** --port 8547 # Run in tmux
-export ETH_RPC_URL=http://localhost:8547
-export SK=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 # Public anvil sk
+# Set terminal to the folder with this README
+cd src/contracts
 
-forge create --rpc-url $ETH_RPC_URL NFTSVG --private-key $SK --via-ir --force | tee /dev/tty | export NFTSVG_ADDR=$(sed -n 's/.*Deployed to: //p')
-forge create --rpc-url $ETH_RPC_URL StringUtils --private-key $SK --via-ir --force | tee /dev/tty | export STRINGUTILS_ADDR=$(sed -n 's/.*Deployed to: //p')
-# forge bind --libraries src/StringUtils.sol:StringUtils:$STRINGUTILS_ADDR --libraries src/NFTSVG.sol:NFTSVG:$NFTSVG_ADDR --via-ir
-echo "libraries = [\"src/NFTSVG.sol:NFTSVG:${NFTSVG_ADDR}\", \"src/StringUtils.sol:StringUtils:${STRINGUTILS_ADDR}\"]" >> foundry.toml
-forge create --rpc-url $ETH_RPC_URL VerifiedTwitterEmail --private-key $SK --via-ir --force | tee /dev/tty | export EMAIL_ADDR=$(sed -n 's/.*Deployed to: //p')
-sed -i '' -e '$ d' foundry.toml
-forge create --rpc-url $ETH_RPC_URL VerifiedTwitterEmail --private-key $SK --via-ir --force --libraries "StringUtils:${STRINGUTILS_ADDR}","NFTSVG:${NFTSVG_ADDR}" | tee /dev/tty | export EMAIL_ADDR=$(sed -n 's/.*Deployed to: //p')
+# Run local chain in tmux window 1
+export ALCHEMY_GOERLI_KEY=...
+anvil --fork-url https://eth-goerli.g.alchemy.com/v2/$ALCHEMY_GOERLI_KEY --port 8548 # Run in tmux
 
-forge verify-contract $EMAIL_ADDR VerifiedTwitterEmail --watch --etherscan-api-key $GOERLI_ETHERSCAN_API_KEY
+# Export to abi for relayers
+forge inspect src/TwitterEmailHandler.sol:$MAIN_CONTRACT_NAME abi --via-ir >> contract.abi
+source .env
+
+# First, test deploy without actually broadcasting it
+forge script script/Deploy.s.sol:Deploy --via-ir -vvvv --rpc-url $RPC_URL
+
+# Then, actually deploy
+forge script script/Deploy.s.sol:Deploy --via-ir -vvvv --rpc-url $RPC_URL --broadcast
+
+# Verify the contract with the raw one via Etherscan
+forge verify-contract $EMAIL_ADDR $MAIN_CONTRACT_NAME --watch --etherscan-api-key $GOERLI_ETHERSCAN_API_KEY
 ```

@@ -7,7 +7,7 @@ library StringUtils {
 
   /// @notice Converts a `uint256` to its ASCII `string` hexadecimal representation with fixed length.
   /// @dev Credit to Open Zeppelin under MIT license https://github.com/OpenZeppelin/openzeppelin-contracts/blob/243adff49ce1700e0ecb99fe522fb16cff1d1ddc/contracts/utils/Strings.sol#L55
-  function toHexString(uint256 value, uint256 length) public pure returns (string memory) {
+  function toHexString(uint256 value, uint256 length) internal pure returns (string memory) {
     bytes memory buffer = new bytes(2 * length + 2);
     buffer[0] = "0";
     buffer[1] = "x";
@@ -19,7 +19,7 @@ library StringUtils {
     return string(buffer);
   }
 
-  function toHexStringNoPrefix(uint256 value, uint256 length) public pure returns (string memory) {
+  function toHexStringNoPrefix(uint256 value, uint256 length) internal pure returns (string memory) {
     bytes memory buffer = new bytes(2 * length);
     for (uint256 i = buffer.length; i > 0; i--) {
       buffer[i - 1] = ALPHABET[value & 0xf];
@@ -28,23 +28,23 @@ library StringUtils {
     return string(buffer);
   }
 
-  function toString(uint256 value) public pure returns (string memory) {
+  function toString(uint256 value) internal pure returns (string memory) {
     return toString(abi.encodePacked(value));
   }
 
-  function toString(bytes32 value) public pure returns (string memory) {
+  function toString(bytes32 value) internal pure returns (string memory) {
     return toString(abi.encodePacked(value));
   }
 
-  function toString(address account) public pure returns (string memory) {
+  function toString(address account) internal pure returns (string memory) {
     return toString(abi.encodePacked(account));
   }
 
-  function stringEq(string memory a, string memory b) public pure returns (bool) {
+  function stringEq(string memory a, string memory b) internal pure returns (bool) {
     return keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b));
   }
 
-  function toString(bytes memory data) public pure returns (string memory) {
+  function toString(bytes memory data) internal pure returns (string memory) {
     bytes memory alphabet = "0123456789abcdef";
 
     bytes memory str = new bytes(2 + data.length * 2);
@@ -61,7 +61,7 @@ library StringUtils {
   // Only extracts contiguous non-zero characters and ensures theres only 1 such state
   // Note that unpackedLen may be more than packedBytes.length * 8 since there may be 0s
   // TODO: Remove console.logs and define this as a pure function instead of a view
-  function convertPackedBytesToBytes(uint256[] memory packedBytes, uint256 maxBytes, uint256 packSize) public pure returns (string memory extractedString) {
+  function convertPackedBytesToBytes(uint256[] memory packedBytes, uint256 maxBytes, uint256 packSize) internal pure returns (string memory extractedString) {
     uint8 state = 0;
     // bytes: 0 0 0 0 y u s h _ g 0 0 0
     // state: 0 0 0 0 1 1 1 1 1 1 2 2 2
@@ -70,7 +70,7 @@ library StringUtils {
     for (uint16 i = 0; i < packedBytes.length; i++) {
       uint256 packedByte = packedBytes[i];
       uint8[] memory unpackedBytes = new uint8[](packSize);
-      for (uint j = 0; j < packSize; j++) {
+      for (uint256 j = 0; j < packSize; j++) {
         unpackedBytes[j] = uint8(packedByte >> (j * 8));
       }
       for (uint256 j = 0; j < packSize; j++) {
@@ -122,7 +122,7 @@ library StringUtils {
   function stringToUint(string memory s) internal pure returns (uint256) {
     bytes memory b = bytes(s);
     uint256 result = 0;
-    for (uint i = 0; i < b.length; i++) {
+    for (uint256 i = 0; i < b.length; i++) {
       if (b[i] >= 0x30 && b[i] <= 0x39) {
         result = result * 10 + (uint256(uint8(b[i])) - 48);
       }
@@ -136,10 +136,10 @@ library StringUtils {
   }
 
   // getDomainFromEmail is used to extract the domain from an email i.e. the part after the @
-  function getDomainFromEmail(string memory fromEmail) public pure returns (string memory) {
+  function getDomainFromEmail(string memory fromEmail) internal pure returns (string memory) {
     bytes memory emailBytes = bytes(fromEmail);
-    uint atIndex;
-    for (uint i = 0; i < emailBytes.length; i++) {
+    uint256 atIndex;
+    for (uint256 i = 0; i < emailBytes.length; i++) {
       if (emailBytes[i] == "@") {
         atIndex = i;
         break;
@@ -147,7 +147,7 @@ library StringUtils {
     }
 
     bytes memory domainBytes = new bytes(emailBytes.length - atIndex - 1);
-    for (uint j = 0; j < domainBytes.length; j++) {
+    for (uint256 j = 0; j < domainBytes.length; j++) {
       domainBytes[j] = emailBytes[atIndex + 1 + j];
     }
     return bytes32ToString(bytes32(bytes(domainBytes)));
