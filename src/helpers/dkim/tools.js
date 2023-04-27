@@ -223,7 +223,7 @@ async function resolveDNSHTTP(name, type) {
       })
   );
   const out = await resp.json();
-  return [out.Answer[0].data];
+  return [out.Answer[out.Answer.length - 1].data];
 }
 
 // from https://developers.google.com/web/updates/2012/06/How-to-convert-ArrayBuffer-to-and-from-String

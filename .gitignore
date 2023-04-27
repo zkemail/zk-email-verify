@@ -69,3 +69,6 @@ generate_input_log.txt
 *.debug
 *.env
 .vscode
+
+# from zk-kyc
+temp.py
