@@ -282,7 +282,8 @@ async function do_generate(writeToFile: boolean = true) {
   const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000", nonce);
   console.log(JSON.stringify(gen_inputs));
   if (writeToFile) {
-    const filename = nonce ? `../input_${nonce}.json` : "./circuits/inputs/input.json";
+    const file_dir = email_file.substring(email_file.lastIndexOf("/") + 1);
+    const filename = nonce ? `${file_dir}/input_${nonce}.json` : "./circuits/inputs/input.json";
     console.log(`Writing to default file ${filename}`);
     fs.writeFileSync(filename, JSON.stringify(gen_inputs), { flag: "w" });
   }
