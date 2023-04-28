@@ -32,11 +32,11 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size, expose_f
     signal input in_len_padded_bytes; // length of in email data including the padding, which will inform the sha256 block length
 
     // Identity commitment variables
-    // (note we don't need to constrain the +1 due to https://geometry.xyz/notebook/groth16-malleability)
+    // (note we don't need to constrain the + 1 due to https://geometry.xyz/notebook/groth16-malleability)
     signal input address;
 
     // Base 64 body hash variables
-    var LEN_SHA_B64 = 44;     // ceil(32/3) * 4, due to base64 encoding.
+    var LEN_SHA_B64 = 44;     // ceil(32 / 3) * 4, due to base64 encoding.
     signal input body_hash_idx;
 
     // SHA HEADER: 506,670 constraints
@@ -44,20 +44,18 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size, expose_f
     // The header signs the fields in the "h=Date:From:To:Subject:MIME-Version:Content-Type:Message-ID;"
     // section of the "DKIM-Signature:"" line, along with the body hash.
     // Note that nothing above the "DKIM-Signature:" line is signed.
-    component sha = Sha256Bytes(max_header_bytes);
-    sha.in_padded <== in_padded;
-    sha.in_len_padded_bytes <== in_len_padded_bytes;
-    var msg_len = (256+n)\n;
+    signal sha[256] <== Sha256Bytes(max_header_bytes)(in_padded, in_len_padded_bytes);
+    var msg_len = (256 + n) \ n;
 
     component base_msg[msg_len];
     for (var i = 0; i < msg_len; i++) {
         base_msg[i] = Bits2Num(n);
     }
     for (var i = 0; i < 256; i++) {
-        base_msg[i\n].in[i%n] <== sha.out[255 - i];
+        base_msg[i \ n].in[i % n] <== sha[255 - i];
     }
-    for (var i = 256; i < n*msg_len; i++) {
-        base_msg[i\n].in[i%n] <== 0;
+    for (var i = 256; i < n * msg_len; i++) {
+        base_msg[i \ n].in[i % n] <== 0;
     }
 
     // VERIFY RSA SIGNATURE: 149,251 constraints
@@ -82,17 +80,16 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size, expose_f
         signal input email_from_idx;
         signal output reveal_email_from_packed[max_email_from_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
 
-        signal from_regex_out, from_regex_reveal[max_header_bytes];
-        (from_regex_out, from_regex_reveal) <== FromRegex(max_header_bytes)(in_padded);
+        signal (from_regex_out, from_regex_reveal[max_header_bytes]) <== FromRegex(max_header_bytes)(in_padded);
         log(from_regex_out);
         from_regex_out === 1;
         reveal_email_from_packed <== ShiftAndPack(max_header_bytes, max_email_from_len, pack_size)(from_regex_reveal, email_from_idx);
     }
 
-/*
+
     // TO HEADER REGEX: 736,553 constraints
     // This extracts the to email, and the precise regex format can be viewed in the README
-*/  // We cannot use to: field at all due to Hotmail
+    // We cannot use to: field at all due to Hotmail
     // if(expose_to){
     //     var max_email_to_len = 30;
     //     var max_email_to_packed_bytes = count_packed(max_email_to_len, pack_size);
@@ -110,8 +107,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size, expose_f
     // BODY HASH REGEX: 617,597 constraints
     // This extracts the body hash from the header (i.e. the part after bh= within the DKIM-signature section)
     // which is used to verify the body text matches this signed hash + the signature verifies this hash is legit
-    signal bh_regex_out, bh_reveal[max_header_bytes];
-    (bh_regex_out, bh_reveal) <== BodyHashRegex(max_header_bytes)(in_padded);
+    signal (bh_regex_out, bh_reveal[max_header_bytes]) <== BodyHashRegex(max_header_bytes)(in_padded);
     bh_regex_out === 1;
     signal shifted_bh_out[LEN_SHA_B64] <== VarShiftLeft(max_header_bytes, LEN_SHA_B64)(bh_reveal, body_hash_idx);
     // log(body_hash_regex.out);
@@ -141,7 +137,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size, expose_f
     for (var i = 0; i < 32; i++) {
         sha_body_bytes[i] = Bits2Num(8);
         for (var j = 0; j < 8; j++) {
-            sha_body_bytes[i].in[7-j] <== sha_body_out[i*8+j];
+            sha_body_bytes[i].in[7 - j] <== sha_body_out[i * 8 + j];
         }
         sha_body_bytes[i].out === sha_b64_out[i];
     }
@@ -155,8 +151,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size, expose_f
     // TWITTER REGEX: 328,044 constraints
     // This computes the regex states on each character in the email body. For new emails, this is the
     // section that you want to swap out via using the zk-regex library.
-    signal twitter_regex_out, twitter_regex_reveal[max_body_bytes];
-    (twitter_regex_out, twitter_regex_reveal) <== TwitterResetRegex(max_body_bytes)(in_body_padded);
+    signal (twitter_regex_out, twitter_regex_reveal[max_body_bytes]) <== TwitterResetRegex(max_body_bytes)(in_body_padded);
     // This ensures we found a match at least once (i.e. match count is not zero)
     signal is_found_twitter <== IsZero()(twitter_regex_out);
     is_found_twitter === 0;
