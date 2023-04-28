@@ -265,7 +265,7 @@ export async function generate_inputs(raw_email: Buffer | string, eth_address: s
   let message = result.results[0].status.signature_header;
   let body = result.results[0].body;
   let body_hash = result.results[0].bodyHash;
-  let circuitType = CircuitType.SUBJECTPARSER;
+  let circuitType = CircuitType.EMAIL;
 
   let pubkey = result.results[0].publicKey;
   const pubKeyData = pki.publicKeyFromPem(pubkey.toString());
@@ -294,7 +294,8 @@ export async function insert13Before10(a: Uint8Array): Promise<Uint8Array> {
   let ret = new Uint8Array(a.length + 1000);
   let j = 0;
   for (let i = 0; i < a.length; i++) {
-    if (a[i] === 10) {
+    // Ensure each \n is preceded by a \r
+    if (a[i] === 10 && i > 0 && a[i - 1] !== 13) {
       ret[j] = 13;
       j++;
     }
