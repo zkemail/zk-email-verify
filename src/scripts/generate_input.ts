@@ -265,7 +265,7 @@ export async function generate_inputs(raw_email: Buffer | string, eth_address: s
   let message = result.results[0].status.signature_header;
   let body = result.results[0].body;
   let body_hash = result.results[0].bodyHash;
-  let circuitType = CircuitType.EMAIL;
+  let circuitType = CircuitType.SUBJECTPARSER;
 
   let pubkey = result.results[0].publicKey;
   const pubKeyData = pki.publicKeyFromPem(pubkey.toString());
