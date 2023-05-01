@@ -10363,7 +10363,7 @@ __metadata:
     r1csfile: 0.0.41
   bin:
     snarkjs: build/cli.cjs
-  checksum: 03909c769b2fa2c210b0a9ef17c7132824de0aa247626a02864a35d966350e9d2769121e1fab96ce2c81284a956694afb1e2819738e784c889ed6c0fe0d305ab
+  checksum: f2050f0135d50d459ea0edddf3e394e833a2d28c6648e5889b2f896814865e5c60606e978a8a106bd5bfe7e27501c315f249db5b71895d5e7e6e9a87bfcd55ab
   languageName: node
   linkType: hard
 
