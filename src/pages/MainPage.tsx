@@ -9,7 +9,7 @@ import { generate_inputs, insert13Before10 } from "../scripts/generate_input";
 import styled, { CSSProperties } from "styled-components";
 import { sshSignatureToPubKey } from "../helpers/sshFormat";
 import { Link, useSearchParams } from "react-router-dom";
-import { dkimVerify } from "../helpers/dkim";
+// import { dkimVerify } from "../helpers/dkim";
 import atob from "atob";
 import { downloadProofFiles, generateProof, verifyProof } from "../helpers/zkp";
 import { packedNBytesToString } from "../helpers/binaryFormat";

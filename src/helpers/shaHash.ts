@@ -1,11 +1,12 @@
-import { createHash } from "crypto";
+// import { createHash } from "crypto";
+import * as CryptoJS from 'crypto';
 import { assert, int64toBytes, int8toBytes, mergeUInt8Arrays, Uint8ArrayToHex } from "./binaryFormat";
 // const { webcrypto, KeyObject } = await import('crypto');
 // const { subtle } = webcrypto;
 import { Hash } from "./fast-sha256";
 
 export async function shaHash(str: Uint8Array) {
-  return createHash("sha256").update(str).digest();
+  return CryptoJS.createHash('sha256').update(str).digest();
 }
 
 export async function partialSha(msg: Uint8Array, msgLen: number): Promise<Uint8Array> {

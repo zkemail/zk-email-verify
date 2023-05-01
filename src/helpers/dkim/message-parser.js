@@ -1,7 +1,7 @@
 // Calculates relaxed body hash for a message body stream
 
 const { parseHeaders } = require('./tools');
-const Writable = require('stream').Writable;
+import { Writable } from 'stream-browserify';
 
 /**
  * Class for separating header from body
