@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2020",
+    "target": "ESNext",
     "module": "esnext",
     "esModuleInterop": true,
     "lib": [
@@ -19,9 +19,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "types": [
-      "node"
-    ],
+    "types": ["vite/client", "vite-plugin-svgr/client"],
     "incremental": true
   },
   "include": [

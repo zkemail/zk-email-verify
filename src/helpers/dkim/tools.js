@@ -19,7 +19,9 @@ if (LOCAL) {
 const crypto = require("crypto");
 const parseDkimHeaders = require("./parse-dkim-headers");
 const psl = require("psl");
-const pki = require("node-forge").pki;
+// const pki = require("node-forge").pki;
+// const { parseKey } = require('crypto-browserify');
+import * as CryptoJS from 'crypto-browserify';
 
 const defaultDKIMFieldNames =
   "From:Sender:Reply-To:Subject:Date:Message-ID:To:" +
@@ -338,7 +340,8 @@ const getPublicKey = async (type, name, minBitLength, resolver) => {
       modulusLength = publicKeyObj.algorithm.modulusLength;
     } else {
       // fall back to node-forge
-      const pubKeyData = pki.publicKeyFromPem(publicKeyPem.toString());
+      // const pubKeyData = pki.publicKeyFromPem(publicKeyPem.toString());
+      const pubKeyData = CryptoJS.parseKey(publicKeyPem.toString(), 'pem');
       modulusLength = pubKeyData.n.bitLength();
     }
 
