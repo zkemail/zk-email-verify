@@ -62,6 +62,18 @@ import {
     currency_idx?: string;
     recipient_idx?: string;
     email_to_idx?: string;
+    in_padded_airbnb?: string[];
+    modulus_airbnb?: string[];
+    signature_airbnb?: string[];
+    in_len_padded_bytes_airbnb?: string;
+    body_hash_idx_airbnb?: string;
+    email_to_idx_airbnb?: string;
+    in_padded_coinbase?: string[];
+    modulus_coinbase?: string[];
+    signature_coinbase?: string[];
+    in_len_padded_bytes_coinbase?: string;
+    body_hash_idx_coinbase?: string;
+    email_to_idx_coinbase?: string;
   }
   
   enum CircuitType {
@@ -70,11 +82,7 @@ import {
     TEST = "test",
     EMAIL = "email",
     SUBJECTPARSER = "subjectparser",
-  }
-
-  enum KYCType {
-    AIRBNB = "airbnb",
-    COINBASE = "coinbase",
+    KYC = "kyc",
   }
   
   async function findSelector(a: Uint8Array, selector: number[]): Promise<number> {
@@ -102,7 +110,7 @@ import {
     body_hash: string,
     eth_address: string,
     circuit: CircuitType,
-    kyc: KYCType
+    preselector: string = STRING_PRESELECTOR,
   ): Promise<{
     valid: {
       validSignatureFormat?: boolean;
@@ -138,15 +146,8 @@ import {
     assert((await Uint8ArrayToString(shaOut)) === (await Uint8ArrayToString(Uint8Array.from(await shaHash(prehashBytesUnpadded)))), "SHA256 calculation did not match!");
   
     // Precompute SHA prefix
-    let selector;
-    if (kyc === KYCType.AIRBNB) {
-      selector = STRING_PRESELECTOR_AIRBNB.split("").map((char) => char.charCodeAt(0));
-    } else if (kyc === KYCType.COINBASE) {
-      selector = STRING_PRESELECTOR_COINBASE.split("").map((char) => char.charCodeAt(0));
-    } else {
-      // this line is dumb as should never happen :/
-      selector = STRING_PRESELECTOR.split("").map((char) => char.charCodeAt(0));
-    }
+  
+    const selector = preselector.split("").map((char) => char.charCodeAt(0));
     const selector_loc = await findSelector(bodyPadded, selector);
     console.log("Body selector found at: ", selector_loc);
     let shaCutoffIndex = Math.floor((await findSelector(bodyPadded, selector)) / 64) * 64;
@@ -244,11 +245,11 @@ import {
       valid: {},
     };
   }
-  
+
   // Nonce is useful to disambiguate files for input/output when calling from the command line, it is usually null or hash(email)
-  export async function generate_inputs(raw_email: Buffer | string, eth_address: string, kycType: KYCType, nonce_raw: number | null | string = null): Promise<ICircuitInputs> {
+  export async function generate_inputs(raw_email: Buffer | string, eth_address: string, nonce_raw: number | null | string = null): Promise<ICircuitInputs> {
     const nonce = typeof nonce_raw == "string" ? nonce_raw.trim() : nonce_raw;
-    
+
     var result, email: Buffer;
     if (typeof raw_email === "string") {
       email = Buffer.from(raw_email);
@@ -283,38 +284,139 @@ import {
     let body = result.results[0].body;
     let body_hash = result.results[0].bodyHash;
     let circuitType = CircuitType.EMAIL;
-  
+
     let pubkey = result.results[0].publicKey;
     const pubKeyData = pki.publicKeyFromPem(pubkey.toString());
     let modulus = BigInt(pubKeyData.n.toString());
-    let fin_result = await getCircuitInputs(sig, modulus, message, body, body_hash, eth_address, circuitType, kycType);
+    let fin_result = await getCircuitInputs(sig, modulus, message, body, body_hash, eth_address, circuitType);
+    if (nonce !== null) {
+      console.log(`Writing to ../input_wallet_${nonce}.json`);
+      fs.writeFileSync(`../input_wallet_${nonce}.json`, JSON.stringify(fin_result.circuitInputs), { flag: "w" });
+    }
     return fin_result.circuitInputs;
+  }
+  
+  // Nonce is useful to disambiguate files for input/output when calling from the command line, it is usually null or hash(email)
+  export async function generate_inputs_kyc(raw_email_airbnb: Buffer | string, raw_email_coinbase: Buffer | string, eth_address: string, nonce_raw: number | null | string = null): Promise<ICircuitInputs> {
+    const nonce = typeof nonce_raw == "string" ? nonce_raw.trim() : nonce_raw;
+    
+    var result_airbnb, email_airbnb: Buffer;
+    if (typeof raw_email_airbnb === "string") {
+      email_airbnb = Buffer.from(raw_email_airbnb);
+    } else email_airbnb = raw_email_airbnb;
+
+    var result_coinbase, email_coinbase: Buffer;
+    if (typeof raw_email_coinbase === "string") {
+      email_coinbase = Buffer.from(raw_email_coinbase);
+    } else email_coinbase = raw_email_coinbase
+
+    console.log("DKIM verification for Airbnb starting");
+    result_airbnb = await dkimVerify(email_airbnb);
+    if (!result_airbnb.results[0]) {
+      throw new Error(`No result found on dkim output ${result_airbnb}`);
+    } else {
+      if (!result_airbnb.results[0].publicKey) {
+        if (result_airbnb.results[0].status.message) {
+          throw new Error(result_airbnb.results[0].status.message);
+        } else {
+          throw new Error(`No public key found on generate_inputs result ${JSON.stringify(result_airbnb)}`);
+        }
+      }
+    }
+    const _airbnb = result_airbnb.results[0].publicKey.toString();
+    console.log("DKIM verification for Airbnb successful");
+
+    console.log("DKIM verification for Coinbase starting");
+    result_coinbase = await dkimVerify(email_coinbase);
+    if (!result_coinbase.results[0]) {
+      throw new Error(`No result found on dkim output ${result_coinbase}`);
+    } else {
+      if (!result_coinbase.results[0].publicKey) {
+        if (result_coinbase.results[0].status.message) {
+          throw new Error(result_coinbase.results[0].status.message);
+        } else {
+          throw new Error(`No public key found on generate_inputs result ${JSON.stringify(result_coinbase)}`);
+        }
+      }
+    }
+    const _coinbase = result_coinbase.results[0].publicKey.toString();
+    console.log("DKIM verification for Coinbase successful");
+
+    // try {
+    //   // TODO: Condiiton code on if there is an internet connection, run this code
+    //   var frozen = Cryo.stringify(result);
+    //   fs.writeFileSync(`./email_cache_2.json`, frozen, { flag: "w" });
+    // } catch (e) {i
+    //   console.log("Reading cached email instead!");
+    //   let frozen = fs.readFileSync(`./email_cache.json`, { encoding: "utf-8" });
+    //   result = Cryo.parse(frozen);
+    // }
+    let sig_airbnb = BigInt("0x" + Buffer.from(result_airbnb.results[0].signature, "base64").toString("hex"));
+    let message_airbnb = result_airbnb.results[0].status.signature_header;
+    let body_airbnb = result_airbnb.results[0].body;
+    let body_hash_airbnb = result_airbnb.results[0].bodyHash;
+    let pubkey_airbnb = result_airbnb.results[0].publicKey;
+    const pubKeyData_airbnb = pki.publicKeyFromPem(pubkey_airbnb.toString());
+    let modulus_airbnb = BigInt(pubKeyData_airbnb.n.toString());
+
+    let sig_coinbase = BigInt("0x" + Buffer.from(result_coinbase.results[0].signature, "base64").toString("hex"));
+    let message_coinbase = result_coinbase.results[0].status.signature_header;
+    let body_coinbase = result_coinbase.results[0].body;
+    let body_hash_coinbase = result_coinbase.results[0].bodyHash;
+    let pubkey_coinbase = result_coinbase.results[0].publicKey;
+    const pubKeyData_coinbase = pki.publicKeyFromPem(pubkey_coinbase.toString());
+    let modulus_coinbase = BigInt(pubKeyData_coinbase.n.toString());
+
+    let fin_result_airbnb = await getCircuitInputs(sig_airbnb, modulus_airbnb, message_airbnb, body_airbnb, body_hash_airbnb, eth_address, CircuitType.EMAIL, STRING_PRESELECTOR_AIRBNB);
+    let fin_result_coinbase = await getCircuitInputs(sig_coinbase, modulus_coinbase, message_coinbase, body_coinbase, body_hash_coinbase, eth_address, CircuitType.EMAIL, STRING_PRESELECTOR_COINBASE);
+    const inputs_airbnb = fin_result_airbnb.circuitInputs;
+    const inputs_coinbase = fin_result_coinbase.circuitInputs;
+    
+    return {
+      address: inputs_airbnb.address,
+      in_padded_airbnb: inputs_airbnb.in_padded,
+      modulus_airbnb: inputs_airbnb.modulus,
+      signature_airbnb: inputs_airbnb.signature,
+      in_len_padded_bytes_airbnb: inputs_airbnb.in_len_padded_bytes,
+      body_hash_idx_airbnb: inputs_airbnb.body_hash_idx,
+      email_to_idx_airbnb: inputs_airbnb.email_to_idx,
+      in_padded_coinbase: inputs_coinbase.in_padded,
+      modulus_coinbase: inputs_coinbase.modulus,
+      signature_coinbase: inputs_coinbase.signature,
+      in_len_padded_bytes_coinbase: inputs_coinbase.in_len_padded_bytes,
+      body_hash_idx_coinbase: inputs_coinbase.body_hash_idx,
+      email_to_idx_coinbase: inputs_coinbase.email_to_idx,
+    }
   }
 
   // Only called when the whole function is called from the command line, to read inputs
   async function do_generate(writeToFile: boolean = true) {
-    // const { email_file, nonce } = await getArgs();
+    const { email_file, nonce } = await getArgs();
+    const email = fs.readFileSync(email_file.trim());
+    console.log(email);
+    const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000", nonce);
+    console.log(JSON.stringify(gen_inputs));
+    if (writeToFile) {
+      const filename = nonce ? `../input_${nonce}.json` : "./circuits/inputs/input.json";
+      console.log(`Writing to default file ${filename}`);
+      fs.writeFileSync(filename, JSON.stringify(gen_inputs), { flag: "w" });
+    }
+    return gen_inputs;
+  }
 
+  async function do_generate_kyc(writeToFile: boolean = true) {
+    // const { email_file, nonce } = await getArgs();
     const email_airbnb = fs.readFileSync(email_file_airbnb.trim());
     const email_coinbase = fs.readFileSync(email_file_coinbase.trim());
-    const gen_inputs_airbnb = await generate_inputs(email_airbnb, "0x0000000000000000000000000000000000000000", KYCType.AIRBNB);
-    const gen_inputs_coinbase = await generate_inputs(email_coinbase, "0x0000000000000000000000000000000000000000", KYCType.COINBASE);
-
+    // console.log(email);
+    const gen_inputs = await generate_inputs_kyc(email_airbnb, email_coinbase, "0x0000000000000000000000000000000000000000");
+    console.log(JSON.stringify(gen_inputs));
     if (writeToFile) {
       // const filename = nonce ? `../input_${nonce}.json` : "./circuits/inputs/input.json";
       // console.log(`Writing to default file ${filename}`);
-      console.log("Writing to file ./circuits/inputs/input_airbnb.json");
-      fs.writeFileSync(`./circuits/inputs/input_airbnb.json`, JSON.stringify(gen_inputs_airbnb), { flag: "w"});
-      console.log("Writing to file ./circuits/inputs/input_coinbase.json");
-      fs.writeFileSync(`./circuits/inputs/input_coinbase.json`, JSON.stringify(gen_inputs_coinbase), { flag: "w"});
-
-      let input_kyc: { [key: string]: any } = {};
-      for (const key in gen_inputs_airbnb) {
-        input_kyc[key.concat("_airbnb")] = gen_inputs_airbnb[key as keyof ICircuitInputs];
-        input_kyc[key.concat("_coinbase")] = gen_inputs_coinbase[key as keyof ICircuitInputs];
-      }
-      fs.writeFileSync(`./circuits/inputs/input_kyc.json`, JSON.stringify(input_kyc), { flag: "w"});
+      fs.writeFileSync(`./circuits/inputs/input_kyc.json`, JSON.stringify(gen_inputs), { flag: "w" });
     }
+    return gen_inputs;
   }
   
   async function gen_test() {
@@ -346,6 +448,6 @@ import {
   
   // If file called directly with `npx tsx src/scripts/generate_two_inputs.ts`
   if (typeof require !== "undefined" && require.main === module) {
-    do_generate(true);
+    do_generate_kyc(true);
   }
   

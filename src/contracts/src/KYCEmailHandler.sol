@@ -17,7 +17,7 @@ contract VerifiedKYCEmail is ERC721Enumerable, Verifier {
 
   Counters.Counter private tokenCounter;
 
-  uint16 public constant msg_len = 41; // change later when clipping rsa modulus
+  uint16 public constant msg_len = 40; // change later when clipping rsa modulus
   // uint public constant msg_len = 25 // change to for 1024-bit RSA
   uint16 public constant bytesInPackedBytes = 7; // 7 bytes in a packed item returned from circom
   uint256 public constant body_len = 5;
@@ -35,7 +35,7 @@ contract VerifiedKYCEmail is ERC721Enumerable, Verifier {
     // Do dig TXT outgoing._domainkey.twitter.com to verify these.
     // This is the base 2^121 representation of that key.
     // Circom bigint: represent a = a[0] + a[1] * 2**n + .. + a[k - 1] * 2**(n * k)
-    require(2 * rsa_modulus_chunks_len + body_len + 2 == msg_len, "Variable counts are wrong!");
+    require(2 * rsa_modulus_chunks_len + body_len + 1 == msg_len, "Variable counts are wrong!");
 
     // TODO: Create a type that takes in a raw RSA key, the bit count,
     // and whether or not its base64 encoded, and converts it to either 8 or 16 signals

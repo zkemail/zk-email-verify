@@ -19,6 +19,9 @@ template KYCVerify(max_header_bytes, n, k) {
     var max_packed_bytes = (max_header_bytes - 1) \ 7 + 1; // ceil(max_header_bytes / 7)
     signal body_hash_concat[128]; // body hash output from each email has length 44, round up to lowest multiple of 64
 
+    // ADDRESS INPUT SIGNALS
+    signal input address;
+
     // AIRBNB INPUT SIGNALS
     signal input in_padded_airbnb[max_header_bytes]; // prehashed email data, includes up to 512 + 64? bytes of padding pre SHA256, and padded with lots of 0s at end after the length
     signal input modulus_airbnb[k]; // rsa pubkey, verified with smart contract + optional oracle
@@ -26,7 +29,6 @@ template KYCVerify(max_header_bytes, n, k) {
     signal input in_len_padded_bytes_airbnb; // length of in email data including the padding, which will inform the sha256 block length
     signal input body_hash_idx_airbnb;
     signal input email_to_idx_airbnb;
-    signal input address_airbnb;
 
     // COINBASE INPUT SIGNALS
     signal input in_padded_coinbase[max_header_bytes]; // prehashed email data, includes up to 512 + 64? bytes of padding pre SHA256, and padded with lots of 0s at end after the length
@@ -35,7 +37,6 @@ template KYCVerify(max_header_bytes, n, k) {
     signal input in_len_padded_bytes_coinbase; // length of in email data including the padding, which will inform the sha256 block length
     signal input body_hash_idx_coinbase;
     signal input email_to_idx_coinbase;
-    signal input address_coinbase;
 
     // OUTPUT SIGNALS
     // Outputs the hash of the two body hashes, which serves as the nullifier
@@ -47,25 +48,25 @@ template KYCVerify(max_header_bytes, n, k) {
     component airbnb_verify = AirbnbEmailVerify(max_header_bytes, n, k);
     component coinbase_verify = CoinbaseEmailVerify(max_header_bytes, n, k);
     
-    // Airbnb email inputs
+    // AIRBNB EMAIL IMPUTS
     airbnb_verify.in_padded <== in_padded_airbnb;
     airbnb_verify.modulus <== modulus_airbnb;
     airbnb_verify.signature <== signature_airbnb;
     airbnb_verify.in_len_padded_bytes <== in_len_padded_bytes_airbnb;
     airbnb_verify.body_hash_idx <== body_hash_idx_airbnb;
     airbnb_verify.email_to_idx <== email_to_idx_airbnb;
-    airbnb_verify.address <== address_airbnb;
+    airbnb_verify.address <== address;
 
-    // Coinbase email inputs
+    // COINBASE EMAIL INPUTS
     coinbase_verify.in_padded <== in_padded_coinbase;
     coinbase_verify.modulus <== modulus_coinbase;
     coinbase_verify.signature <== signature_coinbase;
     coinbase_verify.in_len_padded_bytes <== in_len_padded_bytes_coinbase;
     coinbase_verify.body_hash_idx <== body_hash_idx_coinbase;
     coinbase_verify.email_to_idx <== email_to_idx_coinbase;
-    coinbase_verify.address <== address_coinbase;
+    coinbase_verify.address <== address;
 
-    // TO EMAILS MATCH
+    // CHECK TO-EMAILS MATCH
     // Check that the to emails match
     signal to_email_airbnb[max_header_bytes] <== airbnb_verify.to_email;
     signal to_email_coinbase[max_header_bytes] <== coinbase_verify.to_email;
@@ -105,4 +106,4 @@ template KYCVerify(max_header_bytes, n, k) {
 // In circom, all output signals of the main component are public (and cannot be made private), the input signals of the main component are private if not stated otherwise using the keyword public as above. The rest of signals are all private and cannot be made public.
 // This makes modulus and reveal_twitter_packed public. hash(signature) can optionally be made public, but is not recommended since it allows the mailserver to trace who the offender is.
 // TODO: change public signals in smart contract to match new public signals
-component main { public [ modulus_airbnb, modulus_coinbase, address_airbnb, address_coinbase ] } = KYCVerify(1024, 121, 17);
+component main { public [ modulus_airbnb, modulus_coinbase, address ] } = KYCVerify(1024, 121, 17);
