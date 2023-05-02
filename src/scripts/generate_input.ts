@@ -286,7 +286,8 @@ async function do_generate(writeToFile: boolean = true) {
   const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000", nonce);
   console.log(JSON.stringify(gen_inputs));
   if (writeToFile) {
-    const filename = nonce ? `../input_${nonce}.json` : "./circuits/inputs/input.json";
+    const file_dir = email_file.substring(email_file.lastIndexOf("/") + 1);
+    const filename = nonce ? `${file_dir}/input_${nonce}.json` : "./circuits/inputs/input.json";
     console.log(`Writing to default file ${filename}`);
     fs.writeFileSync(filename, JSON.stringify(gen_inputs), { flag: "w" });
   }
@@ -298,7 +299,8 @@ export async function insert13Before10(a: Uint8Array): Promise<Uint8Array> {
   let ret = new Uint8Array(a.length + 1000);
   let j = 0;
   for (let i = 0; i < a.length; i++) {
-    if (a[i] === 10) {
+    // Ensure each \n is preceded by a \r
+    if (a[i] === 10 && i > 0 && a[i - 1] !== 13) {
       ret[j] = 13;
       j++;
     }
