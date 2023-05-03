@@ -5,10 +5,10 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "forge-std/console.sol";
-// import "./base64.sol";
 import "./StringUtils.sol";
 import "./NFTSVG.sol";
-import "./Groth16VerifierTwitter.sol";
+import { Verifier } from "./Groth16VerifierKYC.sol";
+import "./MailServer.sol";
 
 contract VerifiedKYCEmail is ERC721Enumerable, Verifier {
   using Counters for Counters.Counter;

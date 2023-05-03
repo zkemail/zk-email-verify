@@ -40,7 +40,7 @@
     "react-use": "^17.3.2",
     "readline": "^1.3.0",
     "serve": "^14.0.1",
-    "snarkjs": "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e",
+    "snarkjs": "git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8",
     "sshpk": "^1.17.0",
     "styled-components": "^5.3.5",
     "ts-node": "^10.9.1",
