@@ -1,9 +1,9 @@
-import { render, screen } from '@testing-library/react';
-import App from './App';
+import { render, screen } from "@testing-library/react";
+import App from "./App";
 
-jest.mock('@rainbow-me/rainbowkit', () => {
+jest.mock("@rainbow-me/rainbowkit", () => {
   return {
-    ConnectButton: () => '',
+    ConnectButton: () => "",
   };
 });
 
@@ -12,12 +12,12 @@ jest.mock("wagmi", () => {
     __esModule: true,
     usePrepareContractWrite: () => {
       return {
-        config: {}
+        config: {},
       };
     },
-    useAccount: () => { 
+    useAccount: () => {
       return {
-        address: "0x00000000000000000000"
+        address: "0x00000000000000000000",
       };
     },
     useContractWrite: () => {
@@ -26,17 +26,19 @@ jest.mock("wagmi", () => {
       const isSuccess = true;
       const write = jest.fn();
       return {
-        data, isLoading, isSuccess, write 
+        data,
+        isLoading,
+        isSuccess,
+        write,
       };
-    }
+    },
   };
 });
 
-
-describe('App', () => {
-  test('renders app', () => {
+describe("App", () => {
+  test("renders app", () => {
     render(<App />);
-    const linkElement = screen.getByText(/ZK Email Ownership Proof Generator From Header/i);
+    const linkElement = screen.getByText(/Proof of Twitter: ZK Email Demo/i);
     expect(linkElement).toBeInTheDocument();
   });
 });
