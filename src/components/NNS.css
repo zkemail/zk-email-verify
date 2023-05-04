@@ -1,0 +1,27 @@
+  .nns__inner {
+    background-color: #0066cc;
+    transition: height 0.3s ease-out;
+  }
+  
+  .nns__step {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .nns__step.active {
+    transition: all 0.2s ease-in-out;
+    background-color: #7a37e0;
+  }
+  
+  .nns__step:hover {
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0px 0px 20px rgba(152, 29, 234, 0.2);
+    color: #bb8aff;
+  }
+  
