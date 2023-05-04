@@ -71,4 +71,4 @@ generate_input_log.txt
 .vscode
 
 # from zk-kyc
-temp.py
+/temp.py
