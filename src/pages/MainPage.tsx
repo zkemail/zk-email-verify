@@ -205,7 +205,7 @@ export const MainPage: React.FC<{}> = (props) => {
         </span>
         <NumberedStep step={1}>
           Send yourself a{" "}
-          <a href="https://twitter.com/i/flow/password_reset" target="_blank" rel="noreferrer">
+          <a href="https://twitter.com/account/begin_password_reset" target="_blank" rel="noreferrer">
             password reset email
           </a>{" "}
           from Twitter.
