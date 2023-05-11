@@ -121,7 +121,7 @@ export async function getCircuitInputs(
   const [bodyPadded, bodyPaddedLen] = await sha256Pad(body, Math.max(MAX_BODY_PADDED_BYTES, calc_length));
 
   // Convet messagePadded to string to print the specific header data that is signed
-  console.log(JSON.stringify(message).toString());
+  // console.log(JSON.stringify(message).toString());
 
   // Ensure SHA manual unpadded is running the correct function
   const shaOut = await partialSha(messagePadded, messagePaddedLen);
@@ -280,7 +280,9 @@ export async function generate_inputs(raw_email: Buffer | string, eth_address: s
 
 // Only called when the whole function is called from the command line, to read inputs
 async function do_generate(writeToFile: boolean = true) {
-  const { email_file, nonce } = await getArgs();
+  // const { email_file, nonce } = await getArgs();
+  const email_file = "./nathan_coinbase_email.eml";
+  const nonce = null
   const email = fs.readFileSync(email_file.trim());
   console.log(email);
   const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000", nonce);

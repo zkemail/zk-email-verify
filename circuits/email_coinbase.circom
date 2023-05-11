@@ -81,9 +81,6 @@ template CoinbaseEmailVerify(max_header_bytes, n, k) {
     (to_regex_out, to_regex_reveal) <== ToRegex(max_header_bytes)(in_padded);
     to_regex_out === 1;
     to_email <== VarShiftLeft(max_header_bytes, max_header_bytes)(to_regex_reveal, email_to_idx); // can probably change output length
-    // for (var i = 0; i < max_header_bytes; i++) {
-    //     log(to_email[i]);
-    // }
 
     // BODY HASH REGEX: 617,597 constraints
     // This extracts the body hash from the header (i.e. the part after bh= within the DKIM-signature section)

@@ -72,3 +72,5 @@ generate_input_log.txt
 
 # from zk-kyc
 /temp.py
+*.pem
+*.der

@@ -125,6 +125,7 @@ contract VerifiedKYCEmail is ERC721Enumerable, Verifier {
     require(verifyProof(a, b, c, signals), "Invalid Proof"); // checks effects iteractions, this should come first
 
     // Effects: Mint token
+    // TODO: Add nullifier functionality
     uint256 tokenId = tokenCounter.current() + 1;
     string memory messageBytes = StringUtils.convertPackedBytesToBytes(bodySignals, bytesInPackedBytes * body_len, bytesInPackedBytes);
     tokenIDToName[tokenId] = messageBytes;

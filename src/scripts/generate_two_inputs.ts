@@ -28,7 +28,6 @@ import {
   // nonce: Nonce to diambiguate input/output files (optional, only useful for monolithic server side provers)
   const email_file_airbnb = "./nathan_airbnb_email.eml";
   const email_file_coinbase = "./nathan_coinbase_email.eml";
-  const email_file_default = "./nathan_twitter_email.eml";
 
   // TODO: Edit function when hooking up to frontend
   async function getArgs() {
@@ -82,7 +81,6 @@ import {
     TEST = "test",
     EMAIL = "email",
     SUBJECTPARSER = "subjectparser",
-    KYC = "kyc",
   }
   
   async function findSelector(a: Uint8Array, selector: number[]): Promise<number> {
@@ -188,9 +186,9 @@ import {
   
     let raw_header = Buffer.from(prehash_message_string).toString();
     const email_from_idx = raw_header.length - trimStrByStr(trimStrByStr(raw_header, "from:"), "<").length;
-    const email_to_idx = raw_header.length - trimStrByStr(trimStrByStr(raw_header, "to:"), "<").length;
-    // const email_from_idx = Buffer.from(prehash_message_string).indexOf("from:").toString();
-    // const email_to_idx = Buffer.from(prehash_message_string).indexOf("to:").toString();
+    // If email contains "<"" in front of it, use the commented version
+    const email_to_idx = raw_header.length - trimStrByStr(raw_header, "to:").length;
+    // const email_to_idx = raw_header.length - trimStrByStr(trimStrByStr(raw_header, "to:"), "<").length;
     let email_subject = trimStrByStr(raw_header, "subject:");
     const amount_idx = raw_header.length - trimStrByStr(email_subject, "end ").length;
     const currency_idx = raw_header.length - trimStrByStr(trimStrByStr(email_subject, "end "), " ").length;
@@ -395,7 +393,7 @@ import {
     const email = fs.readFileSync(email_file.trim());
     console.log(email);
     const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000", nonce);
-    console.log(JSON.stringify(gen_inputs));
+    (JSON.stringify(gen_inputs));
     if (writeToFile) {
       const filename = nonce ? `../input_${nonce}.json` : "./circuits/inputs/input.json";
       console.log(`Writing to default file ${filename}`);
@@ -410,7 +408,7 @@ import {
     const email_coinbase = fs.readFileSync(email_file_coinbase.trim());
     // console.log(email);
     const gen_inputs = await generate_inputs_kyc(email_airbnb, email_coinbase, "0x0000000000000000000000000000000000000000");
-    console.log(JSON.stringify(gen_inputs));
+    // console.log(JSON.stringify(gen_inputs));
     if (writeToFile) {
       // const filename = nonce ? `../input_${nonce}.json` : "./circuits/inputs/input.json";
       // console.log(`Writing to default file ${filename}`);

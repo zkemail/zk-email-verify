@@ -31,7 +31,7 @@ const generate_input_kyc = require("../scripts/generate_two_inputs");
 
 export const MainPage: React.FC<{}> = (props) => {
   // raw user inputs
-  const filename = "email";
+  const filename = "email_both";
 
   const [emailSignals, setEmailSignals] = useState<string>("");
   const [emailFullAirbnb, setEmailFullAirbnb] = useState<string>(localStorage.emailFullAirbnb || "");
@@ -177,16 +177,16 @@ export const MainPage: React.FC<{}> = (props) => {
 
   const steps = [
     {
-      title: "Send a Twitter Password Reset Email",
-      description: "Send yourself a Twitter password reset email from Twitter."
+      title: "Complete KYC Verification",
+      description: "Complete KYC Verification on both Airbnb and Coinbase (current setup only works with these two, but more can be added in the future)."
     },
     {
       title: "Download Email Contents",
-      description: "In your inbox, find the email from Twitter and click the three dot menu, then 'Show original' then 'Copy to clipboard'. If on Outlook, download the original email as .eml and copy it instead.' "
+      description: "In your inbox, find the KYC confirmation email from Airbnb and click the three dot menu, then 'Show original' then 'Copy to clipboard'. If on Outlook, download the original email as .eml and copy it instead.' Do the same for the Coinbase email."
     },
     {
       title: "Paste Input",
-      description: "Copy paste that into the box below. Note that we cannot use this to phish you: we do not know your password, and we never get this email info because we have no server at all. We are actively searching for a less sketchy email."
+      description: "Copy paste the contents of the two emails into their respective boxes. Note that we cannot use this to phish you: we never get this email info because we have no server at all."
     },
     {
       title: "Add Ethereum Address",
@@ -197,8 +197,8 @@ export const MainPage: React.FC<{}> = (props) => {
       description: "Click 'Generate Proof'. Since it is completely client side and open source, and you are not trusting us with any private information."
     },
     {
-      title: "Verify & Mint NFT Soul Token",
-      description: "Click 'Verify' and then 'Mint Twitter Badge On-Chain', and approve to mint the NFT badge that proves Twitter ownership! Note that it is 700K gas right now so only feasible on Goerli, though we intend to reduce this soon."
+      title: "Verify & Mint NFT to Address",
+      description: "Click 'Verify' and then 'Mint KYC Badge On-Chain', and approve to mint the NFT badge for proof of personhood!"
     }
   ];
 
@@ -221,8 +221,8 @@ export const MainPage: React.FC<{}> = (props) => {
       >
         <span style={{ color: "rgba(255, 255, 255, 0.7)" }}>
           Note that we are <a href="https://github.com/zk-email-verify/zk-email-verify/">actively developing</a> and debugging this page, it is likely unstable. Due to download
-          limits of incognito mode and non-chrome browsers, you must use Chrome to generate proofs right now. Our goal for March 2023 is to make this process 10x faster and
-          smaller. If you wish to generate a ZK proof of Twitter badge, you must do these:
+          limits of incognito mode and non-chrome browsers, you must use Chrome to generate proofs right now. Our goal for June 2023 is to make this process 10x faster and
+          smaller. If you wish to generate a ZK proof of personhood badge, you must do these:
         </span>
         {<NumberedStep steps={steps} />}
       </Col>
@@ -403,7 +403,7 @@ export const MainPage: React.FC<{}> = (props) => {
               : isLoading
               ? "Confirm in wallet"
               : verificationPassed
-              ? "Mint Twitter badge on-chain"
+              ? "Mint KYC badge on-chain"
               : "Verify first, before minting on-chain!"}
           </Button>
           {isSuccess && (

@@ -479,6 +479,10 @@ const validateAlgorithm = (algorithm, strict) => {
   }
 };
 
+const oldKeys = [
+  "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCEw53tgIoF8hrRikgKN/8E0xFqT5rBWYegP1JcIbP92dtLtG6HeS1sck5UCYR6HUy8NEEcUaxn1gnSezht6iyWR0G6BwNOevGGLg3N6rO9V5YayIIf4C74tjQdCiHP34wCRJQ05zWq8q/XMrAm5B3SKQMMl2LV/WoVCjyneq5ZYwIDAQAB"
+]
+
 module.exports = {
   writeToStream,
   parseHeaders,
@@ -489,7 +493,7 @@ module.exports = {
   formatSignatureHeaderLine,
   parseDkimHeaders,
   getPublicKey,
-  formatAuthHeaderRow,
+  formatAuthHeaderRow,  
   escapeCommentValue,
 
   validateAlgorithm,
@@ -498,4 +502,6 @@ module.exports = {
 
   formatRelaxedLine,
   formatDomain,
+  
+  oldKeys,
 };
