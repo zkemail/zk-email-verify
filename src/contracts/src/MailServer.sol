@@ -105,6 +105,43 @@ contract MailServer {
     verifiedMailserverKeys["skiff.com"][14] = 1366599807917971505788646146248798329;
     verifiedMailserverKeys["skiff.com"][15] = 391565989352979266796804441125988853;
     verifiedMailserverKeys["skiff.com"][16] = 3704766395208948862861103932863036;
+
+    verifiedMailserverKeys["airbnb.com"][0] = 1782267151472132502396673758441738163;
+    verifiedMailserverKeys["airbnb.com"][1] = 211482981992850046267405122085516466;
+    verifiedMailserverKeys["airbnb.com"][2] = 454331740279802979553218083106524093;
+    verifiedMailserverKeys["airbnb.com"][3] = 2403631535172814929511297080499227501;
+    verifiedMailserverKeys["airbnb.com"][4] = 2245858962887391502631714271235221261;
+    verifiedMailserverKeys["airbnb.com"][5] = 2622546081161044621195511843069142201;
+    verifiedMailserverKeys["airbnb.com"][6] = 1247628895302131918172499597775434966;
+    verifiedMailserverKeys["airbnb.com"][7] = 1584816411261150842617500336767389232;
+    verifiedMailserverKeys["airbnb.com"][8] = 52914273202064513;
+    verifiedMailserverKeys["airbnb.com"][9] = 0;
+    verifiedMailserverKeys["airbnb.com"][10] = 0;
+    verifiedMailserverKeys["airbnb.com"][11] = 0;
+    verifiedMailserverKeys["airbnb.com"][12] = 0;
+    verifiedMailserverKeys["airbnb.com"][13] = 0;
+    verifiedMailserverKeys["airbnb.com"][14] = 0;
+    verifiedMailserverKeys["airbnb.com"][15] = 0;
+    verifiedMailserverKeys["airbnb.com"][16] = 0;
+
+    // TODO: Update coinbase public key
+    verifiedMailserverKeys["coinbase.com"][0] = 1345060269316532707410324038691477859;
+    verifiedMailserverKeys["coinbase.com"][1] = 384766469338727068594017962971556116;
+    verifiedMailserverKeys["coinbase.com"][2] = 168911276988157118943281324996362385;
+    verifiedMailserverKeys["coinbase.com"][3] = 1165220578700378509253846448878043993;
+    verifiedMailserverKeys["coinbase.com"][4] = 1468253564629208485538769233538980768;
+    verifiedMailserverKeys["coinbase.com"][5] = 2375057771089481827666297753868306658;
+    verifiedMailserverKeys["coinbase.com"][6] = 1859460967236870128489365675225233949;
+    verifiedMailserverKeys["coinbase.com"][7] = 2514159567794221963503259554592798082;
+    verifiedMailserverKeys["coinbase.com"][8] = 37369779987712517;
+    verifiedMailserverKeys["coinbase.com"][9] = 0;
+    verifiedMailserverKeys["coinbase.com"][10] = 0;
+    verifiedMailserverKeys["coinbase.com"][11] = 0;
+    verifiedMailserverKeys["coinbase.com"][12] = 0;
+    verifiedMailserverKeys["coinbase.com"][13] = 0;
+    verifiedMailserverKeys["coinbase.com"][14] = 0;
+    verifiedMailserverKeys["coinbase.com"][15] = 0;
+    verifiedMailserverKeys["coinbase.com"][16] = 0;
   }
 
   function _stringEq(string memory a, string memory b) internal pure returns (bool) {

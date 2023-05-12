@@ -1,9 +1,13 @@
 from Crypto.PublicKey import RSA
 from Crypto.Util.number import long_to_bytes
 
+# replace n with the modulus you want to use
 n = 93230141572400662170783753550307761264955081869460053639895434883348985555848023394186640556096911451485975596801521695255694734630678338219590345941037464687540511026989400486063960033279502094209058208866021776512104192812763971526144421706090065402405684981981627715733224518387601434649205998732618652003
 e = 65537
 
 key = RSA.construct((n, e))
 with open("rsa_pub_key.der", "wb") as f:
     f.write(key.exportKey("DER"))
+
+# after generating the .der file, run in the terminal
+# openssl rsa -inform DER -in rsa_pub_key.der -pubin -out rsa_pub_key.pem
