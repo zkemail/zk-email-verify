@@ -26,7 +26,7 @@ import {
 
   // email_file: Path to email file
   // nonce: Nonce to diambiguate input/output files (optional, only useful for monolithic server side provers)
-  const email_file_airbnb = "./nathan_airbnb_email.eml";
+  const email_file_airbnb = "./nathan_twitter_email.eml";
   const email_file_coinbase = "./nathan_coinbase_email.eml";
 
   // TODO: Edit function when hooking up to frontend
@@ -412,7 +412,7 @@ import {
     if (writeToFile) {
       // const filename = nonce ? `../input_${nonce}.json` : "./circuits/inputs/input.json";
       // console.log(`Writing to default file ${filename}`);
-      fs.writeFileSync(`./circuits/inputs/input_kyc.json`, JSON.stringify(gen_inputs), { flag: "w" });
+      fs.writeFileSync(`./circuits/inputs/input.json`, JSON.stringify(gen_inputs), { flag: "w" });
     }
     return gen_inputs;
   }
