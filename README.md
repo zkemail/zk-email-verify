@@ -44,6 +44,8 @@ circuits/ # groth16 zk circuits
         input_email_domain.json # Standard input for from/to mit.edu domain matching, for use with circuit without body checks
         input_email_packed.json # Same as above but has useless packed input -- is private so irrelevant, this file could be deleted.
     main/ # Legacy RSA code
+    regexes/ # Generated regexes
+    helpers/ # Common helper circom circuits imported in email circuits
     scripts/ # Run snarkjs ceremony to generate zkey with yarn compile
 dizkus-scripts/
     *.sh # Scripts to compile the chunked keys on a remote server
@@ -74,7 +76,13 @@ public/ # Should contain vkey/wasm, but we end up fetching those from AWS server
 
 First, generate a regex. Go to our [min_dfa fork](zkregex.com/min_dfa) of cyberzhg's toolbox and insert your regex on the top line. We've forked [min-dfa into a UI here](zkregex.com/min_dfa) to create a UI that converts existing regexes with [] support, as well as escapes \_, and the character classes a-z, A-Z, and 0-9. It also shows the DFA states very clearly so you can choose accept states easily. This should make converting regexes into DFA form way cleaner.
 
-Modify either `let raw_regex = ` (that supports actual regex strings like `[A-Za-z0-9]` [but no other character ranges]) or modify `let regex = ` (that does not support generic brackets or character ranges, only the limited syntax in https://zkregex.com/min_dfa) in regex_to_circom/regex_to_dfa.js and then run `python3 gen.py`.
+Modify either `let raw_regex = ` (that supports actual regex strings like `[A-Za-z0-9]` [but no other character ranges]) or modify `let regex = regexToMinDFASpec(<raw regex>)` (that does not support generic brackets or character ranges, only the limited syntax in https://zkregex.com/min_dfa) in `regex_to_circom/regex_to_dfa.js`. Then run `npx tsx regex_to_dfa.js` to make sure that it compiles and `tsx` is installed, and then remove all `console.log` statements except for the last line, and finally run `python3 gen.py`.
+
+This will output a circom body. Wrap it the same way for instance circuits/regexes/from_regex.circom is written. To have the correct reveal states, subtract 1 from the indexes that show up on the zkregex [min_dfa visualizer](zkregex.com/min_dfa).
+
+Note that if your regex uses `^` at the start to mean sentinel starting character, you have to edit the resulting regex.circom file to manually change `94` (ascii code of ^) to `128` (manually inserted sentinel character meaning start, you'll see it defined as the 0th character of the string).
+
+We will soon have a website [WIP](https://frontend-zk-regex.vercel.app/) that automatically does this. If you'd like to make this process simpler, cleaner, and less hacky, we'd recommend making a PR here or to the zk-regex library (which is a bit out of date regex-string wise and match group-wise).
 
 ### Email Circuit Build Steps
 
@@ -422,7 +430,7 @@ Use https://sha256algorithm.com/ as an explainer! It's a great visualization of 
 
 ### I'm having trouble with regex or base64 understanding. How do I understand that better?
 
-Use https://cyberzhg.github.io/toolbox/ to experiement with conversions to/from base64 and to/from DFAs and NFAs.
+Use https://cyberzhg.github.io/toolbox/ to experiment with conversions to/from base64 and to/from DFAs and NFAs.
 
 ### What are the differences between generating proofs (snarkjs.groth16.fullprove) on the client vs. on a server?
 

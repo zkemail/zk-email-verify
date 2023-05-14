@@ -175,3 +175,28 @@ template Bytes2Packed(n){
         }
     }
 }
+
+// salt_is_message_id_from, custom_anon_from_hashed_salt = MakeAnonEmailSalt(max_email_from_len, max_message_id_len)(email_from, custom_message_id_from, shifted_message_id)
+template MakeAnonEmailSalt(email_len, blinder_len) {
+    signal input email[email_len];
+    signal input custom_message_id[blinder_len]; // previous message id, used to source past account
+    signal input original_message_id[blinder_len]; // previous message id, used to source past account
+    signal intermediate_is_message_id_from[blinder_len + 1];
+    signal isEq[blinder_len];
+    signal output blinder_matches;
+    signal output anon_salt;
+
+    component hasher = MiMCSponge(email_len + blinder_len, 220, 1);
+    hasher.k <== 123;
+    for (var i = 0; i < email_len; i++) {
+        hasher.ins[i] <== email[i];
+    }
+    intermediate_is_message_id_from[0] <== 1;
+    for (var i = 0; i < blinder_len; i++) {
+        hasher.ins[i + email_len] <== custom_message_id[i];
+        isEq[i] <== IsEqual()([custom_message_id[i], original_message_id[i]]);
+        intermediate_is_message_id_from[i + 1] <== isEq[i] * intermediate_is_message_id_from[i];
+    }
+    blinder_matches <== intermediate_is_message_id_from[blinder_len];
+    anon_salt <== hasher.outs[0];
+}
