@@ -13,6 +13,7 @@ curl -L https://foundry.paradigm.xyz | bash && source ~/.bashrc && foundryup
 forge install foundry-rs/forge-std
 cp node_modules/forge-std src/contracts/lib/forge-std
 cd src/contracts
+forge install openzeppelin/openzeppelin-contracts
 ```
 
 To test,
