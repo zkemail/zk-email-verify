@@ -27,7 +27,8 @@ contract VerifiedKYCEmail is ERC721Enumerable, Verifier {
   uint256 public constant addressIndexInSignals = msg_len - 1;
 
   mapping(string => uint256[rsa_modulus_chunks_len]) public verifiedMailserverKeys;
-  mapping(uint256 => string) public tokenIDToName;
+  // mapping(uint256 => string) public tokenIDToName;
+  mapping(bytes32 => bool) public nullifiers;
   string constant domain_airbnb = "airbnb.com";
   string constant domain_coinbase = "coinbase.com";
   MailServer mailServer;
@@ -47,11 +48,11 @@ contract VerifiedKYCEmail is ERC721Enumerable, Verifier {
   }
 
   // TODO: change this function for KYC
-  function tokenURI(uint256 tokenId) public view override returns (string memory) {
-    string memory username = tokenIDToName[tokenId];
-    address owner = ownerOf(tokenId);
-    return NFTSVG.constructAndReturnSVG(username, tokenId, owner);
-  }
+  // function tokenURI(uint256 tokenId) public view override returns (string memory) {
+  //   string memory username = tokenIDToName[tokenId];
+  //   address owner = ownerOf(tokenId);
+  //   return NFTSVG.constructAndReturnSVG(username, tokenId, owner);
+  // }
 
   // TODO: change this function for KYC
   function _domainCheck(uint256[] memory headerSignals) public pure returns (bool) {
@@ -78,6 +79,10 @@ contract VerifiedKYCEmail is ERC721Enumerable, Verifier {
     // Check eth address committed to in proof matches msg.sender, to avoid replayability
     require(address(uint160(signals[addressIndexInSignals])) == msg.sender, "Invalid address");
 
+    // Check nullifier hasn't been used
+    bytes32 nullifier = keccak256(abi.encodePacked(bodySignals));
+    require(!nullifiers[nullifier], "Nullifier has already been used!");
+
     // Check from/to email domains are correct [in this case, only from domain is checked]
     // Right now, we just check that any email was received from anyone at Twitter, which is good enough for now
     // We will upload the version with these domain checks soon!
@@ -91,10 +96,10 @@ contract VerifiedKYCEmail is ERC721Enumerable, Verifier {
     require(verifyProof(a, b, c, signals), "Invalid Proof"); // checks effects iteractions, this should come first
 
     // Effects: Mint token
-    // TODO: Add nullifier functionality
+    nullifiers[nullifier] = true;
     uint256 tokenId = tokenCounter.current() + 1;
-    string memory messageBytes = StringUtils.convertPackedBytesToBytes(bodySignals, bytesInPackedBytes * body_len, bytesInPackedBytes);
-    tokenIDToName[tokenId] = messageBytes;
+    // string memory messageBytes = StringUtils.convertPackedBytesToBytes(bodySignals, bytesInPackedBytes * body_len, bytesInPackedBytes);
+    // tokenIDToName[tokenId] = messageBytes;
     _mint(msg.sender, tokenId);
     tokenCounter.increment();
   }
