@@ -278,8 +278,21 @@ const getPublicKey = async (type, name, minBitLength, resolver) => {
   if (rr) {
     // prefix value for parsing as there is no default value
     let entry = parseDkimHeaders(`DNS: TXT;${rr}`);
+    let publicKeyValue = entry?.parsed?.p?.value;
 
-    const publicKeyValue = entry?.parsed?.p?.value;
+    if (!publicKeyValue) {
+      rr = rr.replace(/['"]+/g, '');
+      entry = parseDkimHeaders(`DNS: TXT;${rr}`);
+      publicKeyValue = entry?.parsed?.p?.value;
+      
+      if (!publicKeyValue) {
+        let err = new Error("Missing key value");
+        err.code = "EINVALIDVAL";
+        err.rr = rr;
+        throw err;
+      }
+    }
+
     if (!publicKeyValue) {
       let err = new Error("Missing key value");
       err.code = "EINVALIDVAL";
