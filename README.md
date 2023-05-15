@@ -86,6 +86,8 @@ We will soon have a website [WIP](https://frontend-zk-regex.vercel.app/) that au
 
 ### Email Circuit Build Steps
 
+#### Build
+
 Install rust/circom2 via the following steps, according to: https://docs.circom.io/getting-started/installation/
 
 ```bash
@@ -127,6 +129,8 @@ mv powersOfTau28_hez_final_21.ptau circuits/powersOfTau28_hez_final_21.ptau
 <!-- Previously snarkjs@git+https://github.com/vb7401/snarkjs.git#fae4fe381bdad2da13eee71010dfe477fc694ac1 -->
 <!-- Now -> yarn add https://github.com/vb7401/snarkjs/commits/chunk_zkey_gen -->
 
+#### Zkey Creation
+
 Put the email into ...\*.eml. Edit the constant filename at the top of generate_input.ts to import that file, then use the output of running that file as the input file (you may need to rename it). You'll need this for both zkey and verifier generation.
 
 To create a chunked zkey for in-browser proving, run the following on a high CPU computer:
@@ -143,9 +147,11 @@ Not put random characters into the values for entropy1 and entropy2, and hexadec
 ./1_compile.sh && ./2_gen_wtns.sh && ./3_gen_chunk_zkey.sh && ./4_gen_vkey.sh && ./5_gen_proof.sh
 ```
 
+#### Server-side Prover: Rapidsnark Setup (Optional)
+
 If you want to run a fast server side prover, install rapidsnark and test proofgen:
 
-```
+```bash
 cd ../../
 git clone https://github.com/iden3/rapidsnark
 cd rapidsnark
@@ -157,7 +163,7 @@ npx task createFieldSources
 
 You're supposed to run `npx task buildPistache` next, but that errored, so I had to manually build the pistache lib first:
 
-```
+```bash
 cd depends/pistache
 sudo apt-get install meson ninja-build
 meson setup build --buildtype=release
@@ -169,18 +175,24 @@ cd ../..
 
 Then, from rapidsnark/ I could run
 
-```
+```bash
 npx task buildProverServer
 ```
 
 And from zk-email-verify, convert your proof params to a rapidsnark friendly version:
 
-```
-
+```bash
 cd ../zk-email-verify/dizkus-scripts
 ./6_gen_proof_rapidsnark.sh
-
 ```
+
+To compile a non-chunked zkey for server-side use only,
+
+```bash
+yarn compile-all
+```
+
+#### Uploading to AWS
 
 To upload zkeys to an s3 box on AWS, change bucket_name in upload_to_s3.py and run:
 
@@ -202,23 +214,17 @@ python3 dizkus-scripts/upload_to_s3.py --dirs ~/zk-email-verify/build/email/emai
 
 Note that there's no .zkeya file, only .zkeyb ... .zkeyk. The script will automatically zip into .tar.gz files and load into s3 bucket.
 
-We use a fork of [zkp.ts](https://github.com/personaelabs/heyanon/blob/main/lib/zkp.ts) to load these keys into localforage. In the browser, to read off of localforage, you have to use this fork when running the frontend locally/in prod:
+#### Recompile Frontend (Important!)
 
-```
+We use a fork of [zkp.ts](https://github.com/personaelabs/heyanon/blob/main/lib/zkp.ts) to load these keys into localforage. In the browser, to read off of localforage, you have to use this fork when running the frontend locally/in prod. THIS IS VERY IMPORTANT -- WRONG SNARKJS FORKS CAUSE THE MOST ERRORS.
 
+```bash
 yarn install snarkjs@git+https://github.com/vb7401/snarkjs.git#53e86631b5e409e5bd30300611b495ca469503bc
-
 ```
 
 Manually copy paste the modulus in the resulting generated file into solidity verified mailserver keys.
 
 Change s3 address in the frontend to your bucket.
-
-To do a non-chunked zkey for non-browser running,
-
-```
-yarn compile-all
-```
 
 ### Really Large Circuits
 
@@ -261,6 +267,10 @@ and when the zkey also doesn't change,
 yarn compile email true skip-r1cswasm skip-zkey
 ```
 
+### Contract Deployment
+
+Follow the instructions in `src/contracts/README.md`.
+
 ### Production
 
 For production, make sure to set a beacon in .env.
@@ -282,48 +292,6 @@ To test solidity,
 cp node_modules/forge-std src/contracts/lib/forge-std
 cd src/contracts
 forge test
-```
-
-To deploy contract to forked mainnet, edit `src/contracts/.env` based off of `src/contracts/.env.example` and do:
-
-```
-# Set terminal to the folder with this README
-cd src/contracts
-source .env
-
-# Run local chain in tmux window 1
-anvil --fork-url https://eth-goerli.g.alchemy.com/v2/$ALCHEMY_GOERLI_KEY --port 8548 # Run in tmux
-
-# Export to abi for relayers
-forge inspect src/TwitterEmailHandler.sol:$MAIN_CONTRACT_NAME abi --via-ir >> contract.abi
-
-# First, test deploy without actually broadcasting it
-forge script script/Deploy.s.sol:Deploy --via-ir -vvvv --rpc-url $RPC_URL
-
-# Then, actually deploy
-forge script script/Deploy.s.sol:Deploy --via-ir -vvvv --rpc-url $RPC_URL --broadcast
-
-# Verify the contract with the raw one via Etherscan
-forge verify-contract $EMAIL_ADDR $MAIN_CONTRACT_NAME --watch --etherscan-api-key $GOERLI_ETHERSCAN_API_KEY
-```
-
-```
-anvil --fork-url https://eth-mainnet.alchemyapi.io/v2/***REMOVED*** --port 8547 # Run in tmux
-export ETH_RPC_URL=http://localhost:8547
-
-# Public anvil sk
-export SK=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
-forge create --rpc-url $ETH_RPC_URL StringUtils --private-key $SK --via-ir --force
-forge create --rpc-url $ETH_RPC_URL NFTSVG --private-key $SK --via-ir --force
-
-# Edit the Cargo.toml to have the two deployment addresses, then call this
-forge create --rpc-url $ETH_RPC_URL VerifiedTwitterEmail --private-key $SK --via-ir --force
-```
-
-For just the contracts, can do
-
-```
-forge create --rpc-url $ETH_RPC_URL src/contracts/src/emailVerifier.sol:Verifier --private-key $SK
 ```
 
 ## Performance

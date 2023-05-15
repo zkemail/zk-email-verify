@@ -29,6 +29,8 @@ const word_char = `(${alphanum}|_)`;
 
 const a2z_nosep = "abcdefghijklmnopqrstuvwxyz";
 const A2Z_nosep = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const a2f_nosep = "abcdef";
+const A2F_nosep = "ABCDEF";
 const r0to9_nosep = "0123456789";
 
 // Note that in order to specify this string in regex, we must use \\ to escape \'s i.e. in the \r\n
@@ -56,7 +58,8 @@ function format_regex_printable(s) {
 // Note that this is not complete and very case specific i.e. can only handle a-z and not a-c.
 function regexToMinDFASpec(str) {
   // Replace all A-Z with A2Z etc
-  let combined_nosep = str.replaceAll("A-Z", A2Z_nosep).replaceAll("a-z", a2z_nosep).replaceAll("0-9", r0to9_nosep);
+  // TODO: Upstream this to min_dfa
+  let combined_nosep = str.replaceAll("A-Z", A2Z_nosep).replaceAll("a-z", a2z_nosep).replaceAll("A-F", A2F_nosep).replaceAll("a-f", a2f_nosep).replaceAll("0-9", r0to9_nosep);
   // .replaceAll("\\w", A2Z_nosep + r0to9_nosep + a2z_nosep); // I think that there's also an underscore here
 
   function addPipeInsideBrackets(str) {
@@ -145,13 +148,16 @@ function regexToMinDFASpec(str) {
 // This raw subject line (with \\ replaced with \) can be put into regexr.com to test new match strings and sanity check that it works
 let email_address_regex = `([a-zA-Z0-9\\._%\\+-=]+@[a-zA-Z0-9\\.-]+)`;
 // TODO: Other valid chars in email addresses: #$%!^/&*, outlined at https://ladedu.com/valid-characters-for-email-addresses-the-complete-list/ and in the RFC
-let raw_subject_regex = `((\r\n)|^)subject:[Ss]end (\\$)?[0-9]+(\\.[0-9])? [a-zA-Z] to (${email_address_regex}|0x[0-9]+)\r\n`;
+// let send_specific_raw_subject_regex = `((\r\n)|^)subject:[Ss]end (\$)?[0-9]+(.[0-9]+)? [a-zA-Z]+ to (${email_address_regex}|0x[0-9a-fA_F]+)\r\n`;
+let raw_subject_regex = `((\r\n)|^)subject:[a-zA-Z] (\$)?[0-9]+(.[0-9]+)? [a-zA-Z]+ to (${email_address_regex}|0x[0-9a-fA_F]+)\r\n`;
+// let raw_subject_regex = `((\r\n)|^)subject:[Ss]end (\\$)?[0-9]+(.[0-9]+)? [a-zA-Z]+ to (([a-zA-Z0-9._%\\+-=]+@[a-zA-Z0-9.-]+)|0x[0-9]+)\r\n`;
+// Input: ((\\r\\n)|^)subject:[Ss]end (\$)?[0-9]+(.[0-9]+)? [a-zA-Z]+ to (([a-zA-Z0-9._%\+-=]+@[a-zA-Z0-9.-]+)|0x[0-9]+)\\r\\n
 let raw_from_regex = `(\r\n|^)from:([A-Za-z0-9 _.,"@-]+)<[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.-]+>\r\n`;
-let message_id_regex = `(\r\n|^)message-id:<[=@.\\+_-a-zA-Z0-9]+>\r\n`;
+// let message_id_regex = `(\r\n|^)message-id:<[=@.\\+_-a-zA-Z0-9]+>\r\n`;
 // This can be pasted into the first line of https://zkregex.com/min_dfa (after replacing \\ -> \)
 // ((\\r\\n)|\^)subject:[Ss]end (\$)?[0-9]+(\.[0-9])? (ETH|DAI|USDC|eth|usdc|dai) to (([a-zA-Z0-9\._%\+-]+@[a-zA-Z0-9\.-]+.[a-zA-Z0-9]+)|0x[0-9]+)\\r\\n
 // console.log(raw_subject_regex);
-let regex = regexToMinDFASpec(message_id_regex);
+let regex = regexToMinDFASpec(raw_subject_regex);
 // This can be pasted into the second line of https://zkregex.com/min_dfa
 // console.log(format_regex_printable(regex));
 // TODO: change \^ into \0x80 [need the \ to parse more than 1 char]
