@@ -3,9 +3,11 @@ pragma solidity ^0.8.0;
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import "forge-std/Script.sol";
-import "../src/TwitterEmailHandler.sol";
+// import "../src/TwitterEmailHandler.sol";
+import "../src/KYCEmailHandler.sol";
 import "../src/StringUtils.sol";
-import "../src/Groth16VerifierTwitter.sol";
+// import "../src/Groth16VerifierTwitter.sol";
+import "../src/Groth16VerifierKYC.sol";
 
 contract Deploy is Script, Test {
   function getPrivateKey() internal returns (uint256) {
@@ -22,7 +24,8 @@ contract Deploy is Script, Test {
     vm.startBroadcast(sk);
     Verifier proofVerifier = new Verifier();
     MailServer mailServer = new MailServer();
-    VerifiedTwitterEmail testVerifier = new VerifiedTwitterEmail(proofVerifier, mailServer);
+    // VerifiedTwitterEmail testVerifier = new VerifiedTwitterEmail(proofVerifier, mailServer);
+    VerifiedKYCEmail testVerifier = new VerifiedKYCEmail(proofVerifier, mailServer);
     vm.stopBroadcast();
   }
 }

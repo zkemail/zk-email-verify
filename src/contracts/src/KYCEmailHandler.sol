@@ -24,7 +24,7 @@ contract VerifiedKYCEmail is ERC721Enumerable, Verifier {
   uint256 public constant rsa_modulus_chunks_len = 17;
   // uint256 public constant rsa_modulus_chunks_len = 9; // change to for 1024-bit RSA
   uint256 public constant header_len = msg_len - body_len;
-  uint256 public constant addressIndexInSignals = msg_len - 1;
+  uint256 public constant addressIndexInSignals = body_len;
 
   mapping(string => uint256[rsa_modulus_chunks_len]) public verifiedMailserverKeys;
   // mapping(uint256 => string) public tokenIDToName;
@@ -74,7 +74,7 @@ contract VerifiedKYCEmail is ERC721Enumerable, Verifier {
       bodySignals[i] = signals[i];
     }
     for (uint256 i = body_len; i < msg_len - 1; i++) {
-      rsaModulusSignals[i - body_len] = signals[i];
+      rsaModulusSignals[i - body_len] = signals[i+1];
     }
     // Check eth address committed to in proof matches msg.sender, to avoid replayability
     require(address(uint160(signals[addressIndexInSignals])) == msg.sender, "Invalid address");
@@ -90,8 +90,8 @@ contract VerifiedKYCEmail is ERC721Enumerable, Verifier {
 
     // Verify that the public key for RSA matches the hardcoded one
     for (uint i = 0; i < rsa_modulus_chunks_len; i++) {
-      require(mailServer.isVerified(domain_airbnb, i, signals[body_len + i]), "Invalid: Airbnb RSA modulus not matched");
-      require(mailServer.isVerified(domain_coinbase, i, signals[body_len + rsa_modulus_chunks_len + i]), "Invalid: Coinbase RSA modulus not matched");
+      require(mailServer.isVerified(domain_airbnb, i, signals[body_len + 1 + i]), "Invalid: Airbnb RSA modulus not matched");
+      require(mailServer.isVerified(domain_coinbase, i, signals[body_len + rsa_modulus_chunks_len + 1 + i]), "Invalid: Coinbase RSA modulus not matched");
     }
     require(verifyProof(a, b, c, signals), "Invalid Proof"); // checks effects iteractions, this should come first
 

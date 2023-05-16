@@ -22,7 +22,8 @@ import { NumberedStep } from "../components/NumberedStep";
 import { TopBanner } from "../components/TopBanner";
 import { useAccount, useContractWrite, usePrepareContractWrite } from "wagmi";
 import { ProgressBar } from "../components/ProgressBar";
-import { abi } from "../helpers/twitterEmailHandler.abi";
+// import { abi } from "../helpers/twitterEmailHandler.abi";
+import { abi } from "../helpers/KYCEmailHandler.abi";
 import { isSetIterator } from "util/types";
 var Buffer = require("buffer/").Buffer; // note: the trailing slash is important!
 
@@ -127,7 +128,8 @@ export const MainPage: React.FC<{}> = (props) => {
   };
 
   const { config } = usePrepareContractWrite({
-    addressOrName: "0x72D9d080853f1AfA52662D71A24D92498Ef84799", // TODO: get address
+    // addressOrName: "0x72D9d080853f1AfA52662D71A24D92498Ef84799", // TODO: get address
+    addressOrName: "0x8d7aab5De281c542A4c545ECB8363dff7De139aB",
     contractInterface: abi, // TODO: get abi
     functionName: "mint",
     args: [...reformatProofForChain(proof), publicSignals ? JSON.parse(publicSignals) : null],

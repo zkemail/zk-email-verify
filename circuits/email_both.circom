@@ -42,7 +42,7 @@ template KYCVerify(max_header_bytes, n, k) {
     // Outputs the hash of the two body hashes, which serves as the nullifier
     // Currently doesn't output from/to emails for domain check but should probably add that later
     var pack_size = 7;
-    var output_len = (32 - 1) \ pack_size + 1;
+    var output_len = (32 - 1) \ pack_size + 1; // output_len = 5
     signal output nullifier[output_len];
 
     component airbnb_verify = AirbnbEmailVerify(max_header_bytes, n, k);

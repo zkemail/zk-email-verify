@@ -74,3 +74,5 @@ generate_input_log.txt
 /temp.py
 *.pem
 *.der
+src/contracts/broadcast/
+lib/forge-std/
