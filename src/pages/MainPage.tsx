@@ -210,7 +210,7 @@ export const MainPage: React.FC<{}> = (props) => {
     <Container>
       {showBrowserWarning && <TopBanner message={"ZK Email only works on Chrome or Chromium-based browsers."} />}
       <div className="title">
-        <Header>ZK KYC with ZK Email</Header>
+        <Header>Anonymous KYC with ZK Email</Header>
       </div>
 
       <Col

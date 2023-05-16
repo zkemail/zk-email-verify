@@ -1,3 +1,7 @@
+# Anonymous KYC with ZK Email
+
+Generate an anonymous proof of personhood badge at [anonkyc.com](anonkyc.com).
+
 # ZK Email Verify
 
 **WIP: This tech is extremely tricky to use and very much a work in progress, and we do not recommend use in any production application right now. This is both due to unaudited code, and several theoretical gotchas such as lack of nullifiers, no signed bcc’s, non-nested reply signatures, upgradability of DNS, and hash sizings. None of these affect our current Twitter MVP usecase, but are not generally guaranteed. If you have a possible usecase, we are happy to help brainstorm if your trust assumptions are in fact correct!**
