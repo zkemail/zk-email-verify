@@ -222,9 +222,11 @@ export const MainPage: React.FC<{}> = (props) => {
         }}
       >
         <span style={{ color: "rgba(255, 255, 255, 0.7)" }}>
-          Note that we are <a href="https://github.com/zk-email-verify/zk-email-verify/">actively developing</a> and debugging this page, it is likely unstable. Due to download
-          limits of incognito mode and non-chrome browsers, you must use Chrome to generate proofs right now. Our goal for June 2023 is to make this process 10x faster and
-          smaller. If you wish to generate a ZK proof of personhood badge, you must do these:
+          Welcome to a demo page for anonymous KYC using <a href="https://github.com/zk-email-verify/zk-email-verify/">ZK Email</a>. ZK Email allows you to generate zero knowledge
+          proofs proving you received some email and mask out any private data, without trusting our server to keep your privacy. This demo uses ZK Email to prove someone has
+          completed KYC verification on Airbnb and Coinbase by verifying the KYC confirmation emails (and their normally-hidden headers). You can read more on{" "}
+          <a href="https://blog.aayushg.com/posts/zkemail">our blog</a> and technical details on <a href="https://github.com/novus677/zk-kyc">our Github</a>. If you wish to
+          generate a ZK proof of personhood badge, you must:
         </span>
         {<NumberedStep steps={steps} />}
       </Col>
@@ -288,7 +290,19 @@ export const MainPage: React.FC<{}> = (props) => {
               // Insert input structuring code here
               // const input = buildInput(pubkey, msghash, sig);
               // console.log(JSON.stringify(input, (k, v) => (typeof v == "bigint" ? v.toString() : v), 2));
+              // Insert input structuring code here
+              // const input = buildInput(pubkey, msghash, sig);
+              // console.log(JSON.stringify(input, (k, v) => (typeof v == "bigint" ? v.toString() : v), 2));
 
+              console.time("zk-dl");
+              recordTimeForActivity("startedDownloading");
+              setDisplayMessage("Downloading compressed proving files... (this may take a few minutes)");
+              setStatus("downloading-proof-files");
+              await downloadProofFiles(filename, () => {
+                setDownloadProgress((p) => p + 1);
+              });
+              console.timeEnd("zk-dl");
+              recordTimeForActivity("finishedDownloading");
               console.time("zk-dl");
               recordTimeForActivity("startedDownloading");
               setDisplayMessage("Downloading compressed proving files... (this may take a few minutes)");
@@ -516,5 +530,22 @@ const Container = styled.div`
       max-width: 50vw;
       width: 500px;
     }
+  }
+
+  a {
+    color: rgba(30, 144, 255, 0.9); /* Bright blue color */
+    text-decoration: none; /* Optional: Removes the underline */
+  }
+
+  a:hover {
+    color: rgba(65, 105, 225, 0.9); /* Darker blue color on hover */
+  }
+
+  a:visited {
+    color: rgba(153, 50, 204, 0.9); /* Purple color for visited links */
+  }
+
+  a:active {
+    color: rgba(255, 69, 0, 0.9); /* Orange-red color for active (clicked) links */
   }
 `;
