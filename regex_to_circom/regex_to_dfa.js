@@ -146,11 +146,11 @@ function regexToMinDFASpec(str) {
 // console.log(format_regex_printable(sig_regex));
 
 // This raw subject line (with \\ replaced with \) can be put into regexr.com to test new match strings and sanity check that it works
-let email_address_regex = `([a-zA-Z0-9\\._%\\+-=]+@[a-zA-Z0-9\\.-]+)`;
+let email_address_regex = `([a-zA-Z0-9._%\\+-=]+@[a-zA-Z0-9.-]+)`;
 // TODO: Other valid chars in email addresses: #$%!^/&*, outlined at https://ladedu.com/valid-characters-for-email-addresses-the-complete-list/ and in the RFC
 // let send_specific_raw_subject_regex = `((\r\n)|^)subject:[Ss]end (\$)?[0-9]+(.[0-9]+)? [a-zA-Z]+ to (${email_address_regex}|0x[0-9a-fA_F]+)\r\n`;
-let raw_subject_regex = `((\r\n)|^)subject:[a-zA-Z] (\$)?[0-9]+(.[0-9]+)? [a-zA-Z]+ to (${email_address_regex}|0x[0-9a-fA_F]+)\r\n`;
-// let raw_subject_regex = `((\r\n)|^)subject:[Ss]end (\\$)?[0-9]+(.[0-9]+)? [a-zA-Z]+ to (([a-zA-Z0-9._%\\+-=]+@[a-zA-Z0-9.-]+)|0x[0-9]+)\r\n`;
+let raw_subject_regex = `((\r\n)|^)subject:[a-zA-Z]+ (\\$)?[0-9]+(.[0-9]+)? [a-zA-Z]+ to (${email_address_regex}|0x[0-9a-fA_F]+)\r\n`;
+// let raw_subject_regex = `((\r\n)|^)subject:[a-zA-Z]+ (\\$)?[0-9]+(.[0-9]+)? [a-zA-Z]+ to (([a-zA-Z0-9._%\\+-=]+@[a-zA-Z0-9.-]+)|0x[0-9]+)\r\n`;
 // Input: ((\\r\\n)|^)subject:[Ss]end (\$)?[0-9]+(.[0-9]+)? [a-zA-Z]+ to (([a-zA-Z0-9._%\+-=]+@[a-zA-Z0-9.-]+)|0x[0-9]+)\\r\\n
 let raw_from_regex = `(\r\n|^)from:([A-Za-z0-9 _.,"@-]+)<[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.-]+>\r\n`;
 // let message_id_regex = `(\r\n|^)message-id:<[=@.\\+_-a-zA-Z0-9]+>\r\n`;

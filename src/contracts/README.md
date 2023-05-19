@@ -16,7 +16,7 @@ cd src/contracts
 forge install openzeppelin/openzeppelin-contracts
 ```
 
-To test,
+To test your own contracts, copy TestTwitter.t.sol into a new test file, and make sure you can compile your proof fine. You can run a specific test with `forge test --match test_name`. Then make sure the whole suite passes and isn't above the size limit:
 
 ```
 forge test

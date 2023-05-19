@@ -11,7 +11,7 @@ include "./regexes/from_regex.circom";
 include "./regexes/tofrom_domain_regex.circom";
 include "./regexes/body_hash_regex.circom";
 include "./regexes/twitter_reset_regex.circom";
-include "./regexes/subject_regex.circom";
+include "./regexes/subject_regex2.circom";
 include "./regexes/message_id_regex.circom";
 
 
@@ -53,13 +53,17 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size, calculat
     var max_subject_currency_packed_bytes = count_packed(max_subject_currency_len, pack_size);
     var max_subject_recipient_len = max_email_len;
     var max_subject_recipient_packed_bytes = count_packed(max_subject_recipient_len, pack_size);
-    var max_message_id_len = max_email_len;
+    var max_subject_command_len = 10;
+    var max_subject_command_packed_bytes = count_packed(max_subject_command_len, pack_size);
+    var max_message_id_len = 128;
     var max_email_from_len = max_email_len;
     var max_email_recipient_len = max_email_len;
 
+    signal input command_idx;
     signal input amount_idx;
     signal input currency_idx;
     signal input recipient_idx;
+    signal output reveal_command_packed[max_subject_command_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
     signal output reveal_amount_packed[max_subject_amount_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
     signal output reveal_currency_packed[max_subject_currency_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
 
@@ -123,11 +127,12 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size, calculat
 
     // SUBJECT HEADER REGEX: 736,553 constraints
     // This extracts the subject, and the precise regex format can be viewed in the README
-    signal subject_regex_out, subject_regex_reveal_amount[max_header_bytes], subject_regex_reveal_currency[max_header_bytes], subject_regex_reveal_recipient[max_header_bytes];
-    (subject_regex_out, subject_regex_reveal_amount, subject_regex_reveal_currency, subject_regex_reveal_recipient) <== WalletSubjectRegex(max_header_bytes)(in_padded);
+    signal subject_regex_out, subject_regex_reveal_command[max_header_bytes], subject_regex_reveal_amount[max_header_bytes], subject_regex_reveal_currency[max_header_bytes], subject_regex_reveal_recipient[max_header_bytes];
+    (subject_regex_out, subject_regex_reveal_command, subject_regex_reveal_amount, subject_regex_reveal_currency, subject_regex_reveal_recipient) <== WalletSubjectRegex(max_header_bytes)(in_padded);
     log(subject_regex_out);
     subject_regex_out === 1;
 
+    reveal_command_packed <== ShiftAndPack(max_header_bytes, max_subject_command_len, pack_size)(subject_regex_reveal_command, command_idx);
     reveal_amount_packed <== ShiftAndPack(max_header_bytes, max_subject_amount_len, pack_size)(subject_regex_reveal_amount, amount_idx);
     reveal_currency_packed <== ShiftAndPack(max_header_bytes, max_subject_currency_len, pack_size)(subject_regex_reveal_currency, currency_idx);
 
@@ -172,11 +177,13 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size, calculat
                 log(message_id_regex_out);
                 message_id_regex_out === 1;
                 shifted_message_id <== VarShiftLeft(max_header_bytes, max_message_id_len)(message_id_regex_reveal, message_id_idx);
+                log(shifted_message_id[0]);
 
                 // FROM ANON ADDRESS
                 if(calculate_from){
                     signal input custom_message_id_from[max_message_id_len]; // previous message id, used to source past account
                     signal output (salt_is_message_id_from, custom_anon_from_hashed_salt) <== MakeAnonEmailSalt(max_email_from_len, max_message_id_len)(email_from, custom_message_id_from, shifted_message_id);
+                    log(salt_is_message_id_from);
                 }
 
                 // RECIPIENT ANON ADDRESS
@@ -184,6 +191,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size, calculat
                 signal wallet_recipient[max_subject_recipient_len] <== VarShiftLeft(max_header_bytes, max_subject_recipient_len)(subject_regex_reveal_recipient, recipient_idx);
                 signal input custom_message_id_recipient[max_message_id_len]; // previous message id, used to source past account
                 signal output (salt_is_message_id_recipient, custom_anon_recipient_hashed_salt) <== MakeAnonEmailSalt(max_email_recipient_len, max_message_id_len)(wallet_recipient, custom_message_id_recipient, shifted_message_id);
+                log(salt_is_message_id_recipient);
             }
         }
     }

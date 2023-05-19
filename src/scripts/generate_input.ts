@@ -11,6 +11,7 @@ import {
   Uint8ArrayToCharArray,
   assert,
   mergeUInt8Arrays,
+  int8toBytes,
   int64toBytes,
 } from "../helpers/binaryFormat";
 import { CIRCOM_FIELD_MODULUS, MAX_HEADER_PADDED_BYTES, MAX_BODY_PADDED_BYTES, STRING_PRESELECTOR } from "../../src/helpers/constants";
@@ -32,7 +33,7 @@ async function getArgs() {
   const emailFileArg = args.find((arg) => arg.startsWith("--email_file="));
   const nonceArg = args.find((arg) => arg.startsWith("--nonce="));
 
-  const email_file = emailFileArg ? emailFileArg.split("=")[1] : "test_sendgrid.eml";
+  const email_file = emailFileArg ? emailFileArg.split("=")[1] : "wallet_test.eml";
   const nonce = nonceArg ? nonceArg.split("=")[1] : null;
 
   return { email_file, nonce };
@@ -55,17 +56,23 @@ export interface ICircuitInputs {
   address_plus_one?: string;
   twitter_username_idx?: string;
   email_from_idx?: string;
+
+  // Wallet commands only
+  command_idx?: string;
+  message_id_idx?: string;
   amount_idx?: string;
   currency_idx?: string;
   recipient_idx?: string;
+  custom_message_id_from?: string[];
+  custom_message_id_recipient?: string[];
 }
 
 enum CircuitType {
   RSA = "rsa",
   SHA = "sha",
   TEST = "test",
-  EMAIL = "email",
-  SUBJECTPARSER = "subjectparser",
+  EMAIL_TWITTER = "email_twitter",
+  EMAIL_WALLET = "email_wallet",
 }
 
 async function findSelector(a: Uint8Array, selector: number[]): Promise<number> {
@@ -85,6 +92,24 @@ async function findSelector(a: Uint8Array, selector: number[]): Promise<number> 
   return -1;
 }
 
+// Returns the part of str that appears after substr
+function trimStrByStr(str: string, substr: string) {
+  const index = str.indexOf(substr);
+  if (index === -1) return str;
+  return str.slice(index + substr.length, str.length);
+}
+
+function strToCharArrayStr(str: string) {
+  return str.split("").map((char) => char.charCodeAt(0).toString());
+}
+
+// padWithZero(bodyRemaining, MAX_BODY_PADDED_BYTES)
+function padWithZero(arr: Uint8Array, length: number) {
+  while (arr.length < length) {
+    arr = mergeUInt8Arrays(arr, int8toBytes(0));
+  }
+  return arr;
+}
 export async function getCircuitInputs(
   rsa_signature: BigInt,
   rsa_modulus: BigInt,
@@ -138,9 +163,7 @@ export async function getCircuitInputs(
   const bodyRemainingLen = bodyPaddedLen - precomputeText.length;
   assert(bodyRemainingLen < MAX_BODY_PADDED_BYTES, "Invalid slice");
   assert(bodyRemaining.length % 64 === 0, "Not going to be padded correctly with int64s");
-  while (bodyRemaining.length < MAX_BODY_PADDED_BYTES) {
-    bodyRemaining = mergeUInt8Arrays(bodyRemaining, int64toBytes(0));
-  }
+  bodyRemaining = padWithZero(bodyRemaining, MAX_BODY_PADDED_BYTES);
   assert(bodyRemaining.length === MAX_BODY_PADDED_BYTES, "Invalid slice");
   const bodyShaPrecompute = await partialSha(precomputeText, shaCutoffIndex);
 
@@ -162,22 +185,10 @@ export async function getCircuitInputs(
 
   const USERNAME_SELECTOR = Buffer.from(STRING_PRESELECTOR);
 
-  function trimStrByStr(str: string, substr: string) {
-    const index = str.indexOf(substr);
-    if (index === -1) {
-      return str;
-    }
-    return str.slice(index + substr.length, str.length);
-  }
-
   let raw_header = Buffer.from(prehash_message_string).toString();
   const email_from_idx = raw_header.length - trimStrByStr(trimStrByStr(raw_header, "from:"), "<").length;
-  let email_subject = trimStrByStr(raw_header, "subject:");
-  const amount_idx = raw_header.length - trimStrByStr(email_subject, "end ").length;
-  const currency_idx = raw_header.length - trimStrByStr(trimStrByStr(email_subject, "end "), " ").length;
-  const recipient_idx = raw_header.length - trimStrByStr(email_subject, "to ").length;
-  const twitter_username_idx = (Buffer.from(bodyRemaining).indexOf(USERNAME_SELECTOR) + USERNAME_SELECTOR.length).toString();
-  console.log("Indexes into header string are: ", email_from_idx, amount_idx, currency_idx, recipient_idx, twitter_username_idx);
+  let email_subject = trimStrByStr(raw_header, "\r\nsubject:");
+  //in javascript, give me a function that extracts the first word in a string, everything before the first space
 
   if (circuit === CircuitType.RSA) {
     circuitInputs = {
@@ -185,7 +196,10 @@ export async function getCircuitInputs(
       signature,
       base_message,
     };
-  } else if (circuit === CircuitType.EMAIL) {
+  } else if (circuit === CircuitType.EMAIL_TWITTER) {
+    const twitter_username_idx = (Buffer.from(bodyRemaining).indexOf(USERNAME_SELECTOR) + USERNAME_SELECTOR.length).toString();
+    console.log("Indexes into header string are: ", email_from_idx, twitter_username_idx);
+
     circuitInputs = {
       in_padded,
       modulus,
@@ -200,19 +214,38 @@ export async function getCircuitInputs(
       body_hash_idx,
       // email_from_idx,
     };
-  } else if (circuit === CircuitType.SUBJECTPARSER) {
+  } else if (circuit === CircuitType.EMAIL_WALLET) {
+    // First word after "subject:" (usually send/Send)
+    const command = email_subject.split(" ")[0];
+    const command_idx = raw_header.length - email_subject.length;
+    // Index of first word after command
+    const amount_idx = raw_header.length - trimStrByStr(email_subject, command).length;
+    // Index of second word after command
+    const currency_idx = raw_header.length - trimStrByStr(trimStrByStr(email_subject, command), " ").length;
+    // Index of first word after subject and "to"
+    const recipient_idx = raw_header.length - trimStrByStr(email_subject, " to ").length;
+    // Used to get the private message-id
+    const message_id_idx = raw_header.length - trimStrByStr(raw_header, "\r\nmessage-id:<").length;
+    const message_id = raw_header.slice(message_id_idx).split(">\r\n")[0];
+    const MAX_MESSAGE_ID_LEN = 128;
+    const message_id_array = await Uint8ArrayToCharArray(padWithZero(stringToBytes(message_id), MAX_MESSAGE_ID_LEN));
+    console.log("Indexes into header string are: ", email_from_idx, amount_idx, currency_idx, recipient_idx);
+
     circuitInputs = {
       in_padded,
       modulus,
       signature,
       in_len_padded_bytes,
       address,
-      address_plus_one,
       body_hash_idx,
       email_from_idx: email_from_idx.toString(),
+      command_idx: command_idx.toString(),
+      message_id_idx: message_id_idx.toString(),
       amount_idx: amount_idx.toString(),
       currency_idx: currency_idx.toString(),
       recipient_idx: recipient_idx.toString(),
+      custom_message_id_from: message_id_array,
+      custom_message_id_recipient: message_id_array,
     };
   } else {
     assert(circuit === CircuitType.SHA, "Invalid circuit type");
@@ -253,7 +286,7 @@ export async function generate_inputs(raw_email: Buffer | string, eth_address: s
   const _ = result.results[0].publicKey.toString();
   console.log("DKIM verification successful");
   // try {
-  //   // TODO: Condiiton code on if there is an internet connection, run this code
+  //   // TODO: Condition code on if there is an internet connection, run this code
   //   var frozen = Cryo.stringify(result);
   //   fs.writeFileSync(`./email_cache_2.json`, frozen, { flag: "w" });
   // } catch (e) {
@@ -265,29 +298,13 @@ export async function generate_inputs(raw_email: Buffer | string, eth_address: s
   let message = result.results[0].status.signature_header;
   let body = result.results[0].body;
   let body_hash = result.results[0].bodyHash;
-  let circuitType = CircuitType.SUBJECTPARSER;
+  let circuitType = CircuitType.EMAIL_WALLET;
 
   let pubkey = result.results[0].publicKey;
   const pubKeyData = pki.publicKeyFromPem(pubkey.toString());
   let modulus = BigInt(pubKeyData.n.toString());
   let fin_result = await getCircuitInputs(sig, modulus, message, body, body_hash, eth_address, circuitType);
   return fin_result.circuitInputs;
-}
-
-// Only called when the whole function is called from the command line, to read inputs
-async function do_generate(writeToFile: boolean = true) {
-  const { email_file, nonce } = await getArgs();
-  const email = fs.readFileSync(email_file.trim());
-  console.log(email);
-  const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000", nonce);
-  console.log(JSON.stringify(gen_inputs));
-  if (writeToFile) {
-    const file_dir = email_file.substring(0, email_file.lastIndexOf("/") + 1);
-    const filename = nonce ? `${file_dir}/input_${nonce}.json` : "./circuits/inputs/input.json";
-    console.log(`Writing to default file ${filename}`);
-    fs.writeFileSync(filename, JSON.stringify(gen_inputs), { flag: "w" });
-  }
-  return gen_inputs;
 }
 
 // Sometimes, newline encodings re-encode \r\n as just \n, so re-insert the \r so that the email hashes correctly
@@ -306,7 +323,24 @@ export async function insert13Before10(a: Uint8Array): Promise<Uint8Array> {
   return ret.slice(0, j);
 }
 
+// Only called when the whole function is called from the command line, to read inputs
+// Will generate a test proof with the empty Ethereum address, that cannot be proven by anybody else
+async function test_generate(writeToFile: boolean = true) {
+  const { email_file, nonce } = await getArgs();
+  const email = fs.readFileSync(email_file.trim());
+  console.log(email);
+  const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000", nonce);
+  console.log(JSON.stringify(gen_inputs));
+  if (writeToFile) {
+    const file_dir = email_file.substring(0, email_file.lastIndexOf("/") + 1);
+    const filename = nonce ? `${file_dir}/input_${nonce}.json` : "./circuits/inputs/input.json";
+    console.log(`Writing to default file ${filename}`);
+    fs.writeFileSync(filename, JSON.stringify(gen_inputs), { flag: "w" });
+  }
+  return gen_inputs;
+}
+
 // If file called directly with `npx tsx generate_inputs.ts`
 if (typeof require !== "undefined" && require.main === module) {
-  do_generate(true);
+  test_generate(true);
 }
