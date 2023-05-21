@@ -68,19 +68,16 @@ function test_regex() {
   // ((\\r\\n)|\^)subject:[Ss]end (\$)?[0-9]+(\.[0-9])? (ETH|DAI|USDC|eth|usdc|dai) to (([a-zA-Z0-9\._%\+-]+@[a-zA-Z0-9\.-]+.[a-zA-Z0-9]+)|0x[0-9]+)\\r\\n
   // console.log(raw_subject_regex);
 
-  // -- GENERIC COMMANDS --
+  // -- GENERIC WALLET COMMANDS --
   let raw_subject_regex = `((\r\n)|^)subject:[a-zA-Z]+ (\\$)?[0-9]+(.[0-9]+)? [a-zA-Z]+ to (${email_address_regex}|0x[0-9a-fA_F]+)\r\n`;
 
   // -------- OTHER FIELD REGEXES --------
   let raw_from_regex = `(\r\n|^)from:([A-Za-z0-9 _.,"@-]+)<[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.-]+>\r\n`;
   // let message_id_regex = `(\r\n|^)message-id:<[=@.\\+_-a-zA-Z0-9]+>\r\n`;
-  let regex = regexToMinDFASpec(raw_subject_regex);
-  console.log(format_regex_printable(regex));
 
   // -------- TWITTER BODY REGEX ---------
   // let regex = STRING_PRESELECTOR + `${word_char}+`;
 
-  // console.log(raw_regex, "\n", regex);
   // ---------- DEPRECATAED REGEXES ----------
   // let order_invariant_header_regex_raw = `(((\\n|^)(((from):([A-Za-z0-9 _."@-]+<)?[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.]+>)?|(subject:[a-zA-Z 0-9]+)?|((to):([A-Za-z0-9 _."@-]+<)?[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.]+>)?)(\\r))+)`;
   // let order_invariant_full_regex_raw = `(dkim-signature:((a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)=(0|1|2|3|4|5|6|7|8|9|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|!|"|#|$|%|&|\'|\\(|\\)|\\*|\\+|,|-|.|/|:|<|=|>|\\?|@|[|\\\\|]|^|_|\`|{|\\||}|~| |\t|\n|\r|\x0B|\f)+; ))?)(\\r))+` // Uses a-z syntax instead of | for each char
@@ -89,8 +86,12 @@ function test_regex() {
   // let regex = `(\r\n|^)(to|from):((${email_chars}|"|@| )+<)?(${email_chars})+@(${email_chars})+>?\r\n`;
   // 'dkim-signature:((a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)=(0|1|2|3|4|5|6|7|8|9|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|!|"|#|$|%|&|\'|\\(|\\)|\\*|\\+|,|-|.|/|:|<|=|>|\\?|@|[|\\\\|]|^|_|`|{|\\||}|~| |\t|\n|\r|\x0B|\f)+; )+bh=(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|0|1|2|3|4|5|6|7|8|9|\\+|/|=)+; '
   // let regex = 'hello(0|1|2|3|4|5|6|7|8|9)+world';
-  // console.log(regex);
-  // console.log(Buffer.from(regex).toString('base64'));
+
+  // --------- FINAL CONVERSION ---------
+  //   console.log(format_regex_printable(raw_subject_regex));
+  let regex = regexToMinDFASpec(raw_subject_regex);
+  //   console.log(format_regex_printable(regex));
+
   return regex;
 }
 
@@ -247,13 +248,10 @@ function printGraphForRegex(regex) {
     symbols = [],
     top;
 
-  console.log("DFA: ", dfa);
-
   while (stack.length > 0) {
     top = stack.pop();
     if (!states.hasOwnProperty(top.id)) {
       states[top.id] = top;
-      console.log("TOP: ", top.id, top.symbols);
       top.nature = toNature(top.id);
       nodes.push(top);
       for (i = 0; i < top.edges.length; i += 1) {
