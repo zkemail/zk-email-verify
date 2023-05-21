@@ -95,7 +95,7 @@ template WalletSubjectRegex (msg_bytes) {
         states[i+1][3] <== and[7][i].out;
         eq[2][i] = IsEqual();
         eq[2][i].in[0] <== in[i];
-        eq[2][i].in[1] <== 94;
+        eq[2][i].in[1] <== 128;
         and[8][i] = AND();
         and[8][i].a <== states[i][0];
         and[8][i].b <== eq[2][i].out;

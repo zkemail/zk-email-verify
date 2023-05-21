@@ -14,7 +14,7 @@ In the function `test_regex()` in `regex_to_dfa.js`, modify either `let raw_rege
 
 Then run `npx tsx regex_to_dfa.js` to make sure that it compiles and `tsx` is installed, and then remove all `console.log` statements except for the last line, and finally run `python3 gen.py`.
 
-This will output a circom body. Wrap it the same way for instance circuits/regexes/from_regex.circom is written. To have the correct reveal states, you may have to subtract 1 from the indexes that show up on the zkregex [min_dfa visualizer](zkregex.com/min_dfa).
+This will output a circom body. Wrap it the same way for instance circuits/regexes/from_regex.circom is written. Note that states in the zkregex [min_dfa visualizer](zkregex.com/min_dfa) are now 0 indexed (previous to Apr 2023 you had to subtract 1 from the indexes that showed up to match the circom, now it is the same).
 
 Note that if your regex uses `^` at the start to mean sentinel starting character, you have to edit the resulting regex.circom file to manually change `94` (ascii code of ^) to `128` (manually inserted sentinel character meaning start, you'll see it defined as the 0th character of the string).
 
