@@ -11,7 +11,7 @@ include "./regexes/from_regex.circom";
 include "./regexes/tofrom_domain_regex.circom";
 include "./regexes/body_hash_regex.circom";
 include "./regexes/twitter_reset_regex.circom";
-include "./regexes/subject_regex2.circom";
+include "./regexes/subject_regex_operation.circom";
 include "./regexes/message_id_regex.circom";
 
 

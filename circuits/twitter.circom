@@ -10,8 +10,6 @@ include "./regexes/from_regex.circom";
 include "./regexes/tofrom_domain_regex.circom";
 include "./regexes/body_hash_regex.circom";
 include "./regexes/twitter_reset_regex.circom";
-include "./regexes/subject_regex.circom";
-
 
 // Here, n and k are the biginteger parameters for RSA
 // This is because the number is chunked into k pack_size of n bits each
