@@ -139,8 +139,10 @@ function parseRegex(text) {
   let new_text = [];
   let i = 0;
   while (i < text.length) {
-    if (text[i] == "\\") {
-      new_text.push([text[i + 1]]);
+    if (text[i] === "\\") {
+      const escapeMap = { n: "\n", r: "\r", t: "\t", v: "\v", f: "\f", "^": String.fromCharCode(128) };
+      const char = text[i + 1];
+      new_text.push([escapeMap[char] || char]);
       i += 2;
     } else {
       new_text.push(text[i]);

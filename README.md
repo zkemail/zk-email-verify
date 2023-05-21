@@ -74,15 +74,7 @@ public/ # Should contain vkey/wasm, but we end up fetching those from AWS server
 
 ### Regex to Circom
 
-First, generate a regex. Go to our [min_dfa fork](zkregex.com/min_dfa) of cyberzhg's toolbox and insert your regex on the top line. We've forked [min-dfa into a UI here](zkregex.com/min_dfa) to create a UI that converts existing regexes with [] support, as well as escapes \_, and the character classes a-z, A-Z, and 0-9. It also shows the DFA states very clearly so you can choose accept states easily. This should make converting regexes into DFA form way cleaner.
-
-Modify either `let raw_regex = ` (that supports actual regex strings like `[A-Za-z0-9]` [but no other character ranges]) or modify `let regex = regexToMinDFASpec(<raw regex>)` (that does not support generic brackets or character ranges, only the limited syntax in https://zkregex.com/min_dfa) in `regex_to_circom/regex_to_dfa.js`. Then run `npx tsx regex_to_dfa.js` to make sure that it compiles and `tsx` is installed, and then remove all `console.log` statements except for the last line, and finally run `python3 gen.py`.
-
-This will output a circom body. Wrap it the same way for instance circuits/regexes/from_regex.circom is written. To have the correct reveal states, subtract 1 from the indexes that show up on the zkregex [min_dfa visualizer](zkregex.com/min_dfa).
-
-Note that if your regex uses `^` at the start to mean sentinel starting character, you have to edit the resulting regex.circom file to manually change `94` (ascii code of ^) to `128` (manually inserted sentinel character meaning start, you'll see it defined as the 0th character of the string).
-
-We will soon have a website [WIP](https://frontend-zk-regex.vercel.app/) that automatically does this. If you'd like to make this process simpler, cleaner, and less hacky, we'd recommend making a PR here or to the zk-regex library (which is a bit out of date regex-string wise and match group-wise).
+See regex_to_circom/README.md for usage instructions.
 
 ### Email Circuit Build Steps
 
