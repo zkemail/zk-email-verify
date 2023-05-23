@@ -53,8 +53,6 @@ cache/
 test.log
 src/contracts/out/
 .next
-*Wallet*
-*wallet*
 node_modules.nosync
 
 # Files that never should be committed, but can be obtained by asking Aayush or generating them yourself

@@ -58,3 +58,7 @@ Maybe fullnode is on [old geth](https://github.com/ethereum/go-ethereum/issues/2
 ```
 forge script script/Deploy.s.sol:Deploy -vvvv --rpc-url $RPC_URL --broadcast --slow
 ```
+
+### Versions
+
+10a840db7305d9cdcd1fa56aee88ec77db86a562 is the last stable wallet version before breaking changes to add on-chain anonymity.

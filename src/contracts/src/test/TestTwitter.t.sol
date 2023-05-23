@@ -180,7 +180,7 @@ contract TwitterUtilsTest is Test {
         assert(bytes(svgValue).length > 0);
     }
 
-    function testChainID() public {
+    function testChainID() public view {
         uint256 chainId;
         assembly {
             chainId := chainid()
