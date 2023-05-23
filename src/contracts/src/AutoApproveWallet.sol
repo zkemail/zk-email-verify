@@ -9,10 +9,10 @@ contract AutoApproveWallet is Ownable, Initializable {
     uint256 constant MAX_UINT256 = type(uint256).max;
     uint256 public constant version = 1;
     mapping(string => address) public customVerifiers;
+    
+    function initialize() public onlyOwner initializer {}
 
-    constructor() {}
-
-    function initialize(address tokenAddress, address approver) public onlyOwner initializer {
+    function approveToken(address tokenAddress, address approver) public onlyOwner {
         IERC20 token = IERC20(tokenAddress);
         token.approve(approver, MAX_UINT256);
     }

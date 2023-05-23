@@ -43,7 +43,7 @@ library StringUtils {
     function stringEq(string memory a, string memory b) internal pure returns (bool) {
         return keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b));
     }
-    
+
     function toString(bytes memory data) internal pure returns (string memory) {
         bytes memory alphabet = "0123456789abcdef";
 
@@ -55,6 +55,16 @@ library StringUtils {
             str[3 + i * 2] = alphabet[uint256(uint8(data[i] & 0x0f))];
         }
         return string(str);
+    }
+
+    function convertPackedByteToString(uint256 packedByte, uint256 maxBytes, uint256 packSize)
+        internal
+        pure
+        returns (string memory extractedString)
+    {
+        uint256[] memory packedBytes = new uint256[](1);
+        packedBytes[0] = packedByte;
+        return convertPackedBytesToString(packedBytes, maxBytes, packSize);
     }
 
     // Unpacks uint256s into bytes and then extracts the non-zero characters
@@ -94,7 +104,7 @@ library StringUtils {
                 packedByte = packedByte >> 8;
             }
         }
-        require(state >= 1, "Invalid final state of packed bytes in email");
+        require(state >= 1, "Invalid final state of packed bytes in email, or value is 0!");
         require(nonzeroBytesArrayIndex <= maxBytes, "Packed bytes more than allowed max length!");
         string memory returnValue = removeTrailingZeros(string(nonzeroBytesArray));
         return returnValue;

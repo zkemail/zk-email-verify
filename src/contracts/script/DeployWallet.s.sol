@@ -3,7 +3,6 @@ pragma solidity ^0.8.0;
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import "forge-std/Script.sol";
-import "../src/WalletEmailHandler.sol";
 import "../src/WalletEmailHandlerLogic.sol";
 import "../src/WalletEmailHandlerProxy.sol";
 import "../src/StringUtils.sol";
@@ -43,6 +42,9 @@ contract Deploy is Script, Test {
         bytes memory initData =
             abi.encodeWithSignature("initialize(Verifier,MailServer,TestEmailToken,TokenRegistry)", proofVerifier, mailServer, erc20, tokenRegistry);
         WalletEmailHandlerProxy proxy = new WalletEmailHandlerProxy(address(logic), admin, initData);
+        // Change owner of proxy to tx.origin (msg.sender)
+        WalletEmailHandlerLogic(address(proxy)).transferOwnership(tx.origin);
+        
         vm.stopBroadcast();
     }
 }

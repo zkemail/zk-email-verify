@@ -65,6 +65,8 @@ export interface ICircuitInputs {
   recipient_idx?: string;
   custom_message_id_from?: string[];
   custom_message_id_recipient?: string[];
+  nullifier?: string;
+  relayer?: string;
 }
 
 enum CircuitType {
@@ -181,6 +183,7 @@ export async function getCircuitInputs(
   const body_hash_idx = bufferToString(message).indexOf(body_hash).toString();
 
   const address = bytesToBigInt(fromHex(eth_address)).toString();
+  const nullifier = bytesToBigInt(fromHex(eth_address)).toString();
   const address_plus_one = (bytesToBigInt(fromHex(eth_address)) + 1n).toString();
 
   const USERNAME_SELECTOR = Buffer.from(STRING_PRESELECTOR);
@@ -236,7 +239,8 @@ export async function getCircuitInputs(
       modulus,
       signature,
       in_len_padded_bytes,
-      address,
+      relayer: address,
+      nullifier: address,
       body_hash_idx,
       email_from_idx: email_from_idx.toString(),
       command_idx: command_idx.toString(),
@@ -272,6 +276,8 @@ export async function generate_inputs(raw_email: Buffer | string, eth_address: s
 
   console.log("DKIM verification starting");
   result = await dkimVerify(email);
+  console.log("From:", result.headerFrom);
+  console.log("Results:", result.results[0]);
   if (!result.results[0]) {
     throw new Error(`No result found on dkim output ${result}`);
   } else {

@@ -74,10 +74,10 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size, calculat
     // signal output reveal_twitter_packed[max_twitter_packed_bytes];
 
     // Identity commitment variables
-    // (note we don't need to constrain the address+1 due to https://geometry.xyz/notebook/groth16-malleability)
-    // Note that you CANNOT use --O1 with this circuit, as it will break the malleability protection
-    // 2.1.5: "Improving --O1 simplification: removing signals that do not appear in any constraint and avoiding unnecessary constraint normalizations."
-    signal input address;
+    // Note we don't need to constrain the address+1 due to https://geometry.xyz/notebook/groth16-malleability
+    // Note that you CANNOT use --O1 with this circuit, as it will break the malleability protection: circom 2.1.5: "Improving --O1 simplification: removing signals that do not appear in any constraint and avoiding unnecessary constraint normalizations."
+    signal input nullifier;
+    signal input relayer;
 
     // Base 64 body hash variables
     var LEN_SHA_B64 = 44;     // ceil(32/3) * 4, due to base64 encoding.

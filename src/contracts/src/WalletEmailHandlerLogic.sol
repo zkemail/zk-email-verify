@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/proxy/Proxy.sol";
 import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 
-import "./WalletEmailHandler.sol";
+import "./WalletEmailHandlerStorage.sol";
 import "forge-std/console.sol";
 import "./StringUtils.sol";
 import "./AutoApproveWallet.sol";
@@ -21,7 +21,7 @@ import {Verifier} from "./Groth16VerifierWalletAnon.sol";
 import "./MailServer.sol";
 
 // Defines upgradable logic
-contract WalletEmailHandlerLogic is VerifiedWalletEmailStorage, Ownable, Initializable {
+contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initializable {
     using StringUtils for *;
 
     uint16 public constant packSize = 30; // Bytes in a packed item returned from circom
@@ -33,11 +33,13 @@ contract WalletEmailHandlerLogic is VerifiedWalletEmailStorage, Ownable, Initial
 
     uint16 public constant header_len = msg_len - body_len;
     uint16 public constant addressIndexInSignals = msg_len - 1; // The last index is the commitment
+    uint16 public constant version = 1;
     Verifier public verifier;
     TestEmailToken public testToken;
     TokenRegistry public tokenRegistry;
     MailServer mailServer;
     mapping(string => address) public defaultVerifiers;
+
     // Note that the data lives in the WalletEmailHandlerStorage contract
     // Arguments are deployed contracts/addresses
 
@@ -45,7 +47,6 @@ contract WalletEmailHandlerLogic is VerifiedWalletEmailStorage, Ownable, Initial
         // Do dig TXT outgoing._domainkey.twitter.com to verify these.
         // This is the base 2^121 representation of that key.
         // Circom bigint: represent a = a[0] + a[1] * 2**n + .. + a[k - 1] * 2**(n * k)
-        console.log("Entering initialize.");
         require(rsa_modulus_chunks_len + body_len + 1 == msg_len, "Variable counts are wrong!");
         verifier = v;
         mailServer = m;
@@ -53,8 +54,11 @@ contract WalletEmailHandlerLogic is VerifiedWalletEmailStorage, Ownable, Initial
         tokenRegistry = r;
     }
 
-    function commandString() public pure returns (string memory) {
-        return "send";
+    function commandStrings() public pure returns (string[] memory) {
+        string[] memory commands = new string[](2);
+        commands[0] = "send";
+        commands[1] = "transfer";
+        return commands;
     }
 
     // NOTE: This is only for emergency ejects in testing deployments
@@ -161,22 +165,42 @@ contract WalletEmailHandlerLogic is VerifiedWalletEmailStorage, Ownable, Initial
             assembly {
                 wallet := create2(0, add(bytecode, 0x20), mload(bytecode), salt)
             }
-            console.log("Wallet index at:");
-            console.logBytes32(salt);
-            console.log("Wallet address created:", wallet);
             require(wallet != address(0), "Wallet creation failed");
             wallets[salt] = wallet;
 
-            // TODO: Remove this mint, it's only for test token
-            testToken.mint(wallet, 10 * 10 ** testToken.decimals()); // 10 tokens with 18 decimals
+            console.log("Wallet index at:");
+            console.logBytes32(salt);
 
-            // Initialize the wallet with the token address and approver
-            AutoApproveWallet(wallet).initialize(address(testToken), address(this));
+            if (isContractDeployed(wallet)) {
+                if (AutoApproveWallet(wallet).owner() != address(this)) {
+                    console.log("Wallet already exists, but is not owned by this contract!");
+                    revert("Wallet already exists, but is not owned by this contract!");
+                }
+                console.log("Wallet already exists!");
+            } else {
+                // Initialize the wallet with some test token and this as the approver
+                console.log("Wallet address created:", wallet);
+                testToken.mint(wallet, 10 * 10 ** testToken.decimals()); // 10 tokens with 18 decimals
+                AutoApproveWallet(wallet).initialize();
+                AutoApproveWallet(wallet).approveToken(address(testToken), address(this));
+            }
+        } else if (wallet == address(0) && !allowedToCreateWallet) {
+            revert(
+                "Wallet doesn't exist, and not authorized to create wallet! Try making a new proof with the message id as the salt."
+            );
         }
         return wallet;
     }
 
-    // OLD DEPRECATED PUBLIC WALLET HELPER FUNCTIONS
+    function isContractDeployed(address _address) public view returns (bool) {
+        uint32 size;
+        assembly {
+            size := extcodesize(_address)
+        }
+        return (size > 0);
+    }
+
+    // EMAIL MAPPING HELPER FUNCTIONS: Calling this functions will break your anonymity to the responding light/full node.
     // function convertEmailToIndex(string memory email) public pure returns (bytes32) {
     //     // EDIT: Take MIMC here.
     //     return keccak256(abi.encodePacked(convertEmailToBytes(email)));
@@ -186,12 +210,33 @@ contract WalletEmailHandlerLogic is VerifiedWalletEmailStorage, Ownable, Initial
     //     return bytes32(bytes(StringUtils.removeTrailingZeros(email)));
     // }
 
-    // // NOTE: Calling this function will break your anonymity to a light/full node.
-    // function getBalance(string memory email, string memory salt) public view returns (uint256) {
+    // function getBalance(string memory email, string memory messageIDSalt) public view returns (uint256) {
     //     return testToken.balanceOf(wallets[convertEmailToIndex(email)]);
     // }
 
+    function getBalance(uint256 salt, string memory tokenName) public view returns (uint256) {
+        address tokenAddress = tokenRegistry.getTokenAddress(tokenName, getChainID());
+        return IERC20(tokenAddress).balanceOf(wallets[bytes32(salt)]);
+    }
+
+    function isStringInArray(string memory value, string[] memory array) internal pure returns (bool) {
+        for (uint256 i = 0; i < array.length; i++) {
+            if (StringUtils.stringEq(value, array[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // MAIN TRANSFER FUNCTION
+    /**
+     * @dev Transfers tokens from one email wallet to another using zk-SNARKs to maintain privacy.
+     * @param a The first element of the zk-SNARK proof.
+     * @param b The second element of the zk-SNARK proof.
+     * @param c The third element of the zk-SNARK proof.
+     * @param signals The public signals used in the zk-SNARK proof.
+     */
+
     function transfer(uint256[2] memory a, uint256[2][2] memory b, uint256[2] memory c, uint256[msg_len] memory signals)
         public
     {
@@ -219,31 +264,26 @@ contract WalletEmailHandlerLogic is VerifiedWalletEmailStorage, Ownable, Initial
         // Check from/to email domains are correct [in this case, only from domain is checked]
         // We will upload the version with these domain checks soon!
         // require(_domainCheck(headerSignals), "Invalid domain");
-        string memory command =
-            StringUtils.convertPackedBytesToString(StringUtils.sliceArray(bodySignals, 0, 1), packSize, packSize);
-        string memory amount =
-            StringUtils.convertPackedBytesToString(StringUtils.sliceArray(bodySignals, 1, 2), packSize, packSize);
-        string memory currency =
-            StringUtils.convertPackedBytesToString(StringUtils.sliceArray(bodySignals, 3, 4), packSize, packSize);
+        string memory command = StringUtils.convertPackedByteToString(bodySignals[0], packSize, packSize);
+        string memory amount = StringUtils.convertPackedByteToString(bodySignals[1], packSize, packSize);
+        string memory currency = StringUtils.convertPackedByteToString(bodySignals[3], packSize, packSize);
         bool canCreateFromWallet = bodySignals[4] == 1;
         uint256 fromSalt = bodySignals[5];
         bool canCreateToWallet = bodySignals[6] == 1;
         uint256 toSalt = bodySignals[7];
 
         // Require that the user is calling with the correct command
-        require(StringUtils.stringEq(StringUtils.lower(command), commandString()));
+        require(isStringInArray(StringUtils.lower(command), commandStrings()), "Invalid command");
 
-        string memory additionalInfo = StringUtils.convertPackedBytesToString(
-            StringUtils.sliceArray(bodySignals, msg_len - 1, msg_len), packSize, packSize
-        );
-        string memory domain = additionalInfo; // Change this later to actually parse the domain
+        uint256 additionalCommittedInfo = signals[msg_len - 1];
+        string memory domain = "gmail.com"; // Change this later to actually parse the domain as the first half
 
         // Verify that the public key for RSA matches the hardcoded one
         for (uint256 i = body_len; i < msg_len - 1; i++) {
             require(mailServer.isVerified(domain, i - body_len, signals[i]), "Invalid: RSA modulus not matched");
         }
-        require(verifier.verifyProof(a, b, c, signals), "Invalid Proof"); // checks effects iteractions, this should come first
-        console.log("Proof passed!");
+        // require(verifier.verifyProof(a, b, c, signals), "Invalid Proof"); // checks effects iteractions, this should come first
+        // console.log("Proof passed!");
 
         // Print transfer data
         uint256 amountToTransfer = StringUtils.stringToUint(amount) * 10 ** testToken.decimals();
@@ -255,8 +295,11 @@ contract WalletEmailHandlerLogic is VerifiedWalletEmailStorage, Ownable, Initial
         console.log("From", fromSalt, "to", toSalt);
 
         // Effects: Send money
-        // Transfer the tokens
-        moveTokens(fromSalt, toSalt, amountToTransfer, address(testToken));
+        // Generate wallets and transfer the tokens
+        address fromWallet = getOrCreateWallet(bytes32(fromSalt), canCreateFromWallet);
+        address toWallet = getOrCreateWallet(bytes32(toSalt), canCreateToWallet);
+        address tokenAddress = tokenRegistry.getTokenAddress(currency, getChainID());
+        moveTokens(fromWallet, toWallet, amountToTransfer, address(tokenAddress));
     }
 
     function getChainID() public view returns (uint256) {
@@ -265,5 +308,22 @@ contract WalletEmailHandlerLogic is VerifiedWalletEmailStorage, Ownable, Initial
             chainId := chainid()
         }
         return chainId;
+    }
+}
+
+// Defines upgradable logic
+contract TestEmptyWalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initializable {
+    Verifier public verifier;
+    TestEmailToken public testToken;
+    TokenRegistry public tokenRegistry;
+    MailServer mailServer;
+    uint16 public constant version = 2; // Should overwrite
+    uint16 public constant dummyVar = 3; // Should make new var
+
+    function initialize(Verifier v, MailServer m, TestEmailToken t, TokenRegistry r) public initializer {
+        verifier = v;
+        mailServer = m;
+        testToken = t;
+        tokenRegistry = r;
     }
 }

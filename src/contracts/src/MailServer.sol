@@ -1,8 +1,9 @@
 pragma solidity ^0.8.0;
 
 import "forge-std/console.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MailServer {
+contract MailServer is Ownable {
     uint16 constant rsa_modulus_chunks_len = 17;
     mapping(string => uint256[rsa_modulus_chunks_len]) verifiedMailserverKeys;
 
@@ -122,8 +123,9 @@ contract MailServer {
         return verifiedMailserverKeys[domain][index] == val;
     }
 
-    function editMailserverKey(string memory domain, uint256 index, uint256 val) public {
-        require(msg.sender == 0x6171aeBcC9e9B9E1D90EC9C2E124982932297345, "Only 0x6171aeBcC9e9B9E1D90EC9C2E124982932297345 can add/change mailserver keys for now. We will change this to be a DNSSEC oracle + multisig soon!");
+    function editMailserverKey(string memory domain, uint256 index, uint256 val) public onlyOwner {
         verifiedMailserverKeys[domain][index] = val;
     }
+
+    // TODO: Add DNSSEC verification to add a key as well
 }

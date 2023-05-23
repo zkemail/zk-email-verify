@@ -61,21 +61,42 @@ contract TokenRegistry {
     }
 
     // Return the address of a token on a specific chain
-    function getTokenAddress(string memory tokenName, uint256 chainId) public view returns (address) {
+    function getTokenAddress(
+        string memory tokenName,
+        uint256 chainId
+    ) public view returns (address) {
         return getTokenAddress(tokenName, chainIdToName[chainId]);
     }
 
     // Return the address of a token on a specific chain
-    function getTokenAddress(string memory tokenName, string memory chainName) public view returns (address) {
-        if (keccak256(abi.encodePacked(chainName)) == keccak256(abi.encodePacked("optimism"))) {
+    function getTokenAddress(
+        string memory tokenName,
+        string memory chainName
+    ) public view returns (address) {
+        if (
+            keccak256(abi.encodePacked(chainName)) ==
+            keccak256(abi.encodePacked("optimism"))
+        ) {
             return tokens[tokenName].optimism;
-        } else if (keccak256(abi.encodePacked(chainName)) == keccak256(abi.encodePacked("arbitrum"))) {
+        } else if (
+            keccak256(abi.encodePacked(chainName)) ==
+            keccak256(abi.encodePacked("arbitrum"))
+        ) {
             return tokens[tokenName].arbitrum;
-        } else if (keccak256(abi.encodePacked(chainName)) == keccak256(abi.encodePacked("xdai"))) {
+        } else if (
+            keccak256(abi.encodePacked(chainName)) ==
+            keccak256(abi.encodePacked("xdai"))
+        ) {
             return tokens[tokenName].xdai;
-        } else if (keccak256(abi.encodePacked(chainName)) == keccak256(abi.encodePacked("goerli"))) {
+        } else if (
+            keccak256(abi.encodePacked(chainName)) ==
+            keccak256(abi.encodePacked("goerli"))
+        ) {
             return tokens[tokenName].goerli;
-        } else if (keccak256(abi.encodePacked(chainName)) == keccak256(abi.encodePacked("mainnet"))) {
+        } else if (
+            keccak256(abi.encodePacked(chainName)) ==
+            keccak256(abi.encodePacked("mainnet"))
+        ) {
             return tokens[tokenName].mainnet;
         } else {
             revert("Invalid chain name.");
@@ -83,19 +104,45 @@ contract TokenRegistry {
     }
 
     // Update the address of a token on a specific chain
-    function updateTokenAddress(string memory tokenName, string memory chainName, address newAddress)
-        public
-        onlyOwner
-    {
-        if (keccak256(abi.encodePacked(chainName)) == keccak256(abi.encodePacked("optimism"))) {
+    function updateTokenAddress(
+        string memory tokenName,
+        uint256 chainId,
+        address newAddress
+    ) public onlyOwner {
+        return
+            updateTokenAddress(tokenName, chainIdToName[chainId], newAddress);
+    }
+
+    // Update the address of a token on a specific chain
+    function updateTokenAddress(
+        string memory tokenName,
+        string memory chainName,
+        address newAddress
+    ) public onlyOwner {
+        if (
+            keccak256(abi.encodePacked(chainName)) ==
+            keccak256(abi.encodePacked("optimism"))
+        ) {
             tokens[tokenName].optimism = newAddress;
-        } else if (keccak256(abi.encodePacked(chainName)) == keccak256(abi.encodePacked("arbitrum"))) {
+        } else if (
+            keccak256(abi.encodePacked(chainName)) ==
+            keccak256(abi.encodePacked("arbitrum"))
+        ) {
             tokens[tokenName].arbitrum = newAddress;
-        } else if (keccak256(abi.encodePacked(chainName)) == keccak256(abi.encodePacked("xdai"))) {
+        } else if (
+            keccak256(abi.encodePacked(chainName)) ==
+            keccak256(abi.encodePacked("xdai"))
+        ) {
             tokens[tokenName].xdai = newAddress;
-        } else if (keccak256(abi.encodePacked(chainName)) == keccak256(abi.encodePacked("goerli"))) {
+        } else if (
+            keccak256(abi.encodePacked(chainName)) ==
+            keccak256(abi.encodePacked("goerli"))
+        ) {
             tokens[tokenName].goerli = newAddress;
-        } else if (keccak256(abi.encodePacked(chainName)) == keccak256(abi.encodePacked("mainnet"))) {
+        } else if (
+            keccak256(abi.encodePacked(chainName)) ==
+            keccak256(abi.encodePacked("mainnet"))
+        ) {
             tokens[tokenName].mainnet = newAddress;
         } else {
             revert("Invalid chain name.");

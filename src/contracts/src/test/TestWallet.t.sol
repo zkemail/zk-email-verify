@@ -2,7 +2,7 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
-import "../WalletEmailHandler.sol";
+import "../WalletEmailHandlerStorage.sol";
 import "../WalletEmailHandlerLogic.sol";
 import "../WalletEmailHandlerProxy.sol";
 import "../TestERC20.sol";
@@ -19,12 +19,20 @@ contract WalletUtilsTest is Test {
     uint16 public constant packSize = 30;
     uint16 public constant body_len = 4 * 4;
 
-    WalletEmailHandlerProxy testVerifier;
+    WalletEmailHandlerProxy walletHandler;
     MailServer mailServer;
     Verifier proofVerifier;
     WalletEmailHandlerLogic logic;
     TokenRegistry tokenRegistry;
     TestEmailToken erc20;
+
+    function getChainID() public view returns (uint256) {
+        uint256 chainId;
+        assembly {
+            chainId := chainid()
+        }
+        return chainId;
+    }
 
     function setUp() public {
         proofVerifier = new Verifier();
@@ -32,23 +40,17 @@ contract WalletUtilsTest is Test {
         erc20 = new TestEmailToken(5000);
         logic = new WalletEmailHandlerLogic();
         tokenRegistry = new TokenRegistry();
-        address admin = msg.sender;
+        tokenRegistry.updateTokenAddress("TEST", getChainID(), address(erc20));
+
         console.log("This address:");
         console.log(address(this));
         console.log("Caller/admin address:");
         console.log(msg.sender);
-        // Initialize logic
-        logic.initialize(proofVerifier, mailServer, erc20, tokenRegistry);
 
-        bytes memory initData = abi.encodeWithSignature(
-            "initialize(Verifier,MailServer,TestEmailToken,TokenRegistry)",
-            proofVerifier,
-            mailServer,
-            erc20,
-            tokenRegistry
-        );
+        bytes memory initData =
+            abi.encodeWithSelector(logic.initialize.selector, proofVerifier, mailServer, erc20, tokenRegistry);
         // TODO: Fix admin in place of address(this)
-        testVerifier = new WalletEmailHandlerProxy(address(logic), address(this), initData);
+        walletHandler = new WalletEmailHandlerProxy(address(logic), msg.sender, initData);
     }
 
     // Old unpacks
@@ -193,193 +195,57 @@ contract WalletUtilsTest is Test {
             10069972634237977706980635879331410342197879055629137669963055695388053169516
         ];
 
-        console.log("Calldata");
-        console.logBytes(abi.encode(proof_a, proof_b, proof_c, publicSignals));
-
         // Test proof verification
-        bool verified = proofVerifier.verifyProof(proof_a, proof_b, proof_c, publicSignals);
-        assertEq(verified, true);
 
-        // Test mint after spoofing msg.sender
+        // Test transfer after spoofing msg.sender [will eventually match the relayer commitment for gas reimbursement]
         Vm vm = Vm(VM_ADDR);
         vm.startPrank(0x0000000000000000000000000000000000000001);
-        bytes memory encodedData = abi.encodeWithSignature(
-            "transfer(uint256[2],uint256[2][2],uint256[2],uint256[26])", proof_a, proof_b, proof_c, publicSignals
-        );
-        (bool success, bytes memory result) = address(testVerifier).delegatecall(encodedData);
-        console.log(success);
-        console.logBytes(result);
+        WalletEmailHandlerLogic(address(walletHandler)).transfer(proof_a, proof_b, proof_c, publicSignals);
         vm.stopPrank();
+
+        bool verified = proofVerifier.verifyProof(proof_a, proof_b, proof_c, publicSignals);
+        assertEq(verified, true);
     }
-
-    // Should pass (note that there are extra 0 bytes, which are filtered out but should be noted in audits)function testTransferWalletEmail3() public {
-    // function testTransferWalletEmailSendVerifier2() public {
-    //     uint256[34] memory publicSignals = [
-    //         uint256(30515164652858234),
-    //         18147879272211830,
-    //         27917065853693287,
-    //         28015,
-    //         0,
-    //         50,
-    //         0,
-    //         0,
-    //         0,
-    //         0,
-    //         13762560,
-    //         30515164652858234,
-    //         14207229598262646,
-    //         13067048790615872,
-    //         7171939,
-    //         0,
-    //         1886180949733815343726466520516992271,
-    //         1551366393280668736485689616947198994,
-    //         1279057759087427731263511728885611780,
-    //         1711061746895435768547617398484429347,
-    //         2329140368326888129406637741054282011,
-    //         2094858442222190249786465516374057361,
-    //         2584558507302599829894674874442909655,
-    //         1521552483858643935889582214011445675,
-    //         176847449040377757035522930003764000,
-    //         632921959964166974634188077062540145,
-    //         2172441457165086627497230906075093832,
-    //         248112436365636977369105357296082574,
-    //         1408592841800630696650784801114783401,
-    //         364610811473321782531041012695979858,
-    //         342338521965453258686441392321054163,
-    //         2269703683857229911110544415296249295,
-    //         3643644972862751728748413716653892,
-    //         0
-    //     ];
-
-    //     uint256[2] memory proof_a = [
-    //         18568569282385577752003966587062685654688127322905645867690168113644909624209,
-    //         18759903706259146962639961745797835986209265804220236624283397965640158483190
-    //     ];
-
-    //     uint256[2][2] memory proof_b = [
-    //         [
-    //             5803446705026913357518568395981657569264671269353189435142412707651256173413,
-    //             8593766898146870509264586194439641404493723665652266429471383540616111544172
-    //         ],
-    //         [
-    //             16046700810774537572443697469030305204645791362097372667928847558873110846124,
-    //             20178806529375442298313753931928150693393269974972769756293026303013302674806
-    //         ]
-    //     ];
-
-    //     uint256[2] memory proof_c = [
-    //         13905944782945043014900524454195421236229551576754549828484627488690083504903,
-    //         21309166547782902503710040024457074452294672356307955049572131380081774653722
-    //     ];
-
-    //     console.log("Calldata");
-    //     console.logBytes(abi.encode(proof_a, proof_b, proof_c, publicSignals));
-
-    //     // Test proof verification
-    //     bool verified = proofVerifier.verifyProof(proof_a, proof_b, proof_c, publicSignals);
-    //     assertEq(verified, true);
-
-    //     // Test mint after spoofing msg.sender
-    //     Vm vm = Vm(VM_ADDR);
-    //     vm.startPrank(0x0000000000000000000000000000000000000001);
-    //     bytes memory encodedData = abi.encodeWithSignature(
-    //         "transfer(uint256[2],uint256[2][2],uint256[2],uint256[26])",
-    //         proof_a, proof_b, proof_c, publicSignals
-    //     );
-    //     (bool success, bytes memory result) = address(testVerifier).delegatecall(encodedData);
-
-    //     vm.stopPrank();
-
-    //     assert(testVerifier.getBalance("zkemailverify@gmail.com") == 8 * 10 ** erc20.decimals());
-    //     assert(testVerifier.getBalance("zkemailverify2@gmail.com") == 12 * 10 ** erc20.decimals());
-    // }
-
-    // Should pass (note that there are extra 0 bytes, which are filtered out but should be noted in audits)function testTransferWalletEmail3() public {
-    // function testTransferWalletEmailCommandVerifier() public {
-    //     uint256[34] memory publicSignals = [
-    //         uint256(30515164652858234),
-    //         18147879272211830,
-    //         27917065853693287,
-    //         28015,
-    //         0,
-    //         50,
-    //         0,
-    //         0,
-    //         0,
-    //         0,
-    //         13762560,
-    //         30515164652858234,
-    //         14207229598262646,
-    //         13067048790615872,
-    //         7171939,
-    //         0,
-    //         1886180949733815343726466520516992271,
-    //         1551366393280668736485689616947198994,
-    //         1279057759087427731263511728885611780,
-    //         1711061746895435768547617398484429347,
-    //         2329140368326888129406637741054282011,
-    //         2094858442222190249786465516374057361,
-    //         2584558507302599829894674874442909655,
-    //         1521552483858643935889582214011445675,
-    //         176847449040377757035522930003764000,
-    //         632921959964166974634188077062540145,
-    //         2172441457165086627497230906075093832,
-    //         248112436365636977369105357296082574,
-    //         1408592841800630696650784801114783401,
-    //         364610811473321782531041012695979858,
-    //         342338521965453258686441392321054163,
-    //         2269703683857229911110544415296249295,
-    //         3643644972862751728748413716653892,
-    //         0
-    //     ];
-
-    //     uint256[2] memory proof_a = [
-    //         18568569282385577752003966587062685654688127322905645867690168113644909624209,
-    //         18759903706259146962639961745797835986209265804220236624283397965640158483190
-    //     ];
-
-    //     uint256[2][2] memory proof_b = [
-    //         [
-    //             5803446705026913357518568395981657569264671269353189435142412707651256173413,
-    //             8593766898146870509264586194439641404493723665652266429471383540616111544172
-    //         ],
-    //         [
-    //             16046700810774537572443697469030305204645791362097372667928847558873110846124,
-    //             20178806529375442298313753931928150693393269974972769756293026303013302674806
-    //         ]
-    //     ];
-
-    //     uint256[2] memory proof_c = [
-    //         13905944782945043014900524454195421236229551576754549828484627488690083504903,
-    //         21309166547782902503710040024457074452294672356307955049572131380081774653722
-    //     ];
-
-    //     console.log("Calldata");
-    //     console.logBytes(abi.encode(proof_a, proof_b, proof_c, publicSignals));
-
-    //     // Test proof verification
-    //     bool verified = proofVerifier.verifyProof(proof_a, proof_b, proof_c, publicSignals);
-    //     assertEq(verified, true);
-
-    //     // Test mint after spoofing msg.sender
-    //     Vm vm = Vm(VM_ADDR);
-    //     vm.startPrank(0x0000000000000000000000000000000000000001);
-    //     testVerifier.transfer(proof_a, proof_b, proof_c, publicSignals);
-    //     vm.stopPrank();
-
-    //     assert(testVerifier.getBalance("zkemailverify@gmail.com") == 8 * 10 ** erc20.decimals());
-    //     assert(testVerifier.getBalance("zkemailverify2@gmail.com") == 12 * 10 ** erc20.decimals());
-    // }
 
     function testMigrateAllERC20() public {
         uint256 fromSalt = 11578046119786885486589898473893761816011340408005885677852497807442621066251;
         uint256 toSalt = 668633821978676526869556450266953888005839843040173803440403455913247484181;
-        bytes memory encodedData =
-            abi.encodeWithSignature("migrateAllToken(uint256,uint256,string)", fromSalt, toSalt, "DAI");
-        (bool success, bytes memory result) = address(testVerifier).delegatecall(encodedData);
-        console.log(success);
-        console.logBytes(result);
-        // assert(testVerifier.getBalance(fromEmail) == 9 * 10 ** erc20.decimals());
-        // assert(testVerifier.getBalance(recipientEmail) == 11 * 10 ** erc20.decimals());
+        WalletEmailHandlerLogic(address(walletHandler)).migrateAllToken(fromSalt, toSalt, "DAI");
+        // bytes memory encodedData =
+        //     abi.encodeWithSignature("migrateAllToken(uint256,uint256,string)", fromSalt, toSalt, "DAI");
+        // (bool success, bytes memory result) = address(walletHandler).delegatecall(encodedData);
+        // console.log(success);
+        // console.logBytes(result);
+        // assert(walletHandler.getBalance(fromEmail) == 9 * 10 ** erc20.decimals());
+        // assert(walletHandler.getBalance(recipientEmail) == 11 * 10 ** erc20.decimals());
+    }
+
+    function queryNullifier(uint256 a) public view returns (bool) {
+        WalletEmailHandlerStorage handlerStorage = WalletEmailHandlerStorage(walletHandler.getImplementation());
+        return handlerStorage.nullifier(a);
+    }
+
+    // Upgrades the contract and checks that the nullifier remains used
+    function testUpgradeLogicContract() public {
+        assertEq(queryNullifier(uint256(0)), false);
+
+        // Set storage values i.e. nullifier
+        testVerifyWalletEmailSendVerifier();
+
+        // Deploy a new logic contract
+        TestEmptyWalletEmailHandlerLogic newLogicContract = new TestEmptyWalletEmailHandlerLogic();
+
+        // Upgrade the logic contract
+        walletHandler.upgradeTo(address(newLogicContract));
+
+        // Re-initialize, pretending we have a new verifier contract
+        Verifier newProofVerifier = new Verifier();
+        TestEmptyWalletEmailHandlerLogic(walletHandler.getImplementation()).initialize(
+            newProofVerifier, mailServer, erc20, tokenRegistry
+        );
+        TestEmptyWalletEmailHandlerLogic(address(walletHandler)).transferOwnership(tx.origin);
+
+        // Check if the mailServer address is the same
+        assertEq(queryNullifier(uint256(0)), true);
     }
 }

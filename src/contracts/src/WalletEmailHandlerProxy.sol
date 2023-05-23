@@ -5,7 +5,9 @@ import "@openzeppelin/contracts/proxy/Proxy.sol";
 import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 
 contract WalletEmailHandlerProxy is TransparentUpgradeableProxy {
-    constructor(address logic, address admin, bytes memory data)
-        TransparentUpgradeableProxy(logic, admin, data)
-    {}
+    constructor(address logic, address admin, bytes memory data) TransparentUpgradeableProxy(logic, admin, data) {}
+
+    function getImplementation() public view returns (address) {
+        return _getImplementation();
+    }
 }
