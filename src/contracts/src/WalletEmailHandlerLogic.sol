@@ -286,7 +286,8 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
         // console.log("Proof passed!");
 
         // Print transfer data
-        uint256 amountToTransfer = StringUtils.stringToUint(amount) * 10 ** testToken.decimals();
+        address tokenAddress = tokenRegistry.getTokenAddress(StringUtils.upper(currency), getChainID());
+        uint256 amountToTransfer = StringUtils.stringToUint(amount) * 10 ** IERC20(tokenAddress).decimals();
         console.log("Original from salt", fromSalt);
         console.log("Original recipient salt", toSalt);
         console.log("Original amount", amount);
@@ -298,7 +299,6 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
         // Generate wallets and transfer the tokens
         address fromWallet = getOrCreateWallet(bytes32(fromSalt), canCreateFromWallet);
         address toWallet = getOrCreateWallet(bytes32(toSalt), canCreateToWallet);
-        address tokenAddress = tokenRegistry.getTokenAddress(currency, getChainID());
         moveTokens(fromWallet, toWallet, amountToTransfer, address(tokenAddress));
     }
 
