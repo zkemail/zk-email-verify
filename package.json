@@ -24,6 +24,7 @@
     "ethereumjs-abi": "^0.6.8",
     "ethers": "^5.7.1",
     "forge-std": "^1.1.2",
+    "jsdom-worker": "^0.3.0",
     "libmime": "^5.1.0",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
@@ -101,6 +102,7 @@
     "@types/jest": "^29.4.0",
     "@types/node": "^18.0.6",
     "@types/tar-stream": "^2.2.2",
+    "babel-preset-jest": "^29.5.0",
     "browserstack-local": "^1.5.1",
     "browserstack-node-sdk": "^1.6.1",
     "husky": "^8.0.3",
@@ -120,7 +122,11 @@
     "transformIgnorePatterns": [
       "node_modules/(?!@rainbow-me/rainbowkit)"
     ],
-    "testEnvironment": "jsdom"
+    "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": [
+      "./src/setupTests.js",
+      "jsdom-worker"
+    ]
   },
   "packageManager": "yarn@3.2.3"
 }

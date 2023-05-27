@@ -16,12 +16,5 @@ export default defineConfig({
   ],
 	server: {
 		port: 3000,
-	},
-  test: {
-		globals: true,
-		environment: 'jsdom',
-    setupFiles: './src/setupTests.js',
-    include: "src/**/*.test.*",
-    exclude: "src/contracts/**/*.test.*|src/e2e**.test.*",
-  },
+	}
 });
