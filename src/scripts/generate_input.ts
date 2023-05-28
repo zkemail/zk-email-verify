@@ -22,8 +22,8 @@ import { stubObject } from "lodash";
 // const argv = yargs(hideBin(process.argv))
 // import * as yargs from "yargs";
 var Cryo = require("cryo");
-// const pki = require("node-forge").pki;
-import * as CryptoJS from 'crypto-browserify';
+const pki = require("node-forge").pki;
+// import * as CryptoJS from 'crypto-browserify';
 // import  { parseKey } from 'crypto-browserify';
 
 // email_file: Path to email file
@@ -270,8 +270,8 @@ export async function generate_inputs(raw_email: Buffer | string, eth_address: s
   let circuitType = CircuitType.EMAIL;
 
   let pubkey = result.results[0].publicKey;
-  // const pubKeyData = pki.publicKeyFromPem(pubkey.toString());
-  const pubKeyData = CryptoJS.parseKey(pubkey.toString(), 'pem');
+  const pubKeyData = pki.publicKeyFromPem(pubkey.toString());
+  // const pubKeyData = CryptoJS.parseKey(pubkey.toString(), 'pem');
   let modulus = BigInt(pubKeyData.n.toString());
   let fin_result = await getCircuitInputs(sig, modulus, message, body, body_hash, eth_address, circuitType);
   return fin_result.circuitInputs;

@@ -1,3 +1,5 @@
+import { setImmediate } from 'timers';
+
 /* eslint no-control-regex: 0 */
 
 var isNode = false;
@@ -20,8 +22,8 @@ const crypto = require("crypto");
 const parseDkimHeaders = require("./parse-dkim-headers");
 const psl = require("psl");
 // const pki = require("node-forge").pki;
-// const { parseKey } = require('crypto-browserify');
-import * as CryptoJS from 'crypto-browserify';
+const { parseKey } = require('crypto-browserify');
+// import * as CryptoJS from 'crypto-browserify';
 
 const defaultDKIMFieldNames =
   "From:Sender:Reply-To:Subject:Date:Message-ID:To:" +
@@ -219,10 +221,10 @@ const formatSignatureHeaderLine = (type, values, folded) => {
 async function resolveDNSHTTP(name, type) {
   const resp = await fetch(
     "https://dns.google/resolve?" +
-      new URLSearchParams({
-        name: name,
-        type: type,
-      })
+    new URLSearchParams({
+      name: name,
+      type: type,
+    })
   );
   const out = await resp.json();
   // For some DNS, the Answer response here contains more than 1 element in the array. The last element is the one containing the public key
@@ -340,8 +342,8 @@ const getPublicKey = async (type, name, minBitLength, resolver) => {
       modulusLength = publicKeyObj.algorithm.modulusLength;
     } else {
       // fall back to node-forge
-      // const pubKeyData = pki.publicKeyFromPem(publicKeyPem.toString());
-      const pubKeyData = CryptoJS.parseKey(publicKeyPem.toString(), 'pem');
+      const pubKeyData = pki.publicKeyFromPem(publicKeyPem.toString());
+      // const pubKeyData = CryptoJS.parseKey(publicKeyPem.toString(), 'pem');
       modulusLength = pubKeyData.n.bitLength();
     }
 

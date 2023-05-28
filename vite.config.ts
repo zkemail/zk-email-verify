@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 import viteTsconfigPaths from "vite-tsconfig-paths";
 import svgrPlugin from "vite-plugin-svgr";
 import commonjs from "vite-plugin-commonjs";
-import { NgmiPolyfill } from "vite-plugin-ngmi-polyfill";
+import 'rollup-plugin-node-polyfills';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -12,9 +12,18 @@ export default defineConfig({
     viteTsconfigPaths(),
     svgrPlugin(),
     commonjs(),
-    NgmiPolyfill(),
   ],
-	server: {
-		port: 3000,
-	}
+  resolve: {
+    alias: {
+      timers: "rollup-plugin-node-polyfills/polyfills/timers",
+      stream: "rollup-plugin-node-polyfills/polyfills/stream",
+      util: "rollup-plugin-node-polyfills/polyfills/util",
+      process: "rollup-plugin-node-polyfills/polyfills/process-es6",
+      crypto: "crypto-browserify",
+      buffer: "buffer",
+    },
+  },
+  server: {
+    port: 3000,
+  },
 });
