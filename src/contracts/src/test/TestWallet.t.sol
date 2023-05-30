@@ -195,14 +195,14 @@ contract WalletUtilsTest is Test {
             10069972634237977706980635879331410342197879055629137669963055695388053169516
         ];
 
-        // Test proof verification
-
+        
         // Test transfer after spoofing msg.sender [will eventually match the relayer commitment for gas reimbursement]
         Vm vm = Vm(VM_ADDR);
         vm.startPrank(0x0000000000000000000000000000000000000001);
         WalletEmailHandlerLogic(address(walletHandler)).transfer(proof_a, proof_b, proof_c, publicSignals);
         vm.stopPrank();
-
+        
+        // Test proof verification
         bool verified = proofVerifier.verifyProof(proof_a, proof_b, proof_c, publicSignals);
         assertEq(verified, true);
     }

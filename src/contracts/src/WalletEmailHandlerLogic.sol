@@ -287,7 +287,7 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
 
         // Print transfer data
         address tokenAddress = tokenRegistry.getTokenAddress(StringUtils.upper(currency), getChainID());
-        uint256 amountToTransfer = StringUtils.stringToUint(amount) * 10 ** IERC20(tokenAddress).decimals();
+        uint256 amountToTransfer = StringUtils.stringToUint(amount) * 10 ** ERC20(tokenAddress).decimals();
         console.log("Original from salt", fromSalt);
         console.log("Original recipient salt", toSalt);
         console.log("Original amount", amount);
