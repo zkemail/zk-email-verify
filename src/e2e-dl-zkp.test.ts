@@ -75,17 +75,17 @@ describe("App.js", () => {
 
     let status;
     await page.waitForSelector("[data-testid='status-downloading-proof-files']");
-    status = await page.$eval("[data-testid='status-downloading-proof-files']", e => e.attributes['data-testid'].value);
+    status = await page.$eval("[data-testid='status-downloading-proof-files']", e => (e.attributes as any)['data-testid'].value);
     expect(status).toBe("status-downloading-proof-files");
 
     await page.waitForSelector("[data-testid='status-generating-proof']", {timeout: downloadTimeout});
     console.log("finished download...starting proof");
     console.log("starting proof...this will take up to 10 minutes and consume cpu time");
-    status = await page.$eval("[data-testid='status-generating-proof']", e => e.attributes['data-testid'].value);
+    status = await page.$eval("[data-testid='status-generating-proof']", e => (e.attributes as any)['data-testid'].value);
     expect(status).toBe("status-generating-proof");
 
     await page.waitForSelector("[data-testid='status-done']", {timeout: proofTimeout});
-    status = await page.$eval("[data-testid='status-done']", e => e.attributes['data-testid'].value);
+    status = await page.$eval("[data-testid='status-done']", e => (e.attributes as any)['data-testid'].value);
     expect(status).toBe("status-done");
 
     // check proof

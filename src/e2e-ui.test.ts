@@ -79,7 +79,7 @@ describe("App.js", () => {
     const proveButtonIsDisabled = await page.$eval(proveButtonSelector, button => (button as HTMLButtonElement).disabled);
     expect(proveButtonIsDisabled).toBe(false);
 
-    const status = await page.$eval("[data-testid='status-not-started']", e => e.attributes['data-testid'].value);
+    const status = await page.$eval("[data-testid='status-not-started']", e => (e.attributes as any)['data-testid'].value);
     expect(status).toBe("status-not-started");
   });
 

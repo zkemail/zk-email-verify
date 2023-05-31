@@ -1,11 +1,14 @@
 import { StringDecoder } from "string_decoder";
-import localforage from "localforage";
+import _localforage from "localforage";
 import { downloadFromFilename, downloadProofFiles } from "./zkp";
 
 import { server } from '../mocks/server.js'
 
 // this is mocked in __mocks__/localforage.ts
 jest.mock("localforage");
+
+const localforage = _localforage as jest.Mocked<typeof _localforage>;
+
 // Establish API mocking before all tests.
 beforeAll(() => server.listen())
 
@@ -39,7 +42,7 @@ describe('Test zkp fetch and store', () => {
     // check that localforage.setItem was called once to save the zkey file.
     expect(localforage.setItem).toBeCalledTimes(1);
     const filenameRaw = localforage.setItem.mock.calls[0][0];
-    const decompressedBuffer = localforage.setItem.mock.calls[0][1];
+    const decompressedBuffer = localforage.setItem.mock.calls[0][1] as ArrayBuffer;
 
     // expect to be called with...
     const str = decodeArrayBufferToString(decompressedBuffer);
@@ -56,13 +59,13 @@ describe('Test zkp fetch and store', () => {
 
     // check the first one
     const filenameRawB = localforage.setItem.mock.calls[0][0];
-    const decompressedBufferB = localforage.setItem.mock.calls[0][1];
+    const decompressedBufferB = localforage.setItem.mock.calls[0][1] as ArrayBuffer;
     expect(filenameRawB).toBe("email.zkeyb");
     expect(decodeArrayBufferToString(decompressedBufferB)).toBe("not compressed 👍");
     // ... c d e f g h i j ... assume these are fine too.
     // check the last one
     const filenameRawK = localforage.setItem.mock.calls[9][0];
-    const decompressedBufferK = localforage.setItem.mock.calls[9][1];
+    const decompressedBufferK = localforage.setItem.mock.calls[9][1] as ArrayBuffer;
     expect(filenameRawK).toBe("email.zkeyk");
     expect(decodeArrayBufferToString(decompressedBufferK)).toBe("not compressed 👍");
     expect(onDownloaded).toBeCalledTimes(10);
