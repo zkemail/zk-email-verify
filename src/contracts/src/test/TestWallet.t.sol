@@ -203,11 +203,12 @@ contract WalletUtilsTest is Test {
         // Send 50 DAI from DAI contract to the from wallet
         address DAI_ADDR = tokenRegistry.getTokenAddress("DAI");
         vm.startPrank(DAI_ADDR);
-        uint256 daiBalance = IERC20(DAI_ADDR).balanceOf(tx.origin);
-        assert(daiBalance > 0);
-        IERC20(DAI_ADDR).transferFrom(tx.origin, address(uint160(publicSignals[6])), 50000000000000000000);
+        uint256 daiAmount = 50 * 10 ** ERC20(DAI_ADDR).decimals();
+        uint256 daiBalance = IERC20(DAI_ADDR).balanceOf(DAI_ADDR);
+        assert(daiBalance >= daiAmount);
+        IERC20(DAI_ADDR).transfer(address(uint160(publicSignals[6])), daiAmount);
         daiBalance = IERC20(DAI_ADDR).balanceOf(address(uint160(publicSignals[6])));
-        assert(daiBalance > 0);
+        assert(daiBalance >= daiAmount);
 
         // Test transfer after spoofing msg.sender [will eventually match the relayer commitment for gas reimbursement]
         vm.startPrank(0x0000000000000000000000000000000000000001);
@@ -222,9 +223,10 @@ contract WalletUtilsTest is Test {
     function testMigrateAllERC20() public {
         uint256 fromSalt = 11578046119786885486589898473893761816011340408005885677852497807442621066251;
         uint256 toSalt = 668633821978676526869556450266953888005839843040173803440403455913247484181;
-        bytes memory data = abi.encodeWithSignature("migrateAllToken(uint256,uint256,string)", fromSalt, toSalt, "DAI");
-        WalletEmailHandlerProxy(walletHandler).forwardCallToLogic(data);
+        WalletEmailHandlerLogic(address(walletHandler)).migrateAllToken(fromSalt, toSalt, "DAI");
 
+        // bytes memory data = abi.encodeWithSignature("migrateAllToken(uint256,uint256,string)", fromSalt, toSalt, "DAI");
+        // WalletEmailHandlerProxy(walletHandler).forwardCallToLogic(data);
         // bytes memory encodedData =
         //     abi.encodeWithSignature("migrateAllToken(uint256,uint256,string)", fromSalt, toSalt, "DAI");
         // (bool success, bytes memory result) = address(walletHandler).delegatecall(encodedData);
