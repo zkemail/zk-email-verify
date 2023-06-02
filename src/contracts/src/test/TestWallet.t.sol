@@ -198,9 +198,7 @@ contract WalletUtilsTest is Test {
             10069972634237977706980635879331410342197879055629137669963055695388053169516
         ];
 
-        // Vm vm = Vm(VM_ADDR);
-        
-        // Send 50 DAI from DAI contract (from people who accidentally sent it there) to the from wallet
+        // Send 50 DAI from DAI contract (from people who accidentally sent it there) to the from wallet, as if they had sent that
         address DAI_ADDR = tokenRegistry.getTokenAddress("DAI");
         uint256 fromSalt = publicSignals[5];
         address from_addr = WalletEmailHandlerLogic(address(walletHandler)).getOrCreateWallet(fromSalt);
@@ -226,7 +224,7 @@ contract WalletUtilsTest is Test {
         bool verified = proofVerifier.verifyProof(proof_a, proof_b, proof_c, publicSignals);
         assertEq(verified, true);
         
-        // Test new balances of the from wallet
+        // Test new balances of the from/to wallet
         assert(startingFromDaiBalance > IERC20(DAI_ADDR).balanceOf(from_addr));
         assert(IERC20(DAI_ADDR).balanceOf(to_addr) >= 0);
         
@@ -258,8 +256,8 @@ contract WalletUtilsTest is Test {
     function testUpgradeLogicContract() public {
         assertEq(queryNullifier(uint256(0)), false);
 
-        // Set storage values i.e. nullifier
-        testVerifyWalletEmailSendVerifier();
+        // Set storage values i.e. a nullifier
+        testTransfer();
 
         // Deploy a new logic contract
         TestEmptyWalletEmailHandlerLogic newLogicContract = new TestEmptyWalletEmailHandlerLogic();
@@ -283,7 +281,7 @@ contract WalletUtilsTest is Test {
         assertEq(queryNullifier(uint256(0)), false);
         
         // Set storage values i.e. nullifier
-        testVerifyWalletEmailSendVerifier();
+        testTransfer();
         
         // Deploy a new logic contract
         TestEmptyWalletEmailHandlerLogic newLogicContract = new TestEmptyWalletEmailHandlerLogic();
