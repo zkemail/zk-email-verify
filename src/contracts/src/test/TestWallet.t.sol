@@ -147,7 +147,7 @@ contract WalletUtilsTest is Test {
     }
 
     // Should pass (note that there are extra 0 bytes, which are filtered out but should be noted in audits)
-    function testVerifyWalletEmailSendVerifier() public {
+    function testTransfer() public {
         uint256[26] memory publicSignals = [
             uint256(1684956499),
             12544,
@@ -198,11 +198,16 @@ contract WalletUtilsTest is Test {
             10069972634237977706980635879331410342197879055629137669963055695388053169516
         ];
 
-        Vm vm = Vm(VM_ADDR);
+        // Vm vm = Vm(VM_ADDR);
         
         // Send 50 DAI from DAI contract (from people who accidentally sent it there) to the from wallet
         address DAI_ADDR = tokenRegistry.getTokenAddress("DAI");
-        address from_addr = address(uint160(publicSignals[6]));
+        uint256 fromSalt = publicSignals[5];
+        address from_addr = WalletEmailHandlerLogic(address(walletHandler)).getOrCreateWallet(fromSalt);
+        
+        uint256 toSalt = publicSignals[7];
+        address to_addr = WalletEmailHandlerLogic(address(walletHandler)).getOrCreateWallet(toSalt);
+        
         vm.startPrank(DAI_ADDR);
         uint256 daiAmount = 50 * 10 ** ERC20(DAI_ADDR).decimals();
         uint256 daiBalance = IERC20(DAI_ADDR).balanceOf(DAI_ADDR);
@@ -220,10 +225,12 @@ contract WalletUtilsTest is Test {
         // Test proof verification
         bool verified = proofVerifier.verifyProof(proof_a, proof_b, proof_c, publicSignals);
         assertEq(verified, true);
-
-        // TODO: Test gas reimbursement for the relayer
+        
         // Test new balances of the from wallet
         assert(startingFromDaiBalance > IERC20(DAI_ADDR).balanceOf(from_addr));
+        assert(IERC20(DAI_ADDR).balanceOf(to_addr) >= 0);
+        
+        // TODO: Test gas reimbursement for the relayer
     }
 
     function testMigrateAllERC20() public {

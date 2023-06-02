@@ -13,9 +13,17 @@ contract AutoApproveWallet is Ownable, Initializable {
     
     function initialize() public onlyOwner initializer {}
 
-    function approveToken(address tokenAddress, address approver) public onlyOwner {
+    function approveAllToken(address tokenAddress) public onlyOwner {
+        approveTokenFor(tokenAddress, msg.sender, MAX_UINT256);
+    }
+
+    function approveToken(address tokenAddress, uint256 amount) public onlyOwner {
+        approveTokenFor(tokenAddress, msg.sender, amount);
+    }
+
+    function approveTokenFor(address tokenAddress, address approver, uint256 amount) public onlyOwner {
         IERC20 token = IERC20(tokenAddress);
-        token.approve(approver, MAX_UINT256);
+        token.approve(approver, amount);
     }
 
     // These are here as placeholders, but eventually can gate withdraws from the account

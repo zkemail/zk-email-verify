@@ -124,6 +124,10 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
      */
     function moveTokens(address fromWallet, address toWallet, uint256 amount, address token) internal {
         IERC20 tokenToUse = token == address(0) ? testToken : IERC20(token);
+        
+        // Enable the handler to move your tokens
+        AutoApproveWallet(fromWallet).approveToken(token, amount);
+        
         // Check for allowance and balance
         require(tokenToUse.allowance(fromWallet, address(this)) >= amount, "Allowance too low");
         require(tokenToUse.balanceOf(fromWallet) >= amount, "Insufficient balance to perform the transfer");
@@ -166,7 +170,7 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
      */
     function getOrCreateWallet(bytes32 salt, bool allowedToCreateWallet) internal returns (address) {
         address wallet = wallets[salt];
-        if (wallet == address(0) && allowedToCreateWallet) {
+        if (wallet == address(0)) {
             // Create wallet
             bytes memory bytecode = type(AutoApproveWallet).creationCode;
             assembly {
@@ -179,22 +183,14 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
             console.logBytes32(salt);
 
             if (isContractDeployed(wallet)) {
-                if (AutoApproveWallet(wallet).owner() != address(this)) {
-                    console.log("Wallet already exists, but is not owned by this contract!");
-                    revert("Wallet already exists, but is not owned by this contract!");
-                }
                 console.log("Wallet already exists!");
-            } else {
+            } else if (allowedToCreateWallet) {
                 // Initialize the wallet with some test token and this as the approver
                 console.log("Wallet address created:", wallet);
                 testToken.mint(wallet, 10 * 10 ** testToken.decimals()); // 10 tokens with 18 decimals
                 AutoApproveWallet(wallet).initialize();
-                AutoApproveWallet(wallet).approveToken(address(testToken), address(this));
+                AutoApproveWallet(wallet).approveAllToken(address(testToken));
             }
-        } else if (wallet == address(0) && !allowedToCreateWallet) {
-            revert(
-                "Wallet doesn't exist, and not authorized to create wallet! Try making a new proof with the message id as the salt."
-            );
         }
         return wallet;
     }
