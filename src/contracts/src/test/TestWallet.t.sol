@@ -200,17 +200,19 @@ contract WalletUtilsTest is Test {
 
         Vm vm = Vm(VM_ADDR);
         
-        // Send 50 DAI from DAI contract to the from wallet
+        // Send 50 DAI from DAI contract (from people who accidentally sent it there) to the from wallet
         address DAI_ADDR = tokenRegistry.getTokenAddress("DAI");
+        address from_addr = address(uint160(publicSignals[6]));
         vm.startPrank(DAI_ADDR);
         uint256 daiAmount = 50 * 10 ** ERC20(DAI_ADDR).decimals();
         uint256 daiBalance = IERC20(DAI_ADDR).balanceOf(DAI_ADDR);
         assert(daiBalance >= daiAmount);
-        IERC20(DAI_ADDR).transfer(address(uint160(publicSignals[6])), daiAmount);
-        daiBalance = IERC20(DAI_ADDR).balanceOf(address(uint160(publicSignals[6])));
-        assert(daiBalance >= daiAmount);
+        IERC20(DAI_ADDR).transfer(from_addr, daiAmount);
+        uint256 startingFromDaiBalance = IERC20(DAI_ADDR).balanceOf(from_addr);
+        assert(startingFromDaiBalance >= daiAmount);
+        vm.stopPrank();
 
-        // Test transfer after spoofing msg.sender [will eventually match the relayer commitment for gas reimbursement]
+        // Test email transfer after spoofing msg.sender to a relayer [will eventually match the relayer commitment for gas reimbursement]
         vm.startPrank(0x0000000000000000000000000000000000000001);
         WalletEmailHandlerLogic(address(walletHandler)).transfer(proof_a, proof_b, proof_c, publicSignals);
         vm.stopPrank();
@@ -218,6 +220,10 @@ contract WalletUtilsTest is Test {
         // Test proof verification
         bool verified = proofVerifier.verifyProof(proof_a, proof_b, proof_c, publicSignals);
         assertEq(verified, true);
+
+        // TODO: Test gas reimbursement for the relayer
+        // Test new balances of the from wallet
+        assert(startingFromDaiBalance > IERC20(DAI_ADDR).balanceOf(from_addr));
     }
 
     function testMigrateAllERC20() public {
