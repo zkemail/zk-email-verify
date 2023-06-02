@@ -60,6 +60,13 @@ contract TokenRegistry {
         chainIdToName[31337] = "goerli"; // Local foundry test chain goerli fork
     }
 
+    // Return the address of a token on this chain
+    function getTokenAddress(
+        string memory tokenName
+    ) public view returns (address) {
+        return getTokenAddress(tokenName, chainIdToName[getChainID()]);
+    }
+
     // Return the address of a token on a specific chain
     function getTokenAddress(
         string memory tokenName,
@@ -147,5 +154,13 @@ contract TokenRegistry {
         } else {
             revert("Invalid chain name.");
         }
+    }
+
+    function getChainID() public view returns (uint256) {
+        uint256 chainId;
+        assembly {
+            chainId := chainid()
+        }
+        return chainId;
     }
 }

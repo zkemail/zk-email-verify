@@ -52,6 +52,13 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
         mailServer = m;
         testToken = t;
         tokenRegistry = r;
+
+        console.log("This address:");
+        console.log(address(this));
+        console.log("Caller/admin address:");
+        console.log(msg.sender);
+        console.log("Tx origin:");
+        console.log(tx.origin);
     }
 
     function commandStrings() public pure returns (string[] memory) {

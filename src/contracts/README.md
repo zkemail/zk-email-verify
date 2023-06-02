@@ -19,7 +19,7 @@ forge install openzeppelin/openzeppelin-contracts
 To test your own contracts, copy TestTwitter.t.sol into a new test file, and make sure you can compile your proof fine. You can run a specific test with `forge test --match test_name`. Then make sure the whole suite passes and isn't above the size limit:
 
 ```
-forge test
+forge test --fork-url https://eth-goerli.g.alchemy.com/v2/$ALCHEMY_GOERLI_KEY
 forge build --sizes # Make sure these are all below 24kB
 ```
 

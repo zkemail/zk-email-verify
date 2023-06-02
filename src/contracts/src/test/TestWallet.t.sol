@@ -46,11 +46,14 @@ contract WalletUtilsTest is Test {
         console.log(address(this));
         console.log("Caller/admin address:");
         console.log(msg.sender);
+        console.log("Tx origin:");
+        console.log(tx.origin);
 
         bytes memory initData =
             abi.encodeWithSelector(logic.initialize.selector, proofVerifier, mailServer, erc20, tokenRegistry);
         // TODO: Fix admin in place of address(this)
         walletHandler = new WalletEmailHandlerProxy(address(logic), msg.sender, initData);
+        // walletHandler.forwardCall(address(walletHandler)).transferOwnership(tx.origin);
     }
 
     // Old unpacks
@@ -195,9 +198,18 @@ contract WalletUtilsTest is Test {
             10069972634237977706980635879331410342197879055629137669963055695388053169516
         ];
 
-        
-        // Test transfer after spoofing msg.sender [will eventually match the relayer commitment for gas reimbursement]
         Vm vm = Vm(VM_ADDR);
+        
+        // Send 50 DAI from DAI contract to the from wallet
+        address DAI_ADDR = tokenRegistry.getTokenAddress("DAI");
+        vm.startPrank(DAI_ADDR);
+        uint256 daiBalance = IERC20(DAI_ADDR).balanceOf(tx.origin);
+        assert(daiBalance > 0);
+        IERC20(DAI_ADDR).transferFrom(tx.origin, address(uint160(publicSignals[6])), 50000000000000000000);
+        daiBalance = IERC20(DAI_ADDR).balanceOf(address(uint160(publicSignals[6])));
+        assert(daiBalance > 0);
+
+        // Test transfer after spoofing msg.sender [will eventually match the relayer commitment for gas reimbursement]
         vm.startPrank(0x0000000000000000000000000000000000000001);
         WalletEmailHandlerLogic(address(walletHandler)).transfer(proof_a, proof_b, proof_c, publicSignals);
         vm.stopPrank();
@@ -210,7 +222,9 @@ contract WalletUtilsTest is Test {
     function testMigrateAllERC20() public {
         uint256 fromSalt = 11578046119786885486589898473893761816011340408005885677852497807442621066251;
         uint256 toSalt = 668633821978676526869556450266953888005839843040173803440403455913247484181;
-        WalletEmailHandlerLogic(address(walletHandler)).migrateAllToken(fromSalt, toSalt, "DAI");
+        bytes memory data = abi.encodeWithSignature("migrateAllToken(uint256,uint256,string)", fromSalt, toSalt, "DAI");
+        WalletEmailHandlerProxy(walletHandler).forwardCallToLogic(data);
+
         // bytes memory encodedData =
         //     abi.encodeWithSignature("migrateAllToken(uint256,uint256,string)", fromSalt, toSalt, "DAI");
         // (bool success, bytes memory result) = address(walletHandler).delegatecall(encodedData);
@@ -247,5 +261,24 @@ contract WalletUtilsTest is Test {
 
         // Check if the mailServer address is the same
         assertEq(queryNullifier(uint256(0)), true);
+    }
+
+    // Upgrades the contract and checks that the nullifier remains used
+    function testUpgradeLogicContractNotOwner() public {
+        assertEq(queryNullifier(uint256(0)), false);
+        
+        // Set storage values i.e. nullifier
+        testVerifyWalletEmailSendVerifier();
+        
+        // Deploy a new logic contract
+        TestEmptyWalletEmailHandlerLogic newLogicContract = new TestEmptyWalletEmailHandlerLogic();
+        
+        vm.startPrank(0x0000000000000000000000000000000000000001);
+        // Upgrade the logic contract should fail
+        try walletHandler.upgradeTo(address(newLogicContract)) {
+            revert("Upgrade should fail");
+        } catch {
+        }
+        vm.stopPrank();
     }
 }
