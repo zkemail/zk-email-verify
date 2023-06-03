@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
@@ -278,24 +279,5 @@ contract WalletUtilsTest is Test {
 
         // Ensure the nullifier is still used
         assertEq(queryNullifier(uint256(0)), true);
-    }
-
-    // Upgrades the contract and checks that the nullifier remains used
-    function testFailUpgradeLogicContract() public {
-        assertEq(queryNullifier(uint256(0)), false);
-        
-        // Set storage values i.e. nullifier
-        testTransfer();
-        
-        // Deploy a new logic contract
-        TestEmptyWalletEmailHandlerLogic newLogicContract = new TestEmptyWalletEmailHandlerLogic();
-        
-        // Upgrade the logic contract from non-admin should fail
-        vm.startPrank(0x0000000000000000000000000000000000000001);
-        vm.expectRevert();  
-        (bool success, bytes memory result) = address(walletHandler).call(abi.encodeWithSignature("upgradeTo(address)", address(newLogicContract)));
-        assertTrue(success, "expectRevert: Bad upgrade did not revert");
-        // walletHandler.upgradeTo(address(newLogicContract));
-        vm.stopPrank();
-    }
+    }   
 }

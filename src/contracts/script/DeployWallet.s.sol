@@ -30,21 +30,30 @@ contract Deploy is Script, Test {
     //     vm.stopBroadcast();
     // }
 
+    function getChainID() public view returns (uint256) {
+        uint256 chainId;
+        assembly {
+            chainId := chainid()
+        }
+        return chainId;
+    }
+
     function run() public {
         uint256 sk = getPrivateKey();
         vm.startBroadcast(sk);
         Verifier proofVerifier = new Verifier();
         MailServer mailServer = new MailServer();
-        TokenRegistry tokenRegistry = new TokenRegistry();
         TestEmailToken erc20 = new TestEmailToken(5000);
+        TokenRegistry tokenRegistry = new TokenRegistry();
+        tokenRegistry.updateTokenAddress("TEST", getChainID(), address(erc20));
         WalletEmailHandlerLogic logic = new WalletEmailHandlerLogic();
-        address admin = 0x7109709ECfa91a80626fF3989D68f67F5b1DD12D; // HEVM Cheat Code Address
+
         bytes memory initData =
-            abi.encodeWithSignature("initialize(Verifier,MailServer,TestEmailToken,TokenRegistry)", proofVerifier, mailServer, erc20, tokenRegistry);
-        WalletEmailHandlerProxy proxy = new WalletEmailHandlerProxy(address(logic), admin, initData);
-        // Change owner of proxy to tx.origin (msg.sender)
-        WalletEmailHandlerLogic(address(proxy)).transferOwnership(tx.origin);
-        
+            abi.encodeWithSelector(logic.initialize.selector, proofVerifier, mailServer, erc20, tokenRegistry);
+        WalletEmailHandlerProxy walletHandler = new WalletEmailHandlerProxy(address(logic), msg.sender, initData);
+        WalletEmailHandlerLogic(address(walletHandler)).transferOwnership(tx.origin);
+
+        // TODO: Fix admin in place of address(this)
         vm.stopBroadcast();
     }
 }
