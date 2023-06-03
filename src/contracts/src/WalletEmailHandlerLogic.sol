@@ -53,12 +53,16 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
         testToken = t;
         tokenRegistry = r;
 
-        console.log("This address:");
+        console.log("Logic init -- This address:");
         console.log(address(this));
-        console.log("Caller/admin address:");
+        console.log("Logic init -- Caller/admin address:");
         console.log(msg.sender);
-        console.log("Tx origin:");
+        console.log("Logic init -- Tx origin:");
         console.log(tx.origin);
+        console.log("Logic init -- owner check:");
+        console.log(owner());
+
+        _transferOwnership(msg.sender);
     }
 
     function commandStrings() public pure returns (string[] memory) {
@@ -310,6 +314,7 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
         assembly {
             chainId := chainid()
         }
+        assert(chainId == block.chainid);
         return chainId;
     }
 }

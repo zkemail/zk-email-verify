@@ -277,7 +277,7 @@ contract WalletUtilsTest is Test {
     }
 
     // Upgrades the contract and checks that the nullifier remains used
-    function testUpgradeLogicContractNotOwner() public {
+    function testFailUpgradeLogicContract() public {
         assertEq(queryNullifier(uint256(0)), false);
         
         // Set storage values i.e. nullifier
