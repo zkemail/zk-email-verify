@@ -11,9 +11,11 @@ To setup,
 ```
 curl -L https://foundry.paradigm.xyz | bash && source ~/.bashrc && foundryup
 forge install foundry-rs/forge-std
-cp node_modules/forge-std src/contracts/lib/forge-std
+cp -r node_modules/@openzeppelin src/contracts/lib/@openzeppelin
 cd src/contracts
-forge install openzeppelin/openzeppelin-contracts
+
+forge install
+forge install dapphub/ds-test --no-commit --no-git
 ```
 
 To test your own contracts, copy TestTwitter.t.sol into a new test file, and make sure you can compile your proof fine. You can run a specific test with `forge test --match test_name`. Then make sure the whole suite passes and isn't above the size limit:

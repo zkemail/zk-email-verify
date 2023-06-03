@@ -248,22 +248,26 @@ contract WalletUtilsTest is Test {
     }
 
     function queryNullifier(uint256 a) public view returns (bool) {
-        WalletEmailHandlerStorage handlerStorage = WalletEmailHandlerStorage(walletHandler.getImplementation());
+        WalletEmailHandlerStorage handlerStorage = WalletEmailHandlerStorage(address(walletHandler));
         return handlerStorage.nullifier(a);
+    }
+
+    // Check nullifier is set
+    function testNullifier() public {
+        assertEq(queryNullifier(uint256(0)), false);
+        testTransfer();
+        assertEq(queryNullifier(uint256(0)), true);
     }
 
     // Upgrades the contract and checks that the nullifier remains used
     function testUpgradeLogicContract() public {
-        assertEq(queryNullifier(uint256(0)), false);
-
-        // Set storage values i.e. a nullifier
         testTransfer();
 
-        // Deploy a new logic contract
+        // Deploy a new logic contract from the tx.origin
+        vm.startPrank(tx.origin);
         TestEmptyWalletEmailHandlerLogic newLogicContract = new TestEmptyWalletEmailHandlerLogic();
-
-        // Upgrade the logic contract
         walletHandler.upgradeTo(address(newLogicContract));
+        vm.stopPrank();
 
         // Re-initialize, pretending we have a new verifier contract
         Verifier newProofVerifier = new Verifier();
@@ -272,7 +276,7 @@ contract WalletUtilsTest is Test {
         );
         TestEmptyWalletEmailHandlerLogic(address(walletHandler)).transferOwnership(tx.origin);
 
-        // Check if the mailServer address is the same
+        // Ensure the nullifier is still used
         assertEq(queryNullifier(uint256(0)), true);
     }
 
