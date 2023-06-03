@@ -290,12 +290,12 @@ contract WalletUtilsTest is Test {
         // Deploy a new logic contract
         TestEmptyWalletEmailHandlerLogic newLogicContract = new TestEmptyWalletEmailHandlerLogic();
         
+        // Upgrade the logic contract from non-admin should fail
         vm.startPrank(0x0000000000000000000000000000000000000001);
-        // Upgrade the logic contract should fail
-        try walletHandler.upgradeTo(address(newLogicContract)) {
-            revert("Upgrade should fail");
-        } catch {
-        }
+        vm.expectRevert();  
+        (bool success, bytes memory result) = address(walletHandler).call(abi.encodeWithSignature("upgradeTo(address)", address(newLogicContract)));
+        assertTrue(success, "expectRevert: Bad upgrade did not revert");
+        // walletHandler.upgradeTo(address(newLogicContract));
         vm.stopPrank();
     }
 }
