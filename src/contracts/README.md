@@ -31,14 +31,21 @@ Goerli Address of Deployment: 0x026343f978d9f5600bf2e05992eb3fff06e4ea80
 
 To deploy contract to local forked mainnet or prod, edit Deploy.s.sol to point to your contracts. In `src/contracts`, you should also edit the `.env` file from cloning `.env.example` to include your own private key.
 
+Run local chain in tmux window 1:
+```bash
+tmux
+
+# Run local chain in tmux window 1
+anvil --fork-url https://eth-goerli.g.alchemy.com/v2/$ALCHEMY_GOERLI_KEY --port 8548
 ```
+
+Then deploy the contract to forked goerli:
+```bash
 # Set terminal to the folder with this README
 cd src/contracts
 source .env
 export MAIN_CONTRACT_NAME=VerifiedTwitterEmail
-
-# Run local chain in tmux window 1
-anvil --fork-url https://eth-goerli.g.alchemy.com/v2/$ALCHEMY_GOERLI_KEY --port 8548
+export RPC_URL="http://127.0.0.1:8548"
 
 # Export to abi for relayers
 forge inspect src/TwitterEmailHandler.sol:$MAIN_CONTRACT_NAME abi >> contract.abi
