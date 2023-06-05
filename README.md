@@ -14,13 +14,13 @@ The documentation for the app is located at https://zkemail.xyz/docs (WIP). Made
 
 To run the frontend with existing circuits (there is no backend or server), enable Node 16 (with nvm) and run:
 
-```
+```bash
 yarn start
 ```
 
 If the frontend shows an error on fullProve line, run this and rerun
 
-```
+```bash
 yarn add snarkjs@https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e
 ```
 
@@ -98,7 +98,7 @@ cargo install --path circom
 
 Inside `zk-email-verify` folder, do
 
-```
+```bash
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash # If don't have npm
 . ~/.nvm/nvm.sh # If don't have npm
 nvm install 16 # If don't have node 16
@@ -133,10 +133,10 @@ cd dizkus-scripts/
 cp entropy.env.example entropy.env
 ```
 
-Not put random characters into the values for entropy1 and entropy2, and hexadecimal characters into the beacon. These scripts will compile and test your zkey for you.
+Fill out the env via random characters into the values for entropy1 and entropy2, and hexadecimal characters into the beacon. These scripts will compile and test your zkey for you, and generate a normal zkey with for an on chain verifier or server side prover, with the same entropy as the chunked one. If you only want the chunked one, use ./3_gen_chunk_zkey.sh in place of the generation.
 
-```
-./1_compile.sh && ./2_gen_wtns.sh && ./3_gen_chunk_zkey.sh && ./4_gen_vkey.sh && ./5_gen_proof.sh
+```bash
+./1_compile.sh && ./2_gen_wtns.sh && ./3_gen_both_zkeys.sh && ./4_gen_vkey.sh && ./5_gen_proof.sh
 ```
 
 #### Server-side Prover: Rapidsnark Setup (Optional)
@@ -171,7 +171,7 @@ Then, from rapidsnark/ I could run
 npx task buildProverServer
 ```
 
-And from zk-email-verify, convert your proof params to a rapidsnark friendly version:
+And from zk-email-verify, convert your proof params to a rapidsnark friendly version, generating the C-based witness generator and rapidsnark prover. To target to the AWS autoprover, go to the Makefile and manually replace the `CFLAGS=-std=c++11 -O3 -I.` line with (targeted to g4dn.xlarge and g5.xlarge, tuned to g5.xlarge):
 
 ```bash
 cd ../zk-email-verify/dizkus-scripts
@@ -188,7 +188,7 @@ yarn compile-all
 
 To upload zkeys to an s3 box on AWS, change bucket_name in upload_to_s3.py and run:
 
-```
+```bash
 sudo apt install awscli # Ubuntu
 brew install awscli # Mac
 
@@ -200,7 +200,7 @@ yarn add snarkjs@https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a73463
 
 If you want to upload different files, you can parameterize the script as well:
 
-```
+```bash
 python3 dizkus-scripts/upload_to_s3.py --dirs ~/zk-email-verify/build/email/email_js/ --bucket_name zkemail-zkey-chunks --prefix email.wasm
 ```
 
@@ -249,13 +249,13 @@ and you can swap `email` for `sha` or `rsa` or any other circuit name that match
 
 and when the circuit doesn't change,
 
-```
+```bash
 yarn compile email true skip-r1cswasm
 ```
 
 and when the zkey also doesn't change,
 
-```
+```bash
 yarn compile email true skip-r1cswasm skip-zkey
 ```
 
@@ -273,18 +273,20 @@ Note that this leaks the number of characters in the username of someone who sen
 
 To constraint count, do
 
-```
+```bash
 cd circuits
 node --max-old-space-size=614400 ./../node_modules/.bin/snarkjs r1cs info email.r1cs
 ```
 
 To test solidity,
 
-```
+```bash
 cp node_modules/forge-std src/contracts/lib/forge-std
 cd src/contracts
 forge test
 ```
+
+To deploy contracts, look at src/contracts/README.md.
 
 ## Performance
 
@@ -316,7 +318,7 @@ Short term ways to improve the performance would be to replace the regex checks 
 
 Looking more long term, we are actively using Halo2 and Nova to speed up the most expensive operations of regex and SHA. As hash functions and regex DFA traversal are repeated operations, they are a great fit for Nova's folding methods to compress repeated computation into a constant sized folded instance. But to actually use Nova to fold expensive operations outside of Halo2/Groth16, we need to verify the folded instance is valid inside the circuit for zero-knowledge and to link it to the rest of the computation. We also are attempting to use the lookup feature of Halo2 to precompute the entire table of possible regex state transitions, and just looking up that all of the transitions made are valid ones in the table instead of expensively checking each state! This idea is due to Sora Suegami, explained in more detail here: https://hackmd.io/@SoraSuegami/Hy9dWgT8i.
 
-The current set of remaining tasks and potential final states is documented in the following DAG, please reach out if any of the projects seem interesting!
+The current set `of remaining tasks and potential final states is documented in the following DAG, please reach out if any of the projects seem interesting!
 
 ![Optimization plan](public/zk_email_optim.jpg)
 
@@ -332,11 +334,11 @@ The full email header and body check circuit, with 7-byte packing and final publ
 
 In the browser, on a 2019 Intel Mac on Chrome, proving uses 7.3/8 cores. zk-gen takes 384 s, groth16 prove takes 375 s, and witness calculation takes 9 s.
 
-For baremetal, proof generation time on 16 CPUs took 97 seconds. Generating zkey 0 took 17 minutes. zkey 1 and zkey 2 each took 5 minutes. r1cs + wasm generation took 5 minutes. Witness generation took 16 seconds. cpp generation of witness gen file (from script 6) took 210 minutes -- we do not run this pathway anymore.
+For baremetal, proof generation time on 16 CPUs took 97 seconds. Generating zkey 0 took 17 minutes. zkey 1 and zkey 2 each took 5 minutes. r1cs + wasm generation took 5 minutes. Witness generation took 16 seconds. cpp generation of witness gen file (from script 6) took 210 minutes -- this is only useful for server side proving.
 
 ### Scrubbing Sensitive Files
 
-```
+```bash
 brew install git-filter-repo
 git filter-repo --replace-text <(echo "0x000000000000000000000000000000000000000000000000000000000abcdef")
 git filter-repo --path mit_msg.eml --invert-paths
