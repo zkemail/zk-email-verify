@@ -27,7 +27,8 @@ forge build --sizes # Make sure these are all below 24kB
 
 ## Deployment
 
-Goerli Address of Deployment: 0x026343f978d9f5600bf2e05992eb3fff06e4ea80
+Goerli Address of Anon Deployment: 0x5c5c7e908ed9904ac9e4f53c8195f95720b9f5c9
+Goerli Address of Old Non-Anon Deployment: 0x026343f978d9f5600bf2e05992eb3fff06e4ea80
 
 To deploy contract to local forked mainnet or prod, edit Deploy.s.sol to point to your contracts. In `src/contracts`, you should also edit the `.env` file from cloning `.env.example` to include your own private key.
 

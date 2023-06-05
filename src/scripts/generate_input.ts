@@ -183,7 +183,8 @@ export async function getCircuitInputs(
   const body_hash_idx = bufferToString(message).indexOf(body_hash).toString();
 
   const address = bytesToBigInt(fromHex(eth_address)).toString();
-  const nullifier = bytesToBigInt(fromHex(eth_address)).toString();
+  const nullifier = signature[0];
+  // bytesToBigInt(fromHex()).toString();
   const address_plus_one = (bytesToBigInt(fromHex(eth_address)) + 1n).toString();
 
   const USERNAME_SELECTOR = Buffer.from(STRING_PRESELECTOR);
@@ -240,7 +241,7 @@ export async function getCircuitInputs(
       signature,
       in_len_padded_bytes,
       relayer: address,
-      nullifier: address,
+      nullifier: nullifier,
       body_hash_idx,
       email_from_idx: email_from_idx.toString(),
       command_idx: command_idx.toString(),

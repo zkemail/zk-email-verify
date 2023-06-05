@@ -10,7 +10,7 @@ import "./NFTSVG.sol";
 import { Verifier } from "./Groth16VerifierTwitter.sol";
 import "./MailServer.sol";
 
-contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
+contract VerifiedTwitterEmail is ERC721Enumerable {
   using Counters for Counters.Counter;
   using StringUtils for *;
   using NFTSVG for *;
@@ -83,7 +83,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable, Verifier {
     for (uint256 i = body_len; i < msg_len - 1; i++) {
       require(mailServer.isVerified(domain, i - body_len, signals[i]), "Invalid: RSA modulus not matched");
     }
-    require(verifyProof(a, b, c, signals), "Invalid Proof"); // checks effects iteractions, this should come first
+    require(verifier.verifyProof(a, b, c, signals), "Invalid Proof"); // checks effects iteractions, this should come first
 
     // Effects: Mint token
     uint256 tokenId = tokenCounter.current() + 1;

@@ -51,8 +51,6 @@ contract Deploy is Script, Test {
         bytes memory initData =
             abi.encodeWithSelector(logic.initialize.selector, proofVerifier, mailServer, erc20, tokenRegistry);
         WalletEmailHandlerProxy walletHandler = new WalletEmailHandlerProxy(address(logic), msg.sender, initData);
-        WalletEmailHandlerLogic(address(walletHandler)).transferOwnership(tx.origin);
-
         // TODO: Fix admin in place of address(this)
         vm.stopBroadcast();
     }

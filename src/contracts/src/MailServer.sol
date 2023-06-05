@@ -113,11 +113,9 @@ contract MailServer is Ownable {
     }
 
     function isVerified(string memory domain, uint256 index, uint256 val) public view returns (bool) {
-        // allow external queries on mapping
-        uint256 val1 = verifiedMailserverKeys[domain][index];
-        uint256 val2 = val;
-        if (val1 != val2) {
-            console.log(val1, val2);
+        // Allow external queries on mapping
+        if (verifiedMailserverKeys[domain][index] != val) {
+            console.log(verifiedMailserverKeys[domain][index], val);
         }
 
         return verifiedMailserverKeys[domain][index] == val;
