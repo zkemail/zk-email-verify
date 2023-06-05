@@ -208,4 +208,4 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size, calculat
 // * calculate_from = 1 is whether to expose the from email address
 // * expose_to = 0 is whether to expose the to email (not recommended)
 // * expose_emails_anon = 1 means it will prevent revealing plaintext emails, and instead expose the hash(from/recipient email address, custom message id)
-component main { public [ modulus, address ] } = EmailVerify(1024, 1536, 121, 17, 30, 1, 0, 1);
+component main { public [ modulus, nullifier, relayer ] } = EmailVerify(1024, 1536, 121, 17, 30, 1, 0, 1);
