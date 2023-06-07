@@ -16,6 +16,7 @@ jobs:
   run_unit_and_e2e_tests:
     docker:
       - image: cimg/node:16.19-browsers
+    working_directory: twitter-verifier
     steps:
       - checkout
       - run: node --version
