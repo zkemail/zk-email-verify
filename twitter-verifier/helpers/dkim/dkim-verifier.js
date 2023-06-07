@@ -8,12 +8,12 @@ if (typeof process === 'object') {
 }
 const LOCAL = isNode;
 
-const { getSigningHeaderLines, getPublicKey, parseDkimHeaders, formatAuthHeaderRow, getAlignment } = require("./tools");
-const { MessageParser } = require("./message-parser");
-const { dkimBody } = require("./body");
-const { generateCanonicalizedHeader } = require("./header");
-const addressparser = require("addressparser");
-const crypto = require("crypto");
+import { getSigningHeaderLines, getPublicKey, parseDkimHeaders, formatAuthHeaderRow, getAlignment } from "./tools";
+import { MessageParser } from "./message-parser";
+import { dkimBody } from "./body";
+import { generateCanonicalizedHeader } from "./header";
+import addressparser from "addressparser";
+import crypto from "crypto";
 
 class DkimVerifier extends MessageParser {
   constructor(options) {
@@ -340,4 +340,4 @@ class DkimVerifier extends MessageParser {
   }
 }
 
-module.exports = { DkimVerifier };
+export { DkimVerifier };

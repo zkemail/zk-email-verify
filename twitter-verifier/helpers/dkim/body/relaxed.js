@@ -2,7 +2,7 @@
 
 'use strict';
 
-const crypto = require('crypto');
+import crypto from 'crypto';
 
 const CHAR_CR = 0x0d;
 const CHAR_LF = 0x0a;
@@ -268,7 +268,7 @@ class RelaxedHash {
     }
 }
 
-module.exports = { RelaxedHash };
+export { RelaxedHash };
 
 /*
 let fs = require('fs');

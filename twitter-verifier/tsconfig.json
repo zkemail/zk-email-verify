@@ -16,6 +16,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
+    "typeRoots": ["./node_modules/@types", "./types"]
   },
   "include": [".", "../src/contracts"],
   "exclude": ["./dist"]

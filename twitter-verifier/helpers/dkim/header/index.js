@@ -1,7 +1,7 @@
 'use strict';
 
-let { relaxedHeaders } = require('./relaxed');
-let { simpleHeaders } = require('./simple');
+import { relaxedHeaders } from './relaxed';
+import { simpleHeaders } from './simple';
 
 const generateCanonicalizedHeader = (type, signingHeaderLines, options) => {
     options = options || {};
@@ -16,4 +16,4 @@ const generateCanonicalizedHeader = (type, signingHeaderLines, options) => {
     }
 };
 
-module.exports = { generateCanonicalizedHeader };
+export { generateCanonicalizedHeader };

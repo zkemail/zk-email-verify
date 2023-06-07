@@ -1,15 +1,8 @@
-// @ts-ignore
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAsync, useMount, useUpdateEffect } from "react-use";
-// @ts-ignore
-// @ts-ignore
-import _, { add } from "lodash";
-// @ts-ignore
-import { generate_inputs, insert13Before10 } from "../scripts/generate_input";
-import styled, { CSSProperties } from "styled-components";
-import { sshSignatureToPubKey } from "../helpers/sshFormat";
-import { Link, useSearchParams } from "react-router-dom";
-// import { dkimVerify } from "../helpers/dkim";
+import _ from "lodash";
+import { ICircuitInputs, generate_inputs, insert13Before10 } from "../scripts/generate_input";
+import styled from "styled-components";
 import atob from "atob";
 import { downloadProofFiles, generateProof, verifyProof } from "../helpers/zkp";
 import { packedNBytesToString } from "../helpers/binaryFormat";
@@ -23,10 +16,6 @@ import { TopBanner } from "../components/TopBanner";
 import { useAccount, useContractWrite, usePrepareContractWrite } from "wagmi";
 import { ProgressBar } from "../components/ProgressBar";
 import { abi } from "../helpers/twitterEmailHandler.abi";
-import { isSetIterator } from "util/types";
-var Buffer = require("buffer/").Buffer; // note: the trailing slash is important!
-
-const generate_input = require("../scripts/generate_input");
 
 export const MainPage: React.FC<{}> = (props) => {
   // raw user inputs
@@ -264,9 +253,9 @@ export const MainPage: React.FC<{}> = (props) => {
               console.log("buffFormArray", Buffer.from(formattedArray.buffer));
               console.log("buffFormArray", formattedArray.toString());
               console.log("ethereumAddress", ethereumAddress);
-              let input = "";
+              let input : ICircuitInputs;
               try {
-                input = await generate_input.generate_inputs(Buffer.from(formattedArray.buffer), ethereumAddress);
+                input = await generate_inputs(Buffer.from(formattedArray.buffer), ethereumAddress);
               } catch (e) {
                 console.log("Error generating input", e);
                 setDisplayMessage("Prove");

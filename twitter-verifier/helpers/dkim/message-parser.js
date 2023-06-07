@@ -1,7 +1,7 @@
 // Calculates relaxed body hash for a message body stream
 
-const { parseHeaders } = require('./tools');
-import { Writable } from 'stream-browserify';
+import { parseHeaders } from './tools';
+import { Writable } from 'stream';
 
 /**
  * Class for separating header from body
@@ -145,4 +145,4 @@ class MessageParser extends Writable {
     }
 }
 
-module.exports = { MessageParser };
+export { MessageParser };

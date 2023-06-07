@@ -1,6 +1,6 @@
 'use strict';
 
-const { formatSignatureHeaderLine, formatRelaxedLine } = require('../tools');
+import { formatSignatureHeaderLine, formatRelaxedLine } from '../tools';
 
 // generate headers for signing
 const relaxedHeaders = (type, signingHeaderLines, options) => {
@@ -70,4 +70,4 @@ const relaxedHeaders = (type, signingHeaderLines, options) => {
     return { canonicalizedHeader: Buffer.concat(chunks), signatureHeaderLine, dkimHeaderOpts: opts };
 };
 
-module.exports = { relaxedHeaders };
+export { relaxedHeaders };

@@ -1,6 +1,6 @@
 'use strict';
 
-const crypto = require('crypto');
+import crypto from 'crypto';
 
 /**
  * Class for calculating body hash of an email message body stream
@@ -101,4 +101,4 @@ class SimpleHash {
     }
 }
 
-module.exports = { SimpleHash };
+export { SimpleHash };

@@ -12,18 +12,17 @@ if (typeof process === "object") {
 }
 const LOCAL = isNode;
 
-const punycode = require("punycode/");
-const libmime = require("libmime");
+import punycode from "punycode/";
+import libmime from "libmime";
 let dns;
 if (LOCAL) {
-  dns = require("dns").promises;
+  import("dns").then((res) => {
+    dns = res.promises;
+  });
 }
-const crypto = require("crypto");
-const parseDkimHeaders = require("./parse-dkim-headers");
-const psl = require("psl");
-// const pki = require("node-forge").pki;
-const { parseKey } = require('crypto-browserify');
-// import * as CryptoJS from 'crypto-browserify';
+import crypto from "crypto";
+import parseDkimHeaders from "./parse-dkim-headers";
+import psl from "psl";
 
 const defaultDKIMFieldNames =
   "From:Sender:Reply-To:Subject:Date:Message-ID:To:" +
@@ -45,6 +44,7 @@ const writeToStream = async (stream, input, chunkSize) => {
   return new Promise((resolve, reject) => {
     if (typeof input.on === "function") {
       // pipe as stream
+      console.log('pipe')
       input.pipe(stream);
       input.on("error", reject);
     } else {
@@ -487,7 +487,7 @@ const validateAlgorithm = (algorithm, strict) => {
   }
 };
 
-module.exports = {
+export {
   writeToStream,
   parseHeaders,
 

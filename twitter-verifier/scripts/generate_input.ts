@@ -22,7 +22,7 @@ import { stubObject } from "lodash";
 // const argv = yargs(hideBin(process.argv))
 // import * as yargs from "yargs";
 var Cryo = require("cryo");
-const pki = require("node-forge").pki;
+import { pki } from "node-forge";
 // import * as CryptoJS from 'crypto-browserify';
 // import  { parseKey } from 'crypto-browserify';
 
