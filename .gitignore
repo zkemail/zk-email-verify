@@ -53,6 +53,7 @@ cache/
 test.log
 src/contracts/out/
 src/contracts/lib/
+src/contracts/broadcast
 .next
 node_modules.nosync
 
