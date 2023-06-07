@@ -65,7 +65,7 @@
     "serve": "vite preview",
     "both-build": "react-scripts build && next build",
     "next-build": "next build",
-    "test": "jest --runInBand --testPathIgnorePatterns='e2e|src/contracts/lib' --reporters=default --reporters=jest-junit",
+    "test": "jest --runInBand --testPathIgnorePatterns='e2e' --reporters=default --reporters=jest-junit",
     "test:browserstack": "browserstack-node-sdk jest src/ --runInBand --testPathIgnorePatterns='e2e|src/contracts/lib' --reporters=default --reporters=jest-junit",
     "start-e2e-test-server": "serve -s build -p 3000",
     "test:e2e-ui": "CI=true jest src/e2e-ui*.test.*",
@@ -112,6 +112,7 @@
     "husky": "^8.0.3",
     "jest": "^29.5.0",
     "jest-environment-jsdom": "^29.5.0",
+    "jest-fetch-mock": "^3.0.3",
     "jest-junit": "^15.0.0",
     "madge": "^6.0.0",
     "msw": "^1.0.1",
@@ -132,7 +133,7 @@
     ],
     "testEnvironment": "jsdom",
     "setupFilesAfterEnv": [
-      "./src/setupTests.js",
+      "./setupTests.js",
       "jsdom-worker"
     ]
   },
