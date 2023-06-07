@@ -68,7 +68,7 @@ function test_regex() {
   // ((\\r\\n)|\^)subject:[Ss]end (\$)?[0-9]+(\.[0-9])? (ETH|DAI|USDC|eth|usdc|dai) to (([a-zA-Z0-9\._%\+-]+@[a-zA-Z0-9\.-]+.[a-zA-Z0-9]+)|0x[0-9]+)\\r\\n
   // console.log(raw_subject_regex);
 
-  // -- GENERIC WALLET COMMANDS --
+  // -- GENERIC SUBJECT COMMANDS --
   let raw_subject_regex = `((\r\n)|^)subject:[a-zA-Z]+ (\\$)?[0-9]+(.[0-9]+)? [a-zA-Z]+ to (${email_address_regex}|0x[0-9a-fA_F]+)\r\n`;
 
   // -------- OTHER FIELD REGEXES --------

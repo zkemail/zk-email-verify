@@ -33,7 +33,7 @@ async function getArgs() {
   const emailFileArg = args.find((arg) => arg.startsWith("--email_file="));
   const nonceArg = args.find((arg) => arg.startsWith("--nonce="));
 
-  const email_file = emailFileArg ? emailFileArg.split("=")[1] : "emls/wallet_test.eml";
+  const email_file = emailFileArg ? emailFileArg.split("=")[1] : "emls/zktestemail_twitter.eml";
   const nonce = nonceArg ? nonceArg.split("=")[1] : null;
 
   return { email_file, nonce };
@@ -57,7 +57,7 @@ export interface ICircuitInputs {
   twitter_username_idx?: string;
   email_from_idx?: string;
 
-  // Wallet commands only
+  // subject commands only
   command_idx?: string;
   message_id_idx?: string;
   amount_idx?: string;
@@ -74,7 +74,7 @@ enum CircuitType {
   SHA = "sha",
   TEST = "test",
   EMAIL_TWITTER = "email_twitter",
-  EMAIL_WALLET = "email_wallet",
+  EMAIL_SUBJECT = "email_subject",
 }
 
 async function findSelector(a: Uint8Array, selector: number[]): Promise<number> {
@@ -218,7 +218,7 @@ export async function getCircuitInputs(
       body_hash_idx,
       // email_from_idx,
     };
-  } else if (circuit === CircuitType.EMAIL_WALLET) {
+  } else if (circuit === CircuitType.EMAIL_SUBJECT) {
     // First word after "subject:" (usually send/Send)
     const command = email_subject.split(" ")[0];
     const command_idx = raw_header.length - email_subject.length;
@@ -305,7 +305,7 @@ export async function generate_inputs(raw_email: Buffer | string, eth_address: s
   let message = result.results[0].status.signature_header;
   let body = result.results[0].body;
   let body_hash = result.results[0].bodyHash;
-  let circuitType = CircuitType.EMAIL_WALLET;
+  let circuitType = CircuitType.EMAIL_SUBJECT;
 
   let pubkey = result.results[0].publicKey;
   const pubKeyData = pki.publicKeyFromPem(pubkey.toString());
