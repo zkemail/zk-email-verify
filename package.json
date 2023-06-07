@@ -8,5 +8,10 @@
     "compile-all": "yarn gen-input && yarn compile email true",
     "prepare": "husky install"
   },
-  "packageManager": "yarn@3.2.3"
+  "packageManager": "yarn@3.2.3",
+  "dependencies": {
+    "circomlib": "^2.0.3",
+    "dotenv": "^16.1.4",
+    "snarkjs": "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
+  }
 }

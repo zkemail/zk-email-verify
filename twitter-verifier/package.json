@@ -17,7 +17,6 @@
     "atob": "^2.1.2",
     "base64-sol": "^1.1.0",
     "buffer": "^6.0.3",
-    "circomlib": "^2.0.3",
     "circomlibjs": "^0.1.2",
     "cryo": "^0.0.6",
     "crypto-browserify": "^3.12.0",
