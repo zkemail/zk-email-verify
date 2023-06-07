@@ -64,7 +64,7 @@
     "build": "tsc && vite build",
     "serve": "vite preview",
     "test": "jest --runInBand --testPathIgnorePatterns='e2e' --reporters=default --reporters=jest-junit",
-    "start-e2e-test-server": "serve -s build -p 3000",
+    "start-e2e-test-server": "serve -s dist -p 3000",
     "test:e2e-ui": "CI=true jest ./e2e-ui*.test.*",
     "test:e2e-zkp": "CI=true jest ./e2e-dl-zkp.test.ts",
     "compile": "node circuits/scripts/compile.js",
