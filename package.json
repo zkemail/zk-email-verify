@@ -1,0 +1,12 @@
+{
+  "name": "double-blind",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "compile": "node circuits/scripts/compile.js",
+    "gen-input": "npx tsx ./twitter-verify/scripts/generate_input.ts",
+    "compile-all": "yarn gen-input && yarn compile email true",
+    "prepare": "husky install"
+  },
+  "packageManager": "yarn@3.2.3"
+}

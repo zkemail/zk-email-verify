@@ -76,3 +76,4 @@ generate_input_log.txt
 
 .vite
 **/.vite
+**/.yarn/*
