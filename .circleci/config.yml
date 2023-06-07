@@ -22,6 +22,8 @@ jobs:
       - node/install-packages:
           pkg-manager: yarn
       - run:
+          command: "cd twitter-verifier"
+      - run:
           command: yarn test
           name: Run unit tests
           environment:
