@@ -14,15 +14,15 @@ jobs:
           working_directory: src/contracts
 
   run_unit_and_e2e_tests:
+    working_directory: ~/zk-email-verify/twitter-verifier
     docker:
       - image: cimg/node:16.19-browsers
     steps:
-      - checkout
+      - checkout:
+          path: ~/zk-email-verify
       - run: node --version
       - node/install-packages:
           pkg-manager: yarn
-      - run:
-          command: "cd twitter-verifier"
       - run:
           command: yarn test
           name: Run unit tests
