@@ -13,8 +13,8 @@ import {
   mergeUInt8Arrays,
   int64toBytes,
 } from "../helpers/binaryFormat";
-import { CIRCOM_FIELD_MODULUS, MAX_HEADER_PADDED_BYTES, MAX_BODY_PADDED_BYTES, STRING_PRESELECTOR } from "../../src/helpers/constants";
-import { shaHash, partialSha, sha256Pad } from "../../src/helpers/shaHash";
+import { CIRCOM_FIELD_MODULUS, MAX_HEADER_PADDED_BYTES, MAX_BODY_PADDED_BYTES, STRING_PRESELECTOR } from "../helpers/constants";
+import { shaHash, partialSha, sha256Pad } from "../helpers/shaHash";
 import { dkimVerify } from "../helpers/dkim";
 import * as fs from "fs";
 import { stubObject } from "lodash";
