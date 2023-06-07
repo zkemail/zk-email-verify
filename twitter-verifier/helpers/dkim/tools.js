@@ -16,9 +16,7 @@ import punycode from "punycode";
 import libmime from "libmime";
 let dns;
 if (LOCAL) {
-  import("dns").then((res) => {
-    dns = res.promises;
-  });
+  dns = require("dns").promises;
 }
 import crypto from "crypto";
 import parseDkimHeaders from "./parse-dkim-headers";

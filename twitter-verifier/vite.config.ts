@@ -14,11 +14,15 @@ export default defineConfig({
   resolve: {
     alias: {
       timers: "rollup-plugin-node-polyfills/polyfills/timers",
-      stream: "rollup-plugin-node-polyfills/polyfills/stream",
       util: "rollup-plugin-node-polyfills/polyfills/util",
+      constants: "rollup-plugin-node-polyfills/polyfills/constants",
       process: "rollup-plugin-node-polyfills/polyfills/process-es6",
+      os: "rollup-plugin-node-polyfills/polyfills/os",
+      path: "rollup-plugin-node-polyfills/polyfills/path",
+      stream: "stream-browserify",
       crypto: "crypto-browserify",
       buffer: "buffer",
+      fs: "browserify-fs",
     },
   },
   server: {
