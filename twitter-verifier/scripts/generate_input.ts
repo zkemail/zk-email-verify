@@ -17,17 +17,7 @@ import { CIRCOM_FIELD_MODULUS, MAX_HEADER_PADDED_BYTES, MAX_BODY_PADDED_BYTES, S
 import { shaHash, partialSha, sha256Pad } from "../helpers/shaHash";
 import { dkimVerify } from "../helpers/dkim";
 import * as fs from "fs";
-import { stubObject } from "lodash";
-
-// const argv = yargs(hideBin(process.argv))
-// import * as yargs from "yargs";
-var Cryo = require("cryo");
 import { pki } from "node-forge";
-// import * as CryptoJS from 'crypto-browserify';
-// import  { parseKey } from 'crypto-browserify';
-
-// email_file: Path to email file
-// nonce: Nonce to disambiguate input/output files (optional, only useful for monolithic server side provers)
 
 async function getArgs() {
   const args = process.argv.slice(2);

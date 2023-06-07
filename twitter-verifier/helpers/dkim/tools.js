@@ -12,7 +12,7 @@ if (typeof process === "object") {
 }
 const LOCAL = isNode;
 
-import punycode from "punycode/";
+import punycode from "punycode";
 import libmime from "libmime";
 let dns;
 if (LOCAL) {
