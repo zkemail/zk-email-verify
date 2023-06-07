@@ -40,6 +40,8 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
     MailServer mailServer;
     mapping(string => address) public defaultVerifiers;
 
+    event TransferInfo(uint256 indexed fromSalt, uint256 indexed toSalt, uint256 amount, string currency);
+
     // Note that the data lives in the WalletEmailHandlerStorage contract
     // Arguments are deployed contracts/addresses
 
@@ -54,6 +56,10 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
         tokenRegistry = r;
 
         _transferOwnership(msg.sender);
+    }
+
+    function getTokenRegistry() public view returns (address) {
+        return address(tokenRegistry);
     }
 
     function commandStrings() public pure returns (string[] memory) {
@@ -252,7 +258,7 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
             rsaModulusSignals[i - body_len] = signals[i];
         }
 
-        // Check eth address committed to in proof matches msg.sender, to avoid doublespend and relayer-frontrunning-relayer-for-profit
+        // TODO: Check eth address committed to in proof matches msg.sender, to avoid doublespend and relayer-frontrunning-relayer-for-profit
         // require(address(uint160(signals[addressIndexInSignals])) == msg.sender, "Invalid address");
 
         // TODO: Must edit generate_input to have a unique value for "address" for this nullifier to pass
@@ -280,18 +286,12 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
         for (uint256 i = body_len; i < msg_len - 1; i++) {
             require(mailServer.isVerified(domain, i - body_len, signals[i]), "Invalid: RSA modulus not matched");
         }
-        // require(verifier.verifyProof(a, b, c, signals), "Invalid Proof"); // checks effects iteractions, this should come first
-        // console.log("Proof passed!");
-
-        // Print transfer data
+        require(verifier.verifyProof(a, b, c, signals), "Invalid Proof"); // checks effects iteractions, this should come first
+        
+        // Calculate and emit transfer data
         address tokenAddress = tokenRegistry.getTokenAddress(StringUtils.upper(currency), getChainID());
         uint256 amountToTransfer = StringUtils.stringToUint(amount) * 10 ** ERC20(tokenAddress).decimals();
-        console.log("Original from salt", fromSalt);
-        console.log("Original recipient salt", toSalt);
-        console.log("Original amount", amount);
-        console.log("Original currency", currency);
-        console.log("Transferring", amountToTransfer);
-        console.log("From", fromSalt, "to", toSalt);
+        emit TransferInfo(fromSalt, toSalt, amountToTransfer, currency);
 
         // Effects: Send money
         // Generate wallets and transfer the tokens
