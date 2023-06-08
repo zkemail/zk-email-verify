@@ -2,14 +2,14 @@
 
 source circuit.env
 
-echo "****MAKE CPP FILE FOR WITNESS GENERATION****"
-start=$(date +%s)
-set -x
-make -C "$BUILD_DIR"/"$CIRCUIT_NAME"_cpp/
-{ set +x; } 2>/dev/null
-end=$(date +%s)
-echo "DONE ($((end - start))s)"
-echo
+# echo "****MAKE CPP FILE FOR WITNESS GENERATION****"
+# start=$(date +%s)
+# set -x
+# make -C "$BUILD_DIR"/"$CIRCUIT_NAME"_cpp/
+# { set +x; } 2>/dev/null
+# end=$(date +%s)
+# echo "DONE ($((end - start))s)"
+# echo
 
 # echo "****GENERATING WITNESS FOR SAMPLE INPUT****"
 # start=`date +%s`

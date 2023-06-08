@@ -5,7 +5,7 @@ import { useAsync, useMount, useUpdateEffect } from "react-use";
 // @ts-ignore
 import _, { add } from "lodash";
 // @ts-ignore
-import { generate_inputs, insert13Before10 } from "../scripts/generate_input";
+import { generate_inputs, insert13Before10, CircuitType } from "../scripts/generate_input";
 import styled, { CSSProperties } from "styled-components";
 import { sshSignatureToPubKey } from "../helpers/sshFormat";
 import { Link, useSearchParams } from "react-router-dom";
@@ -26,8 +26,6 @@ import { abi } from "../helpers/twitterEmailHandler.abi";
 import { isSetIterator } from "util/types";
 var Buffer = require("buffer/").Buffer; // note: the trailing slash is important!
 
-const generate_input = require("../scripts/generate_input");
-
 export const MainPage: React.FC<{}> = (props) => {
   // raw user inputs
   const filename = "email";
@@ -43,7 +41,7 @@ export const MainPage: React.FC<{}> = (props) => {
   // computed state
   const { value, error } = useAsync(async () => {
     try {
-      const circuitInputs = await generate_inputs(Buffer.from(atob(emailFull)), ethereumAddress);
+      const circuitInputs = await generate_inputs(Buffer.from(atob(emailFull)), ethereumAddress, CircuitType.EMAIL_TWITTER);
       return circuitInputs;
     } catch (e) {
       return {};
@@ -264,9 +262,9 @@ export const MainPage: React.FC<{}> = (props) => {
               console.log("buffFormArray", Buffer.from(formattedArray.buffer));
               console.log("buffFormArray", formattedArray.toString());
               console.log("ethereumAddress", ethereumAddress);
-              let input = "";
+              let input;
               try {
-                input = await generate_input.generate_inputs(Buffer.from(formattedArray.buffer), ethereumAddress);
+                input = await generate_inputs(Buffer.from(formattedArray.buffer), ethereumAddress, CircuitType.EMAIL_TWITTER);
               } catch (e) {
                 console.log("Error generating input", e);
                 setDisplayMessage("Prove");

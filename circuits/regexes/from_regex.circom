@@ -19,7 +19,7 @@ template FromRegex (msg_bytes) {
     component multi_or[10][num_bytes];
     signal states[num_bytes+1][16];
 
-    for (var i = 0; i < num_bytes; i++) {
+    for (var i = 0; i < num_bytes+1; i++) {
         states[i][0] <== 1;
     }
     for (var i = 1; i < 16; i++) {
@@ -164,7 +164,7 @@ template FromRegex (msg_bytes) {
         states[i+1][2] <== and[8][i].out;
         eq[15][i] = IsEqual();
         eq[15][i].in[0] <== in[i];
-        eq[15][i].in[1] <== 94;
+        eq[15][i].in[1] <== 128;
         and[9][i] = AND();
         and[9][i].a <== states[i][0];
         and[9][i].b <== eq[15][i].out;

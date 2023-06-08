@@ -4,10 +4,11 @@ export function bytesToString(bytes: Uint8Array): string {
   return new TextDecoder().decode(bytes);
 }
 
+// stringToUint8Array
 export function stringToBytes(str: string) {
   const encodedText = new TextEncoder().encode(str);
   const toReturn = Uint8Array.from(str, (x) => x.charCodeAt(0));
-  const buf = Buffer.from(str, "utf8");
+  //   const buf = Buffer.from(str, "utf8");
   return toReturn;
   // TODO: Check encoding mismatch if the proof doesnt work
   // Note that our custom encoding function maps (239, 191, 189) -> (253)

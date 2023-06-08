@@ -3,11 +3,7 @@
     "target": "es2020",
     "module": "esnext",
     "esModuleInterop": true,
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
@@ -19,16 +15,9 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "types": [
-      "node"
-    ],
+    "types": ["node", "jest"],
     "incremental": true
   },
-  "include": [
-    "src",
-    "circuits/scripts/"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["src", "circuits/scripts/"],
+  "exclude": ["node_modules"]
 }

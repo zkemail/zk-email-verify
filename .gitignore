@@ -4,6 +4,8 @@
 
 # dependencies
 /node_modules
+/e2e-lambdatest/node_modules/
+/e2e-lambdatest/.yarn/
 /.pnp
 .pnp.js
 
@@ -50,10 +52,13 @@ circuits/email/
 cache/
 test.log
 src/contracts/out/
+src/contracts/lib/
+src/contracts/broadcast
 .next
+node_modules.nosync
 *Wallet*
 *wallet*
-node_modules.nosync
+circuits/regexes/subject_regex*
 
 # Files that never should be committed, but can be obtained by asking Aayush or generating them yourself
 *.eml
