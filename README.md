@@ -1,5 +1,6 @@
 # ZK Github using zkEmail
    Enable github proof using zk-email
+[UPDATE] Pause work on this repo until finishing https://github.com/JernKunpittaya/full_zk_regex to generalize any zk_regex matching for every application
 
 [WIP] 
 All backend main features are done, feel free to test by
