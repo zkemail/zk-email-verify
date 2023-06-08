@@ -6,7 +6,7 @@ const getUncompressedTestFile = (): ArrayBuffer => {
   return buffer;
 }
 
-const tempStorage = {
+const tempStorage: Record<string, ArrayBuffer> = {
   "email.zkeyb": getUncompressedTestFile(),
   "email.zkeyc": getUncompressedTestFile(),
   "email.zkeyd": getUncompressedTestFile(),
