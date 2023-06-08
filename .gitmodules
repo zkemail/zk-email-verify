@@ -1,16 +1,14 @@
 [submodule "src/contracts/lib/openzeppelin-contracts"]
 	path = src/contracts/lib/openzeppelin-contracts
 	url = https://github.com/openzeppelin/openzeppelin-contracts
+	branch = v4.8.1
 [submodule "src/contracts/lib/forge-std"]
 	path = src/contracts/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
-[submodule "lib/openzeppelin-contracts"]
-	branch = v4.8.1
 [submodule "src/contracts/lib/openzeppelin-contracts-upgradeable"]
 	path = src/contracts/lib/openzeppelin-contracts-upgradeable
 	url = https://github.com/openzeppelin/openzeppelin-contracts-upgradeable
+	branch = v4.9.0
 [submodule "src/contracts/lib/ds-test"]
 	path = src/contracts/lib/ds-test
 	url = https://github.com/dapphub/ds-test
-[submodule "lib/openzeppelin-contracts-upgradeable"]
-	branch = v4.9.0
