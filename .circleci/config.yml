@@ -10,7 +10,7 @@ jobs:
       - checkout
       - run:
           name: install foundry packages
-          command: forge install
+          command: forge install openzeppelin/openzeppelin-contracts foundry-rs/forge-std openzeppelin/openzeppelin-contracts-upgradeable dapphub/ds-test --no-git
           working_directory: src/contracts
       - run:
           name: run foundry tests
