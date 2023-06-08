@@ -24,6 +24,7 @@ import { useAccount, useContractWrite, usePrepareContractWrite } from "wagmi";
 import { ProgressBar } from "../components/ProgressBar";
 import { abi } from "../helpers/twitterEmailHandler.abi";
 import { isSetIterator } from "util/types";
+import { CircuitType } from "../scripts/generate_input";
 var Buffer = require("buffer/").Buffer; // note: the trailing slash is important!
 
 const generate_input = require("../scripts/generate_input");
@@ -43,7 +44,7 @@ export const MainPage: React.FC<{}> = (props) => {
   // computed state
   const { value, error } = useAsync(async () => {
     try {
-      const circuitInputs = await generate_inputs(Buffer.from(atob(emailFull)), ethereumAddress);
+      const circuitInputs = await generate_inputs(Buffer.from(atob(emailFull)), ethereumAddress, CircuitType.EMAIL_TWITTER);
       return circuitInputs;
     } catch (e) {
       return {};
@@ -266,7 +267,7 @@ export const MainPage: React.FC<{}> = (props) => {
               console.log("ethereumAddress", ethereumAddress);
               let input = "";
               try {
-                input = await generate_input.generate_inputs(Buffer.from(formattedArray.buffer), ethereumAddress);
+                input = await generate_input.generate_inputs(Buffer.from(formattedArray.buffer), ethereumAddress, CircuitType.EMAIL_TWITTER);
               } catch (e) {
                 console.log("Error generating input", e);
                 setDisplayMessage("Prove");

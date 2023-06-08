@@ -69,7 +69,7 @@ export interface ICircuitInputs {
   relayer?: string;
 }
 
-enum CircuitType {
+export enum CircuitType {
   RSA = "rsa",
   SHA = "sha",
   TEST = "test",
@@ -267,7 +267,12 @@ export async function getCircuitInputs(
 }
 
 // Nonce is useful to disambiguate files for input/output when calling from the command line, it is usually null or hash(email)
-export async function generate_inputs(raw_email: Buffer | string, eth_address: string, nonce_raw: number | null | string = null): Promise<ICircuitInputs> {
+export async function generate_inputs(
+  raw_email: Buffer | string,
+  eth_address: string,
+  type: CircuitType = CircuitType.EMAIL_SUBJECT,
+  nonce_raw: number | null | string = null
+): Promise<ICircuitInputs> {
   const nonce = typeof nonce_raw == "string" ? nonce_raw.trim() : nonce_raw;
 
   var result, email: Buffer;
@@ -336,7 +341,7 @@ async function test_generate(writeToFile: boolean = true) {
   const { email_file, nonce } = await getArgs();
   const email = fs.readFileSync(email_file.trim());
   console.log(email);
-  const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000", nonce);
+  const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000", CircuitType.EMAIL_TWITTER, nonce);
   console.log(JSON.stringify(gen_inputs));
   if (writeToFile) {
     const file_dir = email_file.substring(0, email_file.lastIndexOf("/") + 1);
