@@ -6760,17 +6760,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"circom_runtime@npm:0.1.22":
-  version: 0.1.22
-  resolution: "circom_runtime@npm:0.1.22"
-  dependencies:
-    ffjavascript: 0.2.57
-  bin:
-    calcwit: calcwit.js
-  checksum: bf7b2e9f74cd7704ebc45ce686d4df49e58ed09114070a98beaab90e5ff7784d1943468ea3315bd4db638e6a76cda24e8b610aa2cd50be56adb4391e20469366
-  languageName: node
-  linkType: hard
-
 "circom_tester@npm:^0.0.19":
   version: 0.0.19
   resolution: "circom_tester@npm:0.0.19"
@@ -9925,7 +9914,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ffjavascript@npm:0.2.57, ffjavascript@npm:^0.2.45":
+"ffjavascript@npm:^0.2.45":
   version: 0.2.57
   resolution: "ffjavascript@npm:0.2.57"
   dependencies:
@@ -16852,18 +16841,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"r1csfile@npm:0.0.45":
-  version: 0.0.45
-  resolution: "r1csfile@npm:0.0.45"
-  dependencies:
-    "@iden3/bigarray": 0.0.2
-    "@iden3/binfileutils": 0.0.11
-    fastfile: 0.0.20
-    ffjavascript: 0.2.57
-  checksum: ae2d7ab3f2c37640aea2b4f45753d1f2258f5d904a51d7aaff67c32a931c3e90d22d257e8f10752044fa36b3ac31516f60e503f858913a625015b9b05575ba47
-  languageName: node
-  linkType: hard
-
 "raf@npm:^3.4.1":
   version: 3.4.1
   resolution: "raf@npm:3.4.1"
@@ -18609,6 +18586,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"snarkjs@https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e":
+  version: 0.5.0
+  resolution: "snarkjs@https://github.com/sampritipanda/snarkjs.git#commit=fef81fc51d17a734637555c6edbd585ecda02d9e"
+  dependencies:
+    "@iden3/binfileutils": 0.0.11
+    bfj: ^7.0.2
+    blake2b-wasm: ^2.4.0
+    circom_runtime: 0.1.21
+    ejs: ^3.1.6
+    fastfile: 0.0.20
+    ffjavascript: 0.2.56
+    js-sha3: ^0.8.0
+    localforage: ^1.10.0
+    logplease: ^1.2.15
+    r1csfile: 0.0.41
+  bin:
+    snarkjs: build/cli.cjs
+  checksum: f2050f0135d50d459ea0edddf3e394e833a2d28c6648e5889b2f896814865e5c60606e978a8a106bd5bfe7e27501c315f249db5b71895d5e7e6e9a87bfcd55ab
+  languageName: node
+  linkType: hard
+
 "snarkjs@npm:0.5.0":
   version: 0.5.0
   resolution: "snarkjs@npm:0.5.0"
@@ -18626,26 +18624,6 @@ __metadata:
   bin:
     snarkjs: build/cli.cjs
   checksum: f0233103548bcd0f75b2ff8998ba02437e5131486d126c4a6a31355cd3558c7ce4311e21d5f24ea9ca198d0556e91e63e2ec6aef8da44014c16b29b6a7086ca2
-  languageName: node
-  linkType: hard
-
-"snarkjs@npm:latest":
-  version: 0.6.11
-  resolution: "snarkjs@npm:0.6.11"
-  dependencies:
-    "@iden3/binfileutils": 0.0.11
-    bfj: ^7.0.2
-    blake2b-wasm: ^2.4.0
-    circom_runtime: 0.1.22
-    ejs: ^3.1.6
-    fastfile: 0.0.20
-    ffjavascript: 0.2.57
-    js-sha3: ^0.8.0
-    logplease: ^1.2.15
-    r1csfile: 0.0.45
-  bin:
-    snarkjs: build/cli.cjs
-  checksum: 692508b6f8048b6879975844cae4b9a6713713e20fec488ebd21a4b224b7e0318f6aba59ce06d332728d184148c943fa04e3a49e0af173d325011f506e42363e
   languageName: node
   linkType: hard
 
@@ -21916,7 +21894,7 @@ __metadata:
     readline: ^1.3.0
     selenium-webdriver: ^4.8.1
     serve: ^14.0.1
-    snarkjs: latest
+    snarkjs: "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
     sshpk: ^1.17.0
     styled-components: ^5.3.5
     ts-node: ^10.9.1

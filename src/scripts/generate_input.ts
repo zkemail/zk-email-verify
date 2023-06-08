@@ -310,12 +310,11 @@ export async function generate_inputs(
   let message = result.results[0].status.signature_header;
   let body = result.results[0].body;
   let body_hash = result.results[0].bodyHash;
-  let circuitType = CircuitType.EMAIL_SUBJECT;
 
   let pubkey = result.results[0].publicKey;
   const pubKeyData = pki.publicKeyFromPem(pubkey.toString());
   let modulus = BigInt(pubKeyData.n.toString());
-  let fin_result = await getCircuitInputs(sig, modulus, message, body, body_hash, eth_address, circuitType);
+  let fin_result = await getCircuitInputs(sig, modulus, message, body, body_hash, eth_address, type);
   return fin_result.circuitInputs;
 }
 
