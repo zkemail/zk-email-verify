@@ -9,8 +9,12 @@ jobs:
     steps:
       - checkout
       - run:
+          name: install foundry packages
+          command: forge install
+          working_directory: src/contracts
+      - run:
           name: run foundry tests
-          command: forge test --via-ir
+          command: forge test --fork-url https://eth-goerli.g.alchemy.com/v2/${ALCHEMY_API_KEY}
           working_directory: src/contracts
 
   run_unit_and_e2e_tests:
@@ -47,7 +51,7 @@ jobs:
       - store_test_results:
           path: reports/
 workflows:
-  build_test: 
+  build_test:
     jobs:
       - run_unit_and_e2e_tests
       - run_forge_tests
