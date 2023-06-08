@@ -65,8 +65,7 @@
     "eject": "react-scripts eject",
     "compile": "node circuits/scripts/compile.js",
     "gen-input": "npx tsx src/scripts/generate_input.ts",
-    "compile-all": "yarn gen-input && yarn compile email true",
-    "prepare": "husky install"
+    "compile-all": "yarn gen-input && yarn compile email true"
   },
   "eslintConfig": {
     "extends": [
@@ -95,7 +94,6 @@
     "@types/tar-stream": "^2.2.2",
     "browserstack-local": "^1.5.1",
     "browserstack-node-sdk": "^1.6.1",
-    "husky": "^8.0.3",
     "jest-junit": "^15.0.0",
     "msw": "^1.0.1",
     "nodemon": "^2.0.19",

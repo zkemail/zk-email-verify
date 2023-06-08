@@ -1,9 +1,9 @@
 /* eslint no-control-regex: 0 */
 
-var isNode = false;
-if (typeof process === "object") {
-  if (typeof process.versions === "object") {
-    if (typeof process.versions.node !== "undefined") {
+var isNode = false;    
+if (typeof process === 'object') {
+  if (typeof process.versions === 'object') {
+    if (typeof process.versions.node !== 'undefined') {
       isNode = true;
     }
   }
@@ -273,16 +273,26 @@ const getPublicKey = async (type, name, minBitLength, resolver) => {
     []
       .concat(list[0] || [])
       .join("")
-      .replaceAll(/\s+/g, "")
-      .replaceAll('"', "");
+      .replace(/\s+/g, "");
 
   if (rr) {
     // prefix value for parsing as there is no default value
-    let entry = parseDkimHeaders("DNS: TXT;" + rr);
+    let entry = parseDkimHeaders(`DNS: TXT;${rr}`);
+    let publicKeyValue = entry?.parsed?.p?.value;
 
-    const publicKeyValue = entry?.parsed?.p?.value;
-    //'v=DKIM1;p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwe34ubzrMzM9sT0XVkcc3UXd7W+EHCyHoqn70l2AxXox52lAZzH/UnKwAoO+5qsuP7T9QOifIJ9ddNH9lEQ95Y/GdHBsPLGdgSJIs95mXNxscD6MSyejpenMGL9TPQAcxfqY5xPViZ+1wA1qcryjdZKRqf1f4fpMY+x3b8k7H5Qyf/Smz0sv4xFsx1r+THNIz0rzk2LO3GvE0f1ybp6P+5eAelYU4mGeZQqsKw/eB20I3jHWEyGrXuvzB67nt6ddI+N2eD5K38wg/aSytOsb5O+bUSEe7P0zx9ebRRVknCD6uuqG3gSmQmttlD5OrMWSXzrPIXe8eTBaaPd+e/jfxwIDAQAB'
-    // v=DKIM1;p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwe34ubzrMzM9sT0XVkcc3UXd7W+EHCyHoqn70l2AxXox52lAZzH/UnKwAoO+5qsuP7T9QOifIJ9ddNH9lEQ95Y/GdHBsPLGdgSJIs95mXNxscD6MSyejpenMGL9TPQAcxfqY5xPViZ+1wA1qcr""yjdZKRqf1f4fpMY+x3b8k7H5Qyf/Smz0sv4xFsx1r+THNIz0rzk2LO3GvE0f1ybp6P+5eAelYU4mGeZQqsKw/eB20I3jHWEyGrXuvzB67nt6ddI+N2eD5K38wg/aSytOsb5O+bUSEe7P0zx9ebRRVknCD6uuqG3gSmQmttlD5OrMWSXzrPIXe8eTBaaPd+e/jfxwIDAQAB
+    if (!publicKeyValue) {
+      rr = rr.replace(/['"]+/g, '');
+      entry = parseDkimHeaders(`DNS: TXT;${rr}`);
+      publicKeyValue = entry?.parsed?.p?.value;
+      
+      if (!publicKeyValue) {
+        let err = new Error("Missing key value");
+        err.code = "EINVALIDVAL";
+        err.rr = rr;
+        throw err;
+      }
+    }
+
     if (!publicKeyValue) {
       let err = new Error("Missing key value");
       err.code = "EINVALIDVAL";
@@ -482,6 +492,10 @@ const validateAlgorithm = (algorithm, strict) => {
   }
 };
 
+const oldKeys = [
+  "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCEw53tgIoF8hrRikgKN/8E0xFqT5rBWYegP1JcIbP92dtLtG6HeS1sck5UCYR6HUy8NEEcUaxn1gnSezht6iyWR0G6BwNOevGGLg3N6rO9V5YayIIf4C74tjQdCiHP34wCRJQ05zWq8q/XMrAm5B3SKQMMl2LV/WoVCjyneq5ZYwIDAQAB"
+]
+
 module.exports = {
   writeToStream,
   parseHeaders,
@@ -492,7 +506,7 @@ module.exports = {
   formatSignatureHeaderLine,
   parseDkimHeaders,
   getPublicKey,
-  formatAuthHeaderRow,
+  formatAuthHeaderRow,  
   escapeCommentValue,
 
   validateAlgorithm,
@@ -501,4 +515,6 @@ module.exports = {
 
   formatRelaxedLine,
   formatDomain,
+  
+  oldKeys,
 };

@@ -121,11 +121,10 @@ export async function getCircuitInputs(
   const [bodyPadded, bodyPaddedLen] = await sha256Pad(body, Math.max(MAX_BODY_PADDED_BYTES, calc_length));
 
   // Convet messagePadded to string to print the specific header data that is signed
-  console.log(JSON.stringify(message).toString());
+  // console.log(JSON.stringify(message).toString());
 
   // Ensure SHA manual unpadded is running the correct function
   const shaOut = await partialSha(messagePadded, messagePaddedLen);
-
   assert((await Uint8ArrayToString(shaOut)) === (await Uint8ArrayToString(Uint8Array.from(await shaHash(prehashBytesUnpadded)))), "SHA256 calculation did not match!");
 
   // Precompute SHA prefix
@@ -196,9 +195,10 @@ export async function getCircuitInputs(
       in_body_len_padded_bytes,
       twitter_username_idx,
       address,
-      address_plus_one,
+      // address_plus_one,
       body_hash_idx,
       // email_from_idx,
+      // email_to_idx,
     };
   } else if (circuit === CircuitType.SUBJECTPARSER) {
     circuitInputs = {
@@ -256,7 +256,7 @@ export async function generate_inputs(raw_email: Buffer | string, eth_address: s
   //   // TODO: Condiiton code on if there is an internet connection, run this code
   //   var frozen = Cryo.stringify(result);
   //   fs.writeFileSync(`./email_cache_2.json`, frozen, { flag: "w" });
-  // } catch (e) {
+  // } catch (e) {i
   //   console.log("Reading cached email instead!");
   //   let frozen = fs.readFileSync(`./email_cache.json`, { encoding: "utf-8" });
   //   result = Cryo.parse(frozen);
@@ -271,12 +271,18 @@ export async function generate_inputs(raw_email: Buffer | string, eth_address: s
   const pubKeyData = pki.publicKeyFromPem(pubkey.toString());
   let modulus = BigInt(pubKeyData.n.toString());
   let fin_result = await getCircuitInputs(sig, modulus, message, body, body_hash, eth_address, circuitType);
+  if (nonce !== null) {
+    console.log(`Writing to ../input_wallet_${nonce}.json`);
+    fs.writeFileSync(`../input_wallet_${nonce}.json`, JSON.stringify(fin_result.circuitInputs), { flag: "w" });
+  }
   return fin_result.circuitInputs;
 }
 
 // Only called when the whole function is called from the command line, to read inputs
 async function do_generate(writeToFile: boolean = true) {
-  const { email_file, nonce } = await getArgs();
+  // const { email_file, nonce } = await getArgs();
+  const email_file = "./nathan_coinbase_email.eml";
+  const nonce = null
   const email = fs.readFileSync(email_file.trim());
   console.log(email);
   const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000", nonce);

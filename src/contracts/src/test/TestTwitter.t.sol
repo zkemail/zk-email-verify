@@ -158,11 +158,7 @@ contract TwitterUtilsTest is Test {
     vm.startPrank(0x6171aeBcC9e9B9E1D90EC9C2E124982932297345);
     testVerifier.mint(proof_a, proof_b, proof_c, publicSignals);
     vm.stopPrank();
-  }
 
-  function testSVG() public {
-    testVerifyYushEmail();
-    testVerifyTestEmail();
     string memory svgValue = testVerifier.tokenURI(1);
     console.log(svgValue);
     assert(bytes(svgValue).length > 0);

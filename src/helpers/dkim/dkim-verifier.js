@@ -8,7 +8,7 @@ if (typeof process === 'object') {
 }
 const LOCAL = isNode;
 
-const { getSigningHeaderLines, getPublicKey, parseDkimHeaders, formatAuthHeaderRow, getAlignment } = require("./tools");
+const { getSigningHeaderLines, getPublicKey, parseDkimHeaders, formatAuthHeaderRow, getAlignment, oldKeys } = require("./tools");
 const { MessageParser } = require("./message-parser");
 const { dkimBody } = require("./body");
 const { generateCanonicalizedHeader } = require("./header");
@@ -245,10 +245,37 @@ class DkimVerifier extends MessageParser {
                 status.comment = `unknown key type`;
                 break;
 
-              case "EINVALIDVAL":
-                status.result = "neutral";
+              case "EINVALIDVAL": // using old public key
+                for (let i = 0; i < oldKeys.length; i++) {
+									let paddingNeeded = oldKeys[i].length % 4 ? 4 - (oldKeys[i].length % 4) : 0;
+									const old_key_pem = Buffer.from(`-----BEGIN PUBLIC KEY-----\n${(oldKeys[i] + "=".repeat(paddingNeeded)).replace(/.{64}/g, "$&\n")}\n-----END PUBLIC KEY-----`);
+
+									let ver_result_old = false;
+									if (LOCAL) {
+										ver_result_old = crypto.verify(
+											signatureHeader.signAlgo === "rsa" ? signatureHeader.algorithm : null,
+											canonicalizedHeader,
+											old_key_pem,
+											Buffer.from(signatureHeader.parsed?.b?.value, "base64")
+										);
+									} else {
+										let ver_old = crypto.createVerify("RSA-SHA256");
+										ver_old.update(canonicalizedHeader);
+										ver_result_old = ver_old.verify({ key: old_key_pem.toString(), format: "pem" }, Buffer.from(signatureHeader.parsed?.b?.value, "base64"));
+									}
+
+									status.signature_header = canonicalizedHeader;
+									status.signature_value = signatureHeader.parsed?.b?.value;
+									status.result = ver_result_old ? "pass" : "fail";
+
+									if (status.result === "pass") {
+										publicKey = old_key_pem;
+										break;
+									}
+								}
+								status.result = "neutral";
                 status.comment = `invalid public key`;
-                break;
+								break;
 
               case "ESHORTKEY":
                 status.result = "policy";
