@@ -14,13 +14,13 @@ The documentation for the app is located at https://zkemail.xyz/docs (WIP). Made
 
 To run the frontend with existing circuits (there is no backend or server), enable Node 16 (with nvm) and run:
 
-```
+```bash
 yarn start
 ```
 
 If the frontend shows an error on fullProve line, run this and rerun
 
-```
+```bash
 yarn add snarkjs@https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e
 ```
 
@@ -44,6 +44,8 @@ circuits/ # groth16 zk circuits
         input_email_domain.json # Standard input for from/to mit.edu domain matching, for use with circuit without body checks
         input_email_packed.json # Same as above but has useless packed input -- is private so irrelevant, this file could be deleted.
     main/ # Legacy RSA code
+    regexes/ # Generated regexes
+    helpers/ # Common helper circom circuits imported in email circuits
     scripts/ # Run snarkjs ceremony to generate zkey with yarn compile
 dizkus-scripts/
     *.sh # Scripts to compile the chunked keys on a remote server
@@ -72,11 +74,11 @@ public/ # Should contain vkey/wasm, but we end up fetching those from AWS server
 
 ### Regex to Circom
 
-First, generate a regex. Go to our [min_dfa fork](https://mindfa.onrender.com/min_dfa) of cyberzhg's toolbox and insert your regex on the top line. We've forked [min-dfa into a UI here](https://mindfa.onrender.com/min_dfa) to create a UI that converts existing regexes with [] support, as well as escapes \_, and the character classes a-z, A-Z, and 0-9. It also shows the DFA states very clearly so you can choose accept states easily. This should make converting regexes into DFA form way cleaner.
-
-Modify either `let raw_regex = ` (that supports actual regex strings like `[A-Za-z0-9]` [but no other character ranges]) or modify `let regex = ` (that does not support brackets or character ranges and supports only the limited syntax in https://cyberzhg.github.io/toolbox/min_dfa) in regex_to_circom/regex_to_dfa.js and then run `python3 gen.py`.
+See regex_to_circom/README.md for usage instructions.
 
 ### Email Circuit Build Steps
+
+#### Build
 
 Install rust/circom2 via the following steps, according to: https://docs.circom.io/getting-started/installation/
 
@@ -96,7 +98,7 @@ cargo install --path circom
 
 Inside `zk-email-verify` folder, do
 
-```
+```bash
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash # If don't have npm
 . ~/.nvm/nvm.sh # If don't have npm
 nvm install 16 # If don't have node 16
@@ -119,6 +121,8 @@ mv powersOfTau28_hez_final_21.ptau circuits/powersOfTau28_hez_final_21.ptau
 <!-- Previously snarkjs@git+https://github.com/vb7401/snarkjs.git#fae4fe381bdad2da13eee71010dfe477fc694ac1 -->
 <!-- Now -> yarn add https://github.com/vb7401/snarkjs/commits/chunk_zkey_gen -->
 
+#### Zkey Creation
+
 Put the email into ...\*.eml. Edit the constant filename at the top of generate_input.ts to import that file, then use the output of running that file as the input file (you may need to rename it). You'll need this for both zkey and verifier generation.
 
 To create a chunked zkey for in-browser proving, run the following on a high CPU computer:
@@ -129,15 +133,17 @@ cd dizkus-scripts/
 cp entropy.env.example entropy.env
 ```
 
-Not put random characters into the values for entropy1 and entropy2, and hexadecimal characters into the beacon. These scripts will compile and test your zkey for you.
+Fill out the env via random characters into the values for entropy1 and entropy2, and hexadecimal characters into the beacon. These scripts will compile and test your zkey for you, and generate a normal zkey with for an on chain verifier or server side prover, with the same entropy as the chunked one. If you only want the chunked one, use ./3_gen_chunk_zkey.sh in place of the generation.
 
+```bash
+./1_compile.sh && ./2_gen_wtns.sh && ./3_gen_both_zkeys.sh && ./4_gen_vkey.sh && ./5_gen_proof.sh
 ```
-./1_compile.sh && ./2_gen_wtns.sh && ./3_gen_chunk_zkey.sh && ./4_gen_vkey.sh && ./5_gen_proof.sh
-```
+
+#### Server-side Prover: Rapidsnark Setup (Optional)
 
 If you want to run a fast server side prover, install rapidsnark and test proofgen:
 
-```
+```bash
 cd ../../
 git clone https://github.com/iden3/rapidsnark
 cd rapidsnark
@@ -149,7 +155,7 @@ npx task createFieldSources
 
 You're supposed to run `npx task buildPistache` next, but that errored, so I had to manually build the pistache lib first:
 
-```
+```bash
 cd depends/pistache
 sudo apt-get install meson ninja-build
 meson setup build --buildtype=release
@@ -161,22 +167,28 @@ cd ../..
 
 Then, from rapidsnark/ I could run
 
-```
+```bash
 npx task buildProverServer
 ```
 
-And from zk-email-verify, convert your proof params to a rapidsnark friendly version:
+And from zk-email-verify, convert your proof params to a rapidsnark friendly version, generating the C-based witness generator and rapidsnark prover. To target to the AWS autoprover, go to the Makefile and manually replace the `CFLAGS=-std=c++11 -O3 -I.` line with (targeted to g4dn.xlarge and g5.xlarge, tuned to g5.xlarge):
 
-```
-
+```bash
 cd ../zk-email-verify/dizkus-scripts
 ./6_gen_proof_rapidsnark.sh
-
 ```
+
+To compile a non-chunked zkey for server-side use only,
+
+```bash
+yarn compile-all
+```
+
+#### Uploading to AWS
 
 To upload zkeys to an s3 box on AWS, change bucket_name in upload_to_s3.py and run:
 
-```
+```bash
 sudo apt install awscli # Ubuntu
 brew install awscli # Mac
 
@@ -188,29 +200,23 @@ yarn add snarkjs@https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a73463
 
 If you want to upload different files, you can parameterize the script as well:
 
-```
+```bash
 python3 dizkus-scripts/upload_to_s3.py --dirs ~/zk-email-verify/build/email/email_js/ --bucket_name zkemail-zkey-chunks --prefix email.wasm
 ```
 
 Note that there's no .zkeya file, only .zkeyb ... .zkeyk. The script will automatically zip into .tar.gz files and load into s3 bucket.
 
-We use a fork of [zkp.ts](https://github.com/personaelabs/heyanon/blob/main/lib/zkp.ts) to load these keys into localforage. In the browser, to read off of localforage, you have to use this fork when running the frontend locally/in prod:
+#### Recompile Frontend (Important!)
 
-```
+We use a fork of [zkp.ts](https://github.com/personaelabs/heyanon/blob/main/lib/zkp.ts) to load these keys into localforage. In the browser, to read off of localforage, you have to use this fork when running the frontend locally/in prod. THIS IS VERY IMPORTANT -- WRONG SNARKJS FORKS CAUSE THE MOST ERRORS.
 
+```bash
 yarn install snarkjs@git+https://github.com/vb7401/snarkjs.git#53e86631b5e409e5bd30300611b495ca469503bc
-
 ```
 
 Manually copy paste the modulus in the resulting generated file into solidity verified mailserver keys.
 
 Change s3 address in the frontend to your bucket.
-
-To do a non-chunked zkey for non-browser running,
-
-```
-yarn compile-all
-```
 
 ### Really Large Circuits
 
@@ -243,15 +249,19 @@ and you can swap `email` for `sha` or `rsa` or any other circuit name that match
 
 and when the circuit doesn't change,
 
-```
+```bash
 yarn compile email true skip-r1cswasm
 ```
 
 and when the zkey also doesn't change,
 
-```
+```bash
 yarn compile email true skip-r1cswasm skip-zkey
 ```
+
+### Contract Deployment
+
+Follow the instructions in `src/contracts/README.md`.
 
 ### Production
 
@@ -263,39 +273,20 @@ Note that this leaks the number of characters in the username of someone who sen
 
 To constraint count, do
 
-```
+```bash
 cd circuits
 node --max-old-space-size=614400 ./../node_modules/.bin/snarkjs r1cs info email.r1cs
 ```
 
 To test solidity,
 
-```
+```bash
 cp node_modules/forge-std src/contracts/lib/forge-std
 cd src/contracts
 forge test
 ```
 
-To deploy contract to forked mainnet, do:
-
-```
-anvil --fork-url https://eth-mainnet.alchemyapi.io/v2/***REMOVED*** --port 8547 # Run in tmux
-export ETH_RPC_URL=http://localhost:8547
-
-# Public anvil sk
-export SK=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
-forge create --rpc-url $ETH_RPC_URL StringUtils --private-key $SK --via-ir --force
-forge create --rpc-url $ETH_RPC_URL NFTSVG --private-key $SK --via-ir --force
-
-# Edit the Cargo.toml to have the two deployment addresses, then call this
-forge create --rpc-url $ETH_RPC_URL VerifiedTwitterEmail --private-key $SK --via-ir --force
-```
-
-For just the contracts, can do
-
-```
-forge create --rpc-url $ETH_RPC_URL src/contracts/src/emailVerifier.sol:Verifier --private-key $SK
-```
+To deploy contracts, look at src/contracts/README.md.
 
 ## Performance
 
@@ -327,7 +318,7 @@ Short term ways to improve the performance would be to replace the regex checks 
 
 Looking more long term, we are actively using Halo2 and Nova to speed up the most expensive operations of regex and SHA. As hash functions and regex DFA traversal are repeated operations, they are a great fit for Nova's folding methods to compress repeated computation into a constant sized folded instance. But to actually use Nova to fold expensive operations outside of Halo2/Groth16, we need to verify the folded instance is valid inside the circuit for zero-knowledge and to link it to the rest of the computation. We also are attempting to use the lookup feature of Halo2 to precompute the entire table of possible regex state transitions, and just looking up that all of the transitions made are valid ones in the table instead of expensively checking each state! This idea is due to Sora Suegami, explained in more detail here: https://hackmd.io/@SoraSuegami/Hy9dWgT8i.
 
-The current set of remaining tasks and potential final states is documented in the following DAG, please reach out if any of the projects seem interesting!
+The current set `of remaining tasks and potential final states is documented in the following DAG, please reach out if any of the projects seem interesting!
 
 ![Optimization plan](public/zk_email_optim.jpg)
 
@@ -343,11 +334,11 @@ The full email header and body check circuit, with 7-byte packing and final publ
 
 In the browser, on a 2019 Intel Mac on Chrome, proving uses 7.3/8 cores. zk-gen takes 384 s, groth16 prove takes 375 s, and witness calculation takes 9 s.
 
-For baremetal, proof generation time on 16 CPUs took 97 seconds. Generating zkey 0 took 17 minutes. zkey 1 and zkey 2 each took 5 minutes. r1cs + wasm generation took 5 minutes. Witness generation took 16 seconds. cpp generation of witness gen file (from script 6) took 210 minutes -- we do not run this pathway anymore.
+For baremetal, proof generation time on 16 CPUs took 97 seconds. Generating zkey 0 took 17 minutes. zkey 1 and zkey 2 each took 5 minutes. r1cs + wasm generation took 5 minutes. Witness generation took 16 seconds. cpp generation of witness gen file (from script 6) took 210 minutes -- this is only useful for server side proving.
 
 ### Scrubbing Sensitive Files
 
-```
+```bash
 brew install git-filter-repo
 git filter-repo --replace-text <(echo "0x000000000000000000000000000000000000000000000000000000000abcdef")
 git filter-repo --path mit_msg.eml --invert-paths
@@ -401,7 +392,7 @@ Use https://sha256algorithm.com/ as an explainer! It's a great visualization of 
 
 ### I'm having trouble with regex or base64 understanding. How do I understand that better?
 
-Use https://cyberzhg.github.io/toolbox/ to experiement with conversions to/from base64 and to/from DFAs and NFAs.
+Use https://cyberzhg.github.io/toolbox/ to experiment with conversions to/from base64 and to/from DFAs and NFAs.
 
 ### What are the differences between generating proofs (snarkjs.groth16.fullprove) on the client vs. on a server?
 

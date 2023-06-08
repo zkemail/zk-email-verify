@@ -19,7 +19,7 @@ template WalletSubjectRegex (msg_bytes) {
     component multi_or[21][num_bytes];
     signal states[num_bytes+1][50];
 
-    for (var i = 0; i < num_bytes; i++) {
+    for (var i = 0; i < num_bytes+1; i++) {
         states[i][0] <== 1;
     }
     for (var i = 1; i < 50; i++) {
