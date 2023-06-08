@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useAsync, useMount, useUpdateEffect } from "react-use";
-import _ from "lodash";
-import { ICircuitInputs, generate_inputs, insert13Before10 } from "../scripts/generate_input";
 import styled from "styled-components";
+import _, { add } from "lodash";
+import { ICircuitInputs, generate_inputs, insert13Before10, CircuitType } from "../scripts/generate_input";
+import { sshSignatureToPubKey } from "../helpers/sshFormat";
+import { Link, useSearchParams } from "react-router-dom";
+import { dkimVerify } from "../helpers/dkim";
 import atob from "atob";
 import { downloadProofFiles, generateProof, verifyProof } from "../helpers/zkp";
 import { packedNBytesToString } from "../helpers/binaryFormat";
@@ -16,6 +19,7 @@ import { TopBanner } from "../components/TopBanner";
 import { useAccount, useContractWrite, usePrepareContractWrite } from "wagmi";
 import { ProgressBar } from "../components/ProgressBar";
 import { abi } from "../helpers/twitterEmailHandler.abi";
+import { isSetIterator } from "util/types";
 
 export const MainPage: React.FC<{}> = (props) => {
   // raw user inputs
@@ -32,7 +36,7 @@ export const MainPage: React.FC<{}> = (props) => {
   // computed state
   const { value, error } = useAsync(async () => {
     try {
-      const circuitInputs = await generate_inputs(Buffer.from(atob(emailFull)), ethereumAddress);
+      const circuitInputs = await generate_inputs(Buffer.from(atob(emailFull)), ethereumAddress, CircuitType.EMAIL_TWITTER);
       return circuitInputs;
     } catch (e) {
       return {};
@@ -255,7 +259,7 @@ export const MainPage: React.FC<{}> = (props) => {
               console.log("ethereumAddress", ethereumAddress);
               let input : ICircuitInputs;
               try {
-                input = await generate_inputs(Buffer.from(formattedArray.buffer), ethereumAddress);
+                input = await generate_inputs(Buffer.from(formattedArray.buffer), ethereumAddress, CircuitType.EMAIL_TWITTER);
               } catch (e) {
                 console.log("Error generating input", e);
                 setDisplayMessage("Prove");
