@@ -1,7 +1,9 @@
 {
-  "name": "zk-email",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "dependencies": {
     "@rainbow-me/rainbowkit": "^0.8.0",
     "@testing-library/jest-dom": "^5.16.3",
@@ -56,9 +58,6 @@
     "wagmi": "^0.6.8",
     "web-vitals": "^2.1.4",
     "yargs": "^17.7.1"
-  },
-  "resolutions": {
-    "react-error-overlay": "6.0.9"
   },
   "scripts": {
     "start": "vite",
