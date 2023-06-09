@@ -83,3 +83,5 @@ generate_input_log.txt
 **/.yarn/*
 
 tsbuildinfo
+
+**/node_modules
