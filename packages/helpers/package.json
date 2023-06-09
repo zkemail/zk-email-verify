@@ -1,6 +1,11 @@
 {
   "name": "@zk-email/helpers",
   "version": "1.0.0",
+  "main": "dist",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
   "dependencies": {
     "addressparser": "^1.0.1",
     "atob": "^2.1.2",
@@ -11,5 +16,8 @@
     "pako": "^2.1.0",
     "psl": "^1.9.0",
     "snarkjs": "^0.7.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.1.3"
   }
 }
