@@ -1,6 +1,6 @@
 // src/mocks/handlers.js
 import { rest } from 'msw'
-import { loadURL } from '../helpers/zkp'
+import { loadURL } from '../../packages/helpers/zkp'
 import fs from 'fs';
 
 const getCompressedTestFile = () => {

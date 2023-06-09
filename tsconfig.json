@@ -19,6 +19,6 @@
     "types": ["node", "jest"],
     "incremental": true
   },
-  "include": ["src", "circuits/scripts/"],
+  "include": ["src", "circuits/scripts/", "packages/helpers"],
   "exclude": ["node_modules"]
 }

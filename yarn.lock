@@ -4070,6 +4070,28 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@zk-email/contracts@workspace:packages/contracts":
+  version: 0.0.0-use.local
+  resolution: "@zk-email/contracts@workspace:packages/contracts"
+  languageName: unknown
+  linkType: soft
+
+"@zk-email/helpers@workspace:packages/helpers":
+  version: 0.0.0-use.local
+  resolution: "@zk-email/helpers@workspace:packages/helpers"
+  dependencies:
+    addressparser: ^1.0.1
+    atob: ^2.1.2
+    circomlibjs: ^0.1.7
+    libmime: ^5.2.1
+    localforage: ^1.10.0
+    lodash: ^4.17.21
+    pako: ^2.1.0
+    psl: ^1.9.0
+    snarkjs: ^0.7.0
+  languageName: unknown
+  linkType: soft
+
 "@zxing/text-encoding@npm:0.9.0":
   version: 0.9.0
   resolution: "@zxing/text-encoding@npm:0.9.0"
@@ -5561,6 +5583,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"circom_runtime@npm:0.1.22":
+  version: 0.1.22
+  resolution: "circom_runtime@npm:0.1.22"
+  dependencies:
+    ffjavascript: 0.2.57
+  bin:
+    calcwit: calcwit.js
+  checksum: bf7b2e9f74cd7704ebc45ce686d4df49e58ed09114070a98beaab90e5ff7784d1943468ea3315bd4db638e6a76cda24e8b610aa2cd50be56adb4391e20469366
+  languageName: node
+  linkType: hard
+
 "circom_tester@npm:^0.0.19":
   version: 0.0.19
   resolution: "circom_tester@npm:0.0.19"
@@ -5584,7 +5617,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"circomlibjs@npm:^0.1.2":
+"circomlibjs@npm:^0.1.2, circomlibjs@npm:^0.1.7":
   version: 0.1.7
   resolution: "circomlibjs@npm:0.1.7"
   dependencies:
@@ -7693,7 +7726,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ffjavascript@npm:^0.2.45, ffjavascript@npm:^0.2.48, ffjavascript@npm:^0.2.56":
+"ffjavascript@npm:0.2.57":
+  version: 0.2.57
+  resolution: "ffjavascript@npm:0.2.57"
+  dependencies:
+    wasmbuilder: 0.0.16
+    wasmcurves: 0.2.0
+    web-worker: ^1.2.0
+  checksum: 8f3e87b3e2739c607dfc2ef8cb36d92202da57b1323987cca09ade378c584a946b9d784607ee5e2193a2de6200afdc254c19f72f79145aa55d9a8688f83f6708
+  languageName: node
+  linkType: hard
+
+"ffjavascript@npm:0.2.59, ffjavascript@npm:^0.2.45, ffjavascript@npm:^0.2.48, ffjavascript@npm:^0.2.56":
   version: 0.2.59
   resolution: "ffjavascript@npm:0.2.59"
   dependencies:
@@ -10224,7 +10268,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"libmime@npm:^5.1.0":
+"libmime@npm:^5.1.0, libmime@npm:^5.2.1":
   version: 5.2.1
   resolution: "libmime@npm:5.2.1"
   dependencies:
@@ -12132,7 +12176,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"psl@npm:^1.1.28, psl@npm:^1.1.33":
+"psl@npm:^1.1.28, psl@npm:^1.1.33, psl@npm:^1.9.0":
   version: 1.9.0
   resolution: "psl@npm:1.9.0"
   checksum: 20c4277f640c93d393130673f392618e9a8044c6c7bf61c53917a0fddb4952790f5f362c6c730a9c32b124813e173733f9895add8d26f566ed0ea0654b2e711d
@@ -12335,6 +12379,18 @@ __metadata:
     fastfile: 0.0.20
     ffjavascript: 0.2.56
   checksum: eec689416f66f09db2d6ca66fac1ef6841b088ab29abcde487145ebd2110916c92583e11ac86f0cdcc4e8a3a7c7df9ff5352ad959e8ae385d37c3b51cec5cf4d
+  languageName: node
+  linkType: hard
+
+"r1csfile@npm:0.0.45":
+  version: 0.0.45
+  resolution: "r1csfile@npm:0.0.45"
+  dependencies:
+    "@iden3/bigarray": 0.0.2
+    "@iden3/binfileutils": 0.0.11
+    fastfile: 0.0.20
+    ffjavascript: 0.2.57
+  checksum: ae2d7ab3f2c37640aea2b4f45753d1f2258f5d904a51d7aaff67c32a931c3e90d22d257e8f10752044fa36b3ac31516f60e503f858913a625015b9b05575ba47
   languageName: node
   linkType: hard
 
@@ -13581,6 +13637,26 @@ __metadata:
   bin:
     snarkjs: build/cli.cjs
   checksum: f0233103548bcd0f75b2ff8998ba02437e5131486d126c4a6a31355cd3558c7ce4311e21d5f24ea9ca198d0556e91e63e2ec6aef8da44014c16b29b6a7086ca2
+  languageName: node
+  linkType: hard
+
+"snarkjs@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "snarkjs@npm:0.7.0"
+  dependencies:
+    "@iden3/binfileutils": 0.0.11
+    bfj: ^7.0.2
+    blake2b-wasm: ^2.4.0
+    circom_runtime: 0.1.22
+    ejs: ^3.1.6
+    fastfile: 0.0.20
+    ffjavascript: 0.2.59
+    js-sha3: ^0.8.0
+    logplease: ^1.2.15
+    r1csfile: 0.0.45
+  bin:
+    snarkjs: build/cli.cjs
+  checksum: 8382c765c9b2fb3fac71807cd58352d0f497793b8eb18843a6ca7d7d6d4c8afbb97becd0e02211c51c0561e97646660a4c3edaed8200d1d182845879156f76b6
   languageName: node
   linkType: hard
 
