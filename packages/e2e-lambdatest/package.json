@@ -1,5 +1,5 @@
 {
-  "name": "zk-email-verify-e2e-lambdatest",
+  "name": "@zk-email/e2e-lambdatest",
   "version": "1.0.0",
   "description": "Tests for ZK Email on LambdaTest",
   "main": "index.js",
