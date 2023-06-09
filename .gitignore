@@ -34,7 +34,7 @@ circuits/*_js/*
 *.sym
 circuits/*.wasm
 circuits/*.wtns
-src/circuits/*.wasm
+packages/circuits/*.wasm
 *.ptau
 *.zkey
 circuits/inputs/*.json
@@ -53,9 +53,9 @@ circuits/circuit*zkey*
 circuits/email/
 cache/
 test.log
-src/contracts/out/
-src/contracts/lib/
-src/contracts/broadcast
+pacakges/contracts/out/
+pacakges/contracts/lib/
+pacakges/contracts/broadcast
 .next
 node_modules.nosync
 *Wallet*

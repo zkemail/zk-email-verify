@@ -1,4 +1,14 @@
 {
   "name": "@zk-email/contracts",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "scripts": {
+    "build": "forge compile",
+    "test": "forge test"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.9.1",
+    "@openzeppelin/contracts-upgradeable": "^4.9.1",
+    "ds-test": "https://github.com/dapphub/ds-test",
+    "forge-std": "https://github.com/foundry-rs/forge-std"
+  }
 }

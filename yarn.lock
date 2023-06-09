@@ -2646,7 +2646,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openzeppelin/contracts@npm:^4.9.0":
+"@openzeppelin/contracts-upgradeable@npm:^4.9.1":
+  version: 4.9.1
+  resolution: "@openzeppelin/contracts-upgradeable@npm:4.9.1"
+  checksum: 4dff468b7de51701da8f46ca16e44831109e2602e80c96d68e3fba8ea1ae4ac498e60d38829e0d2d8494bb8cfc274adc7adc2dab566b929319dfe76a5c3af017
+  languageName: node
+  linkType: hard
+
+"@openzeppelin/contracts@npm:^4.9.0, @openzeppelin/contracts@npm:^4.9.1":
   version: 4.9.1
   resolution: "@openzeppelin/contracts@npm:4.9.1"
   checksum: 9bb3cc6aecd6c56d5ece10d9820d43e6e9c460395b75cc4af9b4e776f1a9e56c9906bc03538b0707e617dc31f1abdfffcbeedfecc8884358d864198ed73f59c1
@@ -3782,6 +3789,11 @@ __metadata:
 "@zk-email/contracts@workspace:packages/contracts":
   version: 0.0.0-use.local
   resolution: "@zk-email/contracts@workspace:packages/contracts"
+  dependencies:
+    "@openzeppelin/contracts": ^4.9.1
+    "@openzeppelin/contracts-upgradeable": ^4.9.1
+    ds-test: "https://github.com/dapphub/ds-test"
+    forge-std: "https://github.com/foundry-rs/forge-std"
   languageName: unknown
   linkType: soft
 
@@ -6566,6 +6578,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ds-test@https://github.com/dapphub/ds-test":
+  version: 1.0.0
+  resolution: "ds-test@https://github.com/dapphub/ds-test.git#commit=e282159d5170298eb2455a6c05280ab5a73a4ef0"
+  checksum: 8f36e20dde868d062841c790fc43c9dd18b93d6180995f378bedaee1f24444950838843c0f2ffa5ac3b8a21b4c29fd97a60725e29e8ff71c9cf28f837614d96f
+  languageName: node
+  linkType: hard
+
 "duplexer3@npm:^0.1.4":
   version: 0.1.5
   resolution: "duplexer3@npm:0.1.5"
@@ -7596,6 +7615,13 @@ __metadata:
   version: 0.6.1
   resolution: "forever-agent@npm:0.6.1"
   checksum: 766ae6e220f5fe23676bb4c6a99387cec5b7b62ceb99e10923376e27bfea72f3c3aeec2ba5f45f3f7ba65d6616965aa7c20b15002b6860833bb6e394dea546a8
+  languageName: node
+  linkType: hard
+
+"forge-std@https://github.com/foundry-rs/forge-std":
+  version: 1.5.6
+  resolution: "forge-std@https://github.com/foundry-rs/forge-std.git#commit=66bf4e2c92cf507531599845e8d5a08cc2e3b5bb"
+  checksum: eca9c80e407f025cf8e068f853fab1f8eafa215339b3653095adb1a41e9d44b21c4b006511d951bcc703fa8c412ae973c21186e84678f64a7aaa5330f2def507
   languageName: node
   linkType: hard
 

@@ -1,5 +1,5 @@
-@openzeppelin/=lib/openzeppelin-contracts/
-@openzepplin/contracts/=lib/openzeppelin-contracts/contracts/
-@openzepplin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/
-forge-std/=lib/forge-std/src/
-ds-test=lib/ds-test/src/
+@openzeppelin=../../node_modules/@openzeppelin/contracts
+@openzeppelin/contracts=../../node_modules/@openzeppelin/contracts
+@openzeppelin/contracts-upgradeable=../../node_modules/@openzeppelin/contracts-upgradeable
+ds-test=../../node_modules/ds-test/src
+forge-std=../../node_modules/forge-std/src
