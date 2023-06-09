@@ -85,3 +85,5 @@ generate_input_log.txt
 tsbuildinfo
 
 **/node_modules
+**/build
+**/dist

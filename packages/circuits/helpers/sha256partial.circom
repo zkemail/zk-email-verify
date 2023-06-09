@@ -1,8 +1,8 @@
 pragma circom 2.1.5;
 
-include "../../node_modules/circomlib/circuits/sha256/constants.circom";
-include "../../node_modules/circomlib/circuits/sha256/sha256compression.circom";
-include "../../node_modules/circomlib/circuits/comparators.circom";
+include "../../../node_modules/circomlib/circuits/sha256/constants.circom";
+include "../../../node_modules/circomlib/circuits/sha256/sha256compression.circom";
+include "../../../node_modules/circomlib/circuits/comparators.circom";
 include "./utils.circom";
 
 // Completing the sha256 hash given a pre-computed state and additional data

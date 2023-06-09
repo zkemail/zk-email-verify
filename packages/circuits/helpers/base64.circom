@@ -1,6 +1,6 @@
 pragma circom 2.1.5;
 
-include "../../node_modules/circomlib/circuits/comparators.circom";
+include "../../../node_modules/circomlib/circuits/comparators.circom";
 
 // http://0x80.pl/notesen/2016-01-17-sse-base64-decoding.html#vector-lookup-base
 template Base64Lookup() {

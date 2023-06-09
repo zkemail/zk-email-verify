@@ -71,12 +71,12 @@ for (let circuitName of circuitsList.split(",")) {
 
   try {
     let circuitNamePrimary = circuitName.split("/").pop();
-    let snarkJSPath = "./../node_modules/.bin/snarkjs";
+    let snarkJSPath = "./../../node_modules/.bin/snarkjs";
     if (process.argv.length >= 4 && process.argv[4] === "skip-r1cswasm") {
       console.log("Skipping initial re generation of r1cs and wasm");
     } else {
       execSync(`circom ${circuitNamePrimary}.circom --r1cs --wasm --sym`, { stdio: "inherit" });
-      execSync(`node --max-old-space-size=614400 ./../node_modules/snarkjs r1cs info ${circuitNamePrimary}.r1cs`, { stdio: "inherit" });
+      execSync(`node --max-old-space-size=614400 ./../../node_modules/snarkjs r1cs info ${circuitNamePrimary}.r1cs`, { stdio: "inherit" });
       execSync(`cp ${circuitNamePrimary}_js/${circuitNamePrimary}.wasm ${circuitNamePrimary}.wasm`, { stdio: "inherit" });
       execSync(`node ${circuitNamePrimary}_js/generate_witness.js ${circuitNamePrimary}.wasm inputs/input_${circuitNamePrimary}.json ${circuitNamePrimary}.wtns`, {
         stdio: "inherit",

@@ -4,6 +4,7 @@
   "dependencies": {
     "circom_tester": "^0.0.19",
     "circomlib": "^2.0.5",
-    "circomlibjs": "^0.1.2"
+    "circomlibjs": "^0.1.2",
+    "snarkjs": "^0.7.0"
   }
 }
