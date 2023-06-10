@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "dist",
   "scripts": {
-    "build": "tsc",
-    "test": "jest"
+    "build": "yarn g:tsc",
+    "test": "yarn g:jest tests/**/*.test.ts"
   },
   "dependencies": {
     "addressparser": "^1.0.1",
@@ -18,6 +18,6 @@
     "snarkjs": "^0.7.0"
   },
   "devDependencies": {
-    "typescript": "^5.1.3"
+    "msw": "^1.2.2"
   }
 }

@@ -1,10 +1,11 @@
 // src/mocks/handlers.js
 import { rest } from 'msw'
-import { loadURL } from '../../packages/helpers/zkp'
+import { loadURL } from '../../src/zkp'
 import fs from 'fs';
+import path from 'path';
 
 const getCompressedTestFile = () => {
-  const buffer = fs.readFileSync(`${__dirname}/../__fixtures__/compressed-files/compressed.txt.gz`);
+  const buffer = fs.readFileSync(path.join(__dirname, `../test-data/compressed-files/compressed.txt.gz`));
   return buffer;
 }
 

@@ -1,8 +1,7 @@
 import { StringDecoder } from "string_decoder";
 import _localforage from "localforage";
-import { downloadFromFilename, downloadProofFiles } from "./zkp";
-
-import { server } from '../mocks/server.js'
+import { downloadFromFilename, downloadProofFiles } from "../src/zkp";
+import { server } from './mocks/server.js'
 
 // this is mocked in __mocks__/localforage.ts
 jest.mock("localforage");

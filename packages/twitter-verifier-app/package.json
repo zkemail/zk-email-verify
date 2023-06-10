@@ -98,7 +98,7 @@
     ],
     "testEnvironment": "jsdom",
     "setupFilesAfterEnv": [
-      "./src/setupTests.js",
+      "./setupTests.js",
       "jsdom-worker"
     ]
   },

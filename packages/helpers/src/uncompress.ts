@@ -1,3 +1,4 @@
+// @ts-ignore
 import pako from 'pako';
 
 // uncompresses single .gz file.

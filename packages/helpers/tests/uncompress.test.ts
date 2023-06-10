@@ -1,14 +1,15 @@
 import { StringDecoder } from "string_decoder";
-import { uncompressGz as uncompress } from "./uncompress";
+import { uncompressGz as uncompress } from "../src/uncompress";
 import fs from 'fs';
+import path from 'path';
 
 const getCompressedTestFile = (): ArrayBuffer => {
-  const buffer = fs.readFileSync(`${__dirname}/../__fixtures__/compressed-files/compressed.txt.gz`);
+  const buffer = fs.readFileSync(path.join(__dirname, `test-data/compressed-files/compressed.txt.gz`));
   return buffer;
 }
 
 const getUncompressedTestFile = (): ArrayBuffer => {
-  const buffer = fs.readFileSync(`${__dirname}/../__fixtures__/compressed-files/uncompressed-value.txt`);
+  const buffer = fs.readFileSync(path.join(__dirname, `test-data/compressed-files/uncompressed-value.txt`));
   return buffer;
 }
 
