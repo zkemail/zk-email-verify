@@ -1,6 +1,6 @@
 'use strict';
 
-const { formatSignatureHeaderLine } = require('../tools');
+import { formatSignatureHeaderLine } from '../tools';
 
 const formatSimpleLine = (line, suffix) => Buffer.from(line.toString('binary') + (suffix ? suffix : ''), 'binary');
 
@@ -72,4 +72,4 @@ const simpleHeaders = (type, signingHeaderLines, options) => {
     return { canonicalizedHeader: Buffer.concat(chunks), signatureHeaderLine, dkimHeaderOpts: opts };
 };
 
-module.exports = { simpleHeaders };
+export { simpleHeaders };

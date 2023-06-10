@@ -1,3 +1,5 @@
+import { setImmediate } from 'timers';
+
 /* eslint no-control-regex: 0 */
 
 var isNode = false;
@@ -10,16 +12,15 @@ if (typeof process === "object") {
 }
 const LOCAL = isNode;
 
-const punycode = require("punycode/");
-const libmime = require("libmime");
+import punycode from "punycode";
+import libmime from "libmime";
 let dns;
 if (LOCAL) {
   dns = require("dns").promises;
 }
-const crypto = require("crypto");
-const parseDkimHeaders = require("./parse-dkim-headers");
-const psl = require("psl");
-const pki = require("node-forge").pki;
+import crypto from "crypto";
+import parseDkimHeaders from "./parse-dkim-headers";
+import psl from "psl";
 
 const defaultDKIMFieldNames =
   "From:Sender:Reply-To:Subject:Date:Message-ID:To:" +
@@ -41,6 +42,7 @@ const writeToStream = async (stream, input, chunkSize) => {
   return new Promise((resolve, reject) => {
     if (typeof input.on === "function") {
       // pipe as stream
+      console.log('pipe')
       input.pipe(stream);
       input.on("error", reject);
     } else {
@@ -217,10 +219,10 @@ const formatSignatureHeaderLine = (type, values, folded) => {
 async function resolveDNSHTTP(name, type) {
   const resp = await fetch(
     "https://dns.google/resolve?" +
-      new URLSearchParams({
-        name: name,
-        type: type,
-      })
+    new URLSearchParams({
+      name: name,
+      type: type,
+    })
   );
   const out = await resp.json();
   // For some DNS, the Answer response here contains more than 1 element in the array. The last element is the one containing the public key
@@ -339,6 +341,7 @@ const getPublicKey = async (type, name, minBitLength, resolver) => {
     } else {
       // fall back to node-forge
       const pubKeyData = pki.publicKeyFromPem(publicKeyPem.toString());
+      // const pubKeyData = CryptoJS.parseKey(publicKeyPem.toString(), 'pem');
       modulusLength = pubKeyData.n.bitLength();
     }
 
@@ -482,7 +485,7 @@ const validateAlgorithm = (algorithm, strict) => {
   }
 };
 
-module.exports = {
+export {
   writeToStream,
   parseHeaders,
 

@@ -2,10 +2,10 @@
   "compilerOptions": {
     "target": "es2020",
     "module": "esnext",
-    "esModuleInterop": true,
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
@@ -15,6 +15,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
+    "typeRoots": ["./node_modules/@types", "./types"],
     "types": ["node", "jest"],
     "incremental": true
   },

@@ -1,5 +1,5 @@
-let { SimpleHash } = require('./simple');
-let { RelaxedHash } = require('./relaxed');
+import { SimpleHash } from './simple';
+import { RelaxedHash } from './relaxed';
 
 const dkimBody = (canonicalization, ...options) => {
     canonicalization = (canonicalization || 'simple/simple').toString().split('/').pop().toLowerCase().trim();
@@ -13,4 +13,4 @@ const dkimBody = (canonicalization, ...options) => {
     }
 };
 
-module.exports = { dkimBody };
+export { dkimBody };

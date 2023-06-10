@@ -1,12 +1,8 @@
-// @ts-ignore
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAsync, useMount, useUpdateEffect } from "react-use";
-// @ts-ignore
-// @ts-ignore
+import styled from "styled-components";
 import _, { add } from "lodash";
-// @ts-ignore
-import { generate_inputs, insert13Before10, CircuitType } from "../scripts/generate_input";
-import styled, { CSSProperties } from "styled-components";
+import { ICircuitInputs, generate_inputs, insert13Before10, CircuitType } from "../scripts/generate_input";
 import { sshSignatureToPubKey } from "../helpers/sshFormat";
 import { Link, useSearchParams } from "react-router-dom";
 import { dkimVerify } from "../helpers/dkim";
@@ -24,7 +20,6 @@ import { useAccount, useContractWrite, usePrepareContractWrite } from "wagmi";
 import { ProgressBar } from "../components/ProgressBar";
 import { abi } from "../helpers/twitterEmailHandler.abi";
 import { isSetIterator } from "util/types";
-var Buffer = require("buffer/").Buffer; // note: the trailing slash is important!
 
 export const MainPage: React.FC<{}> = (props) => {
   // raw user inputs
@@ -262,7 +257,7 @@ export const MainPage: React.FC<{}> = (props) => {
               console.log("buffFormArray", Buffer.from(formattedArray.buffer));
               console.log("buffFormArray", formattedArray.toString());
               console.log("ethereumAddress", ethereumAddress);
-              let input;
+              let input : ICircuitInputs;
               try {
                 input = await generate_inputs(Buffer.from(formattedArray.buffer), ethereumAddress, CircuitType.EMAIL_TWITTER);
               } catch (e) {

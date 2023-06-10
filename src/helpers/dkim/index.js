@@ -1,5 +1,6 @@
-const { writeToStream } = require("./tools");
-const { DkimVerifier } = require("./dkim-verifier");
+import { writeToStream } from "./tools";
+// import { writeToStream } from "./tools";
+import { DkimVerifier } from "./dkim-verifier";
 
 export const dkimVerify = async (input, options) => {
   let dkimVerifier = new DkimVerifier(options);

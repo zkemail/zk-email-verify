@@ -2,6 +2,8 @@
 #
 #
 
+dist
+
 # dependencies
 /node_modules
 /e2e-lambdatest/node_modules/
@@ -74,3 +76,8 @@ generate_input_log.txt
 *.debug
 *.env
 .vscode
+
+
+.vite
+**/.vite
+**/.yarn/*

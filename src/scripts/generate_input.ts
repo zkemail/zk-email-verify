@@ -14,19 +14,11 @@ import {
   int8toBytes,
   int64toBytes,
 } from "../helpers/binaryFormat";
-import { CIRCOM_FIELD_MODULUS, MAX_HEADER_PADDED_BYTES, MAX_BODY_PADDED_BYTES, STRING_PRESELECTOR } from "../../src/helpers/constants";
-import { shaHash, partialSha, sha256Pad } from "../../src/helpers/shaHash";
-import { dkimVerify } from "../../src/helpers/dkim";
+import { CIRCOM_FIELD_MODULUS, MAX_HEADER_PADDED_BYTES, MAX_BODY_PADDED_BYTES, STRING_PRESELECTOR } from "../helpers/constants";
+import { shaHash, partialSha, sha256Pad } from "../helpers/shaHash";
+import { dkimVerify } from "../helpers/dkim";
 import * as fs from "fs";
-import { stubObject } from "lodash";
-
-// const argv = yargs(hideBin(process.argv))
-// import * as yargs from "yargs";
-var Cryo = require("cryo");
-const pki = require("node-forge").pki;
-
-// email_file: Path to email file
-// nonce: Nonce to disambiguate input/output files (optional, only useful for monolithic server side provers)
+import { pki } from "node-forge";
 
 async function getArgs() {
   const args = process.argv.slice(2);
@@ -282,8 +274,8 @@ export async function generate_inputs(
 
   console.log("DKIM verification starting");
   result = await dkimVerify(email);
-  console.log("From:", result.headerFrom);
-  console.log("Results:", result.results[0]);
+  // console.log("From:", result.headerFrom);
+  // console.log("Results:", result.results[0]);
   if (!result.results[0]) {
     throw new Error(`No result found on dkim output ${result}`);
   } else {
@@ -313,6 +305,7 @@ export async function generate_inputs(
 
   let pubkey = result.results[0].publicKey;
   const pubKeyData = pki.publicKeyFromPem(pubkey.toString());
+  // const pubKeyData = CryptoJS.parseKey(pubkey.toString(), 'pem');
   let modulus = BigInt(pubKeyData.n.toString());
   let fin_result = await getCircuitInputs(sig, modulus, message, body, body_hash, eth_address, type);
   return fin_result.circuitInputs;

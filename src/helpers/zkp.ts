@@ -2,7 +2,7 @@ import { vkey } from "./vkey";
 import localforage from "localforage";
 import { uncompressGz as uncompress } from "./uncompress";
 
-const snarkjs = require("snarkjs");
+import * as snarkjs from "snarkjs";
 
 export const loadURL = "https://zkemail-zkey-chunks.s3.amazonaws.com/";
 const compressed = true;

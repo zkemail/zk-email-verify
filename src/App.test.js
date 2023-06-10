@@ -7,6 +7,8 @@ jest.mock("@rainbow-me/rainbowkit", () => {
   };
 });
 
+jest.mock("./styles.css", () => {});
+
 jest.mock("wagmi", () => {
   return {
     __esModule: true,

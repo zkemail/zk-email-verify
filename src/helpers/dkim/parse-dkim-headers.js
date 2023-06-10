@@ -295,4 +295,4 @@ const headerParser = buf => {
     return { parsed: parse(), original: buf };
 };
 
-module.exports = headerParser;
+export default headerParser;
