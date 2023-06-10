@@ -92,7 +92,7 @@
     ]
   },
   "devDependencies": {
-    "@openzeppelin/contracts": "^4.9.0",
+    "@openzeppelin/contracts": "^4.9.1",
     "@types/atob": "^2.1.2",
     "@types/jest": "^29.5.1",
     "@types/mocha": "^10.0.1",
