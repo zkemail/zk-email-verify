@@ -58,9 +58,9 @@ src/contracts/lib/
 src/contracts/broadcast
 .next
 node_modules.nosync
-*Wallet*
-*wallet*
-circuits/regexes/subject_regex*
+# *Wallet*
+# *wallet*
+# circuits/regexes/subject_regex*
 
 # Files that never should be committed, but can be obtained by asking Aayush or generating them yourself
 *.eml
