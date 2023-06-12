@@ -7,8 +7,8 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts/proxy/Proxy.sol";
-import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+// import "@openzeppelin/contracts/proxy/Proxy.sol";
+// import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 
 import "./WalletEmailHandlerStorage.sol";
 import "forge-std/console.sol";

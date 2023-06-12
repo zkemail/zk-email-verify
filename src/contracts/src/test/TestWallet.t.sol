@@ -54,6 +54,7 @@ contract WalletUtilsTest is Test {
             abi.encodeWithSelector(logic.initialize.selector, proofVerifier, mailServer, erc20, tokenRegistry);
         // TODO: Fix admin in place of address(this)
         walletHandler = new WalletEmailHandlerProxy(address(logic), msg.sender, initData);
+        // WalletEmailHandlerProxy(address(walletHandler)).transferAdmin(msg.sender);
         // walletHandler.forwardCall(address(walletHandler)).transferOwnership(tx.origin);
     }
 
