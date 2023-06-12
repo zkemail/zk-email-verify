@@ -4,18 +4,17 @@ orbs:
   rust: circleci/rust@1.6.0
 jobs:
   run_forge_tests:
+    working_directory: ~/zk-email-verify/packages/contracts
     docker:
       - image: ghcr.io/foundry-rs/foundry:latest
     steps:
-      - checkout
-      - run:
-          name: install foundry packages
-          command: forge install openzeppelin/openzeppelin-contracts foundry-rs/forge-std openzeppelin/openzeppelin-contracts-upgradeable dapphub/ds-test --no-git
-          working_directory: src/contracts
+      - checkout:
+          path: ~/zk-email-verify
+      - node/install-packages:
+          pkg-manager: yarn
       - run:
           name: run foundry tests
           command: forge test --fork-url https://eth-goerli.g.alchemy.com/v2/${ALCHEMY_API_KEY}
-          working_directory: src/contracts
 
   run_unit_and_e2e_tests:
     working_directory: ~/zk-email-verify/packages/twitter-verifier-app
