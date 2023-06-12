@@ -1,9 +1,10 @@
 import puppeteer, { Page } from "puppeteer";
 import fs from "fs";
+import path from "path";
 
 const testEthAddress = "0x00000000000000000000";
-const testEmailFile = "/__fixtures__/email/zktestemail.test-eml"
-const testEmailText = fs.readFileSync(__dirname + testEmailFile, "utf8"); 
+const testEmailFile = "/test-data/zktestemail.test-eml"
+const testEmailText = fs.readFileSync(path.join(__dirname, testEmailFile), "utf8"); 
 
 // puppeteer test helpers
 const emailInputSelector = "textarea[aria-label='Full Email with Headers']";

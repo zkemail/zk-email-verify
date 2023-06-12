@@ -1,6 +1,5 @@
-// src/mocks/handlers.js
 import { rest } from 'msw'
-import { loadURL } from '../../src/zkp'
+import { loadURL } from '../../zkp'
 import fs from 'fs';
 import path from 'path';
 

@@ -6,9 +6,9 @@ import 'rollup-plugin-node-polyfills';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  root: "./src",
+  root: "./",
   build: {
-    outDir: "../dist",
+    outDir: "./dist",
   },
   plugins: [
     react(),

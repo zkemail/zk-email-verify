@@ -13,10 +13,11 @@ import {
   mergeUInt8Arrays,
   int8toBytes,
   int64toBytes,
-} from "../../packages/helpers/binaryFormat";
-import { CIRCOM_FIELD_MODULUS, MAX_HEADER_PADDED_BYTES, MAX_BODY_PADDED_BYTES, STRING_PRESELECTOR } from "../../packages/helpers/constants";
-import { shaHash, partialSha, sha256Pad } from "../../packages/helpers/shaHash";
-import { dkimVerify } from "../../packages/helpers/dkim";
+} from "@zk-email/helpers/binaryFormat";
+import { CIRCOM_FIELD_MODULUS, MAX_HEADER_PADDED_BYTES, MAX_BODY_PADDED_BYTES, STRING_PRESELECTOR } from "@zk-email/helpers/constants";
+import { shaHash, partialSha, sha256Pad } from "@zk-email/helpers/shaHash";
+// @ts-ignore
+import { dkimVerify } from "@zk-email/helpers/dkim";
 import * as fs from "fs";
 import { pki } from "node-forge";
 

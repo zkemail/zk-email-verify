@@ -3,12 +3,11 @@ import { useAsync, useMount, useUpdateEffect } from "react-use";
 import styled from "styled-components";
 import _, { add } from "lodash";
 import { ICircuitInputs, generate_inputs, insert13Before10, CircuitType } from "../scripts/generate_input";
-import { sshSignatureToPubKey } from "../../packages/helpers/sshFormat";
+import { sshSignatureToPubKey } from "@zk-email/helpers/sshFormat";
 import { Link, useSearchParams } from "react-router-dom";
-import { dkimVerify } from "../../packages/helpers/dkim";
 import atob from "atob";
-import { downloadProofFiles, generateProof, verifyProof } from "../../packages/helpers/zkp";
-import { packedNBytesToString } from "../../packages/helpers/binaryFormat";
+import { downloadProofFiles, generateProof, verifyProof } from "@zk-email/helpers/zkp";
+import { packedNBytesToString } from "@zk-email/helpers/binaryFormat";
 import { LabeledTextArea } from "../components/LabeledTextArea";
 import DragAndDropTextBox from "../components/DragAndDropTextBox";
 import { SingleLineInput } from "../components/SingleLineInput";
@@ -18,7 +17,7 @@ import { NumberedStep } from "../components/NumberedStep";
 import { TopBanner } from "../components/TopBanner";
 import { useAccount, useContractWrite, usePrepareContractWrite } from "wagmi";
 import { ProgressBar } from "../components/ProgressBar";
-import { abi } from "../../packages/helpers/twitterEmailHandler.abi";
+import { abi } from "@zk-email/helpers/twitterEmailHandler.abi";
 import { isSetIterator } from "util/types";
 
 export const MainPage: React.FC<{}> = (props) => {

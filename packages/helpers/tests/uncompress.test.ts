@@ -1,5 +1,5 @@
 import { StringDecoder } from "string_decoder";
-import { uncompressGz as uncompress } from "../src/uncompress";
+import { uncompressGz as uncompress } from "../uncompress";
 import fs from 'fs';
 import path from 'path';
 
