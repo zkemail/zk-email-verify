@@ -294,6 +294,9 @@ export const MainPage: React.FC<{}> = (props) => {
               console.timeEnd("zk-gen");
               recordTimeForActivity("finishedProving");
 
+              console.log("publicSignals", publicSignals);
+              debugger;
+
               // alert("Done generating proof");
               setProof(JSON.stringify(proof));
               let kek = publicSignals.map((x: string) => BigInt(x));
