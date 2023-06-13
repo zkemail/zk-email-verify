@@ -3,3 +3,4 @@
 @openzeppelin/contracts-upgradeable=../../node_modules/@openzeppelin/contracts-upgradeable
 ds-test=../../node_modules/ds-test/src
 forge-std=../../node_modules/forge-std/src
+@zk-email/contracts=../../node_modules/@zk-email/contracts

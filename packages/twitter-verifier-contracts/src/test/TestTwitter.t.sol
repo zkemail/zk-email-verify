@@ -62,7 +62,7 @@ contract TwitterUtilsTest is Test {
 
     // Should pass (note that there are extra 0 bytes, which are filtered out but should be noted in audits)
     function testVerifyTestEmail() public {
-        uint256[21] memory publicSignals;
+        uint256[] memory publicSignals = new uint256[](21);
         publicSignals[0] = 28557011619965818;
         publicSignals[1] = 1818845549;
         publicSignals[2] = 0;
@@ -105,6 +105,17 @@ contract TwitterUtilsTest is Test {
             6281805762334485380296289707165572755690746355667398246912272308643846746573
         ];
 
+        uint256[8] memory proof = [
+            proof_a[0],
+            proof_a[1],
+            proof_b[0][0],
+            proof_b[0][1],
+            proof_b[1][0],
+            proof_b[1][1],
+            proof_c[0],
+            proof_c[1]
+        ];
+
         // Test proof verification
         bool verified = proofVerifier.verifyProof(proof_a, proof_b, proof_c, publicSignals);
         assertEq(verified, true);
@@ -112,13 +123,13 @@ contract TwitterUtilsTest is Test {
         // Test mint after spoofing msg.sender
         Vm vm = Vm(VM_ADDR);
         vm.startPrank(0x0000000000000000000000000000000000000001);
-        testVerifier.mint(proof_a, proof_b, proof_c, publicSignals);
+        testVerifier.mint(proof, publicSignals);
         vm.stopPrank();
     }
 
     // Should pass (note that there are extra 0 bytes, which are filtered out but should be noted in audits)
     function testVerifyYushEmail() public {
-        uint256[21] memory publicSignals;
+        uint256[] memory publicSignals = new uint256[](21);
         publicSignals[0] = 113659471951225;
         publicSignals[1] = 0;
         publicSignals[2] = 0;
@@ -161,6 +172,18 @@ contract TwitterUtilsTest is Test {
             12224501323997049527817799755022184802988108888333268634200461535503052305125,
             3177656185967472916322211236519001250723481802804621893491948147849123768548
         ];
+
+        uint256[8] memory proof = [
+            proof_a[0],
+            proof_a[1],
+            proof_b[0][0],
+            proof_b[0][1],
+            proof_b[1][0],
+            proof_b[1][1],
+            proof_c[0],
+            proof_c[1]
+        ];
+
         // Test proof verification
         bool verified = proofVerifier.verifyProof(proof_a, proof_b, proof_c, publicSignals);
         assertEq(verified, true);
@@ -168,7 +191,7 @@ contract TwitterUtilsTest is Test {
         // Test mint after spoofing msg.sender
         Vm vm = Vm(VM_ADDR);
         vm.startPrank(0x6171aeBcC9e9B9E1D90EC9C2E124982932297345);
-        testVerifier.mint(proof_a, proof_b, proof_c, publicSignals);
+        testVerifier.mint(proof, publicSignals);
         vm.stopPrank();
     }
 

@@ -111,7 +111,7 @@ contract MailServer is Ownable {
         return keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b));
     }
 
-    function verifyKeyForDomain(string memory domain, uint256[] val) public view returns (bool) {
+    function verifyKeyForDomain(string memory domain, uint256[] memory val) public view returns (bool) {
         if (verifiedMailserverKeys[domain].length == 0) {
             return false;
         }

@@ -3799,7 +3799,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@zk-email/contracts@workspace:packages/contracts":
+"@zk-email/contracts@workspace:^, @zk-email/contracts@workspace:packages/contracts":
   version: 0.0.0-use.local
   resolution: "@zk-email/contracts@workspace:packages/contracts"
   dependencies:
@@ -3860,6 +3860,7 @@ __metadata:
   dependencies:
     "@openzeppelin/contracts": ^4.9.1
     "@openzeppelin/contracts-upgradeable": ^4.9.1
+    "@zk-email/contracts": "workspace:^"
     ds-test: "https://github.com/dapphub/ds-test"
     forge-std: "https://github.com/foundry-rs/forge-std"
   languageName: unknown

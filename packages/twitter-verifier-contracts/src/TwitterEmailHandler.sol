@@ -5,12 +5,13 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "forge-std/console.sol";
-import "./utils/StringUtils.sol";
+// import "./utils/StringUtils.sol";
 import "./utils/NFTSVG.sol";
 import {Verifier} from "./Groth16VerifierTwitter.sol";
-import "./utils/MailServer.sol";
+// import "./utils/MailServer.sol";
+import "@zk-email/contracts/EmailVerifier.sol";
 
-contract VerifiedTwitterEmail is ERC721Enumerable {
+contract VerifiedTwitterEmail is ERC721Enumerable, EmailVerifier {
     using Counters for Counters.Counter;
     using StringUtils for *;
     using NFTSVG for *;
@@ -19,20 +20,20 @@ contract VerifiedTwitterEmail is ERC721Enumerable {
 
     uint16 public constant msg_len = 21; // header + body
     uint16 public constant bytesInPackedBytes = 7; // 7 bytes in a packed item returned from circom
-    uint256 public constant body_len = 3;
-    uint256 public constant rsa_modulus_chunks_len = 17;
+    uint32 public constant body_len = 3;
+    uint8 public constant rsa_modulus_chunks_len = 17;
     uint256 public constant header_len = msg_len - body_len;
     uint256 public constant addressIndexInSignals = msg_len - 1;
 
     mapping(string => uint256[rsa_modulus_chunks_len]) public verifiedMailserverKeys;
     mapping(uint256 => string) public tokenIDToName;
     string constant domain = "twitter.com";
-    MailServer mailServer;
-    Verifier public immutable verifier;
+    // MailServer mailServer;
+    // Verifier public immutable verifier;
 
-    constructor(Verifier v, MailServer m) ERC721("VerifiedEmail", "VerifiedEmail") {
-        verifier = v;
-        mailServer = m;
+    constructor(Verifier v, MailServer m) EmailVerifier(v, m) ERC721("VerifiedEmail", "VerifiedEmail") {
+        // verifier = v;
+        // mailServer = m;
         require(rsa_modulus_chunks_len + body_len + 1 == msg_len, "Variable counts are wrong!");
     }
 
@@ -59,7 +60,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable {
         // Usage: require(_domainCheck(senderBytes, domainStrings), "Invalid domain");
     }
 
-    function mint(uint256[2] memory a, uint256[2][2] memory b, uint256[2] memory c, uint256[msg_len] memory signals)
+    function mint(uint256[8] memory proof, uint256[] memory signals)
         public
     {
         // TODO no invalid signal check yet, which is fine since the zk proof does it
@@ -67,28 +68,22 @@ contract VerifiedTwitterEmail is ERC721Enumerable {
         // require(signals[0] == 1337, "invalid signals");
 
         // 3 public signals are the masked packed message bytes, 17 are the modulus.
-        uint256[] memory bodySignals = new uint256[](body_len);
-        uint256[] memory rsaModulusSignals = new uint256[](header_len);
-        for (uint256 i = 0; i < body_len; i++) {
-            bodySignals[i] = signals[i];
-        }
-        for (uint256 i = body_len; i < msg_len - 1; i++) {
-            rsaModulusSignals[i - body_len] = signals[i];
-        }
-
+        
         // Check eth address committed to in proof matches msg.sender, to avoid replayability
-        require(address(uint160(signals[addressIndexInSignals])) == msg.sender, "Invalid address");
+        // require(address(uint160(signals[addressIndexInSignals])) == msg.sender, "Invalid address");
 
         // Check from/to email domains are correct [in this case, only from domain is checked]
         // Right now, we just check that any email was received from anyone at Twitter, which is good enough for now
         // We will upload the version with these domain checks soon!
         // require(_domainCheck(headerSignals), "Invalid domain");
 
-        // Verify that the public key for RSA matches the hardcoded one
-        for (uint256 i = body_len; i < msg_len - 1; i++) {
-            require(mailServer.isVerified(domain, i - body_len, signals[i]), "Invalid: RSA modulus not matched");
+        // Veiry RSA and proof
+        verifyEmail(domain, proof, signals, body_len, rsa_modulus_chunks_len);
+
+        uint256[] memory bodySignals = new uint256[](body_len);
+        for (uint256 i = 0; i < body_len; i++) {
+            bodySignals[i] = signals[i];
         }
-        require(verifier.verifyProof(a, b, c, signals), "Invalid Proof"); // checks effects iteractions, this should come first
 
         // Effects: Mint token
         uint256 tokenId = tokenCounter.current() + 1;
