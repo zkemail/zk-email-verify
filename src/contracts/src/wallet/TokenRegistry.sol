@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract TokenRegistry {
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract TokenRegistry is Ownable {
     // Define a structure that represents a token
     struct Token {
         address optimism;
@@ -16,18 +18,17 @@ contract TokenRegistry {
     mapping(uint256 => string) private chainIdToName;
 
     // Define the owner of the contract
-    address private owner;
+    // address private owner;
 
+    // TODO: Replace with Ownable
     // Ensure that only the owner can call certain functions
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Only the owner can call this function.");
-        _;
-    }
+    // modifier onlyOwner() {
+    //     require(msg.sender == owner, "Only the owner or proxy can call this function.");
+    //     _;
+    // }
 
     // Set the owner of the contract
     constructor() {
-        owner = msg.sender;
-
         // Initialize the mapping with some hardcoded addresses
         // TODO: Add RAI, and some other tokens
         tokens["DAI"] = Token({
@@ -58,6 +59,10 @@ contract TokenRegistry {
         chainIdToName[42161] = "arbitrum";
         chainIdToName[5] = "goerli";
         chainIdToName[31337] = "goerli"; // Local foundry test chain goerli fork
+    }
+
+    function setProxyOwner(address proxyAddress) public onlyOwner {
+        transferOwnership(proxyAddress);
     }
 
     // Return the address of a token on this chain

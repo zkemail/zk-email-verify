@@ -38,21 +38,28 @@ contract Deploy is Script, Test {
         return chainId;
     }
 
-    function run() public {
+    function run() public returns (address) {
         uint256 sk = getPrivateKey();
         vm.startBroadcast(sk);
+        deploy();
+        vm.stopBroadcast();
+    }
+
+    function deploy() public returns (address, address, address, address) {
         Verifier proofVerifier = new Verifier();
         MailServer mailServer = new MailServer();
         TestEmailToken erc20 = new TestEmailToken(5000);
         TokenRegistry tokenRegistry = new TokenRegistry();
+        tokenRegistry.setTokenAddress("TEST", address(erc20));
         WalletEmailHandlerLogic logic = new WalletEmailHandlerLogic();
 
         bytes memory initData =
             abi.encodeWithSelector(logic.initialize.selector, proofVerifier, mailServer, erc20, tokenRegistry);
         WalletEmailHandlerProxy walletHandler = new WalletEmailHandlerProxy(address(logic), msg.sender, initData);
-        tokenRegistry.setTokenAddress("TEST", address(erc20));
+        tokenRegistry.transferOwnership(address(walletHandler));
+        mailServer.transferOwnership(address(walletHandler));
         WalletEmailHandlerLogic(address(walletHandler)).setTokenAddress("TEST", address(erc20));
         // TODO: Fix admin in place of address(this)
-        vm.stopBroadcast();
+        return (address(walletHandler), address(mailServer), address(erc20), address(tokenRegistry));
     }
 }

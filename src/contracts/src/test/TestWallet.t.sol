@@ -9,6 +9,7 @@ import "../wallet/WalletEmailHandlerProxy.sol";
 import "../wallet/TestERC20.sol";
 import "../utils/StringUtils.sol";
 import "../wallet/Groth16VerifierWalletAnon.sol";
+import "../../script/DeployWallet.s.sol";
 import "../wallet/MIMC.sol";
 
 contract WalletUtilsTest is Test {
@@ -35,27 +36,28 @@ contract WalletUtilsTest is Test {
         return chainId;
     }
 
+    function testDeployRun() public {
+        Deploy d = new Deploy();
+        d.run();
+    }
+
+    function testDeploy() public {
+        Deploy d = new Deploy();
+        (address __walletHandler, address _mailServer, address _erc20, address _tokenRegistry) = d.deploy();
+        address payable _walletHandler = payable(__walletHandler);
+        walletHandler = WalletEmailHandlerProxy(_walletHandler);
+        mailServer = MailServer(_mailServer);
+        erc20 = TestEmailToken(_erc20);
+        tokenRegistry = TokenRegistry(_tokenRegistry);
+    }
+
     function setUp() public {
-        proofVerifier = new Verifier();
-        mailServer = new MailServer();
-        erc20 = new TestEmailToken(5000);
-        logic = new WalletEmailHandlerLogic();
-        tokenRegistry = new TokenRegistry();
-        tokenRegistry.setTokenAddress("TEST", address(erc20));
+        testDeploy();
+    }
 
-        console.log("This address:");
-        console.log(address(this));
-        console.log("Caller/admin address:");
-        console.log(msg.sender);
-        console.log("Tx origin:");
-        console.log(tx.origin);
-
-        bytes memory initData =
-            abi.encodeWithSelector(logic.initialize.selector, proofVerifier, mailServer, erc20, tokenRegistry);
-        // TODO: Fix admin in place of address(this)
-        walletHandler = new WalletEmailHandlerProxy(address(logic), msg.sender, initData);
-        // WalletEmailHandlerProxy(address(walletHandler)).transferAdmin(msg.sender);
-        // walletHandler.forwardCall(address(walletHandler)).transferOwnership(tx.origin);
+    function testUpdateMailserver() public {
+        mailServer.editMailserverKey("test", uint256(0), uint256(0));
+        // walletHandler.setMailserverKey("test", uint256(0), uint256(0));
     }
 
     // Old unpacks

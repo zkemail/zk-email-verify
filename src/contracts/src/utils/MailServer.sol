@@ -108,6 +108,10 @@ contract MailServer is Ownable {
         verifiedMailserverKeys["skiff.com"][16] = 3704766395208948862861103932863036;
     }
 
+    function setProxyOwner(address proxyAddress) public onlyOwner {
+        transferOwnership(proxyAddress);
+    }
+
     function _stringEq(string memory a, string memory b) internal pure returns (bool) {
         return keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b));
     }
