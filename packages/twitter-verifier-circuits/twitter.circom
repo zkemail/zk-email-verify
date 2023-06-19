@@ -1,13 +1,6 @@
 pragma circom 2.1.5;
 
-include "../../node_modules/circomlib/circuits/bitify.circom";
-include "../../node_modules/@zk-email/circuits/helpers/sha.circom";
-include "../../node_modules/@zk-email/circuits/helpers/rsa.circom";
-include "../../node_modules/@zk-email/circuits/helpers/base64.circom";
-include "../../node_modules/@zk-email/circuits/helpers/extract.circom";
 include "../../node_modules/@zk-email/circuits/regexes/from_regex.circom";
-include "../../node_modules/@zk-email/circuits/regexes/tofrom_domain_regex.circom";
-include "../../node_modules/@zk-email/circuits/regexes/body_hash_regex.circom";
 include "../../node_modules/@zk-email/circuits/email-verifier.circom";
 include "./twitter_reset_regex.circom";
 
