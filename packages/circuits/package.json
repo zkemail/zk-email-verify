@@ -1,10 +1,4 @@
 {
   "name": "@zk-email/circuits",
-  "version": "1.0.0",
-  "dependencies": {
-    "circom_tester": "^0.0.19",
-    "circomlib": "^2.0.5",
-    "circomlibjs": "^0.1.2",
-    "snarkjs": "^0.7.0"
-  }
+  "version": "1.0.0"
 }

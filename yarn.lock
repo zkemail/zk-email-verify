@@ -2980,6 +2980,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@twitter-verifier/circuits@workspace:packages/twitter-verifier-circuits":
+  version: 0.0.0-use.local
+  resolution: "@twitter-verifier/circuits@workspace:packages/twitter-verifier-circuits"
+  dependencies:
+    "@zk-email/circuits": "workspace:^"
+    circom_tester: ^0.0.19
+    circomlib: ^2.0.5
+    circomlibjs: ^0.1.2
+    snarkjs: ^0.7.0
+  languageName: unknown
+  linkType: soft
+
 "@types/aria-query@npm:^5.0.1":
   version: 5.0.1
   resolution: "@types/aria-query@npm:5.0.1"
@@ -3788,14 +3800,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@zk-email/circuits@workspace:packages/circuits":
+"@zk-email/circuits@workspace:^, @zk-email/circuits@workspace:packages/circuits":
   version: 0.0.0-use.local
   resolution: "@zk-email/circuits@workspace:packages/circuits"
-  dependencies:
-    circom_tester: ^0.0.19
-    circomlib: ^2.0.5
-    circomlibjs: ^0.1.2
-    snarkjs: ^0.7.0
   languageName: unknown
   linkType: soft
 
