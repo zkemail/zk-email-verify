@@ -232,7 +232,7 @@ export async function getCircuitInputs(
       modulus,
       signature,
       in_len_padded_bytes,
-      address: address,
+      relayer: address,
       nullifier: nullifier,
       body_hash_idx,
       email_from_idx: email_from_idx.toString(),
