@@ -1,11 +1,20 @@
 {
   "name": "@twitter-verifier/circuits",
   "version": "1.0.0",
+  "scripts": {
+    "test": "mocha -p 'tests/*.js'"
+  },
   "dependencies": {
     "@zk-email/circuits": "workspace:^",
+    "@zk-email/helpers": "workspace:^"
+  },
+  "devDependencies": {
+    "chai": "^4.3.7",
     "circom_tester": "^0.0.19",
     "circomlib": "^2.0.5",
     "circomlibjs": "^0.1.2",
+    "ffjavascript": "^0.2.59",
+    "mocha": "^10.2.0",
     "snarkjs": "^0.7.0"
   }
 }

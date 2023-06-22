@@ -2,7 +2,7 @@ pragma circom 2.1.5;
 
 include "../../node_modules/@zk-email/circuits/regexes/from_regex.circom";
 include "../../node_modules/@zk-email/circuits/email-verifier.circom";
-include "./twitter_reset_regex.circom";
+include "./components/twitter_reset_regex.circom";
 
 // Here, n and k are the biginteger parameters for RSA
 // This is because the number is chunked into k pack_size of n bits each

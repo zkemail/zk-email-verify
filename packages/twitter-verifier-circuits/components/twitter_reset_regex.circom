@@ -1,6 +1,6 @@
 pragma circom 2.1.5;
 
-include "../../node_modules/@zk-email/circuits/regexes/regex_helpers.circom";
+include "../../../node_modules/@zk-email/circuits/regexes/regex_helpers.circom";
 
 template TwitterResetRegex (msg_bytes) {
     signal input msg[msg_bytes];
