@@ -2980,7 +2980,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@twitter-verifier/circuits@workspace:packages/twitter-verifier-circuits":
+"@twitter-verifier/circuits@workspace:^, @twitter-verifier/circuits@workspace:packages/twitter-verifier-circuits":
   version: 0.0.0-use.local
   resolution: "@twitter-verifier/circuits@workspace:packages/twitter-verifier-circuits"
   dependencies:
@@ -3884,6 +3884,7 @@ __metadata:
     "@rainbow-me/rainbowkit": ^0.8.0
     "@testing-library/jest-dom": ^5.16.3
     "@testing-library/react": ^12.1.4
+    "@twitter-verifier/circuits": "workspace:^"
     "@types/atob": ^2.1.2
     "@types/jest": ^29.5.1
     "@types/lodash": ^4.14.181
