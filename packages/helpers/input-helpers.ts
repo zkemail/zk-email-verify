@@ -98,7 +98,7 @@ export function generatePartialSHA({
   };
 }
 
-export function generateCircuitInput({
+export function generateCircuitInputs({
   rsaSignature,
   rsaModulus,
   body,

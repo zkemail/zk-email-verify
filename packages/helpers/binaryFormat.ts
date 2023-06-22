@@ -41,7 +41,7 @@ export function bufferToHex(buf: Buffer): String {
   return buf.toString("hex");
 }
 
-export async function Uint8ArrayToCharArray(a: Uint8Array): Promise<string[]> {
+export function Uint8ArrayToCharArray(a: Uint8Array): string[] {
   return Array.from(a).map((x) => x.toString());
 }
 
