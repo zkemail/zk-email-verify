@@ -46,7 +46,7 @@ export async function verifyDKIMSignature(email: Buffer) : Promise<DKIMVerificat
     if (status.message) { // Has error
       throw new Error(result.results[0].status.message);
     }
-    throw new Error(`No public key found on DKIM verification result: ${JSON.stringify(result)}`);
+    throw new Error(`No public key found on DKIM verification result`, result.results[0]);
   }
 
   const signatureBigInt = BigInt("0x" + Buffer.from(signature, "base64").toString("hex"));
