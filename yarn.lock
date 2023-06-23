@@ -2991,6 +2991,7 @@ __metadata:
     circomlib: ^2.0.5
     circomlibjs: ^0.1.2
     ffjavascript: ^0.2.59
+    jest: ^29.5.0
     mocha: ^10.2.0
     snarkjs: ^0.7.0
   languageName: unknown
@@ -3808,13 +3809,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@zk-email/circuits@workspace:packages/circuits"
   dependencies:
-    chai: ^4.3.7
     circom_tester: ^0.0.19
     circomlib: ^2.0.5
     circomlibjs: ^0.1.2
     ffjavascript: ^0.2.59
     jest: ^29.5.0
-    mocha: ^10.2.0
   languageName: unknown
   linkType: soft
 

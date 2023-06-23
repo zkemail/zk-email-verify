@@ -22,19 +22,13 @@ template TwitterVerifier(max_header_bytes, max_body_bytes, n, k, pack_size, expo
     signal input signature[k]; // rsa signature. split up into k parts of n bits each.
     signal input in_len_padded_bytes; // length of in email data including the padding, which will inform the sha256 block length
 
-
     // Identity commitment variables
     // (note we don't need to constrain the + 1 due to https://geometry.xyz/notebook/groth16-malleability)
     signal input address;
-
-
     signal input body_hash_idx;
-
     signal input precomputed_sha[32];
     signal input in_body_padded[max_body_bytes];
     signal input in_body_len_padded_bytes;
-
-    
 
     EmailVerifier(max_header_bytes, max_body_bytes, n, k)(in_padded, modulus, signature, in_len_padded_bytes, body_hash_idx, precomputed_sha, in_body_padded, in_body_len_padded_bytes);
 

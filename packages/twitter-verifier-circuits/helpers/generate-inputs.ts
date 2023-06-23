@@ -36,12 +36,12 @@ export function generateTwitterVerifierCircuitInputs({
   const usernameIndex = Buffer.from(bodyRemaining).indexOf(selectorBuffer) + selectorBuffer.length;
 
   const address = bytesToBigInt(fromHex(ethereumAddress)).toString();
-  const address_plus_one = (bytesToBigInt(fromHex(ethereumAddress)) + 1n).toString();
+  // const address_plus_one = (bytesToBigInt(fromHex(ethereumAddress)) + 1n).toString();
 
   return {
     ...emailVerifierInputs,
     twitter_username_idx: usernameIndex.toString(),
     address,
-    address_plus_one,
+    // address_plus_one,
   };
 }
