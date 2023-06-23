@@ -66,11 +66,16 @@ export function generatePartialSHA({
 }: {
   body: Uint8Array;
   bodyLength: number;
-  selectorString: string;
+  selectorString?: string;
   maxRemainingBodyLength: number;
 }) {
-  const selector = new TextEncoder().encode(selectorString);
-  const selectorIndex = findIndexInUint8Array(body, selector);
+  let selectorIndex = 0;
+
+  // TODO: See if this (no preselector) could be handled at the circuit level
+  if (selectorString) {
+    const selector = new TextEncoder().encode(selectorString);
+    selectorIndex = findIndexInUint8Array(body, selector);
+  }
 
   const shaCutoffIndex = Math.floor(selectorIndex / 64) * 64;
   const precomputeText = body.slice(0, shaCutoffIndex);
@@ -113,7 +118,7 @@ export function generateCircuitInputs({
   bodyHash: string;
   rsaSignature: BigInt;
   rsaModulus: BigInt;
-  shaPrecomputeSelector: string;
+  shaPrecomputeSelector?: string;
   maxMessageLength: number;
   maxBodyLength: number;
 }) {

@@ -28,13 +28,28 @@ describe("EmailVerifier", () => {
     circuit = await wasm_tester(
       path.join(__dirname, "./email-verifier-test.circom"),
       {
-        // NOTE: We are running tests against pre-compiler circuit in the below path
+        // NOTE: We are running tests against pre-compiled circuit in the below path
         // You need to manually compile when changes are made to circuit if recompile is set to `false`.
         // circom "./tests/email-verifier-test.circom" --r1cs --wasm --sym --c --wat --output "./tests/compiled-test-circuit"
         recompile: false,
         output: path.join(__dirname, "./compiled-test-circuit"),
       }
     );
+  });
+
+  it("should verify email without any SHA precompute selector", async function () {
+    const emailVerifierInputs = generateCircuitInputs({
+      rsaSignature: dkimResult.signature,
+      rsaModulus: dkimResult.modulus,
+      body: dkimResult.body,
+      bodyHash: dkimResult.bodyHash,
+      message: dkimResult.message,
+      maxMessageLength: 640,
+      maxBodyLength: 768,
+    });
+
+    const witness = await circuit.calculateWitness(emailVerifierInputs);
+    await circuit.checkConstraints(witness);
   });
 
   it("should verify email with a SHA precompute selector", async function () {
@@ -49,6 +64,122 @@ describe("EmailVerifier", () => {
       maxBodyLength: 768,
     });
 
-    await circuit.calculateWitness(emailVerifierInputs);
+    const witness = await circuit.calculateWitness(emailVerifierInputs);
+    await circuit.checkConstraints(witness);
+  });
+
+  it("should fail if the rsa signature is wrong", async function () {
+    const invalidRSASignature = dkimResult.signature + 1n;
+
+    const emailVerifierInputs = generateCircuitInputs({
+      rsaSignature: invalidRSASignature,
+      rsaModulus: dkimResult.modulus,
+      body: dkimResult.body,
+      bodyHash: dkimResult.bodyHash,
+      message: dkimResult.message,
+      shaPrecomputeSelector: "How are",
+      maxMessageLength: 640,
+      maxBodyLength: 768,
+    });
+
+    expect.assertions(1);
+    try {
+      const witness = await circuit.calculateWitness(emailVerifierInputs);
+      await circuit.checkConstraints(witness);
+    } catch (error) {
+      expect((error as Error).message).toMatch("Assert Failed");
+    }
+  });
+
+  it("should fail if precompute string is not found in body", async function () {
+    const emailVerifierInputs = generateCircuitInputs({
+      rsaSignature: dkimResult.signature,
+      rsaModulus: dkimResult.modulus,
+      body: dkimResult.body,
+      bodyHash: dkimResult.bodyHash,
+      message: dkimResult.message,
+      shaPrecomputeSelector: "invalid",
+      maxMessageLength: 640,
+      maxBodyLength: 768,
+    });
+
+    expect.assertions(1);
+    try {
+      const witness = await circuit.calculateWitness(emailVerifierInputs);
+      await circuit.checkConstraints(witness);
+    } catch (error) {
+      expect((error as Error).message).toMatch("Assert Failed");
+    }
+  });
+
+  it("should fail if message is tampered", async function () {
+    const invalidMessage = Buffer.from(dkimResult.message);
+    invalidMessage[0] = 1;
+
+    const emailVerifierInputs = generateCircuitInputs({
+      rsaSignature: dkimResult.signature,
+      rsaModulus: dkimResult.modulus,
+      body: dkimResult.body,
+      bodyHash: dkimResult.bodyHash,
+      message: invalidMessage,
+      shaPrecomputeSelector: "How are",
+      maxMessageLength: 640,
+      maxBodyLength: 768,
+    });
+
+    expect.assertions(1);
+    try {
+      const witness = await circuit.calculateWitness(emailVerifierInputs);
+      await circuit.checkConstraints(witness);
+    } catch (error) {
+      expect((error as Error).message).toMatch("Assert Failed");
+    }
+  });
+
+  it("should fail if body is tampered", async function () {
+    const invalidBody = Buffer.from(dkimResult.body);
+    invalidBody[invalidBody.length - 1] = 1;
+
+    const emailVerifierInputs = generateCircuitInputs({
+      rsaSignature: dkimResult.signature,
+      rsaModulus: dkimResult.modulus,
+      body: invalidBody,
+      bodyHash: dkimResult.bodyHash,
+      message: dkimResult.message,
+      shaPrecomputeSelector: "How are",
+      maxMessageLength: 640,
+      maxBodyLength: 768,
+    });
+
+    expect.assertions(1);
+    try {
+      const witness = await circuit.calculateWitness(emailVerifierInputs);
+      await circuit.checkConstraints(witness);
+    } catch (error) {
+      expect((error as Error).message).toMatch("Assert Failed");
+    }
+  });
+
+  it("should fail if body hash is tampered", async function () {
+    const invalidBodyHash = dkimResult.bodyHash + 'a';
+
+    const emailVerifierInputs = generateCircuitInputs({
+      rsaSignature: dkimResult.signature,
+      rsaModulus: dkimResult.modulus,
+      body: dkimResult.body,
+      bodyHash: invalidBodyHash,
+      message: dkimResult.message,
+      shaPrecomputeSelector: "How are",
+      maxMessageLength: 640,
+      maxBodyLength: 768,
+    });
+
+    expect.assertions(1);
+    try {
+      const witness = await circuit.calculateWitness(emailVerifierInputs);
+      await circuit.checkConstraints(witness);
+    } catch (error) {
+      expect((error as Error).message).toMatch("Assert Failed");
+    }
   });
 });
