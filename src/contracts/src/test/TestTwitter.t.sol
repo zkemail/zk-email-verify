@@ -57,6 +57,7 @@ contract TwitterUtilsTest is Test {
         string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 15, packSize);
         string memory intended_value = "zktestemail";
         assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
+        assertEq(byteList, intended_value);
         console.logString(byteList);
     }
 

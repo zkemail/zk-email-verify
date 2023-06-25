@@ -111,7 +111,8 @@ export async function getCircuitInputs(
   body: Buffer,
   body_hash: string,
   eth_address: string,
-  circuit: CircuitType
+  circuit: CircuitType,
+  nonce: string | null = null
 ): Promise<{
   valid: {
     validSignatureFormat?: boolean;
@@ -227,6 +228,20 @@ export async function getCircuitInputs(
     const message_id_array = await Uint8ArrayToCharArray(padWithZero(stringToBytes(message_id), MAX_MESSAGE_ID_LEN));
     console.log("Indexes into header string are: ", email_from_idx, amount_idx, currency_idx, recipient_idx);
 
+    let custom_message_id_from = message_id_array;
+    let custom_message_id_recipient = message_id_array;
+
+    // If the message-id is in the format (from)_(_to), then we can use it to get the private message-ids
+    // TODO: Use JSON to pass this in instead of the filename string parsing
+    if (nonce !== null) {
+      const matchResult = nonce.match(/\(([^)]+)\)_\(([^)]+)\)/);
+      if (matchResult) {
+        const [_, _custom_message_id_from, _custom_message_id_recipient] = matchResult;
+        custom_message_id_from = await Uint8ArrayToCharArray(padWithZero(stringToBytes(_custom_message_id_from), MAX_MESSAGE_ID_LEN));
+        custom_message_id_recipient = await Uint8ArrayToCharArray(padWithZero(stringToBytes(_custom_message_id_recipient), MAX_MESSAGE_ID_LEN));
+      }
+    }
+    
     circuitInputs = {
       in_padded,
       modulus,
@@ -241,8 +256,8 @@ export async function getCircuitInputs(
       amount_idx: amount_idx.toString(),
       currency_idx: currency_idx.toString(),
       recipient_idx: recipient_idx.toString(),
-      custom_message_id_from: message_id_array,
-      custom_message_id_recipient: message_id_array,
+      custom_message_id_from,
+      custom_message_id_recipient,
     };
   } else {
     assert(circuit === CircuitType.SHA, "Invalid circuit type");
@@ -307,7 +322,7 @@ export async function generate_inputs(
   const pubKeyData = pki.publicKeyFromPem(pubkey.toString());
   // const pubKeyData = CryptoJS.parseKey(pubkey.toString(), 'pem');
   let modulus = BigInt(pubKeyData.n.toString());
-  let fin_result = await getCircuitInputs(sig, modulus, message, body, body_hash, eth_address, type);
+  let fin_result = await getCircuitInputs(sig, modulus, message, body, body_hash, eth_address, type, nonce);
   return fin_result.circuitInputs;
 }
 
