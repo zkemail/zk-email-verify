@@ -4,20 +4,23 @@ orbs:
   rust: circleci/rust@1.6.0
 jobs:
   run_forge_tests:
-    working_directory: ~/zk-email-verify/packages/contracts
     docker:
       - image: ghcr.io/foundry-rs/foundry:latest
     steps:
       - checkout:
           path: ~/zk-email-verify
+      - run:
+          command: |
+            apk add nodejs npm && npm install --global yarn
       - node/install-packages:
           pkg-manager: yarn
+          app-dir: ~/zk-email-verify
       - run:
           name: run foundry tests
+          working_directory: ~/zk-email-verify/packages/twitter-verifier-circuits
           command: forge test --fork-url https://eth-goerli.g.alchemy.com/v2/${ALCHEMY_API_KEY}
 
   run_unit_and_e2e_tests:
-    working_directory: ~/zk-email-verify/packages/twitter-verifier-app
     docker:
       - image: cimg/node:16.19-browsers
     steps:
@@ -26,21 +29,26 @@ jobs:
       - run: node --version
       - node/install-packages:
           pkg-manager: yarn
+          app-dir: ~/zk-email-verify
       - run:
           command: yarn test
           name: Run unit tests
+          working_directory: ~/zk-email-verify/packages/twitter-verifier-app
           environment:
             JEST_JUNIT_OUTPUT: reports/unit-test-results.xml
       - run:
           command: CI=false yarn run build
           name: Build app
+          working_directory: ~/zk-email-verify/packages/twitter-verifier-app
       - run:
           command: yarn run start-e2e-test-server
           name: Start test server
+          working_directory: ~/zk-email-verify/packages/twitter-verifier-app
           background: true
       - run:
           command: yarn test:e2e-ui
           name: Run e2e tests for UI
+          working_directory: ~/zk-email-verify/packages/twitter-verifier-app
           environment:
             JEST_JUNIT_OUTPUT: reports/e2e-ui-test-results.xml
 
