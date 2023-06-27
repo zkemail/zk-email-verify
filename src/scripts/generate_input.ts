@@ -348,7 +348,7 @@ async function test_generate(writeToFile: boolean = true) {
   const { email_file, nonce } = await getArgs();
   const email = fs.readFileSync(email_file.trim());
   console.log(email);
-  const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000", CircuitType.EMAIL_TWITTER, nonce);
+  const gen_inputs = await generate_inputs(email, "0x0000000000000000000000000000000000000000", CircuitType.EMAIL_SUBJECT, nonce);
   console.log(JSON.stringify(gen_inputs));
   if (writeToFile) {
     const file_dir = email_file.substring(0, email_file.lastIndexOf("/") + 1);
