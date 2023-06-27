@@ -1,4 +1,5 @@
 import { setImmediate } from 'timers';
+import forge from 'node-forge';
 
 /* eslint no-control-regex: 0 */
 
@@ -283,6 +284,7 @@ const getPublicKey = async (type, name, minBitLength, resolver) => {
     let entry = parseDkimHeaders("DNS: TXT;" + rr);
 
     const publicKeyValue = entry?.parsed?.p?.value;
+
     //'v=DKIM1;p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwe34ubzrMzM9sT0XVkcc3UXd7W+EHCyHoqn70l2AxXox52lAZzH/UnKwAoO+5qsuP7T9QOifIJ9ddNH9lEQ95Y/GdHBsPLGdgSJIs95mXNxscD6MSyejpenMGL9TPQAcxfqY5xPViZ+1wA1qcryjdZKRqf1f4fpMY+x3b8k7H5Qyf/Smz0sv4xFsx1r+THNIz0rzk2LO3GvE0f1ybp6P+5eAelYU4mGeZQqsKw/eB20I3jHWEyGrXuvzB67nt6ddI+N2eD5K38wg/aSytOsb5O+bUSEe7P0zx9ebRRVknCD6uuqG3gSmQmttlD5OrMWSXzrPIXe8eTBaaPd+e/jfxwIDAQAB'
     // v=DKIM1;p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwe34ubzrMzM9sT0XVkcc3UXd7W+EHCyHoqn70l2AxXox52lAZzH/UnKwAoO+5qsuP7T9QOifIJ9ddNH9lEQ95Y/GdHBsPLGdgSJIs95mXNxscD6MSyejpenMGL9TPQAcxfqY5xPViZ+1wA1qcr""yjdZKRqf1f4fpMY+x3b8k7H5Qyf/Smz0sv4xFsx1r+THNIz0rzk2LO3GvE0f1ybp6P+5eAelYU4mGeZQqsKw/eB20I3jHWEyGrXuvzB67nt6ddI+N2eD5K38wg/aSytOsb5O+bUSEe7P0zx9ebRRVknCD6uuqG3gSmQmttlD5OrMWSXzrPIXe8eTBaaPd+e/jfxwIDAQAB
     if (!publicKeyValue) {
@@ -340,7 +342,7 @@ const getPublicKey = async (type, name, minBitLength, resolver) => {
       modulusLength = publicKeyObj.algorithm.modulusLength;
     } else {
       // fall back to node-forge
-      const pubKeyData = pki.publicKeyFromPem(publicKeyPem.toString());
+      const pubKeyData = forge.pki.publicKeyFromPem(publicKeyPem.toString());
       // const pubKeyData = CryptoJS.parseKey(publicKeyPem.toString(), 'pem');
       modulusLength = pubKeyData.n.bitLength();
     }
