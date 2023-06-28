@@ -17,7 +17,7 @@ import "./AutoApproveWallet.sol";
 import "./TestERC20.sol";
 import "../utils/NFTSVG.sol";
 import "./TokenRegistry.sol";
-import {Verifier} from "./Groth16VerifierWalletAnon.sol";
+import {Groth16Verifier} from "./Groth16VerifierWalletAnon.sol";
 import "../utils/MailServer.sol";
 
 // Defines upgradable logic
@@ -28,13 +28,13 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
 
     uint16 public constant body_len = 4 + 4;
     uint16 public constant rsa_modulus_chunks_len = 17;
-    uint16 public constant commitment_len = 1;
-    uint16 public constant msg_len = body_len + rsa_modulus_chunks_len + commitment_len; // 26
+    uint16 public constant commitment_len = 2;
+    uint16 public constant msg_len = body_len + rsa_modulus_chunks_len + commitment_len; // 27
 
     uint16 public constant header_len = msg_len - body_len;
     uint16 public constant addressIndexInSignals = msg_len - 1; // The last index is the commitment
     uint16 public constant version = 1;
-    Verifier public verifier;
+    Groth16Verifier public verifier;
     TestEmailToken public testToken;
     TokenRegistry public tokenRegistry;
     MailServer mailServer;
@@ -45,11 +45,11 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
     // Note that the data lives in the WalletEmailHandlerStorage contract
     // Arguments are deployed contracts/addresses
 
-    function initialize(Verifier v, MailServer m, TestEmailToken t, TokenRegistry r) public initializer {
+    function initialize(Groth16Verifier v, MailServer m, TestEmailToken t, TokenRegistry r) public initializer {
         // Do dig TXT outgoing._domainkey.twitter.com to verify these.
         // This is the base 2^121 representation of that key.
         // Circom bigint: represent a = a[0] + a[1] * 2**n + .. + a[k - 1] * 2**(n * k)
-        require(rsa_modulus_chunks_len + body_len + 1 == msg_len, "Variable counts are wrong!");
+        require(rsa_modulus_chunks_len + body_len + commitment_len == msg_len, "Variable counts are wrong!");
         verifier = v;
         mailServer = m;
         testToken = t;
@@ -80,7 +80,7 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
     }
 
     // NOTE: This is only for emergency ejects in testing deployments
-    function upgradeVerifier(Verifier v) public onlyOwner {
+    function upgradeVerifier(Groth16Verifier v) public onlyOwner {
         verifier = v;
     }
 
@@ -179,38 +179,51 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
      * @param allowedToCreateWallet A boolean flag indicating if a new wallet is authorized to be created if it does not exist.
      * @return wallet The wallet address associated with the given salt.
      */
-    function getOrCreateWallet(bytes32 salt, bool allowedToCreateWallet) internal returns (address) {
-        address wallet = wallets[salt];
-        if (wallet == address(0)) {
-            // Create wallet
-            bytes memory bytecode = type(AutoApproveWallet).creationCode;
-            assembly {
-                wallet := create2(0, add(bytecode, 0x20), mload(bytecode), salt)
-            }
-            require(wallet != address(0), "Wallet creation failed");
-            wallets[salt] = wallet;
+function getOrCreateWallet(bytes32 salt, bool allowedToCreateWallet) internal returns (address) {
+    // Calculate the address
+    bytes32 bytecodeHash = keccak256(abi.encodePacked(type(AutoApproveWallet).creationCode));
+    address predictedAddress = address(uint160(uint256(keccak256(abi.encodePacked(
+        (bytes1(0xff)),
+        address(this),
+        salt,
+        bytecodeHash
+    )))));  
 
-            console.log("Wallet index at:");
-            console.logBytes32(salt);
-
-            if (isContractDeployed(wallet)) {
-                console.log("Wallet already exists!");
-            } else if (allowedToCreateWallet) {
-                // Initialize the wallet with some test token and this as the approver
-                console.log("Wallet address created:", wallet);
-                testToken.mint(wallet, 10 * 10 ** testToken.decimals()); // 10 tokens with 18 decimals
-                AutoApproveWallet(wallet).initialize();
-                AutoApproveWallet(wallet).approveAllToken(address(testToken));
-            }
+    if (isContractDeployed(predictedAddress)) {
+        console.log("Wallet already exists!");
+        return predictedAddress;
+    } else if (allowedToCreateWallet) {
+        // Create wallet
+        bytes memory bytecode = type(AutoApproveWallet).creationCode;
+        address wallet;
+        assembly {
+            wallet := create2(0, add(bytecode, 0x20), mload(bytecode), salt)
         }
+        require(wallet != address(0), "Wallet creation failed");
+        wallets[salt] = wallet;
+
+        console.log("Wallet index at:");
+        console.logBytes32(salt);
+
+        // Initialize the wallet with some test token and this as the approver
+        console.log("Wallet address created:", wallet);
+        testToken.mint(wallet, 10 * 10 ** testToken.decimals()); // 10 tokens with 18 decimals
+        AutoApproveWallet(wallet).initialize();
+        AutoApproveWallet(wallet).approveAllToken(address(testToken));
+
         return wallet;
     }
+    console.log("Warning: Returning uninitialized wallet. Money can only be recovered by submitting an email authorizing this address with this salt.");
+    return predictedAddress;
+}
 
     function isContractDeployed(address _address) public view returns (bool) {
         uint32 size;
         assembly {
             size := extcodesize(_address)
         }
+        console.log("Size:");
+        console.log(size);
         return (size > 0);
     }
 
@@ -264,7 +277,7 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
         for (uint256 i = 0; i < body_len; i++) {
             bodySignals[i] = signals[i];
         }
-        for (uint256 i = body_len; i < msg_len - 1; i++) {
+        for (uint256 i = body_len; i < msg_len - commitment_len; i++) {
             rsaModulusSignals[i - body_len] = signals[i];
         }
 
@@ -272,7 +285,7 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
         // require(address(uint160(signals[addressIndexInSignals])) == msg.sender, "Invalid address");
 
         // TODO: Must edit generate_input to have a unique value for "address" for this nullifier to pass
-        require(!nullifier[signals[msg_len - 1]], "Value is already true");
+        require(!nullifier[signals[msg_len - commitment_len]], "Value is already true");
         nullifier[signals[msg_len - 1]] = true;
 
         // Check from/to email domains are correct [in this case, only from domain is checked]
@@ -289,11 +302,11 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
         // Require that the user is calling with the correct command
         require(isStringInArray(StringUtils.lower(command), commandStrings()), "Invalid command");
 
-        uint256 additionalCommittedInfo = signals[msg_len - 1];
+        uint256 additionalCommittedInfo = signals[msg_len - commitment_len];
         string memory domain = "gmail.com"; // Change this later to actually parse the domain as the first half
 
         // Verify that the public key for RSA matches the hardcoded one
-        for (uint256 i = body_len; i < msg_len - 1; i++) {
+        for (uint256 i = body_len; i < msg_len - commitment_len; i++) {
             require(mailServer.isVerified(domain, i - body_len, signals[i]), "Invalid: RSA modulus not matched");
         }
         require(verifier.verifyProof(a, b, c, signals), "Invalid Proof"); // checks effects iteractions, this should come first
@@ -305,6 +318,10 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
 
         // Effects: Send money
         // Generate wallets and transfer the tokens
+        console.log(fromSalt);
+        console.log(toSalt);
+        console.log(canCreateFromWallet);
+        console.log(canCreateToWallet);
         address fromWallet = getOrCreateWallet(bytes32(fromSalt), canCreateFromWallet);
         address toWallet = getOrCreateWallet(bytes32(toSalt), canCreateToWallet);
         moveTokens(fromWallet, toWallet, amountToTransfer, address(tokenAddress));
@@ -322,14 +339,14 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
 
 // Defines upgradable logic
 contract TestEmptyWalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initializable {
-    Verifier public verifier;
+    Groth16Verifier public verifier;
     TestEmailToken public testToken;
     TokenRegistry public tokenRegistry;
     MailServer mailServer;
     uint16 public constant version = 2; // Should overwrite
     uint16 public constant dummyVar = 3; // Should make new var
 
-    function initialize(Verifier v, MailServer m, TestEmailToken t, TokenRegistry r) public initializer {
+    function initialize(Groth16Verifier v, MailServer m, TestEmailToken t, TokenRegistry r) public initializer {
         verifier = v;
         mailServer = m;
         testToken = t;

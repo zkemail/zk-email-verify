@@ -46,7 +46,7 @@ contract Deploy is Script, Test {
     }
 
     function deploy() public returns (address, address, address, address) {
-        Verifier proofVerifier = new Verifier();
+        Groth16Verifier proofVerifier = new Groth16Verifier();
         MailServer mailServer = new MailServer();
         TestEmailToken erc20 = new TestEmailToken(5000);
         TokenRegistry tokenRegistry = new TokenRegistry();

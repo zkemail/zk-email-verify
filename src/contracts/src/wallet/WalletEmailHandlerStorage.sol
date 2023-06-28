@@ -14,7 +14,6 @@ import "../utils/StringUtils.sol";
 import "./AutoApproveWallet.sol";
 import "./TestERC20.sol";
 import "../utils/NFTSVG.sol";
-import {Verifier} from "./Groth16VerifierWalletAnon.sol";
 import "../utils/MailServer.sol";
 
 // NOTE: is Ownable is only for emergency ejects in testing deployments

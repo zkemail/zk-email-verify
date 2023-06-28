@@ -141,11 +141,12 @@ Fill out the env via random characters into the values for entropy1 and entropy2
 
 #### Server-side Prover: Rapidsnark Setup (Optional)
 
-If you want to run a fast server side prover, install rapidsnark and test proofgen:
+If you want to run a fast server side prover, install rapidsnark, install nvm and nom via instructions above, and test proofgen:
 
 ```bash
 cd ../../
 git clone https://github.com/iden3/rapidsnark
+sudo apt-get install libsodium-dev build-essential
 cd rapidsnark
 npm install
 git submodule init
@@ -168,6 +169,7 @@ cd ../..
 Then, from rapidsnark/ I could run
 
 ```bash
+npx task buildProver
 npx task buildProverServer
 ```
 
@@ -283,7 +285,7 @@ To test solidity,
 ```bash
 cp node_modules/forge-std src/contracts/lib/forge-std
 cd src/contracts
-forge test
+forge test --fork-url https://eth-goerli.g.alchemy.com/v2/$ALCHEMY_GOERLI_KEY
 ```
 
 To deploy contracts, look at src/contracts/README.md.
