@@ -56,6 +56,7 @@ contract WalletUtilsTest is Test {
     }
 
     function setUp() public {
+        proofVerifier = new Groth16Verifier();
         testDeploy();
     }
 
