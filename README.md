@@ -1,9 +1,10 @@
 # ZK Github using zkEmail
    Enable github proof using zk-email
    
+Presentation: https://www.loom.com/share/4a280711e0944cecbe680149cf4de02b?sid=d1247bf1-d78c-4295-81be-832f9ceaa8b8
+
 [UPDATE] Pause work on this repo until finishing https://github.com/JernKunpittaya/full_zk_regex to generalize any zk_regex matching for every application
 
-[WIP] 
 All backend main features are done, feel free to test by
 -delete yarn.lock and then call yarn
 -create github.eml into src folder, and paste original pull request merge confirmation email into it.
