@@ -129,5 +129,9 @@ contract MailServer is Ownable {
         verifiedMailserverKeys[domain][index] = val;
     }
 
+    function getMailserverKey(string memory domain, uint256 index) public returns (uint256) {
+        return verifiedMailserverKeys[domain][index];
+    }
+
     // TODO: Add DNSSEC verification to add a key as well
 }

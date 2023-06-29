@@ -20,7 +20,7 @@ import { dkimVerify } from "../helpers/dkim";
 import * as fs from "fs";
 import { pki } from "node-forge";
 
-async function getArgs() {
+async function  getArgs() {
   const args = process.argv.slice(2);
   const emailFileArg = args.find((arg) => arg.startsWith("--email_file="));
   const nonceArg = args.find((arg) => arg.startsWith("--nonce="));

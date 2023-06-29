@@ -37,7 +37,7 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
     Groth16Verifier public verifier;
     TestEmailToken public testToken;
     TokenRegistry public tokenRegistry;
-    MailServer mailServer;
+    MailServer public mailServer;
     mapping(string => address) public defaultVerifiers;
 
     event TransferInfo(uint256 indexed fromSalt, uint256 indexed toSalt, uint256 amount, string currency);
@@ -54,8 +54,14 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
         mailServer = m;
         testToken = t;
         tokenRegistry = r;
+        console.log("Logic: Logic, msg.sender, tx.origin:");
+        console.log(address(this));
+        console.log(msg.sender);
+        console.log(tx.origin);
 
-        _transferOwnership(msg.sender);
+        // Allow the original deployer user to own it, not the deploy script
+        // EDIT: This does nothing since msg.sender and tx.origin are the same anyyways, needs to be manually updated
+        _transferOwnership(tx.origin);
     }
 
     function getTokenRegistry() public view returns (address) {
@@ -71,6 +77,17 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
     function setTokenAddress(string memory tokenName, address tokenAddress) public onlyOwner {
         tokenRegistry.setTokenAddress(tokenName, tokenAddress);
     }
+
+    // Function to get individual mailserver keys
+    function getMailserverKey(string memory domain, uint256 index) public returns (uint256) {
+        return mailServer.getMailserverKey(domain, index);
+    }
+
+    // Function to set individual mailserver keys
+    function setMailServerKey(string memory domain, uint256 index, uint256 val) public onlyOwner {
+        return mailServer.editMailserverKey(domain, index, val);
+    }
+
 
     function commandStrings() public pure returns (string[] memory) {
         string[] memory commands = new string[](2);
@@ -136,12 +153,17 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
     function moveTokens(address fromWallet, address toWallet, uint256 amount, address token) internal {
         IERC20 tokenToUse = token == address(0) ? testToken : IERC20(token);
 
+        if (!isContractDeployed(fromWallet)) {
+            revert("From wallet is not deployed");
+        }
         // Enable the handler to move your tokens
         AutoApproveWallet(fromWallet).approveToken(token, amount);
 
         // Check for allowance and balance
         require(tokenToUse.allowance(fromWallet, address(this)) >= amount, "Allowance too low");
         require(tokenToUse.balanceOf(fromWallet) >= amount, "Insufficient balance to perform the transfer");
+        
+        console.log("Transferring tokens");
         tokenToUse.transferFrom(fromWallet, toWallet, amount);
     }
 
@@ -179,43 +201,43 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
      * @param allowedToCreateWallet A boolean flag indicating if a new wallet is authorized to be created if it does not exist.
      * @return wallet The wallet address associated with the given salt.
      */
-function getOrCreateWallet(bytes32 salt, bool allowedToCreateWallet) internal returns (address) {
-    // Calculate the address
-    bytes32 bytecodeHash = keccak256(abi.encodePacked(type(AutoApproveWallet).creationCode));
-    address predictedAddress = address(uint160(uint256(keccak256(abi.encodePacked(
-        (bytes1(0xff)),
-        address(this),
-        salt,
-        bytecodeHash
-    )))));  
+    function getOrCreateWallet(bytes32 salt, bool allowedToCreateWallet) internal returns (address) {
+        // Calculate the address
+        bytes32 bytecodeHash = keccak256(abi.encodePacked(type(AutoApproveWallet).creationCode));
+        address predictedAddress = address(uint160(uint256(keccak256(abi.encodePacked(
+            (bytes1(0xff)),
+            address(this),
+            salt,
+            bytecodeHash
+        )))));  
 
-    if (isContractDeployed(predictedAddress)) {
-        console.log("Wallet already exists!");
-        return predictedAddress;
-    } else if (allowedToCreateWallet) {
-        // Create wallet
-        bytes memory bytecode = type(AutoApproveWallet).creationCode;
-        address wallet;
-        assembly {
-            wallet := create2(0, add(bytecode, 0x20), mload(bytecode), salt)
+        if (isContractDeployed(predictedAddress)) {
+            console.log("Wallet already exists!");
+            return predictedAddress;
+        } else if (allowedToCreateWallet) {
+            // Create wallet
+            bytes memory bytecode = type(AutoApproveWallet).creationCode;
+            address wallet;
+            assembly {
+                wallet := create2(0, add(bytecode, 0x20), mload(bytecode), salt)
+            }
+            require(wallet != address(0), "Wallet creation failed");
+            wallets[salt] = wallet;
+
+            console.log("Wallet index at:");
+            console.logBytes32(salt);
+
+            // Initialize the wallet with some test token and this as the approver
+            console.log("Wallet address created:", wallet);
+            testToken.mint(wallet, 10 * 10 ** testToken.decimals()); // 10 tokens with 18 decimals
+            AutoApproveWallet(wallet).initialize();
+            AutoApproveWallet(wallet).approveAllToken(address(testToken));
+
+            return wallet;
         }
-        require(wallet != address(0), "Wallet creation failed");
-        wallets[salt] = wallet;
-
-        console.log("Wallet index at:");
-        console.logBytes32(salt);
-
-        // Initialize the wallet with some test token and this as the approver
-        console.log("Wallet address created:", wallet);
-        testToken.mint(wallet, 10 * 10 ** testToken.decimals()); // 10 tokens with 18 decimals
-        AutoApproveWallet(wallet).initialize();
-        AutoApproveWallet(wallet).approveAllToken(address(testToken));
-
-        return wallet;
+        console.log("Warning: Returning uninitialized wallet. Money can only be recovered by submitting an email authorizing this address with this salt.");
+        return predictedAddress;
     }
-    console.log("Warning: Returning uninitialized wallet. Money can only be recovered by submitting an email authorizing this address with this salt.");
-    return predictedAddress;
-}
 
     function isContractDeployed(address _address) public view returns (bool) {
         uint32 size;
@@ -318,10 +340,6 @@ function getOrCreateWallet(bytes32 salt, bool allowedToCreateWallet) internal re
 
         // Effects: Send money
         // Generate wallets and transfer the tokens
-        console.log(fromSalt);
-        console.log(toSalt);
-        console.log(canCreateFromWallet);
-        console.log(canCreateToWallet);
         address fromWallet = getOrCreateWallet(bytes32(fromSalt), canCreateFromWallet);
         address toWallet = getOrCreateWallet(bytes32(toSalt), canCreateToWallet);
         moveTokens(fromWallet, toWallet, amountToTransfer, address(tokenAddress));

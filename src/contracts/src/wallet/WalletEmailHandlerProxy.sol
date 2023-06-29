@@ -75,7 +75,13 @@ contract WalletEmailHandlerProxy is TransparentUpgradeableProxy {
         return _getImplementation();
     }
 
+    function getAdmin() public view returns (address) {
+        return _getAdmin();
+    }
+
     function upgradeTo(address newImplementation) public {
+        console.log("Admin");
+        console.log(_admin());
         if (msg.sender == _admin() || tx.origin == _admin()) {
             _upgradeTo(newImplementation);
         }
