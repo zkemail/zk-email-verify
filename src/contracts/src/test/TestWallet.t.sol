@@ -3,13 +3,10 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
-import "../wallet/WalletEmailHandlerStorage.sol";
-import "../wallet/WalletEmailHandlerLogic.sol";
-import "../wallet/WalletEmailHandlerProxy.sol";
+import "../wallet/EmailWallet.sol";
 import "../wallet/TestERC20.sol";
 import "../utils/StringUtils.sol";
 import "../wallet/Groth16VerifierWalletAnon.sol";
-import "../../script/DeployWallet.s.sol";
 import "../wallet/MIMC.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
@@ -22,16 +19,19 @@ pragma solidity ^0.8.0;
 contract WalletUtilsTest is Test {
     using StringUtils for *;
 
+    // Random address to use as the deployer/owner
+    address constant owner = 0x0000000000000000000000000000000000001111;
+
     address internal constant zero = 0x0000000000000000000000000000000000000000;
     address constant VM_ADDR = 0x7109709ECfa91a80626fF3989D68f67F5b1DD12D;
     uint16 public constant packSizeOld = 7;
     uint16 public constant packSize = 30;
     uint16 public constant body_len = 4 * 4;
 
-    WalletEmailHandlerProxy walletHandler;
+    ERC1967Proxy walletHandler;
     MailServer mailServer;
     Groth16Verifier proofVerifier;
-    WalletEmailHandlerLogic logic;
+    EmailWallet logic;
     TokenRegistry tokenRegistry;
     TestEmailToken erc20;
 
@@ -48,30 +48,77 @@ contract WalletUtilsTest is Test {
             return privateKey;
         } catch {
             // This is the anvil default exposed secret key
-            return 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
+            return
+                0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
         }
     }
 
+    function deploy()
+        public
+        returns (address, address, address, address, address)
+    {
+        console.log("Deploy wallet: msg.sender, tx.origin:");
+        console.log(msg.sender);
+        console.log(tx.origin);
+        proofVerifier = new Groth16Verifier();
+        mailServer = new MailServer();
+        erc20 = new TestEmailToken(5000);
+        tokenRegistry = new TokenRegistry();
+        tokenRegistry.setTokenAddress("TEST", address(erc20));
+        logic = new EmailWallet();
+
+        bytes memory initData = abi.encodeWithSelector(
+            logic.initialize.selector,
+            proofVerifier,
+            mailServer,
+            erc20,
+            tokenRegistry
+        );
+        // This sets the logic owner to this contract, but the proxy owner is still the msg.sender/tx.origin?
+        walletHandler = new ERC1967Proxy(address(logic), initData);
+
+        // EmailWallet(address(walletHandler)).transferOwnership(tx.origin);
+        tokenRegistry.transferOwnership(tx.origin);
+        mailServer.transferOwnership(tx.origin);
+        // Logic is owned by the proxy
+        // logic.transferOwnership(tx.origin);
+        // walletHandler.transferOwnership(tx.origin);
+        return (
+            address(walletHandler),
+            address(mailServer),
+            address(erc20),
+            address(tokenRegistry),
+            address(proofVerifier)
+        );
+    }
+
     function testDeploy() public {
+        // deploy as owner
+        vm.startPrank(owner);
+
         console.log("Deploy msg.sender, tx.origin:");
         console.log(msg.sender);
         console.log(tx.origin);
 
-        Deploy d = new Deploy();
-        (address __walletHandler, address _mailServer, address _erc20, address _tokenRegistry, address _proofVerifier) =
-            d.run();
+        (
+            address __walletHandler,
+            address _mailServer,
+            address _erc20,
+            address _tokenRegistry,
+            address _proofVerifier
+        ) = deploy();
         address payable _walletHandler = payable(__walletHandler);
-        walletHandler = WalletEmailHandlerProxy(_walletHandler);
+        walletHandler = ERC1967Proxy(_walletHandler);
         mailServer = MailServer(_mailServer);
         erc20 = TestEmailToken(_erc20);
         tokenRegistry = TokenRegistry(_tokenRegistry);
         proofVerifier = Groth16Verifier(_proofVerifier);
+
+        vm.stopPrank();
     }
 
     function setUp() public {
         testDeploy();
-        console.log("Proxy admin:");
-        console.log(walletHandler.getAdmin());
     }
 
     function testUpdateMailserver() public {
@@ -88,7 +135,11 @@ contract WalletUtilsTest is Test {
         packedBytes[1] = 18147879272211830;
         packedBytes[2] = 27917065853693287;
         packedBytes[3] = 28015;
-        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 30, packSizeOld);
+        string memory byteList = StringUtils.convertPackedBytesToString(
+            packedBytes,
+            30,
+            packSizeOld
+        );
         string memory intended_value = "zkemailverify@gmail.com";
         assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
         console.logString(byteList);
@@ -100,7 +151,11 @@ contract WalletUtilsTest is Test {
         packedBytes[1] = 14207229598262646;
         packedBytes[2] = 13067048790615872;
         packedBytes[3] = 7171939;
-        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 30, packSizeOld);
+        string memory byteList = StringUtils.convertPackedBytesToString(
+            packedBytes,
+            30,
+            packSizeOld
+        );
         string memory intended_value = "zkemailverify2@gmail.com";
         assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
         console.logString(byteList);
@@ -113,7 +168,11 @@ contract WalletUtilsTest is Test {
         packedBytes[1] = 3485236;
         packedBytes[2] = 0;
         packedBytes[3] = 0;
-        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 30, packSizeOld);
+        string memory byteList = StringUtils.convertPackedBytesToString(
+            packedBytes,
+            30,
+            packSizeOld
+        );
         string memory intended_value = "4.5";
         assertEq(StringUtils.stringToUint(byteList), 4);
         assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
@@ -126,7 +185,11 @@ contract WalletUtilsTest is Test {
         packedBytes[1] = 14207229598262646;
         packedBytes[2] = 13067048790615872;
         packedBytes[3] = 7171939;
-        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 30, packSizeOld);
+        string memory byteList = StringUtils.convertPackedBytesToString(
+            packedBytes,
+            30,
+            packSizeOld
+        );
         string memory intended_value = "zkemailverify2@gmail.com";
         assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
         console.logString(byteList);
@@ -138,7 +201,11 @@ contract WalletUtilsTest is Test {
         packedBytes[1] = 18147879272211830;
         packedBytes[2] = 27917065853693287;
         packedBytes[3] = 28015;
-        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 30, packSizeOld);
+        string memory byteList = StringUtils.convertPackedBytesToString(
+            packedBytes,
+            30,
+            packSizeOld
+        );
         string memory intended_value = "zkemailverify@gmail.com";
         assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
         console.logString(byteList);
@@ -147,7 +214,11 @@ contract WalletUtilsTest is Test {
     function testUnpackIntoString_Pack30_0() public {
         uint256[] memory packedBytes = new uint256[](1);
         packedBytes[0] = 1684956499;
-        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 30, packSize);
+        string memory byteList = StringUtils.convertPackedBytesToString(
+            packedBytes,
+            30,
+            packSize
+        );
         string memory intended_value = "Send";
         console.logString(byteList);
         assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
@@ -156,7 +227,11 @@ contract WalletUtilsTest is Test {
     function testUnpackIntoString_Pack30_1() public {
         uint256[] memory packedBytes = new uint256[](1);
         packedBytes[0] = 12544;
-        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 30, packSize);
+        string memory byteList = StringUtils.convertPackedBytesToString(
+            packedBytes,
+            30,
+            packSize
+        );
         string memory intended_value = "1";
         console.logString(byteList);
         assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
@@ -165,7 +240,11 @@ contract WalletUtilsTest is Test {
     function testUnpackIntoString_Pack30_2() public {
         uint256[] memory packedBytes = new uint256[](1);
         packedBytes[0] = 452605509632;
-        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 30, packSize);
+        string memory byteList = StringUtils.convertPackedBytesToString(
+            packedBytes,
+            30,
+            packSize
+        );
         string memory intended_value = "dai";
         console.logString(byteList);
         assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
@@ -227,10 +306,13 @@ contract WalletUtilsTest is Test {
         // Send 50 DAI from DAI contract (from people who accidentally sent it there) to the from wallet, as if they had sent that
         address DAI_ADDR = tokenRegistry.getTokenAddress("DAI");
         uint256 fromSalt = publicSignals[5];
-        address from_addr = WalletEmailHandlerLogic(address(walletHandler)).getOrCreateWallet(fromSalt);
+        address from_addr = EmailWallet(address(walletHandler))
+            .getOrCreateWallet(fromSalt);
 
         uint256 toSalt = publicSignals[7];
-        address to_addr = WalletEmailHandlerLogic(address(walletHandler)).getOrCreateWallet(toSalt);
+        address to_addr = EmailWallet(address(walletHandler)).getOrCreateWallet(
+            toSalt
+        );
 
         // Transfer money from the literal DAI contract to the from wallet
         vm.startPrank(DAI_ADDR);
@@ -244,12 +326,20 @@ contract WalletUtilsTest is Test {
 
         // Test email transfer from any address after spoofing msg.sender to a relayer
         // Right now this passes, but will have to eventually match the relayer commitment for gas reimbursement, at which point it will fail
-        vm.startPrank(0x0000000000000000000000000000000000000001);
-        WalletEmailHandlerLogic(address(walletHandler)).transfer(proof_a, proof_b, proof_c, publicSignals);
-        vm.stopPrank();
+        EmailWallet(address(walletHandler)).transfer(
+            proof_a,
+            proof_b,
+            proof_c,
+            publicSignals
+        );
 
         // Test proof verification
-        bool verified = proofVerifier.verifyProof(proof_a, proof_b, proof_c, publicSignals);
+        bool verified = proofVerifier.verifyProof(
+            proof_a,
+            proof_b,
+            proof_c,
+            publicSignals
+        );
         assertEq(verified, true);
 
         // Test new balances of the from/to wallet
@@ -262,12 +352,22 @@ contract WalletUtilsTest is Test {
         // vm.startPrank(tx.origin);
         console.log("Our wallet:");
         console.log(address(this));
-        WalletEmailHandlerLogic(address(walletHandler)).migrateAllToken(toSalt, fromSalt, "DAI");
-        // vm.stopPrank();
+        console.log(EmailWallet(address(walletHandler)).owner());
+
+        // Call migrate as owner
+        vm.startPrank(owner);
+        EmailWallet(address(walletHandler)).migrateAllToken(
+            toSalt,
+            fromSalt,
+            "DAI"
+        );
+        vm.stopPrank();
     }
 
     function queryNullifier(uint256 a) public view returns (bool) {
-        WalletEmailHandlerStorage handlerStorage = WalletEmailHandlerStorage(address(walletHandler));
+        EmailWalletStorage handlerStorage = EmailWalletStorage(
+            address(walletHandler)
+        );
         return handlerStorage.nullifier(a);
     }
 
@@ -282,20 +382,43 @@ contract WalletUtilsTest is Test {
     function testUpgradeLogicContract() public {
         testTransfer();
 
-        // Deploy a new logic contract from the tx.origin
-        vm.startPrank(tx.origin);
-        TestEmptyWalletEmailHandlerLogic newLogicContract = new TestEmptyWalletEmailHandlerLogic();
-        walletHandler.upgradeTo(address(newLogicContract));
-        vm.stopPrank();
+        // Deploy a new logic contract
+        vm.startPrank(owner);
+        EmailWalletV2 newLogicContract = new EmailWalletV2();
+
+        EmailWallet(address(walletHandler)).upgradeTo(
+            address(newLogicContract)
+        );
+
+        EmailWalletV2 walletV2 = EmailWalletV2(address(walletHandler));
 
         // Re-initialize, pretending we have a new verifier contract
         Groth16Verifier newProofVerifier = new Groth16Verifier();
-        TestEmptyWalletEmailHandlerLogic(walletHandler.getImplementation()).initialize(
-            newProofVerifier, mailServer, erc20, tokenRegistry
-        );
-        TestEmptyWalletEmailHandlerLogic(address(walletHandler)).transferOwnership(tx.origin);
+        walletV2.setVerifier(newProofVerifier);
+
+        vm.stopPrank();
 
         // Ensure the nullifier is still used
         assertEq(queryNullifier(uint256(0)), true);
+        assertEq(address(newProofVerifier), address(walletV2.verifier()));
+
+        // Verify calling migrateAllToken fails as this method was disabled in V2
+        vm.expectRevert();
+        walletV2.migrateAllToken(0, 0, address(this));
+    }
+}
+
+// Defines upgradable logic : add a new function to setVerifier
+contract EmailWalletV2 is EmailWallet {
+    function setVerifier(Groth16Verifier v) public onlyOwner {
+        verifier = v;
+    }
+
+    function migrateAllToken(
+        uint256 fromSalt,
+        uint256 toSalt,
+        address token
+    ) public override onlyOwner {
+        revert("migrateAllToken is disabled");
     }
 }

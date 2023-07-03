@@ -3,11 +3,11 @@ pragma solidity ^0.8.0;
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import "forge-std/Script.sol";
-import "../src/wallet/WalletEmailHandlerProxy.sol";
-import "../src/wallet/WalletEmailHandlerLogic.sol";
+import "../src/wallet/EmailWallet.sol";
 import "../src/utils/StringUtils.sol";
 import "../src/wallet/Groth16VerifierWalletAnon.sol";
 import "../src/wallet/TestERC20.sol";
+import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 contract Deploy is Script, Test {
     function getPrivateKey() internal view returns (uint256) {
@@ -55,12 +55,14 @@ contract Deploy is Script, Test {
         TestEmailToken erc20 = new TestEmailToken(5000);
         TokenRegistry tokenRegistry = new TokenRegistry();
         tokenRegistry.setTokenAddress("TEST", address(erc20));
-        WalletEmailHandlerLogic logic = new WalletEmailHandlerLogic();
+        EmailWallet logic = new EmailWallet();
 
         bytes memory initData =
             abi.encodeWithSelector(logic.initialize.selector, proofVerifier, mailServer, erc20, tokenRegistry);
         // This sets the logic owner to this contract, but the proxy owner is still the msg.sender/tx.origin?   
-        WalletEmailHandlerProxy walletHandler = new WalletEmailHandlerProxy(address(logic), msg.sender, initData);
+        ERC1967Proxy walletHandler = new ERC1967Proxy(address(logic), initData);
+
+        EmailWallet(address(walletHandler)).transferOwnership(tx.origin);
         tokenRegistry.transferOwnership(tx.origin);
         mailServer.transferOwnership(tx.origin);
         // Logic is owned by the proxy

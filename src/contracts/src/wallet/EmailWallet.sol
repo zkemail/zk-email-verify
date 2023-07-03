@@ -1,27 +1,29 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-// import "@openzeppelin/contracts/proxy/Proxy.sol";
-// import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
-
-import "./WalletEmailHandlerStorage.sol";
 import "forge-std/console.sol";
+import {Groth16Verifier} from "./Groth16VerifierWalletAnon.sol";
 import "../utils/StringUtils.sol";
 import "./AutoApproveWallet.sol";
+import "./EmailWalletStorage.sol";
 import "./TestERC20.sol";
 import "../utils/NFTSVG.sol";
-import "./TokenRegistry.sol";
-import {Groth16Verifier} from "./Groth16VerifierWalletAnon.sol";
 import "../utils/MailServer.sol";
+import "./TokenRegistry.sol";
 
 // Defines upgradable logic
-contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initializable {
+contract EmailWallet is
+    EmailWalletStorage,
+    Initializable,
+    OwnableUpgradeable,
+    UUPSUpgradeable
+{
     using StringUtils for *;
 
     uint16 public constant packSize = 30; // Bytes in a packed item returned from circom
@@ -29,7 +31,8 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
     uint16 public constant body_len = 4 + 4;
     uint16 public constant rsa_modulus_chunks_len = 17;
     uint16 public constant commitment_len = 2;
-    uint16 public constant msg_len = body_len + rsa_modulus_chunks_len + commitment_len; // 27
+    uint16 public constant msg_len =
+        body_len + rsa_modulus_chunks_len + commitment_len; // 27
 
     uint16 public constant header_len = msg_len - body_len;
     uint16 public constant addressIndexInSignals = msg_len - 1; // The last index is the commitment
@@ -40,54 +43,76 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
     MailServer public mailServer;
     mapping(string => address) public defaultVerifiers;
 
-    event TransferInfo(uint256 indexed fromSalt, uint256 indexed toSalt, uint256 amount, string currency);
+    event TransferInfo(
+        uint256 indexed fromSalt,
+        uint256 indexed toSalt,
+        uint256 amount,
+        string currency
+    );
 
-    // Note that the data lives in the WalletEmailHandlerStorage contract
+    // Note that the data lives in the EmailWalletStorage contract
     // Arguments are deployed contracts/addresses
 
-    function initialize(Groth16Verifier v, MailServer m, TestEmailToken t, TokenRegistry r) public initializer {
+    function initialize(
+        Groth16Verifier v,
+        MailServer m,
+        TestEmailToken t,
+        TokenRegistry r
+    ) public initializer {
         // Do dig TXT outgoing._domainkey.twitter.com to verify these.
         // This is the base 2^121 representation of that key.
         // Circom bigint: represent a = a[0] + a[1] * 2**n + .. + a[k - 1] * 2**(n * k)
-        require(rsa_modulus_chunks_len + body_len + commitment_len == msg_len, "Variable counts are wrong!");
+        require(
+            rsa_modulus_chunks_len + body_len + commitment_len == msg_len,
+            "Variable counts are wrong!"
+        );
+
         verifier = v;
         mailServer = m;
         testToken = t;
         tokenRegistry = r;
-        console.log("Logic: Logic, msg.sender, tx.origin:");
-        console.log(address(this));
-        console.log(msg.sender);
-        console.log(tx.origin);
 
-        // Allow the original deployer user to own it, not the deploy script
-        // EDIT: This does nothing since msg.sender and tx.origin are the same anyyways, needs to be manually updated
-        _transferOwnership(tx.origin);
+        __Ownable_init();
+        __UUPSUpgradeable_init();
     }
+
+    function _authorizeUpgrade(address) internal override onlyOwner {}
 
     function getTokenRegistry() public view returns (address) {
         return address(tokenRegistry);
     }
 
     // Wrapper function for TokenRegistry.getTokenAddress()
-    function getTokenAddress(string memory tokenName) public view returns (address) {
+    function getTokenAddress(
+        string memory tokenName
+    ) public view returns (address) {
         return tokenRegistry.getTokenAddress(tokenName);
     }
 
     // Wrapper function for TokenRegistry.updateTokenAddress()
-    function setTokenAddress(string memory tokenName, address tokenAddress) public onlyOwner {
+    function setTokenAddress(
+        string memory tokenName,
+        address tokenAddress
+    ) public onlyOwner {
         tokenRegistry.setTokenAddress(tokenName, tokenAddress);
     }
 
     // Function to get individual mailserver keys
-    function getMailserverKey(string memory domain, uint256 index) public returns (uint256) {
+    function getMailserverKey(
+        string memory domain,
+        uint256 index
+    ) public returns (uint256) {
         return mailServer.getMailserverKey(domain, index);
     }
 
     // Function to set individual mailserver keys
-    function setMailServerKey(string memory domain, uint256 index, uint256 val) public onlyOwner {
+    function setMailServerKey(
+        string memory domain,
+        uint256 index,
+        uint256 val
+    ) public onlyOwner {
         return mailServer.editMailserverKey(domain, index, val);
     }
-
 
     function commandStrings() public pure returns (string[] memory) {
         string[] memory commands = new string[](2);
@@ -102,31 +127,59 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
     }
 
     // NOTE: This is only for emergency ejects in testing deployments
-    function migrateAllToken(uint256 fromSalt, uint256 toSalt, address token) public onlyOwner {
+    function migrateAllToken(
+        uint256 fromSalt,
+        uint256 toSalt,
+        address token
+    ) public onlyOwner virtual {
         address fromWallet = getOrCreateWallet(fromSalt);
         uint256 balance = IERC20(token).balanceOf(fromWallet);
         moveTokens(fromSalt, toSalt, balance, token);
     }
 
     // NOTE: This is only for emergency ejects in testing deployments
-    function migrateAllToken(uint256 fromSalt, uint256 toSalt, string memory tokenName) public onlyOwner {
-        address tokenAddress = tokenRegistry.getTokenAddress(tokenName, getChainID());
+    function migrateAllToken(
+        uint256 fromSalt,
+        uint256 toSalt,
+        string memory tokenName
+    ) public onlyOwner {
+        address tokenAddress = tokenRegistry.getTokenAddress(
+            tokenName,
+            getChainID()
+        );
         migrateAllToken(fromSalt, toSalt, tokenAddress);
     }
 
     // NOTE: This is only for emergency ejects in testing deployments
-    function migrateAllToken(bytes32 fromSalt, address toWallet, string memory tokenName) public onlyOwner {
-        address tokenAddress = tokenRegistry.getTokenAddress(tokenName, getChainID());
+    function migrateAllToken(
+        bytes32 fromSalt,
+        address toWallet,
+        string memory tokenName
+    ) public onlyOwner {
+        address tokenAddress = tokenRegistry.getTokenAddress(
+            tokenName,
+            getChainID()
+        );
         migrateAllToken(fromSalt, toWallet, tokenAddress);
     }
 
     // NOTE: This is only for emergency ejects in testing deployments
-    function migrateAllToken(bytes32 fromSalt, address toWallet, address token) public onlyOwner {
+    function migrateAllToken(
+        bytes32 fromSalt,
+        address toWallet,
+        address token
+    ) public onlyOwner virtual {
         address fromWallet = getOrCreateWallet(fromSalt);
         uint256 amount = IERC20(token).balanceOf(fromWallet);
         IERC20 tokenToUse = token == address(0) ? testToken : IERC20(token);
-        require(tokenToUse.allowance(fromWallet, address(this)) >= amount, "Allowance too low");
-        require(tokenToUse.balanceOf(fromWallet) >= amount, "Insufficient balance to perform the transfer");
+        require(
+            tokenToUse.allowance(fromWallet, address(this)) >= amount,
+            "Allowance too low"
+        );
+        require(
+            tokenToUse.balanceOf(fromWallet) >= amount,
+            "Insufficient balance to perform the transfer"
+        );
         tokenToUse.transferFrom(fromWallet, toWallet, amount);
     }
 
@@ -137,7 +190,12 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
      * @param amount The amount of tokens to transfer.
      * @param token The address of the token to transfer. 0 if should use test token.
      */
-    function moveTokens(uint256 fromSalt, uint256 toSalt, uint256 amount, address token) internal {
+    function moveTokens(
+        uint256 fromSalt,
+        uint256 toSalt,
+        uint256 amount,
+        address token
+    ) internal {
         address toWallet = getOrCreateWallet(bytes32(toSalt));
         address fromWallet = getOrCreateWallet(bytes32(fromSalt));
         moveTokens(fromWallet, toWallet, amount, token);
@@ -150,7 +208,12 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
      * @param amount The amount of tokens to transfer.
      * @param token The address of the token to transfer. 0 if should use test token.
      */
-    function moveTokens(address fromWallet, address toWallet, uint256 amount, address token) internal {
+    function moveTokens(
+        address fromWallet,
+        address toWallet,
+        uint256 amount,
+        address token
+    ) internal {
         IERC20 tokenToUse = token == address(0) ? testToken : IERC20(token);
 
         if (!isContractDeployed(fromWallet)) {
@@ -160,9 +223,15 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
         AutoApproveWallet(fromWallet).approveToken(token, amount);
 
         // Check for allowance and balance
-        require(tokenToUse.allowance(fromWallet, address(this)) >= amount, "Allowance too low");
-        require(tokenToUse.balanceOf(fromWallet) >= amount, "Insufficient balance to perform the transfer");
-        
+        require(
+            tokenToUse.allowance(fromWallet, address(this)) >= amount,
+            "Allowance too low"
+        );
+        require(
+            tokenToUse.balanceOf(fromWallet) >= amount,
+            "Insufficient balance to perform the transfer"
+        );
+
         console.log("Transferring tokens");
         tokenToUse.transferFrom(fromWallet, toWallet, amount);
     }
@@ -191,7 +260,10 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
      * @param allowedToCreateWallet A boolean flag indicating if a new wallet is authorized to be created if it does not exist. True if the message id matches an email.
      * @return wallet The wallet address associated with the given salt.
      */
-    function getOrCreateWallet(uint256 salt, bool allowedToCreateWallet) internal returns (address) {
+    function getOrCreateWallet(
+        uint256 salt,
+        bool allowedToCreateWallet
+    ) internal returns (address) {
         return getOrCreateWallet(bytes32(salt), allowedToCreateWallet);
     }
 
@@ -201,22 +273,35 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
      * @param allowedToCreateWallet A boolean flag indicating if a new wallet is authorized to be created if it does not exist.
      * @return wallet The wallet address associated with the given salt.
      */
-    function getOrCreateWallet(bytes32 salt, bool allowedToCreateWallet) internal returns (address) {
+    function getOrCreateWallet(
+        bytes32 salt,
+        bool allowedToCreateWallet
+    ) internal returns (address) {
         // Calculate the address
-        bytes32 bytecodeHash = keccak256(abi.encodePacked(type(AutoApproveWallet).creationCode));
-        address predictedAddress = address(uint160(uint256(keccak256(abi.encodePacked(
-            (bytes1(0xff)),
-            address(this),
-            salt,
-            bytecodeHash
-        )))));  
+        bytes32 bytecodeHash = keccak256(
+            abi.encodePacked(type(AutoApproveWallet).creationCode)
+        );
+        address predictedAddress = address(
+            uint160(
+                uint256(
+                    keccak256(
+                        abi.encodePacked(
+                            (bytes1(0xff)),
+                            address(this),
+                            salt,
+                            bytecodeHash
+                        )
+                    )
+                )
+            )
+        );
 
         if (isContractDeployed(predictedAddress)) {
             console.log("Wallet already exists!");
             return predictedAddress;
         } else {
             // Initially, only a message ID authorized by an email is allowed to create a wallet
-            // Now that we ignore it, anyone can make a wallet with any message-id 
+            // Now that we ignore it, anyone can make a wallet with any message-id
             console.log("Is this email the source of the message id?");
             console.log(allowedToCreateWallet);
             // Create wallet
@@ -267,12 +352,21 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
     //     return testToken.balanceOf(wallets[convertEmailToIndex(email)]);
     // }
 
-    function getBalance(uint256 salt, string memory tokenName) public view returns (uint256) {
-        address tokenAddress = tokenRegistry.getTokenAddress(tokenName, getChainID());
+    function getBalance(
+        uint256 salt,
+        string memory tokenName
+    ) public view returns (uint256) {
+        address tokenAddress = tokenRegistry.getTokenAddress(
+            tokenName,
+            getChainID()
+        );
         return IERC20(tokenAddress).balanceOf(wallets[bytes32(salt)]);
     }
 
-    function isStringInArray(string memory value, string[] memory array) internal pure returns (bool) {
+    function isStringInArray(
+        string memory value,
+        string[] memory array
+    ) internal pure returns (bool) {
         for (uint256 i = 0; i < array.length; i++) {
             if (StringUtils.stringEq(value, array[i])) {
                 return true;
@@ -290,9 +384,12 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
      * @param signals The public signals used in the zk-SNARK proof.
      */
 
-    function transfer(uint256[2] memory a, uint256[2][2] memory b, uint256[2] memory c, uint256[msg_len] memory signals)
-        public
-    {
+    function transfer(
+        uint256[2] memory a,
+        uint256[2][2] memory b,
+        uint256[2] memory c,
+        uint256[msg_len] memory signals
+    ) public {
         // TODO no invalid signal check yet, which is fine since the zk proof does it
         // Checks: Verify proof and check signals
         // require(signals[0] == 1337, "invalid signals");
@@ -311,42 +408,78 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
         // require(address(uint160(signals[addressIndexInSignals])) == msg.sender, "Invalid address");
 
         // TODO: Must edit generate_input to have a unique value for "address" for this nullifier to pass
-        require(!nullifier[signals[msg_len - commitment_len]], "Value is already true");
+        require(
+            !nullifier[signals[msg_len - commitment_len]],
+            "Value is already true"
+        );
         nullifier[signals[msg_len - 1]] = true;
 
         // Check from/to email domains are correct [in this case, only from domain is checked]
         // We will upload the version with these domain checks soon!
         // require(_domainCheck(headerSignals), "Invalid domain");
-        string memory command = StringUtils.convertPackedByteToString(bodySignals[0], packSize, packSize);
-        string memory amount = StringUtils.convertPackedByteToString(bodySignals[1], packSize, packSize);
-        string memory currency = StringUtils.convertPackedByteToString(bodySignals[3], packSize, packSize);
+        string memory command = StringUtils.convertPackedByteToString(
+            bodySignals[0],
+            packSize,
+            packSize
+        );
+        string memory amount = StringUtils.convertPackedByteToString(
+            bodySignals[1],
+            packSize,
+            packSize
+        );
+        string memory currency = StringUtils.convertPackedByteToString(
+            bodySignals[3],
+            packSize,
+            packSize
+        );
         bool canCreateFromWallet = bodySignals[4] == 1;
         uint256 fromSalt = bodySignals[5];
         bool canCreateToWallet = bodySignals[6] == 1;
         uint256 toSalt = bodySignals[7];
 
         // Require that the user is calling with the correct command
-        require(isStringInArray(StringUtils.lower(command), commandStrings()), "Invalid command");
+        require(
+            isStringInArray(StringUtils.lower(command), commandStrings()),
+            "Invalid command"
+        );
 
         uint256 additionalCommittedInfo = signals[msg_len - commitment_len];
         string memory domain = "gmail.com"; // Change this later to actually parse the domain as the first half
 
         // Verify that the public key for RSA matches the hardcoded one
         for (uint256 i = body_len; i < msg_len - commitment_len; i++) {
-            require(mailServer.isVerified(domain, i - body_len, signals[i]), "Invalid: RSA modulus not matched");
+            require(
+                mailServer.isVerified(domain, i - body_len, signals[i]),
+                "Invalid: RSA modulus not matched"
+            );
         }
         require(verifier.verifyProof(a, b, c, signals), "Invalid Proof"); // checks effects iteractions, this should come first
 
         // Calculate and emit transfer data
-        address tokenAddress = tokenRegistry.getTokenAddress(StringUtils.upper(currency), getChainID());
-        uint256 amountToTransfer = StringUtils.stringToUint(amount) * 10 ** ERC20(tokenAddress).decimals();
+        address tokenAddress = tokenRegistry.getTokenAddress(
+            StringUtils.upper(currency),
+            getChainID()
+        );
+        uint256 amountToTransfer = StringUtils.stringToUint(amount) *
+            10 ** ERC20(tokenAddress).decimals();
         emit TransferInfo(fromSalt, toSalt, amountToTransfer, currency);
 
         // Effects: Send money
         // Generate wallets and transfer the tokens
-        address fromWallet = getOrCreateWallet(bytes32(fromSalt), canCreateFromWallet);
-        address toWallet = getOrCreateWallet(bytes32(toSalt), canCreateToWallet);
-        moveTokens(fromWallet, toWallet, amountToTransfer, address(tokenAddress));
+        address fromWallet = getOrCreateWallet(
+            bytes32(fromSalt),
+            canCreateFromWallet
+        );
+        address toWallet = getOrCreateWallet(
+            bytes32(toSalt),
+            canCreateToWallet
+        );
+        moveTokens(
+            fromWallet,
+            toWallet,
+            amountToTransfer,
+            address(tokenAddress)
+        );
     }
 
     function getChainID() public view returns (uint256) {
@@ -356,22 +489,5 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
         }
         assert(chainId == block.chainid);
         return chainId;
-    }
-}
-
-// Defines upgradable logic
-contract TestEmptyWalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initializable {
-    Groth16Verifier public verifier;
-    TestEmailToken public testToken;
-    TokenRegistry public tokenRegistry;
-    MailServer mailServer;
-    uint16 public constant version = 2; // Should overwrite
-    uint16 public constant dummyVar = 3; // Should make new var
-
-    function initialize(Groth16Verifier v, MailServer m, TestEmailToken t, TokenRegistry r) public initializer {
-        verifier = v;
-        mailServer = m;
-        testToken = t;
-        tokenRegistry = r;
     }
 }

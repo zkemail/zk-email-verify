@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 // import "forge-std/interfaces/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 contract AutoApproveWallet is Ownable, Initializable {
     uint256 constant MAX_UINT256 = type(uint256).max;
