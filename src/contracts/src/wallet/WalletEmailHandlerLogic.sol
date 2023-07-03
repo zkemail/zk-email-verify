@@ -214,7 +214,11 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
         if (isContractDeployed(predictedAddress)) {
             console.log("Wallet already exists!");
             return predictedAddress;
-        } else if (allowedToCreateWallet) {
+        } else {
+            // Initially, only a message ID authorized by an email is allowed to create a wallet
+            // Now that we ignore it, anyone can make a wallet with any message-id 
+            console.log("Is this email the source of the message id?");
+            console.log(allowedToCreateWallet);
             // Create wallet
             bytes memory bytecode = type(AutoApproveWallet).creationCode;
             address wallet;
@@ -235,7 +239,7 @@ contract WalletEmailHandlerLogic is WalletEmailHandlerStorage, Ownable, Initiali
 
             return wallet;
         }
-        console.log("Warning: Returning uninitialized wallet. Money can only be recovered by submitting an email authorizing this address with this salt.");
+        // console.log("Warning: Returning uninitialized wallet. Money can only be recovered by submitting an email authorizing this address with this salt.");
         return predictedAddress;
     }
 
