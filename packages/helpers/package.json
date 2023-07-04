@@ -1,10 +1,11 @@
 {
   "name": "@zk-email/helpers",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "dist",
   "scripts": {
     "build": "yarn g:tsc",
-    "test": "yarn g:jest tests/**/*.test.ts"
+    "test": "yarn g:jest tests/**/*.test.ts",
+    "publish": "yarn npm publish --access=public"
   },
   "dependencies": {
     "addressparser": "^1.0.1",

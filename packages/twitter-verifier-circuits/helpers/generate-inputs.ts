@@ -1,5 +1,5 @@
-import { bytesToBigInt, fromHex } from "@zk-email/helpers/binaryFormat";
-import { generateCircuitInputs } from "@zk-email/helpers/input-helpers";
+import { bytesToBigInt, fromHex } from "@zk-email/helpers/src/binaryFormat";
+import { generateCircuitInputs } from "@zk-email/helpers/src/input-helpers";
 
 export const STRING_PRESELECTOR = "email was meant for @";
 export const MAX_HEADER_PADDED_BYTES = 1024; // NOTE: this must be the same as the first arg in the email in main args circom

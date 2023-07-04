@@ -8,18 +8,18 @@ import {
   insert13Before10,
   CircuitType,
 } from "../scripts/generate_input";
-import { rawEmailToBuffer } from "@zk-email/helpers/input-helpers";
-import { DKIMVerificationResult, verifyDKIMSignature } from "@zk-email/helpers/dkim";
+import { rawEmailToBuffer } from "@zk-email/helpers/src/input-helpers";
+import { DKIMVerificationResult, verifyDKIMSignature } from "@zk-email/helpers/src/dkim";
 import { generateTwitterVerifierCircuitInputs } from "@twitter-verifier/circuits/helpers";
-import { sshSignatureToPubKey } from "@zk-email/helpers/sshFormat";
+import { sshSignatureToPubKey } from "@zk-email/helpers/src/sshFormat";
 import { Link, useSearchParams } from "react-router-dom";
 import atob from "atob";
 import {
   downloadProofFiles,
   generateProof,
   verifyProof,
-} from "@zk-email/helpers/zkp";
-import { packedNBytesToString } from "@zk-email/helpers/binaryFormat";
+} from "@zk-email/helpers/src/zkp";
+import { packedNBytesToString } from "@zk-email/helpers/src/binaryFormat";
 import { LabeledTextArea } from "../components/LabeledTextArea";
 import DragAndDropTextBox from "../components/DragAndDropTextBox";
 import { SingleLineInput } from "../components/SingleLineInput";
@@ -29,7 +29,7 @@ import { NumberedStep } from "../components/NumberedStep";
 import { TopBanner } from "../components/TopBanner";
 import { useAccount, useContractWrite, usePrepareContractWrite } from "wagmi";
 import { ProgressBar } from "../components/ProgressBar";
-import { abi } from "@zk-email/helpers/twitterEmailHandler.abi";
+import { abi } from "@zk-email/helpers/src/twitterEmailHandler.abi";
 import { isSetIterator } from "util/types";
 
 export const MainPage: React.FC<{}> = (props) => {

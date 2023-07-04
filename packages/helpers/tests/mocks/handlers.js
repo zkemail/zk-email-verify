@@ -1,5 +1,5 @@
 import { rest } from 'msw'
-import { loadURL } from '../../zkp'
+import { loadURL } from '../../src/zkp'
 import fs from 'fs';
 import path from 'path';
 
