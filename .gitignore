@@ -53,9 +53,9 @@ circuits/circuit*zkey*
 circuits/email/
 cache/
 test.log
-pacakges/contracts/out/
-pacakges/contracts/lib/
-pacakges/contracts/broadcast
+packages/contracts/out/
+packages/contracts/lib/
+packages/contracts/broadcast
 .next
 node_modules.nosync
 *Wallet*
