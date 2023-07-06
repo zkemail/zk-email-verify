@@ -46,6 +46,7 @@ contract TwitterUtilsTest is Test {
         // Our regex should just disallow most of these emails, but they may end up taking more than two bytes
         // ASCII should fit in 2 bytes but emails may not be ASCII
         assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
+        assertEq(byteList, intended_value);
         console.logString(byteList);
     }
 
