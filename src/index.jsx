@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import App from "./App";
 import { WagmiConfig, createClient, configureChains, chain } from "wagmi";
 import { publicProvider } from "wagmi/providers/public";
+import { infuraProvider } from "wagmi/providers/infura";
 import {
   getDefaultWallets,
   RainbowKitProvider,
@@ -14,7 +15,7 @@ import "@rainbow-me/rainbowkit/styles.css";
 
 const { chains, provider, webSocketProvider } = configureChains(
   [chain.goerli],
-  [publicProvider()]
+  [infuraProvider({ apiKey: 'd87bf713dd3a44e09e773c13a2e84cc6' }), publicProvider()]
 );
 
 const { connectors } = getDefaultWallets({
