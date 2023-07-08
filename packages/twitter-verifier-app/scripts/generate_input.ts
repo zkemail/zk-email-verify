@@ -338,7 +338,7 @@ async function test_generate(writeToFile: boolean = true) {
   console.log(JSON.stringify(gen_inputs));
   if (writeToFile) {
     const file_dir = email_file.substring(0, email_file.lastIndexOf("/") + 1);
-    const filename = nonce ? `${file_dir}/input_${nonce}.json` : "./circuits/inputs/input.json";
+    const filename = nonce ? `${file_dir}/input_${nonce}.json` : "./packages/twitter-verifier-circuits/inputs/input.json";
     console.log(`Writing to default file ${filename}`);
     fs.writeFileSync(filename, JSON.stringify(gen_inputs), { flag: "w" });
   }
