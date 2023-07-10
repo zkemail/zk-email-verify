@@ -15,7 +15,7 @@ import "@rainbow-me/rainbowkit/styles.css";
 
 const { chains, provider, webSocketProvider } = configureChains(
   [chain.goerli],
-  [infuraProvider({ apiKey: 'd87bf713dd3a44e09e773c13a2e84cc6' }), publicProvider()]
+  [infuraProvider({ apiKey: import.meta.env.VITE_INFURA_API_KEY }), publicProvider()]
 );
 
 const { connectors } = getDefaultWallets({
