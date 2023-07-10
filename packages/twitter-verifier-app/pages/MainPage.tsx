@@ -341,6 +341,9 @@ export const MainPage: React.FC<{}> = (props) => {
                   ethereumAddress,
                 })
 
+                // Set address_plus_one to make old circuits pass
+                input.address_plus_one = input.address as string;
+
                 console.log("Generated input:", JSON.stringify(input));
               } catch (e) {
                 console.log("Error generating input", e);
