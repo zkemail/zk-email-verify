@@ -20,7 +20,7 @@
     "react-router-dom": "^6.2.2",
     "react-use": "^17.3.2",
     "serve": "^14.0.1",
-    "snarkjs": "git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8",
+    "snarkjs": "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e",
     "styled-components": "^5.3.5",
     "typescript": "^4.8.3",
     "vite": "^4.3.3",
