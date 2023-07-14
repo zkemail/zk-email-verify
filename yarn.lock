@@ -2668,13 +2668,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openzeppelin/contracts-upgradeable@npm:^4.9.1":
-  version: 4.9.1
-  resolution: "@openzeppelin/contracts-upgradeable@npm:4.9.1"
-  checksum: 4dff468b7de51701da8f46ca16e44831109e2602e80c96d68e3fba8ea1ae4ac498e60d38829e0d2d8494bb8cfc274adc7adc2dab566b929319dfe76a5c3af017
-  languageName: node
-  linkType: hard
-
 "@openzeppelin/contracts-upgradeable@npm:^4.9.2":
   version: 4.9.2
   resolution: "@openzeppelin/contracts-upgradeable@npm:4.9.2"
@@ -3881,7 +3874,7 @@ __metadata:
   resolution: "@zk-email/twitter-verifier-contracts@workspace:packages/twitter-verifier-contracts"
   dependencies:
     "@openzeppelin/contracts": ^4.9.1
-    "@openzeppelin/contracts-upgradeable": ^4.9.1
+    "@openzeppelin/contracts-upgradeable": ^4.9.2
     "@zk-email/contracts": "workspace:^"
     ds-test: "https://github.com/dapphub/ds-test"
     forge-std: "https://github.com/foundry-rs/forge-std"
