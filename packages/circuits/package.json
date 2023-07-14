@@ -1,0 +1,15 @@
+{
+  "name": "@zk-email/circuits",
+  "version": "1.0.0",
+  "scripts": {
+    "publish": "yarn npm publish --access=public",
+    "test": "jest tests/*.ts"
+  },
+  "devDependencies": {
+    "circom_tester": "^0.0.19",
+    "circomlib": "^2.0.5",
+    "circomlibjs": "^0.1.2",
+    "ffjavascript": "^0.2.59",
+    "jest": "^29.5.0"
+  }
+}

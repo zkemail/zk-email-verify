@@ -1,0 +1,24 @@
+{
+  "name": "@zk-email/helpers",
+  "version": "1.0.1",
+  "main": "dist",
+  "scripts": {
+    "build": "yarn g:tsc",
+    "test": "yarn g:jest tests/**/*.test.ts",
+    "publish": "yarn npm publish --access=public"
+  },
+  "dependencies": {
+    "addressparser": "^1.0.1",
+    "atob": "^2.1.2",
+    "circomlibjs": "^0.1.7",
+    "libmime": "^5.2.1",
+    "localforage": "^1.10.0",
+    "lodash": "^4.17.21",
+    "pako": "^2.1.0",
+    "psl": "^1.9.0",
+    "snarkjs": "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
+  },
+  "devDependencies": {
+    "msw": "^1.2.2"
+  }
+}

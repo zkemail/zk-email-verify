@@ -1,0 +1,404 @@
+Delivered-To: zkemailverify@gmail.com
+Received: by 2002:abe:244f:0:b0:351:8511:f81d with SMTP id k76csp1565968vlk;
+        Sat, 11 Feb 2023 09:22:14 -0800 (PST)
+X-Google-Smtp-Source: AK7set/Y3OsAAeTIiMSNbcB9uLcnu/XZVkr0lwa3Lhc02UYddJqHwBqjTSDEn8LEcuk5B2ooL7iz
+X-Received: by 2002:a05:690c:b99:b0:52e:9f98:3afb with SMTP id ck25-20020a05690c0b9900b0052e9f983afbmr7390402ywb.8.1676136134009;
+        Sat, 11 Feb 2023 09:22:14 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1676136133; cv=none;
+        d=google.com; s=arc-20160816;
+        b=XizR8dC+HfpBsj5NgSZvKF6bGWkJfnE5N8tcK+jWhnn4aC1T8qXM/aPjeKXbasjxVw
+         EwD0BSIvm28FQ+no5vP1F+/jLaCMB5YvCQBQwadWrzFmhZnYHZ5j/sHeYeAxitbvwzuq
+         W8soAUmi4jkytC+tbQkHl7FIjAZ8yLgcMnzKWvNYD5VhfSMfr0q0ZJthzX5AjyP47zjk
+         Noliyk67gPd3ZEeR66wHDVIUaZb9AhExIPfPyg/uO3Qi3vlgoDVYdNYEwY763XK8sMtk
+         PfZJ9AyarJiBzEUGXMMmaqM3wdxcvAUV8d8EF4HaIU4U1Q0UatOomAGOo1H+JADR0fH/
+         ZX5Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=feedback-id:message-id:mime-version:subject:to:from:date
+         :dkim-signature;
+        bh=luw1SBOWXFuYP/jkF1TjW99cBB9mxovOyljNia105q8=;
+        b=Yw8cjT3S7XHSO4MoOvbKTK/zg5wCWRH91dUpNvyHyQGohemvn6oBL4on6IOZ6wRseC
+         SJkH6T7facdD6VOFyzdHkGOPTXKPMP90HveULVk7f+57u4aTPpxnRtG6DZlWOqnh/GZl
+         gvaoWDYrge43sbFMbYd3goNfGuDHOZJbOit+g+GReQ6XBOY2oI7UgYuDtrYR/NB0MBJW
+         Ed2mr4E3XxX3N+i5fZle4OjfK3xPN+N8huFNaS9x4bOxs8jb+XjRV2vMhadhpmLDRlxN
+         7iVAWYGz7sa9DOPGKQxh+1cGmlgUJiyeOshHwzK7kKjSFUANfB1qlqZKd7kAc6KYPQ0R
+         zDcg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@twitter.com header.s=dkim-201406 header.b=Mf8VchLe;
+       spf=pass (google.com: domain of n0399d118e2-e108b1a8a8ec4d32-zkemailverify===gmail.com@bounce.twitter.com designates 199.16.156.166 as permitted sender) smtp.mailfrom="n0399d118e2-e108b1a8a8ec4d32-zkemailverify===gmail.com@bounce.twitter.com";
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=twitter.com
+Return-Path: <n0399d118e2-e108b1a8a8ec4d32-zkemailverify===gmail.com@bounce.twitter.com>
+Received: from spring-chicken-ba.twitter.com (spring-chicken-ba.twitter.com. [199.16.156.166])
+        by mx.google.com with ESMTPS id f184-20020a816ac1000000b0050a5b687438si2536384ywc.362.2023.02.11.09.22.13
+        for <zkemailverify@gmail.com>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 11 Feb 2023 09:22:13 -0800 (PST)
+Received-SPF: pass (google.com: domain of n0399d118e2-e108b1a8a8ec4d32-zkemailverify===gmail.com@bounce.twitter.com designates 199.16.156.166 as permitted sender) client-ip=199.16.156.166;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@twitter.com header.s=dkim-201406 header.b=Mf8VchLe;
+       spf=pass (google.com: domain of n0399d118e2-e108b1a8a8ec4d32-zkemailverify===gmail.com@bounce.twitter.com designates 199.16.156.166 as permitted sender) smtp.mailfrom="n0399d118e2-e108b1a8a8ec4d32-zkemailverify===gmail.com@bounce.twitter.com";
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=twitter.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=twitter.com;
+	s=dkim-201406; t=1676136133;
+	bh=luw1SBOWXFuYP/jkF1TjW99cBB9mxovOyljNia105q8=;
+	h=Date:From:To:Subject:MIME-Version:Content-Type:Message-ID;
+	b=Mf8VchLeAPEOR6FSuqtVMIW0Zut2I+Apy+kLYu93HIzNKlJR2obsh/wirFuTo0qje
+	 KQWpAlyaOGrtWiw7q7Kx7BEZ4wXuKmenccAdNUvS0AedwVeIIgemQHh5ebgw51b1hD
+	 mlZw66c8Q7ffC4cPvGzKM1TYdFt5yNaSSWYLWIoFvQiLL7ePodeYgdT0IMp4kjRl97
+	 sXbdEInGVPYI1g1KkzjhORYI9eBKkZVT4YA/BZZ0WF3fSC1DkF1TecUotNZaDVjB0i
+	 1QxDKumXbQxzmrJ8Z/8jFZ/kaCPKpMSg8RXYzpvaPe635vblMOMPtpIYvRy93vlGxf
+	 ltxUwAkCsug8Q==
+X-MSFBL: JEendVXqQSf0QfW2bVHGwxqI6nksIAh1iV1Le82G8P0=|eyJnIjoiQnVsayIsImI
+	iOiJhdGxhLWJzZy0yOS1zcjEtQnVsay4xODYiLCJyIjoiemtlbWFpbHZlcmlmeUB
+	nbWFpbC5jb20iLCJ1IjoiemtlbWFpbHZlcmlmeUBnbWFpbC5jb21AaWlkIyNlMTA
+	4YjFhOGE4ZWM0ZDMyODMwNjdiNTVhMDA5MTJiOUB1c2IjIzI0QDI5NkAxNjI0NDU
+	3Nzc1ODk0OTg2NzU0QDBAMjRmODhjZTY1YmE4ZWMyNjI2YWZkNjQxZGFkMTY5YzI
+	yNjJiZjE4NSJ9
+Date: Sat, 11 Feb 2023 17:22:13 +0000
+From: Twitter <info@twitter.com>
+To: zk_practice <zkemailverify@gmail.com>
+Subject: Password reset request
+MIME-Version: 1.0
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_327915209_1341522477.1676136133617"
+X-Twitter-CID: ibis2-password_reset_pin_based_email
+Message-ID: <1D.E4.03737.5CEC7E36@twitter.com>
+Feedback-ID: atla.c5bbd1c7e491b5023ff4b22a03711997:Twitter
+
+------=_Part_327915209_1341522477.1676136133617
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+Twitter
+
+Reset your password?
+
+If you requested a password reset for zktestemail, use the confirmation code below to complete the process. If you didn't make this request, ignore this email.
+
+> akfrmhya
+
+
+Getting a lot of password reset emails?
+You can change your account settings to require personal information to reset your password.
+
+account settings
+> https://twitter.com/settings/security
+
+------------------------
+Help
+> https://support.twitter.com/articles/14663
+
+Not my account
+> https://twitter.com/account/not_my_account/1624457775894986754/8D785-ED35A-167613?ut=1&amp;cn=cGFzc3dvcmRfcmVzZXRfcGluX2Jhc2VkX2VtYWls
+
+Email security tips
+> https://support.twitter.com/articles/204820-fake-twitter-emails
+
+Twitter, Inc. 1355 Market Street, Suite 900 San Francisco, CA 94103
+
+------=_Part_327915209_1341522477.1676136133617
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www=
+.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dutf-8" />
+<meta name=3D"viewport" content=3D"width=3Ddevice-width, minimum-scale=3D1.=
+0, maximum-scale=3D1.0, user-scalable=3D0" />
+<meta name=3D"apple-mobile-web-app-capable" content=3D"yes" />
+<style type=3D"text/css">
+@media only screen and (max-width: 320px) {
+table[class=3D"edu-module"]{
+border-radius: 0px !important;
+-webkit-border-radius: 0px !important;
+-moz-border-radius: 0px !important;
+}
+td[class=3D"edu-collapse"]{
+width: 0px !important;
+}
+td[class=3D"mobile-height"]{
+height: 30px !important;
+}
+}
+@media only screen and (max-width: 420px) {
+td[class=3D"spacer"]{
+font-size:4px !important;
+}
+span[class=3D"address"] a {
+line-height:18px !important;
+}
+a[class=3D"cut"]{
+display:none !important;
+}
+td[class=3D"margins"]{
+width:18px !important;
+}
+td[class=3D"edu-margins"]{
+width:18px !important;
+}
+td[class=3D"logo_space"]{
+height:12px !important;
+}
+}
+@media only screen and (max-width: 480px) {
+table[class=3D"collapse"]{
+width:100% !important;
+}
+table[class=3D"edu-module"]{
+width:100% !important;
+}
+div[class=3D"collapse"]{
+width:100% !important;
+}
+td[class=3D"logo_space"]{
+height: 24px !important;
+}
+span[class=3D"address"]{
+display:block !important;
+width:240px !important;
+}
+td[class=3D"cut"]{
+display:none !important;
+}
+td[class=3D"logo"] img {
+width:24px !important;
+}
+span[class=3D"address"] a {
+line-height:18px !important;
+}
+}
+</style>
+</head>
+<body bgcolor=3D"#F5F8FA" style=3D"margin:0;padding:0;-webkit-text-size-adj=
+ust:100%;-ms-text-size-adjust:100%;">
+<table cellpadding=3D"0" cellspacing=3D"0" border=3D"0" width=3D"100%" bgco=
+lor=3D"#F5F8FA" style=3D"background-color:#F5F8FA;padding:0;margin:0;line-h=
+eight:1px;font-size:1px;" class=3D"body_wrapper">
+<tbody>
+<tr>
+<td align=3D"center" style=3D"padding:0;margin:0;line-height:1px;font-size:=
+1px;">
+<table class=3D"collapse" id=3D"header" align=3D"center" width=3D"448" styl=
+e=3D"width: 448px;padding:0;margin:0;line-height:1px;font-size:1px;" bgcolo=
+r=3D"#ffffff" cellpadding=3D"0" cellspacing=3D"0" border=3D"0">
+<tbody>
+<tr>
+<td style=3D"min-width: 448px;padding:0;margin:0;line-height:1px;font-size:=
+1px;" class=3D"cut"> <img src=3D"https://ea.twimg.com/email/self_serve/medi=
+a/spacer-1402696023930.png" style=3D"min-width: 448px;height:1px;margin:0;p=
+adding:0;display:block;-ms-interpolation-mode:bicubic;border:none;outline:n=
+one;" /> </td>
+</tr>
+</tbody>
+</table> </td>
+</tr>
+<tr>
+<td align=3D"center" style=3D"padding:0;margin:0;line-height:1px;font-size:=
+1px;">
+<!--/////////////////// header ///////////////////////////-->
+<table class=3D"collapse" id=3D"header" align=3D"center" width=3D"448" styl=
+e=3D"width:448px;background-color:#ffffff;padding:0;margin:0;line-height:1p=
+x;font-size:1px;" bgcolor=3D"#ffffff" cellpadding=3D"0" cellspacing=3D"0" b=
+order=3D"0">
+<tbody>
+<tr>
+<td colspan=3D"4" height=3D"24" style=3D"height:24px;padding:0;margin:0;lin=
+e-height:1px;font-size:1px;" class=3D"logo_space"> &nbsp; </td>
+</tr>
+<tr align=3D"right">
+<td width=3D"24" class=3D"margin" style=3D"padding:0;margin:0;line-height:1=
+px;font-size:1px;"></td>
+<td align=3D"right" style=3D"padding:0;margin:0;line-height:1px;font-size:1=
+px;"> <a href=3D"#" target=3D"blank" style=3D"text-decoration:none;border-s=
+tyle:none;border:0;padding:0;margin:0;"> <img width=3D"32" align=3D"right" =
+src=3D"https://ea.twimg.com/email/self_serve/media/Twitter_logo_180-1468901=
+451975.png" style=3D"width:32px;margin:0;padding:0;display:block;-ms-interp=
+olation-mode:bicubic;border:none;outline:none;" /> </a> </td>
+<td width=3D"24" class=3D"margin" style=3D"padding:0;margin:0;line-height:1=
+px;font-size:1px;"></td>
+</tr>
+<tr>
+<td colspan=3D"3" height=3D"24" style=3D"height:24px;padding:0;margin:0;lin=
+e-height:1px;font-size:1px;" class=3D"logo_space"> <img width=3D"1" height=
+=3D"1" style=3D"display: block;margin:0;padding:0;display:block;-ms-interpo=
+lation-mode:bicubic;border:none;outline:none;" src=3D"https://twitter.com/s=
+cribe/ibis?t=3D1&amp;cn=3DcGFzc3dvcmRfcmVzZXRfcGluX2Jhc2VkX2VtYWls&amp;iid=
+=3De108b1a8a8ec4d3283067b55a00912b9&amp;uid=3D1624457775894986754&amp;nid=
+=3D296+20" /> </td>
+</tr>
+</tbody>
+</table>
+<!--/////////////////// end header///////////////////////////-->
+<!--/////////////////// body ///////////////////////////-->
+<table class=3D"collapse" id=3D"header" align=3D"center" width=3D"448" styl=
+e=3D"width:448px;background-color:#ffffff;padding:0;margin:0;line-height:1p=
+x;font-size:1px;" bgcolor=3D"#ffffff" cellpadding=3D"0" cellspacing=3D"0" b=
+order=3D"0">
+<tbody>
+<tr align=3D"left;">
+<td width=3D"24" class=3D"margin" style=3D"padding:0;margin:0;line-height:1=
+px;font-size:1px;"></td>
+<td align=3D"left;" style=3D"padding:0;margin:0;line-height:1px;font-size:1=
+px;">
+<table class=3D"collapse" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" =
+style=3D"padding:0;margin:0;line-height:1px;font-size:1px;">
+<tbody>
+<tr>
+<td align=3D"left;" class=3D"h2" style=3D"padding:0;margin:0;line-height:1p=
+x;font-size:1px;font-family:'HelveticaNeue', 'Helvetica Neue', Helvetica, A=
+rial, sans-serif;font-size:24px;line-height:32px;font-weight:bold;color:#29=
+2F33;text-align:left;text-decoration:none;-webkit-font-smoothing:antialiase=
+d;"> Reset your password? </td>
+</tr>
+<tr>
+<td height=3D"12" style=3D"padding:0;margin:0;line-height:1px;font-size:1px=
+;"></td>
+</tr>
+<tr>
+<td align=3D"left;" class=3D"body-text" style=3D"padding:0;margin:0;line-he=
+ight:1px;font-size:1px;font-family:'HelveticaNeue', 'Helvetica Neue', Helve=
+tica, Arial, sans-serif;font-size:16px;line-height:20px;font-weight:400;col=
+or:#292F33;text-align:left;text-decoration:none;-webkit-font-smoothing:anti=
+aliased;"> If you requested a password reset for @zktestemail, use the conf=
+irmation code below to complete the process. If you didn't make this reques=
+t, ignore this email. </td>
+</tr>
+<tr>
+<td height=3D"24" style=3D"padding:0;margin:0;line-height:1px;font-size:1px=
+;"></td>
+</tr>
+<!--*********** password reset pin ************-->
+<tr>
+<td align=3D"left;" class=3D"support" style=3D"padding:0;margin:0;line-heig=
+ht:1px;font-size:1px;font-family:'HelveticaNeue', 'Helvetica Neue', Helveti=
+ca, Arial, sans-serif;font-size:14px;line-height:16px;font-weight:400;color=
+:#292F33;text-align:left;text-decoration:none;-webkit-font-smoothing:antial=
+iased;"> <strong>akfrmhya</strong> </td>
+</tr>
+<!--*********** end password reset pin ************-->
+<tr>
+<td height=3D"36" style=3D"height:36px;padding:0;margin:0;line-height:1px;f=
+ont-size:1px;"></td>
+</tr>
+<tr>
+<td align=3D"left;" class=3D"body-text" style=3D"padding:0;margin:0;line-he=
+ight:1px;font-size:1px;font-family:'HelveticaNeue', 'Helvetica Neue', Helve=
+tica, Arial, sans-serif;font-size:16px;line-height:20px;font-weight:400;col=
+or:#292F33;text-align:left;text-decoration:none;-webkit-font-smoothing:anti=
+aliased;"> <strong>Getting a lot of password reset emails?</strong> </td>
+</tr>
+<tr>
+<td height=3D"12" style=3D"padding:0;margin:0;line-height:1px;font-size:1px=
+;"></td>
+</tr>
+<tr>
+<td align=3D"left;" class=3D"body-text" style=3D"padding:0;margin:0;line-he=
+ight:1px;font-size:1px;font-family:'HelveticaNeue', 'Helvetica Neue', Helve=
+tica, Arial, sans-serif;font-size:16px;line-height:20px;font-weight:400;col=
+or:#292F33;text-align:left;text-decoration:none;-webkit-font-smoothing:anti=
+aliased;"> You can change your <a href=3D"https://twitter.com/i/redirect?ur=
+l=3Dhttps%3A%2F%2Ftwitter.com%2Fsettings%2Fsecurity&amp;t=3D1&amp;cn=3DcGFz=
+c3dvcmRfcmVzZXRfcGluX2Jhc2VkX2VtYWls&amp;sig=3D4f2138a21ba47b29174181b08569=
+71ac67b6f7f0&amp;iid=3De108b1a8a8ec4d3283067b55a00912b9&amp;uid=3D162445777=
+5894986754&amp;nid=3D296+3" style=3D"text-decoration:none;border-style:none=
+;border:0;padding:0;margin:0;border:none;text-decoration:none;font-weight:4=
+00;color:#1DA1F2;">account settings</a> to require personal information to =
+reset your password. </td>
+</tr>
+<tr>
+<td height=3D"36" style=3D"padding:0;margin:0;line-height:1px;font-size:1px=
+;"></td>
+</tr>
+</tbody>
+</table> </td>
+<td width=3D"24" class=3D"margin" style=3D"padding:0;margin:0;line-height:1=
+px;font-size:1px;"></td>
+</tr>
+</tbody>
+</table>
+<!--/////////////////// end body///////////////////////////-->
+<!--///////////////////// footer /////////////////////-->
+<table class=3D"collapse" id=3D"footer" align=3D"center" width=3D"448" styl=
+e=3D"width:448px; background-color:#ffffff;padding:0;margin:0;line-height:1=
+px;font-size:1px;" cellpadding=3D"0" cellspacing=3D"0" border=3D"0">
+<tbody>
+<tr>
+<td height=3D"36" style=3D"height:36px;padding:0;margin:0;line-height:1px;f=
+ont-size:1px;"></td>
+</tr>
+<tr>
+<td align=3D"center" style=3D"padding:0;margin:0;line-height:1px;font-size:=
+1px;"> <span class=3D"small-copy" style=3D"font-family:'HelveticaNeue', 'He=
+lvetica Neue', Helvetica, Arial, sans-serif;font-size:12px;line-height:16px=
+;font-weight:400;color:#8899A6;text-align:left;text-decoration:none;-webkit=
+-font-smoothing:antialiased;"> <a href=3D"https://support.twitter.com/artic=
+les/14663" class=3D"small-copy" style=3D"text-decoration:none;border-style:=
+none;border:0;padding:0;margin:0;font-family:'HelveticaNeue', 'Helvetica Ne=
+ue', Helvetica, Arial, sans-serif;font-size:12px;line-height:16px;font-weig=
+ht:400;color:#8899A6;text-align:left;text-decoration:none;-webkit-font-smoo=
+thing:antialiased;font-family:'HelveticaNeue', 'Helvetica Neue', Helvetica,=
+ Arial, sans-serif;font-size:12px;line-height:16px;font-weight:600;color:#1=
+DA1F2;text-align:left;text-decoration:none;-webkit-font-smoothing:antialias=
+ed;">Help</a> &nbsp;|&nbsp; <a href=3D"https://twitter.com/account/not_my_a=
+ccount/1624457775894986754/8D785-ED35A-167613?ut=3D1&amp;cn=3DcGFzc3dvcmRfc=
+mVzZXRfcGluX2Jhc2VkX2VtYWls" class=3D"small-copy" style=3D"text-decoration:=
+none;border-style:none;border:0;padding:0;margin:0;font-family:'HelveticaNe=
+ue', 'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:12px;line-hei=
+ght:16px;font-weight:400;color:#8899A6;text-align:left;text-decoration:none=
+;-webkit-font-smoothing:antialiased;font-family:'HelveticaNeue', 'Helvetica=
+ Neue', Helvetica, Arial, sans-serif;font-size:12px;line-height:16px;font-w=
+eight:600;color:#1DA1F2;text-align:left;text-decoration:none;-webkit-font-s=
+moothing:antialiased;">Not my account</a> &nbsp;|&nbsp; <a href=3D"https://=
+twitter.com/i/redirect?url=3Dhttps%3A%2F%2Fsupport.twitter.com%2Farticles%2=
+F204820-fake-twitter-emails&amp;t=3D1&amp;cn=3DcGFzc3dvcmRfcmVzZXRfcGluX2Jh=
+c2VkX2VtYWls&amp;sig=3D53906e913dd2fe024d96561261d0eed884844e3e&amp;iid=3De=
+108b1a8a8ec4d3283067b55a00912b9&amp;uid=3D1624457775894986754&amp;nid=3D296=
++6" class=3D"small-copy" style=3D"text-decoration:none;border-style:none;bo=
+rder:0;padding:0;margin:0;font-family:'HelveticaNeue', 'Helvetica Neue', He=
+lvetica, Arial, sans-serif;font-size:12px;line-height:16px;font-weight:400;=
+color:#8899A6;text-align:left;text-decoration:none;-webkit-font-smoothing:a=
+ntialiased;font-family:'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial,=
+ sans-serif;font-size:12px;line-height:16px;font-weight:600;color:#1DA1F2;t=
+ext-align:left;text-decoration:none;-webkit-font-smoothing:antialiased;">Em=
+ail security tips</a> </span> </td>
+</tr>
+<tr>
+<td height=3D"12" style=3D"height:12px;line-height:1px;font-size:1px;paddin=
+g:0;margin:0;line-height:1px;font-size:1px;"></td>
+</tr>
+<tr>
+<td align=3D"center" style=3D"padding:0;margin:0;line-height:1px;font-size:=
+1px;"> <span class=3D"small-copy" style=3D"font-family:'HelveticaNeue', 'He=
+lvetica Neue', Helvetica, Arial, sans-serif;font-size:12px;line-height:16px=
+;font-weight:400;color:#8899A6;text-align:left;text-decoration:none;-webkit=
+-font-smoothing:antialiased;"> This email was meant for @zktestemail </span=
+> </td>
+</tr>
+<tr>
+<td height=3D"6" style=3D"height:6px;line-height:1px;font-size:1px;padding:=
+0;margin:0;line-height:1px;font-size:1px;"></td>
+</tr>
+<tr>
+<td align=3D"center" style=3D"padding:0;margin:0;line-height:1px;font-size:=
+1px;"> <span class=3D"address"> <a href=3D"#" style=3D"text-decoration:none=
+;border-style:none;border:0;padding:0;margin:0;font-family:'HelveticaNeue',=
+ 'Helvetica Neue', Helvetica, Arial, sans-serif;-webkit-font-smoothing:anti=
+aliased;color:#8899A6;font-size:12px;padding:0px;margin:0px;font-weight:nor=
+mal;line-height:12px;cursor:default;">Twitter, Inc. 1355 Market Street, Sui=
+te 900 San Francisco, CA 94103</a> </span> </td>
+</tr>
+<tr>
+<td height=3D"72" style=3D"height:72px;padding:0;margin:0;line-height:1px;f=
+ont-size:1px;"></td>
+</tr>
+</tbody>
+</table>
+<!--///////////////////// end footer /////////////////////--> </td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>
+------=_Part_327915209_1341522477.1676136133617--
+

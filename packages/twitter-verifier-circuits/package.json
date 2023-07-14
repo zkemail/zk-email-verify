@@ -1,0 +1,21 @@
+{
+  "name": "@twitter-verifier/circuits",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "NODE_OPTIONS=--max_old_space_size=8192 jest"
+  },
+  "dependencies": {
+    "@zk-email/circuits": "workspace:^",
+    "@zk-email/helpers": "workspace:^",
+    "snarkjs": "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
+  },
+  "devDependencies": {
+    "chai": "^4.3.7",
+    "circom_tester": "^0.0.19",
+    "circomlib": "^2.0.5",
+    "circomlibjs": "^0.1.2",
+    "ffjavascript": "^0.2.59",
+    "jest": "^29.5.0",
+    "mocha": "^10.2.0"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": ["."],
+  "exclude": ["tests", "dist"],
+  "compilerOptions": {
+    "module": "esnext",
+    "baseUrl": "./",
+    "noEmit": true
+  }
+}

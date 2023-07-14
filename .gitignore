@@ -34,7 +34,7 @@ circuits/*_js/*
 *.sym
 circuits/*.wasm
 circuits/*.wtns
-src/circuits/*.wasm
+packages/circuits/*.wasm
 *.ptau
 *.zkey
 circuits/inputs/*.json
@@ -53,9 +53,9 @@ circuits/circuit*zkey*
 circuits/email/
 cache/
 test.log
-src/contracts/out/
-src/contracts/lib/
-src/contracts/broadcast
+packages/contracts/out/
+packages/contracts/lib/
+packages/contracts/broadcast
 .next
 node_modules.nosync
 *Wallet*
@@ -81,3 +81,10 @@ generate_input_log.txt
 .vite
 **/.vite
 **/.yarn/*
+
+tsbuildinfo
+
+**/node_modules
+**/build
+**/dist
+tsconfig.tsbuildinfo
