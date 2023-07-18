@@ -2,6 +2,30 @@
 
 Generate an anonymous proof of personhood badge at [anonkyc.com](https://anonkyc.com).
 
+## What is ZK KYC?
+
+A ZK KYC is KYC (Know Your Customer) that hides particular details of the user's identity such as the user's name, date of birth, citizenship, etc. Our ZK KYC proof generator implements the most basic level of ZK KYC: a proof of personhood that reveals no other information about the user. In particular, a user can have multiple addresses but can only ever have one proof of personhood badge. Other levels of ZK KYC could prove that the user is above the age of 21, or that the user is a U.S. citizen, etc. 
+
+## Motivation
+
+The use of KYCs to prevent fraud and to comply with regulations compromises the goals of decentralized technologies by placing private information in the hands of centralized organizations. A ZK KYC provides a possible solution to both sides of the debate: the KYC component can give organizations trust in their customers and also provide Sybil resistance, while the ZK component keeps customers' private information completely hidden. 
+
+## How ZK KYC works
+
+See the bottom of this README, or [this blog post](https://blog.aayushg.com/posts/zkemail/) for an explainer on how ZK Email works. The main idea is that we use the ZK Email circuit to verify that a KYC confirmation email from e.g., Coinbase, is real. We also use ZK-regex circuits to match the subject of the email with that of a KYC confirmation email. 
+
+To prevent someone from just minting infinite proof of personhood badges, we also attach a nullifier to every set of inputs. In our case, we concatenate the body hashes from the Airbnb and Coinbase confirmation emails and then hash that. 
+
+This is actually why we need two KYCs: one from Airbnb and one from Coinbase. At first glance, such a ZK KYC implementation could work with just Airbnb and an Airbnb KYC confirmation email, where your public nullifier is just the hash of the signature or the body hash. However, under such a setup, Airbnb would still be able to de-anonymize you from your public nullifier. Under our setup, Airbnb and Coinbase would have to collude in order to de-anonymize you. If we wanted to, we could add even more KYC requirements to make the system even more secure. 
+
+## Known issues
+
+Our current setup has several limitations on who can generate a ZK KYC:
+- Old public keys. Email domains typically rotate their public keys every six-or-so months. As a result, older KYC confirmation emails can't get verified. We are storing public keys so that we can check against them in the future, but unfortunately we don't have access to most of the older Airbnb/Coinbase public keys
+- New email format. If Airbnb suddenly decides to change the subject of their KYC confirmation emails, we will need to build a new zk regex circuit to match that new subject. Such formatting changes have happened in the past with Coinbase emails.
+
+# Legacy
+
 # ZK Email Verify
 
 **WIP: This tech is extremely tricky to use and very much a work in progress, and we do not recommend use in any production application right now. This is both due to unaudited code, and several theoretical gotchas such as lack of nullifiers, no signed bcc’s, non-nested reply signatures, upgradability of DNS, and hash sizings. None of these affect our current Twitter MVP usecase, but are not generally guaranteed. If you have a possible usecase, we are happy to help brainstorm if your trust assumptions are in fact correct!**
