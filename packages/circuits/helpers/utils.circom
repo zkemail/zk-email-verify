@@ -1,8 +1,8 @@
 pragma circom 2.1.5;
 
-include "../../../node_modules/circomlib/circuits/bitify.circom";
-include "../../../node_modules/circomlib/circuits/comparators.circom";
-include "../../../node_modules/circomlib/circuits/mimcsponge.circom";
+include "circomlib/circuits/bitify.circom";
+include "circomlib/circuits/comparators.circom";
+include "circomlib/circuits/mimcsponge.circom";
 include "./fp.circom";
 
 // returns ceil(log2(a+1))

@@ -1,7 +1,7 @@
 pragma circom 2.1.5;
 
-include "../../node_modules/@zk-email/circuits/regexes/from_regex.circom";
-include "../../node_modules/@zk-email/circuits/email-verifier.circom";
+include "@zk-email/circuits/regexes/from_regex.circom";
+include "@zk-email/circuits/email-verifier.circom";
 include "./components/twitter_reset_regex.circom";
 
 // Here, n and k are the biginteger parameters for RSA
