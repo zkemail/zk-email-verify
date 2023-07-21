@@ -1,6 +1,6 @@
 {
   "name": "@zk-email/helpers",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "dist",
   "scripts": {
     "build": "yarn g:tsc",
