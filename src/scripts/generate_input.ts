@@ -254,7 +254,7 @@ export async function getCircuitInputs(
       in_body_padded,
       in_body_len_padded_bytes,
       body_hash_idx,
-      // revolut specific indices
+      // Revolut specific indices
       revolut_amount_idx,
       revolut_send_id_idx,
       // IDs
