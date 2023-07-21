@@ -19,6 +19,9 @@ const catch_all =
   "(0|1|2|3|4|5|6|7|8|9|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|!|\"|#|$|%|&|'|\\(|\\)|\\*|\\+|,|-|.|/|:|;|<|=|>|\\?|@|[|\\\\|]|^|_|`|{|\\||}|~| |\t|\n|\r|\x0b|\x0c)";
 const catch_all_without_semicolon =
   "(0|1|2|3|4|5|6|7|8|9|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|!|\"|#|$|%|&|'|\\(|\\)|\\*|\\+|,|-|.|/|:|<|=|>|\\?|@|[|\\\\|]|^|_|`|{|\\||}|~| |\t|\n|\r|\x0b|\x0c)";
+const r0to9_with_new_line_and_equals = "(0|1|2|3|4|5|6|7|8|9|\r|\n|=)";
+const r0to9_with_period = "(0|1|2|3|4|5|6|7|8|9|.)";
+const r0to9_with_comma_period = "(0|1|2|3|4|5|6|7|8|9|,|.)";
 
 const email_chars = `${alphanum}|_|.|-`;
 const base_64 = `(${alphanum}|\\+|/|=)`;
@@ -75,12 +78,30 @@ function test_regex() {
   let raw_from_regex = `(\r\n|^)from:([A-Za-z0-9 _.,"@-]+)<[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.-]+>\r\n`;
   // let message_id_regex = `(\r\n|^)message-id:<[=@.\\+_-a-zA-Z0-9]+>\r\n`;
 
+  // -------- VENMO SEND REGEXES --------
+  // Extract offramper id
+  // TODO: similar to above, there seems to be a limit of 25 chars
+  // Manually constructed:
+  // -    href=3D\"https://venmo.
+  // - com/code\\?user_id=3D
+  let venmo_send_offramper_id_regex = `   href=3D\"https://venmo.` + `${r0to9_with_new_line_and_equals}+`;
+  // Extract amount
+  // TODO: it seems like there is a min regex string length of 2 chars?
+  // Prefix with 3 chars and then manually edit regex circom `$ab` -> `$`;
+  let venmo_amount_regex = `$` + `(${r0to9_with_period})+` + `\r\n`;
+
+  // -------- REVOLUT BODY REGEX ---------
+  // Extract IBAN for offramper
+  let revolut_send_offramper_iban_regex = `\r\number</strong><br>` + `(${alphanum})+`;
+  // Extract amount
+  let revolut_amount_regex = `You sent =C2=A3` + `(${r0to9_with_comma_period})+`;
+
   // -------- TWITTER BODY REGEX ---------
   // let regex = STRING_PRESELECTOR + `${word_char}+`;
 
   // ---------- DEPRECATAED REGEXES ----------
   // let order_invariant_header_regex_raw = `(((\\n|^)(((from):([A-Za-z0-9 _."@-]+<)?[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.]+>)?|(subject:[a-zA-Z 0-9]+)?|((to):([A-Za-z0-9 _."@-]+<)?[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.]+>)?)(\\r))+)`;
-  // let order_invariant_full_regex_raw = `(dkim-signature:((a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)=(0|1|2|3|4|5|6|7|8|9|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|!|"|#|$|%|&|\'|\\(|\\)|\\*|\\+|,|-|.|/|:|<|=|>|\\?|@|[|\\\\|]|^|_|\`|{|\\||}|~| |\t|\n|\r|\x0B|\f)+; ))?)(\\r))+` // Uses a-z syntax instead of | for each char
+  // let order_invariant_full_regex_raw = `(dkim-signature:((a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)=(0|1|2|3|4|5|6|7|8|9|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|!|"|#|$|%||\'|\\(|\\)|\\*|\\+|,|-|.|/|:|<|=|>|\\?|@|[|\\\\|]|^|_|\`|{|\\||}|~| |\t|\n|\r|\x0B|\f)+; ))?)(\\r))+` // Uses a-z syntax instead of | for each char
   // let old_regex = '(\r\n|\x80)(to|from):([A-Za-z0-9 _."@-]+<)?[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.]+>?\r\n';
   // let regex = `(\n|^)(to|from):((${email_chars}|"|@| )+<)?(${email_chars})+@(${email_chars})+>?\r`;
   // let regex = `(\r\n|^)(to|from):((${email_chars}|"|@| )+<)?(${email_chars})+@(${email_chars})+>?\r\n`;
@@ -89,10 +110,10 @@ function test_regex() {
 
   // --------- FINAL CONVERSION ---------
   //   console.log(format_regex_printable(raw_subject_regex));
-  let regex = regexToMinDFASpec(raw_subject_regex);
+  // let regex = regexToMinDFASpec(venmo_amount_regex);
   //   console.log(format_regex_printable(regex));
-
-  return regex;
+  return revolut_amount_regex;
+  // return regex;
 }
 
 // Escapes and prints regexes (might be buggy)

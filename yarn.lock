@@ -5567,6 +5567,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"circomlib@npm:^2.0.5":
+  version: 2.0.5
+  resolution: "circomlib@npm:2.0.5"
+  checksum: df8c3e0d51007758e30bb7ebad059ce692836420c85179088a20581c0adbf8f969d8cf901f9047adfcb80d45741eef4abe4d0d5e4c46748ace06e04256b5bfe7
+  languageName: node
+  linkType: hard
+
 "circomlibjs@npm:^0.1.2":
   version: 0.1.7
   resolution: "circomlibjs@npm:0.1.7"
@@ -15692,6 +15699,7 @@ __metadata:
     buffer: ^6.0.3
     chai: ^4.3.7
     circom_tester: ^0.0.19
+    circomlib: ^2.0.5
     circomlibjs: ^0.1.2
     cryo: ^0.0.6
     crypto-browserify: ^3.12.0
