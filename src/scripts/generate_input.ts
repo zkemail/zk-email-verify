@@ -74,6 +74,7 @@ export enum CircuitType {
   EMAIL_TWITTER = "email_twitter",
   EMAIL_VENMO_SEND = "email_venmo_send",
   EMAIL_REVOLUT_SEND = "email_revolut_send",
+  EMAIL_REVOLUT_SEND_EUR = "email_revolut_send_eur",
   EMAIL_SUBJECT = "email_subject",
 }
 
@@ -141,6 +142,9 @@ export async function getCircuitInputs(
   } else if (circuit === CircuitType.EMAIL_REVOLUT_SEND) {
     STRING_PRESELECTOR_FOR_EMAIL_TYPE = "You sent =C2=A3";
     MAX_BODY_PADDED_BYTES_FOR_EMAIL_TYPE = 11712;
+  } else if (circuit === CircuitType.EMAIL_REVOLUT_SEND_EUR) {
+    STRING_PRESELECTOR_FOR_EMAIL_TYPE = "\r\n=E2=82=AC";
+    MAX_BODY_PADDED_BYTES_FOR_EMAIL_TYPE = 12352;
   }
 
   // Derive modulus from signature
@@ -255,6 +259,30 @@ export async function getCircuitInputs(
       in_body_len_padded_bytes,
       body_hash_idx,
       // Revolut specific indices
+      revolut_amount_idx,
+      revolut_send_id_idx,
+      // IDs
+      order_id,
+      // claim_id
+    };
+  } else if (circuit === CircuitType.EMAIL_REVOLUT_SEND_EUR) {
+    const SEND_AMOUNT_SELECTOR = Buffer.from(STRING_PRESELECTOR_FOR_EMAIL_TYPE);
+    const revolut_amount_idx = (Buffer.from(bodyRemaining).indexOf(SEND_AMOUNT_SELECTOR) + SEND_AMOUNT_SELECTOR.length).toString();
+    const SEND_ID_SELECTOR = Buffer.from("IBAN</strong><br>");
+    const revolut_send_id_idx = (Buffer.from(bodyRemaining).indexOf(SEND_ID_SELECTOR) + SEND_ID_SELECTOR.length).toString();
+
+    console.log("Indexes into for revolut eur send email are: ", revolut_amount_idx, revolut_send_id_idx);
+
+    circuitInputs = {
+      in_padded,
+      modulus,
+      signature,
+      in_len_padded_bytes,
+      precomputed_sha,
+      in_body_padded,
+      in_body_len_padded_bytes,
+      body_hash_idx,
+      // revolut specific indices
       revolut_amount_idx,
       revolut_send_id_idx,
       // IDs

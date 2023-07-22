@@ -20,6 +20,7 @@ const catch_all =
 const catch_all_without_semicolon =
   "(0|1|2|3|4|5|6|7|8|9|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|!|\"|#|$|%|&|'|\\(|\\)|\\*|\\+|,|-|.|/|:|<|=|>|\\?|@|[|\\\\|]|^|_|`|{|\\||}|~| |\t|\n|\r|\x0b|\x0c)";
 const r0to9_with_new_line_and_equals = "(0|1|2|3|4|5|6|7|8|9|\r|\n|=)";
+const alphanum_with_new_line_and_equals = "(0|1|2|3|4|5|6|7|8|9|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|\r|\n|=)";
 const r0to9_with_period = "(0|1|2|3|4|5|6|7|8|9|.)";
 const r0to9_with_comma_period = "(0|1|2|3|4|5|6|7|8|9|,|.)";
 
@@ -96,6 +97,12 @@ function test_regex() {
   // Extract amount
   let revolut_amount_regex = `You sent =C2=A3` + `(${r0to9_with_comma_period})+`;
 
+  // -------- REVOLUT EUR BODY REGEX ---------
+  // Extract IBAN for offramper
+  let revolut_eur_send_offramper_iban_regex = `IBAN</strong><br>` + `(${alphanum_with_new_line_and_equals})+`;
+  // Extract amount
+  let revolut_eur_amount_regex = `\r\n=E2=82=AC` + `(${r0to9_with_comma_period})+`;
+
   // -------- TWITTER BODY REGEX ---------
   // let regex = STRING_PRESELECTOR + `${word_char}+`;
 
@@ -112,7 +119,7 @@ function test_regex() {
   //   console.log(format_regex_printable(raw_subject_regex));
   // let regex = regexToMinDFASpec(venmo_amount_regex);
   //   console.log(format_regex_printable(regex));
-  return revolut_amount_regex;
+  return revolut_eur_amount_regex;
   // return regex;
 }
 
