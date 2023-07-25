@@ -30,7 +30,7 @@ template TwitterVerifier(max_header_bytes, max_body_bytes, n, k, pack_size, expo
     signal input in_body_padded[max_body_bytes];
     signal input in_body_len_padded_bytes;
 
-    EmailVerifier(max_header_bytes, max_body_bytes, n, k)(in_padded, modulus, signature, in_len_padded_bytes, body_hash_idx, precomputed_sha, in_body_padded, in_body_len_padded_bytes);
+    EmailVerifier(max_header_bytes, max_body_bytes, n, k, 0)(in_padded, modulus, signature, in_len_padded_bytes, body_hash_idx, precomputed_sha, in_body_padded, in_body_len_padded_bytes);
 
     // FROM HEADER REGEX: 736,553 constraints
     // This extracts the from email, and the precise regex format can be viewed in the README
