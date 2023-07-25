@@ -11,6 +11,7 @@ include "./regexes/body_hash_regex.circom";
 // This is because the number is chunked into k pack_size of n bits each
 // Max header bytes shouldn't need to be changed much per email,
 // but the max mody bytes may need to be changed to be larger if the email has a lot of i.e. HTML formatting
+// ignore_body_hash_check is a flag that allows us to skip the body hash check, for projects that dont care about the body contents
 // TODO: split into header and body
 template EmailVerifier(max_header_bytes, max_body_bytes, n, k, ignore_body_hash_check) {
     assert(max_header_bytes % 64 == 0);
