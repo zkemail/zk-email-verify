@@ -1,0 +1,70 @@
+Return-path: <saleel@me.com>
+Original-recipient: rfc822;saleel@saleel.xyz
+Received: from ci74p00im-qukt09071102.me.com by p59-mailgateway-smtp-6776dc6585-266mm (mailgateway 2318B155)
+	with SMTP id 4bbe59e4-9423-43ff-9c6e-d47053303967 
+	for <saleel@saleel.xyz>; Thu, 22 Jun 2023 20:02:52 GMT
+X-Apple-MoveToFolder: INBOX 
+X-Apple-Action: MOVE_TO_FOLDER/INBOX
+X-Apple-UUID: 4bbe59e4-9423-43ff-9c6e-d47053303967
+Received: from pv50p00im-ztdg10012001.me.com (pv50p00im-ztdg10012001.me.com [17.58.6.51])
+	by ci74p00im-qukt09071102.me.com (Postfix) with ESMTPS id 491294B00172
+	for <saleel@saleel.xyz>; Thu, 22 Jun 2023 20:02:47 +0000 (UTC)
+X-ICL-SCORE: 3.233003230041
+X-ICL-INFO: GAtbVUseBFFGSVZESgMGUkFIRFcUWUIPAApbVRYSFhEAREQZF15TQFUcAkpaQ1cOEBwKNxVVGAEa
+ FERXHlQLQBgcSBQXXRRCBhAWSloBAUxAQUhBVgUHQFURAxsXDRQSA0xWB0gAXw9YAxITHwEGUkRL
+ VkdJHlsHWxoJGloQRhYHREQHDgUGEkVJDxpVSkIGEkhWR0kCBlJEVwsSVlNZD1dZAhNFElsHWxoJ
+ GloQWwsRRERLPnEOUENMVUBVAAYgM1RSQ0x1GyBNSyJaTQZzIEBPIEE+AwFTNRQDWRtfW1xXWRQU
+ RRJFAxkcAxs4Q1cOEBwKWQBJTEA=
+Authentication-Results: bimi.icloud.com; bimi=declined
+X-ARC-Info: policy=fail; arc=none
+Authentication-Results: arc.icloud.com; arc=none
+Authentication-Results: dmarc.icloud.com; dmarc=pass header.from=me.com
+X-DMARC-Info: pass=pass; dmarc-policy=quarantine; s=r0; d=r1; pdomain=me.com
+X-DMARC-Policy: v=DMARC1; p=quarantine; rua=mailto:d@rua.agari.com; ruf=mailto:d@ruf.agari.com;
+Authentication-Results: dkim-verifier.icloud.com;
+	dkim=pass (2048-bit key) header.d=me.com header.i=@me.com header.b=FpmCwgC9
+Authentication-Results: spf.icloud.com; spf=none (spf.icloud.com: saleel@me.com does not designate permitted sender hosts) smtp.mailfrom=saleel@me.com
+Received-SPF: none (spf.icloud.com: saleel@me.com does not designate permitted sender hosts) receiver=spf.icloud.com; client-ip=17.58.6.51; helo=pv50p00im-ztdg10012001.me.com; envelope-from=saleel@me.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=me.com; s=1a1hai;
+	t=1687464166; bh=FxfpVjf51msd35Z/BVrd7Uv2GcGRjxaW9dGr90Y2M88=;
+	h=From:Content-Type:Mime-Version:Subject:Message-Id:Date:To;
+	b=FpmCwgC9dKuHA2BXHuO6Ujfls+b5psK4yurk9TkR9Q2rpH8ahp6XDuDRQW/8mucud
+	 kIoudejHdNfXqUpWzmtcVCff+cWyzBJarYt8YKgPKQZ3f+UZqXMPJ7t1sZbIJkSU7n
+	 zTiXh+F7KX/kIsJ1vUHnf40EsULPMU2CUSdBxvHpH4C2+MiVcx/mazLdh9BlpKavwY
+	 QMl3uEDcH/blpvK7YRFn3eYpFL8TkS819/aBUcQg6aGZMJrGsr+cQFCsPmXTPHbxBD
+	 LUnk7BUdzdvIwPDnOOrFJIf6JCbJd1rWIiGy3ZOP67+h79eHkQPcZxl/fq0BFQypPq
+	 TOvKhhMsQAmHw==
+Received: from smtpclient.apple (pv50p00im-dlb-asmtp-mailmevip.me.com [17.56.9.10])
+	by pv50p00im-ztdg10012001.me.com (Postfix) with ESMTPSA id A9258A01A4
+	for <saleel@saleel.xyz>; Thu, 22 Jun 2023 20:02:44 +0000 (UTC)
+From: Saleel <saleel@me.com>
+Content-Type: text/plain;
+	charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3731.500.231\))
+Subject: Test email subject
+Message-Id: <FA826537-00BF-444E-B82D-56EB56F6F371@me.com>
+Date: Fri, 23 Jun 2023 01:32:20 +0530
+To: Saleel <saleel@saleel.xyz>
+X-Mailer: Apple Mail (2.3731.500.231)
+X-Proofpoint-GUID: MU47Y4dCOAohatJZW3Su6CexM6uUt94W
+X-Proofpoint-ORIG-GUID: MU47Y4dCOAohatJZW3Su6CexM6uUt94W
+X-MANTSH: 1TEIXSUMdHVoaGkNHB1tfQV4aEhoTGxsaGBEKTEMXGxoEGxwSBBscGgQfGhAbHho
+ fGhEKTFkXGx8ZEQpZRBdsUm5CHktdTXIFbxEKWU0XZEVETxEKWUkXGRxxGwYdG3cGEh0GGgYaB
+ hoGGRpxGxAadwYaBhoGGgYaBhoGGnEaEBp3BhoRClleF2xseREKQ04XZ38eHXMeTmlla0VCS15
+ gcH0ZeV8caU9SZxxff14THn0RClhcFxkEGgQfGgUbGhoEEhgEHhgEGBIQGx4aHxoRCl5ZF0hTQ
+ RhsEQpNXBcaEQpMWhdoaU1raxEKTEYXTWsRCkNaFxsdBB8SBBwEHxsRCkJeFxsRCkJcFxsRCl5
+ OFxsRCkJLF2xwYHlAHWJSaRpiEQpCSRdscGB5QB1iUmkaYhEKQkUXbllZcnNAGl1aGF4RCkJOF
+ 2xwYHlAHWJSaRpiEQpCTBdgTVt4G1BffxhwZxEKQm4XbWVwG0JrYh5eZlwRCkJsF2h7YBNtbBh
+ JfU4dEQpCQBdufWFrHURjemEFHxEKQlgXemEZYklYHBwYWk8RCk1eFxsRClpYFxgRCnBoF2RMR
+ 20YaAEeBXJpEBkaEQpwbBdpRhJHa2Bzb1NHZhAZGhEKbX4XGxEKWE0XSxE=
+X-CLX-Shades: None
+X-Proofpoint-Virus-Version: =?UTF-8?Q?vendor=3Dfsecure_engine=3D1.1.170-22c6f66c430a71ce266a39bfe25bc?=
+ =?UTF-8?Q?2903e8d5c8f:6.0.425,18.0.790,17.0.605.474.0000000_definitions?=
+ =?UTF-8?Q?=3D2022-01-13=5F02:2022-01-11=5F01,2022-01-13=5F02,2020-01-23?=
+ =?UTF-8?Q?=5F02_signatures=3D0?=
+X-Proofpoint-Spam-Reason: safe
+
+Hello
+
+How are you doing?
