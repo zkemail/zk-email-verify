@@ -5,7 +5,7 @@ orbs:
 jobs:
   run_circuit_tests:
     docker:
-      - image: cimg/node:16.19-browsers
+      - image: saleel/circom:2.1.6
     steps:
       - checkout:
           path: ~/zk-email-verify
@@ -19,7 +19,7 @@ jobs:
 
   run_twitter_circuit_tests:
     docker:
-      - image: cimg/node:16.19-browsers
+      - image: saleel/circom:2.1.6
     steps:
       - checkout:
           path: ~/zk-email-verify
