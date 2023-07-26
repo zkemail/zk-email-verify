@@ -31,7 +31,7 @@ describe("EmailVerifier", () => {
         // NOTE: We are running tests against pre-compiled circuit in the below path
         // You need to manually compile when changes are made to circuit if `recompile` is set to `false`.
         // circom "./tests/email-verifier-test.circom" --r1cs --wasm --sym --c --wat --output "./tests/compiled-test-circuit"
-        recompile: true,
+        recompile: false,
         output: path.join(__dirname, "./compiled-test-circuit"),
         include: path.join(__dirname, "../../../node_modules"),
       }
