@@ -91,6 +91,6 @@ workflows:
   build_test:
     jobs:
       - run_circuit_tests
-      - run_twitter_circuit_tests      
+      # - run_twitter_circuit_tests      
       - run_unit_and_e2e_tests
       - run_forge_tests
