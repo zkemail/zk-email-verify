@@ -61,15 +61,16 @@ template EmailVerifier(max_header_bytes, max_body_bytes, n, k, ignore_body_hash_
     rsa.signature <== signature;
 
 
-    // BODY HASH REGEX: 617,597 constraints
-    // This extracts the body hash from the header (i.e. the part after bh= within the DKIM-signature section)
-    // which is used to verify the body text matches this signed hash + the signature verifies this hash is legit
-    signal (bh_regex_out, bh_reveal[max_header_bytes]) <== BodyHashRegex(max_header_bytes)(in_padded);
-    bh_regex_out === 1;
-    signal shifted_bh_out[LEN_SHA_B64] <== VarShiftLeft(max_header_bytes, LEN_SHA_B64)(bh_reveal, body_hash_idx);
-    // log(body_hash_regex.out);
-
     if (ignore_body_hash_check != 1) {
+        // BODY HASH REGEX: 617,597 constraints
+        // This extracts the body hash from the header (i.e. the part after bh= within the DKIM-signature section)
+        // which is used to verify the body text matches this signed hash + the signature verifies this hash is legit
+        signal (bh_regex_out, bh_reveal[max_header_bytes]) <== BodyHashRegex(max_header_bytes)(in_padded);
+        bh_regex_out === 1;
+        signal shifted_bh_out[LEN_SHA_B64] <== VarShiftLeft(max_header_bytes, LEN_SHA_B64)(bh_reveal, body_hash_idx);
+        // log(body_hash_regex.out);
+
+
         // SHA BODY: 760,142 constraints
 
         // Precomputed sha vars for big body hashing
