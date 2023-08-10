@@ -3,6 +3,7 @@
   "include": ["src/**/*"],
   "exclude": ["dist", "tests"],
   "compilerOptions": {
+    "module": "commonjs",
     "declaration": true,
     "baseUrl": "./src",
     "outDir": "dist"

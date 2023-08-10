@@ -77,6 +77,8 @@ generate_input_log.txt
 *.env
 .vscode
 
+packages/circuits/tests/compiled-test-circuit/*
+
 
 .vite
 **/.vite
