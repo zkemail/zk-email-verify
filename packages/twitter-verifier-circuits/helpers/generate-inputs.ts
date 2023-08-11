@@ -31,7 +31,7 @@ export function generateTwitterVerifierCircuitInputs({
     maxBodyLength: MAX_BODY_PADDED_BYTES,
   });
 
-  const bodyRemaining = emailVerifierInputs.in_body_padded.map(c => Number(c)); // Char array to Uint8Array
+  const bodyRemaining = emailVerifierInputs.in_body_padded!.map(c => Number(c)); // Char array to Uint8Array
   const selectorBuffer = Buffer.from(STRING_PRESELECTOR);
   const usernameIndex = Buffer.from(bodyRemaining).indexOf(selectorBuffer) + selectorBuffer.length;
 

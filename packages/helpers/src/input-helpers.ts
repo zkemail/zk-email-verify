@@ -103,16 +103,18 @@ export function generatePartialSHA({
   };
 }
 
-export function generateCircuitInputs({
-  rsaSignature,
-  rsaModulus,
-  body,
-  bodyHash,
-  message, // the message that was signed (header + bodyHash)
-  shaPrecomputeSelector, // String to split the body for SHA pre computation
-  maxMessageLength = MAX_HEADER_PADDED_BYTES, // Maximum allowed length of the message in circuit
-  maxBodyLength = MAX_BODY_PADDED_BYTES, // Maximum allowed length of the body in circuit
-}: {
+type CircuitInput = {
+  in_padded: string[];
+  modulus: string[];
+  signature: string[];
+  in_len_padded_bytes: string;
+  precomputed_sha?: string[];
+  in_body_padded?: string[];
+  in_body_len_padded_bytes?: string;
+  body_hash_idx?: string;
+}
+
+export function generateCircuitInputs(params: {
   body: Buffer;
   message: Buffer;
   bodyHash: string;
@@ -121,7 +123,20 @@ export function generateCircuitInputs({
   shaPrecomputeSelector?: string;
   maxMessageLength: number;
   maxBodyLength: number;
-}) {
+  ignoreBodyHashCheck?: boolean;
+}) : CircuitInput {
+  const {
+    rsaSignature,
+    rsaModulus,
+    body,
+    bodyHash,
+    message, // the message that was signed (header + bodyHash)
+    shaPrecomputeSelector, // String to split the body for SHA pre computation
+    maxMessageLength = MAX_HEADER_PADDED_BYTES, // Maximum allowed length of the message in circuit
+    maxBodyLength = MAX_BODY_PADDED_BYTES, // Maximum allowed length of the body in circuit
+    ignoreBodyHashCheck = false, // To be used when ignore_body_hash_check is true in circuit
+  } = params;
+
   // SHA add padding
   const [messagePadded, messagePaddedLen] = sha256Pad(
     message,
@@ -144,18 +159,22 @@ export function generateCircuitInputs({
       maxRemainingBodyLength: maxBodyLength,
     });
 
-  const bodyHashIndex = message.toString().indexOf(bodyHash).toString();
 
-  const circuitInputs = {
+  const circuitInputs : CircuitInput = {
     in_padded: Uint8ArrayToCharArray(messagePadded), // Packed into 1 byte signals
     modulus: toCircomBigIntBytes(rsaModulus),
     signature: toCircomBigIntBytes(rsaSignature),
     in_len_padded_bytes: messagePaddedLen.toString(),
-    precomputed_sha: Uint8ArrayToCharArray(precomputedSha),
-    in_body_padded: Uint8ArrayToCharArray(bodyRemaining),
-    in_body_len_padded_bytes: bodyRemainingLength.toString(),
-    body_hash_idx: bodyHashIndex,
   };
+
+  if (!ignoreBodyHashCheck)  {
+    const bodyHashIndex = message.toString().indexOf(bodyHash);
+
+    circuitInputs.precomputed_sha = Uint8ArrayToCharArray(precomputedSha);
+    circuitInputs.body_hash_idx = bodyHashIndex.toString();
+    circuitInputs.in_body_padded = Uint8ArrayToCharArray(bodyRemaining);
+    circuitInputs.in_body_len_padded_bytes = bodyRemainingLength.toString();
+  }
 
   return circuitInputs;
 }
