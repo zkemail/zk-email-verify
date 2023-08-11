@@ -27,7 +27,6 @@ template EmailVerifier(max_header_bytes, max_body_bytes, n, k, ignore_body_hash_
 
     // Base 64 body hash variables
     var LEN_SHA_B64 = 44;     // ceil(32 / 3) * 4, due to base64 encoding.
-    signal input body_hash_idx;
 
     // SHA HEADER: 506,670 constraints
     // This calculates the SHA256 hash of the header, which is the "base_msg" that is RSA signed.
@@ -62,6 +61,8 @@ template EmailVerifier(max_header_bytes, max_body_bytes, n, k, ignore_body_hash_
 
 
     if (ignore_body_hash_check != 1) {
+        signal input body_hash_idx;
+
         // BODY HASH REGEX: 617,597 constraints
         // This extracts the body hash from the header (i.e. the part after bh= within the DKIM-signature section)
         // which is used to verify the body text matches this signed hash + the signature verifies this hash is legit
