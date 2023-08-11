@@ -33,7 +33,7 @@ template EmailVerifier(max_header_bytes, max_body_bytes, n, k, ignore_body_hash_
     // The header signs the fields in the "h=Date:From:To:Subject:MIME-Version:Content-Type:Message-ID;"
     // section of the "DKIM-Signature:"" line, along with the body hash.
     // Note that nothing above the "DKIM-Signature:" line is signed.
-    signal sha[256] <== Sha256Bytes(max_header_bytes)(in_padded, in_len_padded_bytes);
+    signal output sha[256] <== Sha256Bytes(max_header_bytes)(in_padded, in_len_padded_bytes);
     var msg_len = (256 + n) \ n;
 
     component base_msg[msg_len];

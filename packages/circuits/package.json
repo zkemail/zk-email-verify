@@ -1,6 +1,6 @@
 {
   "name": "@zk-email/circuits",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "scripts": {
     "publish": "yarn npm publish --access=public",
     "test": "jest tests/*.ts"
