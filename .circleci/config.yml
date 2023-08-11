@@ -45,7 +45,7 @@ jobs:
           app-dir: ~/zk-email-verify
       - run:
           name: run foundry tests
-          working_directory: ~/zk-email-verify/packages/twitter-verifier-circuits
+          working_directory: ~/zk-email-verify/packages/twitter-verifier-contracts
           command: forge test --fork-url https://eth-goerli.g.alchemy.com/v2/${ALCHEMY_API_KEY}
 
   run_unit_and_e2e_tests:
@@ -79,7 +79,6 @@ jobs:
           working_directory: ~/zk-email-verify/packages/twitter-verifier-app
           environment:
             JEST_JUNIT_OUTPUT: reports/e2e-ui-test-results.xml
-
       # - run:
       #     command: yarn test:e2e-zkp
       #     name: Run e2e tests for zkp
