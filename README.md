@@ -343,7 +343,7 @@ For baremetal, proof generation time on 16 CPUs took 97 seconds. Generating zkey
 ```bash
 brew install git-filter-repo
 git filter-repo --replace-text <(echo "0x000000000000000000000000000000000000000000000000000000000abcdef")
-git filter-repo --path mit_msg.eml --invert-paths
+git filter-repo --invert-paths --path mit_msg.eml
 git remote add origin https://github.com/zk-email-verify/zk-email-verify
 ls
 git push --set-upstream origin main --force

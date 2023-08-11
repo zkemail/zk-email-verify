@@ -55,6 +55,7 @@ contract Deploy is Script, Test {
         TestEmailToken erc20 = new TestEmailToken(5000);
         TokenRegistry tokenRegistry = new TokenRegistry();
         tokenRegistry.setTokenAddress("TEST", address(erc20));
+        tokenRegistry.setTokenAddress("TES", address(erc20));
         EmailWallet logic = new EmailWallet();
 
         bytes memory initData =

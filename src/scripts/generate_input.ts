@@ -112,7 +112,7 @@ export async function getCircuitInputs(
   body_hash: string,
   eth_address: string,
   circuit: CircuitType,
-  nonce: string | null = null
+  nonce: string | number | null = null
 ): Promise<{
   valid: {
     validSignatureFormat?: boolean;
@@ -233,10 +233,10 @@ export async function getCircuitInputs(
 
     // If the message-id is in the format (from)_(_to), then we can use it to get the private message-ids
     // TODO: Use JSON to pass this in instead of the filename string parsing
-    if (nonce !== null) {
-      const matchResult = nonce.match(/\(([^)]+)\)_\(([^)]+)\)/);
+    if (nonce !== null && typeof nonce === "string") {
+      const matchResult = nonce.match(/\(([^)]+)\)_\(([^)]+)\)_\(([^)]+)\)/);
       if (matchResult) {
-        const [_, _custom_message_id_from, _custom_message_id_recipient] = matchResult;
+        const [_, _custom_message_id_from, _custom_message_id_recipient, _hash] = matchResult;
         custom_message_id_from = await Uint8ArrayToCharArray(padWithZero(stringToBytes(_custom_message_id_from), MAX_MESSAGE_ID_LEN));
         custom_message_id_recipient = await Uint8ArrayToCharArray(padWithZero(stringToBytes(_custom_message_id_recipient), MAX_MESSAGE_ID_LEN));
       }
