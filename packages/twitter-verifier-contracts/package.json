@@ -6,7 +6,7 @@
     "test": "forge test"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.9.1",
+    "@openzeppelin/contracts": "^4.9.3",
     "@openzeppelin/contracts-upgradeable": "^4.9.1",
     "@zk-email/contracts": "workspace:^",
     "ds-test": "https://github.com/dapphub/ds-test",
