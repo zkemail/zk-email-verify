@@ -107,11 +107,11 @@ type CircuitInput = {
   in_padded: string[];
   modulus: string[];
   signature: string[];
-  in_len_padded_bytes: Number;
+  in_len_padded_bytes: string;
   precomputed_sha?: string[];
   in_body_padded?: string[];
-  in_body_len_padded_bytes?: Number;
-  body_hash_idx?: Number;
+  in_body_len_padded_bytes?: string;
+  body_hash_idx?: string;
 }
 
 export function generateCircuitInputs(params: {
@@ -164,16 +164,16 @@ export function generateCircuitInputs(params: {
     in_padded: Uint8ArrayToCharArray(messagePadded), // Packed into 1 byte signals
     modulus: toCircomBigIntBytes(rsaModulus),
     signature: toCircomBigIntBytes(rsaSignature),
-    in_len_padded_bytes: messagePaddedLen,
+    in_len_padded_bytes: messagePaddedLen.toString(),
   };
 
   if (!ignoreBodyHashCheck)  {
     const bodyHashIndex = message.toString().indexOf(bodyHash);
 
     circuitInputs.precomputed_sha = Uint8ArrayToCharArray(precomputedSha);
-    circuitInputs.body_hash_idx = bodyHashIndex;
+    circuitInputs.body_hash_idx = bodyHashIndex.toString();
     circuitInputs.in_body_padded = Uint8ArrayToCharArray(bodyRemaining);
-    circuitInputs.in_body_len_padded_bytes = bodyRemainingLength;
+    circuitInputs.in_body_len_padded_bytes = bodyRemainingLength.toString();
   }
 
   return circuitInputs;
