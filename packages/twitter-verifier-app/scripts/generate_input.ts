@@ -33,7 +33,7 @@ async function getArgs() {
 }
 
 export interface ICircuitInputs {
-  modulus?: string[];
+  pubkey?: string[];
   signature?: string[];
   base_message?: string[];
   in_padded?: string[];
@@ -164,7 +164,7 @@ export async function getCircuitInputs(
 
   // Compute identity revealer
   let circuitInputs;
-  const modulus = toCircomBigIntBytes(modulusBigInt);
+  const pubkey = toCircomBigIntBytes(modulusBigInt);
   const signature = toCircomBigIntBytes(signatureBigInt);
 
   const in_len_padded_bytes = messagePaddedLen.toString();
@@ -189,7 +189,7 @@ export async function getCircuitInputs(
 
   if (circuit === CircuitType.RSA) {
     circuitInputs = {
-      modulus,
+      pubkey,
       signature,
       base_message,
     };
@@ -199,7 +199,7 @@ export async function getCircuitInputs(
 
     circuitInputs = {
       in_padded,
-      modulus,
+      pubkey,
       signature,
       in_len_padded_bytes,
       precomputed_sha,
@@ -230,7 +230,7 @@ export async function getCircuitInputs(
 
     circuitInputs = {
       in_padded,
-      modulus,
+      pubkey,
       signature,
       in_len_padded_bytes,
       address: address,

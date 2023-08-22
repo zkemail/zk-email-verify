@@ -41,7 +41,7 @@ describe("EmailVerifier", () => {
   it("should verify email without any SHA precompute selector", async function () {
     const emailVerifierInputs = generateCircuitInputs({
       rsaSignature: dkimResult.signature,
-      rsaModulus: dkimResult.modulus,
+      rsaPublicKey: dkimResult.publicKey,
       body: dkimResult.body,
       bodyHash: dkimResult.bodyHash,
       message: dkimResult.message,
@@ -56,7 +56,7 @@ describe("EmailVerifier", () => {
   it("should verify email with a SHA precompute selector", async function () {
     const emailVerifierInputs = generateCircuitInputs({
       rsaSignature: dkimResult.signature,
-      rsaModulus: dkimResult.modulus,
+      rsaPublicKey: dkimResult.publicKey,
       body: dkimResult.body,
       bodyHash: dkimResult.bodyHash,
       message: dkimResult.message,
@@ -74,7 +74,7 @@ describe("EmailVerifier", () => {
 
     const emailVerifierInputs = generateCircuitInputs({
       rsaSignature: invalidRSASignature,
-      rsaModulus: dkimResult.modulus,
+      rsaPublicKey: dkimResult.publicKey,
       body: dkimResult.body,
       bodyHash: dkimResult.bodyHash,
       message: dkimResult.message,
@@ -95,7 +95,7 @@ describe("EmailVerifier", () => {
   it("should fail if precompute string is not found in body", async function () {
     const emailVerifierInputs = generateCircuitInputs({
       rsaSignature: dkimResult.signature,
-      rsaModulus: dkimResult.modulus,
+      rsaPublicKey: dkimResult.publicKey,
       body: dkimResult.body,
       bodyHash: dkimResult.bodyHash,
       message: dkimResult.message,
@@ -119,7 +119,7 @@ describe("EmailVerifier", () => {
 
     const emailVerifierInputs = generateCircuitInputs({
       rsaSignature: dkimResult.signature,
-      rsaModulus: dkimResult.modulus,
+      rsaPublicKey: dkimResult.publicKey,
       body: dkimResult.body,
       bodyHash: dkimResult.bodyHash,
       message: invalidMessage,
@@ -143,7 +143,7 @@ describe("EmailVerifier", () => {
 
     const emailVerifierInputs = generateCircuitInputs({
       rsaSignature: dkimResult.signature,
-      rsaModulus: dkimResult.modulus,
+      rsaPublicKey: dkimResult.publicKey,
       body: invalidBody,
       bodyHash: dkimResult.bodyHash,
       message: dkimResult.message,
@@ -166,7 +166,7 @@ describe("EmailVerifier", () => {
 
     const emailVerifierInputs = generateCircuitInputs({
       rsaSignature: dkimResult.signature,
-      rsaModulus: dkimResult.modulus,
+      rsaPublicKey: dkimResult.publicKey,
       body: dkimResult.body,
       bodyHash: invalidBodyHash,
       message: dkimResult.message,

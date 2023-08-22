@@ -38,7 +38,7 @@ describe("Twitter email test", function () {
   it("should verify twitter email", async function () {
     const twitterVerifierInputs = generateTwitterVerifierCircuitInputs({
       rsaSignature: dkimResult.signature,
-      rsaModulus: dkimResult.modulus,
+      rsaPublicKey: dkimResult.publicKey,
       body: dkimResult.body,
       bodyHash: dkimResult.bodyHash,
       message: dkimResult.message,

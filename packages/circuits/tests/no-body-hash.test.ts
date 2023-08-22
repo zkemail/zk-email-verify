@@ -42,7 +42,7 @@ describe("EmailVerifier : Without body check", () => {
     // The result wont have shaPrecomputeSelector, maxMessageLength, maxBodyLength, ignoreBodyHashCheck
     const emailVerifierInputs = generateCircuitInputs({
       rsaSignature: dkimResult.signature,
-      rsaModulus: dkimResult.modulus,
+      rsaPublicKey: dkimResult.publicKey,
       body: dkimResult.body,
       bodyHash: dkimResult.bodyHash,
       message: dkimResult.message,

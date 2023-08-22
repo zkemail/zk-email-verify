@@ -334,7 +334,7 @@ export const MainPage: React.FC<{}> = (props) => {
 
                 input = await generateTwitterVerifierCircuitInputs({
                   rsaSignature: dkimResult.signature,
-                  rsaModulus: dkimResult.modulus,
+                  rsaPublicKey: dkimResult.publicKey,
                   body: dkimResult.body,
                   bodyHash: dkimResult.bodyHash,
                   message: dkimResult.message,

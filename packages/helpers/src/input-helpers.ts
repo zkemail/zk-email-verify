@@ -105,7 +105,7 @@ export function generatePartialSHA({
 
 type CircuitInput = {
   in_padded: string[];
-  modulus: string[];
+  pubkey: string[];
   signature: string[];
   in_len_padded_bytes: string;
   precomputed_sha?: string[];
@@ -119,7 +119,7 @@ export function generateCircuitInputs(params: {
   message: Buffer;
   bodyHash: string;
   rsaSignature: BigInt;
-  rsaModulus: BigInt;
+  rsaPublicKey: BigInt;
   shaPrecomputeSelector?: string;
   maxMessageLength: number;
   maxBodyLength: number;
@@ -127,7 +127,7 @@ export function generateCircuitInputs(params: {
 }) : CircuitInput {
   const {
     rsaSignature,
-    rsaModulus,
+    rsaPublicKey,
     body,
     bodyHash,
     message, // the message that was signed (header + bodyHash)
@@ -162,7 +162,7 @@ export function generateCircuitInputs(params: {
 
   const circuitInputs : CircuitInput = {
     in_padded: Uint8ArrayToCharArray(messagePadded), // Packed into 1 byte signals
-    modulus: toCircomBigIntBytes(rsaModulus),
+    pubkey: toCircomBigIntBytes(rsaPublicKey),
     signature: toCircomBigIntBytes(rsaSignature),
     in_len_padded_bytes: messagePaddedLen.toString(),
   };
