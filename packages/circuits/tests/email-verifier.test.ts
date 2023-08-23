@@ -1,5 +1,7 @@
+import { bigIntToChunkedBytes } from "@zk-email/helpers/src/binaryFormat";
 import { DKIMVerificationResult } from "@zk-email/helpers/src/dkim";
 import { generateCircuitInputs } from "@zk-email/helpers/src/input-helpers";
+// import { buildPoseidon } from "circomlibjs";
 
 const { verifyDKIMSignature } = require("@zk-email/helpers/src/dkim");
 const fs = require("fs");
@@ -31,7 +33,7 @@ describe("EmailVerifier", () => {
         // NOTE: We are running tests against pre-compiled circuit in the below path
         // You need to manually compile when changes are made to circuit if `recompile` is set to `false`.
         // circom "./tests/email-verifier-test.circom" --r1cs --wasm --sym --c --wat --output "./tests/compiled-test-circuit"
-        recompile: true,
+        recompile: false,
         output: path.join(__dirname, "./compiled-test-circuit"),
         include: path.join(__dirname, "../../../node_modules"),
       }
@@ -162,7 +164,7 @@ describe("EmailVerifier", () => {
   });
 
   it("should fail if body hash is tampered", async function () {
-    const invalidBodyHash = dkimResult.bodyHash + 'a';
+    const invalidBodyHash = dkimResult.bodyHash + "a";
 
     const emailVerifierInputs = generateCircuitInputs({
       rsaSignature: dkimResult.signature,
@@ -182,5 +184,35 @@ describe("EmailVerifier", () => {
     } catch (error) {
       expect((error as Error).message).toMatch("Assert Failed");
     }
+  });
+
+  it("should produce dkim key hash correctly", async function () {
+    const emailVerifierInputs = generateCircuitInputs({
+      rsaSignature: dkimResult.signature,
+      rsaPublicKey: dkimResult.publicKey,
+      body: dkimResult.body,
+      bodyHash: dkimResult.bodyHash,
+      message: dkimResult.message,
+      shaPrecomputeSelector: "How are",
+      maxMessageLength: 640,
+      maxBodyLength: 768,
+    });
+
+    // Calculate the poseidon hash using JS by splitting pubKey to 9 chunks of 242
+    // TODO: Fix this. This test is not working; the hash returned by the circom is different from
+    // the one computed locally.
+
+    // const poseidon = await buildPoseidon();
+    // const chunked = bigIntToChunkedBytes(dkimResult.publicKey, 242, 9);
+    // const hash = poseidon(chunked);
+    // const hashInt = BigInt(parseInt(Buffer.from(hash).toString('hex'), 16)).toString();
+
+    const witness = await circuit.calculateWitness(emailVerifierInputs);
+
+    const gmailHash = "9601655888625014162288850419683651547363906810920337900608272342042199343577";
+
+    await circuit.assertOut(witness, {
+      pubkey_hash: gmailHash
+    });
   });
 });

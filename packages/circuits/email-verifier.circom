@@ -108,6 +108,9 @@ template EmailVerifier(max_header_bytes, max_body_bytes, n, k, ignore_body_hash_
 
     // Calculate the hash of public key and produce as an output
     // This can be used to verify the public key is correct in contract without needing the actual key
+
+    // Poseidon only allow 16 inputs. The default 17 * 121 used for RSA is too large
+    // Converting public key in to 9 * 242
     var k2_chunked_size = k >> 1;
     if(k % 2 == 1) {
         k2_chunked_size += 1;

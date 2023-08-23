@@ -68,14 +68,18 @@ export function bytesToBigInt(bytes: Uint8Array) {
   return res;
 }
 
-export function toCircomBigIntBytes(num: BigInt | bigint) {
+export function bigIntToChunkedBytes(num: BigInt | bigint, bytesPerChunk: number, numChunks: number) {
   const res = [];
   const bigintNum: bigint = typeof num == "bigint" ? num : num.valueOf();
-  const msk = (1n << BigInt(CIRCOM_BIGINT_N)) - 1n;
-  for (let i = 0; i < CIRCOM_BIGINT_K; ++i) {
-    res.push(((bigintNum >> BigInt(i * CIRCOM_BIGINT_N)) & msk).toString());
+  const msk = (1n << BigInt(bytesPerChunk)) - 1n;
+  for (let i = 0; i < numChunks; ++i) {
+    res.push(((bigintNum >> BigInt(i * bytesPerChunk)) & msk).toString());
   }
   return res;
+}
+
+export function toCircomBigIntBytes(num: BigInt | bigint) {
+  return bigIntToChunkedBytes(num, CIRCOM_BIGINT_N, CIRCOM_BIGINT_K);
 }
 
 // https://stackoverflow.com/a/69585881
