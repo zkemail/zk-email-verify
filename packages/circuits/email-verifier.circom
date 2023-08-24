@@ -35,7 +35,6 @@ template EmailVerifier(max_header_bytes, max_body_bytes, n, k, ignore_body_hash_
     // section of the "DKIM-Signature:"" line, along with the body hash.
     // Note that nothing above the "DKIM-Signature:" line is signed.
     signal output sha[256] <== Sha256Bytes(max_header_bytes)(in_padded, in_len_padded_bytes);
-
     signal output pubkey_hash;
 
     var msg_len = (256 + n) \ n;
@@ -107,7 +106,7 @@ template EmailVerifier(max_header_bytes, max_body_bytes, n, k, ignore_body_hash_
     }
 
     // Calculate the hash of public key and produce as an output
-    // This can be used to verify the public key is correct in contract without needing the actual key
+    // This can be used to verify the public key is correct in contract without requiring the actual key
 
     // Poseidon only allow 16 inputs. The default 17 * 121 used for RSA is too large
     // Converting public key in to 9 * 242

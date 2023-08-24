@@ -10,12 +10,8 @@ include "./components/twitter_reset_regex.circom";
 // but the max mody bytes may need to be changed to be larger if the email has a lot of i.e. HTML formatting
 // TODO: split into header and body
 template TwitterVerifier(max_header_bytes, max_body_bytes, n, k, pack_size, expose_from, expose_to) {
-    assert(max_header_bytes % 64 == 0);
-    assert(max_body_bytes % 64 == 0);
     assert(expose_from < 2); // 1 if we should expose the from, 0 if we should not
     assert(expose_to == 0); // 1 if we should expose the to, 0 if we should not: due to hotmail restrictions, we force-disable this
-    assert(n * k > 2048); // constraints for 2048 bit RSA
-    assert(n < (255 \ 2)); // we want a multiplication to fit into a circom signal
 
     signal input in_padded[max_header_bytes]; // prehashed email data, includes up to 512 + 64? bytes of padding pre SHA256, and padded with lots of 0s at end after the length
     signal input pubkey[k]; // rsa pubkey, verified with smart contract + DNSSEC proof. split up into k parts of n bits each.
@@ -30,7 +26,20 @@ template TwitterVerifier(max_header_bytes, max_body_bytes, n, k, pack_size, expo
     signal input in_body_padded[max_body_bytes];
     signal input in_body_len_padded_bytes;
 
-    EmailVerifier(max_header_bytes, max_body_bytes, n, k, 0)(in_padded, pubkey, signature, in_len_padded_bytes, body_hash_idx, precomputed_sha, in_body_padded, in_body_len_padded_bytes);
+    signal output pubkey_hash;
+
+    component EV = EmailVerifier(max_header_bytes, max_body_bytes, n, k, 0);
+    EV.in_padded <== in_padded;
+    EV.pubkey <== pubkey;
+    EV.signature <== signature;
+    EV.in_len_padded_bytes <== in_len_padded_bytes;
+    EV.body_hash_idx <== body_hash_idx;
+    EV.precomputed_sha <== precomputed_sha;
+    EV.in_body_padded <== in_body_padded;
+    EV.in_body_len_padded_bytes <== in_body_len_padded_bytes;
+
+    pubkey_hash <== EV.pubkey_hash;
+
 
     // FROM HEADER REGEX: 736,553 constraints
     // This extracts the from email, and the precise regex format can be viewed in the README
@@ -68,7 +77,7 @@ template TwitterVerifier(max_header_bytes, max_body_bytes, n, k, pack_size, expo
 }
 
 // In circom, all output signals of the main component are public (and cannot be made private), the input signals of the main component are private if not stated otherwise using the keyword public as above. The rest of signals are all private and cannot be made public.
-// This makes pubkey and reveal_twitter_packed public. hash(signature) can optionally be made public, but is not recommended since it allows the mailserver to trace who the offender is.
+// This makes pubkey_hash and reveal_twitter_packed public. hash(signature) can optionally be made public, but is not recommended since it allows the mailserver to trace who the offender is.
 
 // Args:
 // * max_header_bytes = 1024 is the max number of bytes in the header
@@ -78,4 +87,4 @@ template TwitterVerifier(max_header_bytes, max_body_bytes, n, k, pack_size, expo
 // * pack_size = 7 is the number of bytes that can fit into a 255ish bit signal (can increase later)
 // * expose_from = 0 is whether to expose the from email address
 // * expose_to = 0 is whether to expose the to email (not recommended)
-component main { public [ pubkey, address ] } = TwitterVerifier(1024, 1536, 121, 17, 7, 0, 0);
+component main { public [ address ] } = TwitterVerifier(1024, 1536, 121, 17, 7, 0, 0);
