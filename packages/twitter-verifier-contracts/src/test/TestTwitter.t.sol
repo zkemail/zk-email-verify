@@ -2,6 +2,7 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
+import "@zk-email/contracts/DKIMRegistry.sol";
 import "../TwitterEmailHandler.sol";
 import "../Groth16VerifierTwitter.sol";
 
@@ -11,15 +12,15 @@ contract TwitterUtilsTest is Test {
     address constant VM_ADDR = 0x7109709ECfa91a80626fF3989D68f67F5b1DD12D; // Hardcoded address of the VM from foundry
 
     Verifier proofVerifier;
-    MailServer mailServer;
+    DKIMRegistry dkimRegistry;
     VerifiedTwitterEmail testVerifier;
 
     uint16 public constant packSize = 7;
 
     function setUp() public {
         proofVerifier = new Verifier();
-        mailServer = new MailServer();
-        testVerifier = new VerifiedTwitterEmail(proofVerifier, mailServer);
+        dkimRegistry = new DKIMRegistry();
+        testVerifier = new VerifiedTwitterEmail(proofVerifier, dkimRegistry);
     }
 
     // function testMint() public {
@@ -63,28 +64,12 @@ contract TwitterUtilsTest is Test {
 
     // Should pass (note that there are extra 0 bytes, which are filtered out but should be noted in audits)
     function testVerifyTestEmail() public {
-        uint256[] memory publicSignals = new uint256[](21);
-        publicSignals[0] = 28557011619965818;
-        publicSignals[1] = 1818845549;
-        publicSignals[2] = 0;
-        publicSignals[3] = 1634582323953821262989958727173988295;
-        publicSignals[4] = 1938094444722442142315201757874145583;
-        publicSignals[5] = 375300260153333632727697921604599470;
-        publicSignals[6] = 1369658125109277828425429339149824874;
-        publicSignals[7] = 1589384595547333389911397650751436647;
-        publicSignals[8] = 1428144289938431173655248321840778928;
-        publicSignals[9] = 1919508490085653366961918211405731923;
-        publicSignals[10] = 2358009612379481320362782200045159837;
-        publicSignals[11] = 518833500408858308962881361452944175;
-        publicSignals[12] = 1163210548821508924802510293967109414;
-        publicSignals[13] = 1361351910698751746280135795885107181;
-        publicSignals[14] = 1445969488612593115566934629427756345;
-        publicSignals[15] = 2457340995040159831545380614838948388;
-        publicSignals[16] = 2612807374136932899648418365680887439;
-        publicSignals[17] = 16021263889082005631675788949457422;
-        publicSignals[18] = 299744519975649772895460843780023483;
-        publicSignals[19] = 3933359104846508935112096715593287;
-        publicSignals[20] = 1;
+        uint256[5] memory publicSignals;
+        publicSignals[0] = 5857406240302475676709141738935898448223932090884766940073913110146444539372;
+        publicSignals[1] = 28557011619965818;
+        publicSignals[2] = 1818845549;
+        publicSignals[3] = 0;
+        publicSignals[4] = 1;
 
         uint256[2] memory proof_a = [
             19927878014774420599335762081097643265718718256586894795640382494403322204498,
@@ -130,28 +115,12 @@ contract TwitterUtilsTest is Test {
 
     // Should pass (note that there are extra 0 bytes, which are filtered out but should be noted in audits)
     function testVerifyYushEmail() public {
-        uint256[] memory publicSignals = new uint256[](21);
-        publicSignals[0] = 113659471951225;
-        publicSignals[1] = 0;
+        uint256[5] memory publicSignals;
+        publicSignals[0] = 5857406240302475676709141738935898448223932090884766940073913110146444539372; // DKIM hash
+        publicSignals[1] = 113659471951225;
         publicSignals[2] = 0;
-        publicSignals[3] = 1634582323953821262989958727173988295;
-        publicSignals[4] = 1938094444722442142315201757874145583;
-        publicSignals[5] = 375300260153333632727697921604599470;
-        publicSignals[6] = 1369658125109277828425429339149824874;
-        publicSignals[7] = 1589384595547333389911397650751436647;
-        publicSignals[8] = 1428144289938431173655248321840778928;
-        publicSignals[9] = 1919508490085653366961918211405731923;
-        publicSignals[10] = 2358009612379481320362782200045159837;
-        publicSignals[11] = 518833500408858308962881361452944175;
-        publicSignals[12] = 1163210548821508924802510293967109414;
-        publicSignals[13] = 1361351910698751746280135795885107181;
-        publicSignals[14] = 1445969488612593115566934629427756345;
-        publicSignals[15] = 2457340995040159831545380614838948388;
-        publicSignals[16] = 2612807374136932899648418365680887439;
-        publicSignals[17] = 16021263889082005631675788949457422;
-        publicSignals[18] = 299744519975649772895460843780023483;
-        publicSignals[19] = 3933359104846508935112096715593287;
-        publicSignals[20] = 556307310756571904145052207427031380052712977221;
+        publicSignals[3] = 0;
+        publicSignals[4] = 556307310756571904145052207427031380052712977221; // Wallet address
 
         // TODO switch order
         uint256[2] memory proof_a = [

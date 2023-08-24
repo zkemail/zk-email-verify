@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
   A Registry that store the hash(dkim_public_key) for each domain
+  The hash is calculated by taking Poseidon of DKIM key split into 9 chunks of 242 bits each
  */
 contract DKIMRegistry is Ownable {
     // Use constants for popular domains to save gas on reads

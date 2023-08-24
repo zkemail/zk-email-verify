@@ -1,5 +1,3 @@
-import "@zk-email/contracts/EmailVerifier.sol";
-
 //
 // Copyright 2017 Christian Reitwiessner
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
@@ -180,7 +178,7 @@ library Pairing {
     }
 }
 
-contract Verifier is Groth16Verifier {
+contract Verifier {
     using Pairing for *;
 
     struct VerifyingKey {
@@ -322,7 +320,7 @@ contract Verifier is Groth16Verifier {
     }
 
     /// @return r  bool true if proof is valid
-    function verifyProof(uint256[2] memory a, uint256[2][2] memory b, uint256[2] memory c, uint256[] memory input) public view returns (bool r) {
+    function verifyProof(uint256[2] memory a, uint256[2][2] memory b, uint256[2] memory c, uint256[5] memory input) public view returns (bool r) {
         Proof memory proof;
         proof.A = Pairing.G1Point(a[0], a[1]);
         proof.B = Pairing.G2Point([b[0][0], b[0][1]], [b[1][0], b[1][1]]);

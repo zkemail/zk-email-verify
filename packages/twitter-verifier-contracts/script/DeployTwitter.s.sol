@@ -1,8 +1,8 @@
 pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
-import "forge-std/console.sol";
 import "forge-std/Script.sol";
+import "@zk-email/contracts/DKIMRegistry.sol";
 import "../src/TwitterEmailHandler.sol";
 import "../src/Groth16VerifierTwitter.sol";
 
@@ -20,8 +20,8 @@ contract Deploy is Script, Test {
         uint256 sk = getPrivateKey();
         vm.startBroadcast(sk);
         Verifier proofVerifier = new Verifier();
-        MailServer mailServer = new MailServer();
-        VerifiedTwitterEmail testVerifier = new VerifiedTwitterEmail(proofVerifier, mailServer);
+        DKIMRegistry dkimRegistry = new DKIMRegistry();
+        VerifiedTwitterEmail testVerifier = new VerifiedTwitterEmail(proofVerifier, dkimRegistry);
         vm.stopBroadcast();
     }
 }
