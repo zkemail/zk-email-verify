@@ -2,12 +2,11 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
 
 /**
   A Registry that store the hash(dkim_public_key) for each domain
  */
-contract DKIMREgistry is Ownable {
+contract DKIMRegistry is Ownable {
     // Use constants for popular domains to save gas on reads
     uint256 constant GMAIL_HASH =
         21238126716164910617487233347059218993958564577330259377744533585136010170208;
@@ -27,26 +26,30 @@ contract DKIMREgistry is Ownable {
     // Mapping from domain name to DKIM public key hash
     mapping(string => bytes32) public dkimPublicKeyHashes;
 
+    function _stringEq(string memory a, string memory b) internal pure returns (bool) {
+        return keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b));
+    }
+
     function getDKIMPublicKeyHash(
         string memory domainName
     ) public view returns (bytes32) {
-        if (Strings.equal(domainName, "gmail.com")) {
+        if (_stringEq(domainName, "gmail.com")) {
             return bytes32(GMAIL_HASH);
         }
 
-        if (Strings.equal(domainName, "hotmail.com")) {
+        if (_stringEq(domainName, "hotmail.com")) {
             return bytes32(HOTMAIL_HASH);
         }
 
-        if (Strings.equal(domainName, "twitter.com")) {
+        if (_stringEq(domainName, "twitter.com")) {
             return bytes32(TWITTER_HASH);
         }
 
-        if (Strings.equal(domainName, "ethereum.org")) {
+        if (_stringEq(domainName, "ethereum.org")) {
             return bytes32(ETHEREUM_ORG_HASH);
         }
 
-        if (Strings.equal(domainName, "skiff.com")) {
+        if (_stringEq(domainName, "skiff.com")) {
             return bytes32(SKIFF_HASH);
         }
 
