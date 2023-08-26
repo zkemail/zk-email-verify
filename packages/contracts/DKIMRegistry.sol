@@ -8,24 +8,17 @@ import "@openzeppelin/contracts/access/Ownable.sol";
   The hash is calculated by taking Poseidon of DKIM key split into 9 chunks of 242 bits each
  */
 contract DKIMRegistry is Ownable {
-    // Use constants for popular domains to save gas on reads
-    uint256 constant GMAIL_HASH =
-        21238126716164910617487233347059218993958564577330259377744533585136010170208;
-
-    uint256 constant HOTMAIL_HASH =
-        2431254542644577945126644490189743659677343436440304264654087065353925216026;
-
-    uint256 constant TWITTER_HASH =
-        5857406240302475676709141738935898448223932090884766940073913110146444539372;
-
-    uint256 constant ETHEREUM_ORG_HASH =
-        1064717399289379939765004128465682276424933518837235377976999291216925329691;
-
-    uint256 constant SKIFF_HASH =
-        7901875575997183258695482461141301358756276811120772965768802311294654527542;
-
     // Mapping from domain name to DKIM public key hash
-    mapping(string => bytes32) public dkimPublicKeyHashes;
+    mapping(string => uint256) public dkimPublicKeyHashes;
+
+    constructor() {
+        // Set values for popular domains
+        dkimPublicKeyHashes["gmail.com"] = uint256(20579775636546222313859320423592165398188168817714003219389601176739340973605);
+        dkimPublicKeyHashes["hotmail.com"] = uint256(2750248559912404074361997670683337416910370052869160728223409986079552486582);
+        dkimPublicKeyHashes["twitter.com"] = uint256(12431732230788297063498039481224031586256793440953465069048041914965586355958);
+        dkimPublicKeyHashes["ethereum.org"] = uint256(13749471426528386843484698195116860745506750565298853141220185289842769029726);
+        dkimPublicKeyHashes["skiff.com"] = uint256(11874169184886542147081299005924838984240934585001783050565158265014763417816);
+    }
 
     function _stringEq(string memory a, string memory b) internal pure returns (bool) {
         return keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b));
@@ -33,33 +26,13 @@ contract DKIMRegistry is Ownable {
 
     function getDKIMPublicKeyHash(
         string memory domainName
-    ) public view returns (bytes32) {
-        if (_stringEq(domainName, "gmail.com")) {
-            return bytes32(GMAIL_HASH);
-        }
-
-        if (_stringEq(domainName, "hotmail.com")) {
-            return bytes32(HOTMAIL_HASH);
-        }
-
-        if (_stringEq(domainName, "twitter.com")) {
-            return bytes32(TWITTER_HASH);
-        }
-
-        if (_stringEq(domainName, "ethereum.org")) {
-            return bytes32(ETHEREUM_ORG_HASH);
-        }
-
-        if (_stringEq(domainName, "skiff.com")) {
-            return bytes32(SKIFF_HASH);
-        }
-
+    ) public view returns (uint256) {
         return dkimPublicKeyHashes[domainName];
     }
 
     function setDKIMPublicKeyHash(
         string memory domainName,
-        bytes32 publicKeyHash
+        uint256 publicKeyHash
     ) public onlyOwner {
         dkimPublicKeyHashes[domainName] = publicKeyHash;
     }
