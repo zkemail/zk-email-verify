@@ -1,7 +1,7 @@
 pragma circom 2.1.5;
 
 include "circomlib/circuits/bitify.circom";
-include "circomlib/circuits/poseidon.circom";
+include "circomlib/circuits/mimcsponge.circom";
 include "./helpers/sha.circom";
 include "./helpers/rsa.circom";
 include "./helpers/base64.circom";
@@ -105,24 +105,10 @@ template EmailVerifier(max_header_bytes, max_body_bytes, n, k, ignore_body_hash_
         }
     }
 
-    // Calculate the hash of public key and produce as an output
+    // Calculate the hash (MIMC) of public key and produce as an output
     // This can be used to verify the public key is correct in contract without requiring the actual key
-
-    // Poseidon only allow 16 inputs. The default 17 * 121 used for RSA is too large
-    // Converting public key in to 9 * 242
-    var k2_chunked_size = k >> 1;
-    if(k % 2 == 1) {
-        k2_chunked_size += 1;
-    }
-
-    signal pubkey_hash_input[k2_chunked_size];
-    for(var i = 0; i < k2_chunked_size; i++) {
-        if(i==k2_chunked_size-1 && k2_chunked_size % 2 == 1) {
-            pubkey_hash_input[i] <== pubkey[2*i];
-        } else {
-            pubkey_hash_input[i] <== pubkey[2*i] + (1<<n) * pubkey[2*i+1];
-        }
-    }
-
-    pubkey_hash <== Poseidon(k2_chunked_size)(pubkey_hash_input);
+    component hasher = MiMCSponge(k, 220, 1);
+    hasher.ins <== pubkey;
+    hasher.k <== 123;
+    pubkey_hash <== hasher.outs[0];
 }

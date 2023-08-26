@@ -1,14 +1,11 @@
-import { bigIntToChunkedBytes } from "@zk-email/helpers/src/binaryFormat";
+import fs from "fs";
+import { buildMimcSponge } from "circomlibjs";
+import { wasm as wasm_tester } from "circom_tester";
+import { Scalar } from "ffjavascript";
+import path from "path";
 import { DKIMVerificationResult } from "@zk-email/helpers/src/dkim";
 import { generateCircuitInputs } from "@zk-email/helpers/src/input-helpers";
-// import { buildPoseidon } from "circomlibjs";
-
-const { verifyDKIMSignature } = require("@zk-email/helpers/src/dkim");
-const fs = require("fs");
-const path = require("path");
-const wasm_tester = require("circom_tester").wasm;
-const F1Field = require("ffjavascript").F1Field;
-const Scalar = require("ffjavascript").Scalar;
+import { verifyDKIMSignature } from "@zk-email/helpers/src/dkim";
 
 exports.p = Scalar.fromString(
   "21888242871839275222246405745257275088548364400416034343698204186575808495617"
@@ -21,19 +18,16 @@ describe("EmailVerifier", () => {
   let circuit: any;
 
   beforeAll(async () => {
-    const rawEmail = fs.readFileSync(
-      path.join(__dirname, "./test.eml"),
-      "utf8"
-    );
+    const rawEmail = fs.readFileSync(path.join(__dirname, "./test.eml"));
     dkimResult = await verifyDKIMSignature(rawEmail);
 
     circuit = await wasm_tester(
       path.join(__dirname, "./email-verifier-test.circom"),
       {
-        // NOTE: We are running tests against pre-compiled circuit in the below path
-        // You need to manually compile when changes are made to circuit if `recompile` is set to `false`.
-        // circom "./tests/email-verifier-test.circom" --r1cs --wasm --sym --c --wat --output "./tests/compiled-test-circuit"
-        recompile: false,
+        // @dev During development recompile can be set to false if you are only making changes in the tests.
+        // This will save time by not recompiling the circuit every time.
+        // Compile: circom "./tests/email-verifier-test.circom" --r1cs --wasm --sym --c --wat --output "./tests/compiled-test-circuit"
+        recompile: true,
         output: path.join(__dirname, "./compiled-test-circuit"),
         include: path.join(__dirname, "../../../node_modules"),
       }
@@ -186,7 +180,7 @@ describe("EmailVerifier", () => {
     }
   });
 
-  it("should produce dkim key hash correctly", async function () {
+  it("should produce dkim pubkey hash correctly", async function () {
     const emailVerifierInputs = generateCircuitInputs({
       rsaSignature: dkimResult.signature,
       rsaPublicKey: dkimResult.publicKey,
@@ -198,21 +192,15 @@ describe("EmailVerifier", () => {
       maxBodyLength: 768,
     });
 
-    // Calculate the poseidon hash using JS by splitting pubKey to 9 chunks of 242
-    // TODO: Fix this. This test is not working; the hash returned by the circom is different from
-    // the one computed locally.
+    // Calculate the MIMC hash
+    const mimc = await buildMimcSponge();
+    const hash = mimc.multiHash(emailVerifierInputs.pubkey, 123, 1);
 
-    // const poseidon = await buildPoseidon();
-    // const chunked = bigIntToChunkedBytes(dkimResult.publicKey, 242, 9);
-    // const hash = poseidon(chunked);
-    // const hashInt = BigInt(parseInt(Buffer.from(hash).toString('hex'), 16)).toString();
-
+    // Calculate the hash using the circuit
     const witness = await circuit.calculateWitness(emailVerifierInputs);
 
-    const gmailHash = "9601655888625014162288850419683651547363906810920337900608272342042199343577";
-
     await circuit.assertOut(witness, {
-      pubkey_hash: gmailHash
+      pubkey_hash: mimc.F.toObject(hash),
     });
   });
 });
