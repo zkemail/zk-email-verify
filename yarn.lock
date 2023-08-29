@@ -2986,6 +2986,7 @@ __metadata:
   dependencies:
     "@zk-email/circuits": "workspace:^"
     "@zk-email/helpers": "workspace:^"
+    big-integer: ^1.6.51
     chai: ^4.3.7
     circom_tester: ^0.0.19
     circomlib: ^2.0.5
@@ -4601,6 +4602,13 @@ __metadata:
     hoopy: ^0.1.4
     tryer: ^1.0.1
   checksum: 0ca673234170eb3dcf00fb1d867ba274729ab05779dd19b35628c49da7adc32472b5f0bca0554ffdca15b094f9b36f16f2a8992ba8884ebd1d351d7f27abee7b
+  languageName: node
+  linkType: hard
+
+"big-integer@npm:^1.6.51":
+  version: 1.6.51
+  resolution: "big-integer@npm:1.6.51"
+  checksum: 3d444173d1b2e20747e2c175568bedeebd8315b0637ea95d75fd27830d3b8e8ba36c6af40374f36bdaea7b5de376dcada1b07587cb2a79a928fccdb6e6e3c518
   languageName: node
   linkType: hard
 

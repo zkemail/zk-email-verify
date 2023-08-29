@@ -5,8 +5,8 @@ import { uncompressGz as uncompress } from "./uncompress";
 // @ts-ignore
 import * as snarkjs from "snarkjs";
 
-// export const loadURL = "https://zkemail-zkey-chunks.s3.amazonaws.com/";
-export const loadURL = "http://localhost:3001/";
+export const loadURL = "https://twitter-verifier-zkeys.s3.amazonaws.com/e388b82/";
+// export const loadURL = "http://localhost:3001/";
 const compressed = true;
 // const loadURL = "/zkemail-zkey-chunks/";
 

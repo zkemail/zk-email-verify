@@ -126,24 +126,22 @@ export const MainPage: React.FC<{}> = (props) => {
     }));
   };
 
-  const reformatProofForChain = (proof: string) => {
+  const reformatProofForChain = (proofStr: string) => {
+    const proof = JSON.parse(proofStr);
+
     return [
-      proof ? JSON.parse(proof)["pi_a"].slice(0, 2) : null,
-      proof
-        ? JSON.parse(proof)
-            ["pi_b"].slice(0, 2)
-            .map((g2point: any[]) => g2point.reverse())
-        : null,
-      proof ? JSON.parse(proof)["pi_c"].slice(0, 2) : null,
-    ];
+      proof.pi_a.slice(0, 2),
+      proof.pi_b.slice(0, 2).map((s: string[]) => s.reverse()).flat(),
+      proof.pi_c.slice(0, 2),
+    ].flat();
   };
 
   const { config } = usePrepareContractWrite({
-    addressOrName: import.meta.env.VITE_CONTRACT_ADDRESS, // TODO: get address
+    addressOrName: "0xCD52C9Ad6968b0090a582D14f1162D94d589D57C", // TODO: get address
     contractInterface: abi, // TODO: get abi
     functionName: "mint",
     args: [
-      ...reformatProofForChain(proof),
+      reformatProofForChain(proof),
       publicSignals ? JSON.parse(publicSignals) : null,
     ],
     onError: (error: { message: any }) => {

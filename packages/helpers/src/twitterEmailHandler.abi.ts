@@ -1,6 +1,17 @@
 export const abi = [
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: "contract Verifier",
+        name: "v",
+        type: "address",
+      },
+      {
+        internalType: "contract DKIMRegistry",
+        name: "d",
+        type: "address",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "constructor",
   },
@@ -99,37 +110,13 @@ export const abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "string",
-        name: "a",
-        type: "string",
-      },
-      {
-        internalType: "string",
-        name: "b",
-        type: "string",
-      },
-    ],
-    name: "_stringEq",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "pure",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "addressIndexInSignals",
     outputs: [
       {
-        internalType: "uint256",
+        internalType: "uint32",
         name: "",
-        type: "uint256",
+        type: "uint32",
       },
     ],
     stateMutability: "view",
@@ -174,19 +161,6 @@ export const abi = [
   },
   {
     inputs: [],
-    name: "body_len",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "bytesInPackedBytes",
     outputs: [
       {
@@ -196,30 +170,6 @@ export const abi = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256[]",
-        name: "packedBytes",
-        type: "uint256[]",
-      },
-      {
-        internalType: "uint256",
-        name: "maxBytes",
-        type: "uint256",
-      },
-    ],
-    name: "convertPackedBytesToBytes",
-    outputs: [
-      {
-        internalType: "string",
-        name: "extractedString",
-        type: "string",
-      },
-    ],
-    stateMutability: "pure",
     type: "function",
   },
   {
@@ -236,19 +186,6 @@ export const abi = [
         internalType: "address",
         name: "",
         type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "header_len",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -281,42 +218,19 @@ export const abi = [
   {
     inputs: [
       {
-        internalType: "uint256[2]",
-        name: "a",
-        type: "uint256[2]",
+        internalType: "uint256[8]",
+        name: "proof",
+        type: "uint256[8]",
       },
       {
-        internalType: "uint256[2][2]",
-        name: "b",
-        type: "uint256[2][2]",
-      },
-      {
-        internalType: "uint256[2]",
-        name: "c",
-        type: "uint256[2]",
-      },
-      {
-        internalType: "uint256[21]",
+        internalType: "uint256[5]",
         name: "signals",
-        type: "uint256[21]",
+        type: "uint256[5]",
       },
     ],
     name: "mint",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "msg_len",
-    outputs: [
-      {
-        internalType: "uint16",
-        name: "",
-        type: "uint16",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
@@ -353,12 +267,12 @@ export const abi = [
   },
   {
     inputs: [],
-    name: "rsa_modulus_chunks_len",
+    name: "pubKeyHashIndexInSignals",
     outputs: [
       {
-        internalType: "uint256",
+        internalType: "uint32",
         name: "",
-        type: "uint256",
+        type: "uint32",
       },
     ],
     stateMutability: "view",
@@ -434,6 +348,19 @@ export const abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "signalLength",
+    outputs: [
+      {
+        internalType: "uint16",
+        name: "",
+        type: "uint16",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "bytes4",
@@ -468,82 +395,6 @@ export const abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-    ],
-    name: "toString",
-    outputs: [
-      {
-        internalType: "string",
-        name: "",
-        type: "string",
-      },
-    ],
-    stateMutability: "pure",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "value",
-        type: "uint256",
-      },
-    ],
-    name: "toString",
-    outputs: [
-      {
-        internalType: "string",
-        name: "",
-        type: "string",
-      },
-    ],
-    stateMutability: "pure",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes",
-        name: "data",
-        type: "bytes",
-      },
-    ],
-    name: "toString",
-    outputs: [
-      {
-        internalType: "string",
-        name: "",
-        type: "string",
-      },
-    ],
-    stateMutability: "pure",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "value",
-        type: "bytes32",
-      },
-    ],
-    name: "toString",
-    outputs: [
-      {
-        internalType: "string",
-        name: "",
-        type: "string",
-      },
-    ],
-    stateMutability: "pure",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "uint256",
         name: "index",
         type: "uint256",
@@ -555,6 +406,44 @@ export const abi = [
         internalType: "uint256",
         name: "",
         type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "tokenDesc",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    name: "tokenIDToName",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
       },
     ],
     stateMutability: "view",
@@ -579,25 +468,6 @@ export const abi = [
         internalType: "uint256",
         name: "",
         type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    name: "tokenToName",
-    outputs: [
-      {
-        internalType: "string",
-        name: "",
-        type: "string",
       },
     ],
     stateMutability: "view",
@@ -659,58 +529,39 @@ export const abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "string",
-        name: "",
-        type: "string",
-      },
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    name: "verifiedMailserverKeys",
+    inputs: [],
+    name: "usernameIndexInSignals",
     outputs: [
       {
-        internalType: "uint256",
+        internalType: "uint32",
         name: "",
-        type: "uint256",
+        type: "uint32",
       },
     ],
     stateMutability: "view",
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "uint256[2]",
-        name: "a",
-        type: "uint256[2]",
-      },
-      {
-        internalType: "uint256[2][2]",
-        name: "b",
-        type: "uint256[2][2]",
-      },
-      {
-        internalType: "uint256[2]",
-        name: "c",
-        type: "uint256[2]",
-      },
-      {
-        internalType: "uint256[21]",
-        name: "input",
-        type: "uint256[21]",
-      },
-    ],
-    name: "verifyProof",
+    inputs: [],
+    name: "usernameLengthInSignals",
     outputs: [
       {
-        internalType: "bool",
-        name: "r",
-        type: "bool",
+        internalType: "uint32",
+        name: "",
+        type: "uint32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "verifier",
+    outputs: [
+      {
+        internalType: "contract Verifier",
+        name: "",
+        type: "address",
       },
     ],
     stateMutability: "view",
