@@ -7,7 +7,7 @@
   "dependencies": {
     "@zk-email/circuits": "workspace:^",
     "@zk-email/helpers": "workspace:^",
-    "snarkjs": "git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8"
+    "snarkjs": "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
   },
   "devDependencies": {
     "chai": "^4.3.7",

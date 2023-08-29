@@ -34,7 +34,7 @@ import { isSetIterator } from "util/types";
 
 export const MainPage: React.FC<{}> = (props) => {
   // raw user inputs
-  const filename = "email";
+  const filename = "twitter";
 
   const [emailSignals, setEmailSignals] = useState<string>("");
   const [emailFull, setEmailFull] = useState<string>(
@@ -340,9 +340,6 @@ export const MainPage: React.FC<{}> = (props) => {
                   message: dkimResult.message,
                   ethereumAddress,
                 })
-
-                // Set address_plus_one to make old circuits pass
-                input.address_plus_one = input.address as string;
 
                 console.log("Generated input:", JSON.stringify(input));
               } catch (e) {
