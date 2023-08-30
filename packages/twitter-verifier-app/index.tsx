@@ -2,12 +2,8 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 import { WagmiConfig, createConfig } from "wagmi";
-import { InjectedConnector } from 'wagmi/connectors/injected';
-import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
-import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { createPublicClient, http } from 'viem'
 import { goerli } from "wagmi/chains";
-import { publicProvider } from "wagmi/providers/public";
 import {
   getDefaultWallets,
   RainbowKitProvider,
@@ -21,7 +17,7 @@ import "@rainbow-me/rainbowkit/styles.css";
 const { connectors } = getDefaultWallets({
   appName: "ZK Email - Twitter Verifier",
   chains: [goerli],
-  projectId: "c4f79cc821944d9680842e34466bfbd",
+  projectId: "", // TODO: Add wallet connect projectID
 });
 
 const config = createConfig({
