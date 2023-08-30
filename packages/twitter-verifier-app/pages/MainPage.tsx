@@ -5,14 +5,11 @@ import _, { add } from "lodash";
 import {
   ICircuitInputs,
   generate_inputs,
-  insert13Before10,
   CircuitType,
 } from "../scripts/generate_input";
 import { rawEmailToBuffer } from "@zk-email/helpers/src/input-helpers";
 import { DKIMVerificationResult, verifyDKIMSignature } from "@zk-email/helpers/src/dkim";
 import { generateTwitterVerifierCircuitInputs } from "@twitter-verifier/circuits/helpers";
-import { sshSignatureToPubKey } from "@zk-email/helpers/src/sshFormat";
-import { Link, useSearchParams } from "react-router-dom";
 import atob from "atob";
 import {
   downloadProofFiles,
@@ -127,6 +124,8 @@ export const MainPage: React.FC<{}> = (props) => {
   };
 
   const reformatProofForChain = (proofStr: string) => {
+    if (!proofStr) return Array(8).fill("0");
+    
     const proof = JSON.parse(proofStr);
 
     return [
@@ -137,13 +136,14 @@ export const MainPage: React.FC<{}> = (props) => {
   };
 
   const { config } = usePrepareContractWrite({
-    addressOrName: "0xCD52C9Ad6968b0090a582D14f1162D94d589D57C", // TODO: get address
-    contractInterface: abi, // TODO: get abi
+    address: "0x76E5978bdfA5Da926eCE0cE23F7A07648C525b5F", // TODO: get address
+    abi: abi,
     functionName: "mint",
     args: [
       reformatProofForChain(proof),
-      publicSignals ? JSON.parse(publicSignals) : null,
+      publicSignals ? JSON.parse(publicSignals) : Array(5).fill("0"),
     ],
+
     onError: (error: { message: any }) => {
       console.error(error.message);
       // TODO: handle errors
@@ -151,17 +151,6 @@ export const MainPage: React.FC<{}> = (props) => {
   });
 
   const { data, isLoading, isSuccess, write } = useContractWrite(config);
-
-  console.log(
-    "Other values:",
-    proof,
-    publicSignals,
-    write,
-    data,
-    isLoading,
-    isSuccess,
-    config
-  );
 
   useMount(() => {
     function handleKeyDown() {

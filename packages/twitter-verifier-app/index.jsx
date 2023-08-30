@@ -1,9 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
-import { WagmiConfig, createClient, configureChains, chain } from "wagmi";
+import { WagmiConfig, createConfig } from "wagmi";
+import { InjectedConnector } from 'wagmi/connectors/injected';
+import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
+import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
+import { createPublicClient, http } from 'viem'
+import { goerli } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
-import { infuraProvider } from "wagmi/providers/infura";
 import {
   getDefaultWallets,
   RainbowKitProvider,
@@ -13,27 +17,27 @@ import {
 import "./index.css";
 import "@rainbow-me/rainbowkit/styles.css";
 
-const { chains, provider, webSocketProvider } = configureChains(
-  [chain.goerli],
-  [publicProvider()]
-);
 
 const { connectors } = getDefaultWallets({
-  appName: "ZK Email",
-  chains,
+  appName: "ZK Email - Twitter Verifier",
+  chains: [goerli],
+  projectId: "c4f79cc821944d9680842e34466bfbd",
 });
 
-const client = createClient({
+const config = createConfig({
   autoConnect: true,
-  connectors,
-  provider,
-  webSocketProvider,
-});
+  publicClient: createPublicClient({
+    chain: goerli,
+    transport: http()
+  }),
+  connectors: connectors,
+})
+ 
 
 ReactDOM.render(
   <React.StrictMode>
-    <WagmiConfig client={client}>
-      <RainbowKitProvider chains={chains} theme={darkTheme()}>
+    <WagmiConfig config={config}>
+      <RainbowKitProvider chains={[goerli]} theme={darkTheme()}>
         <App />
       </RainbowKitProvider>
     </WagmiConfig>
