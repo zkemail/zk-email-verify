@@ -20,7 +20,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable {
     
     uint16 public constant signalLength = 5; // length of signals array
     uint32 public constant pubKeyHashIndexInSignals = 0; // index of DKIM public key hash in signals array
-    uint32 public constant usernameIndexInSignals = 1; // index of packed twitter username in signals array
+    uint32 public constant usernameIndexInSignals = 1; // index of first packed twitter username in signals array
     uint32 public constant usernameLengthInSignals = 3; // length of packed twitter username in signals array
     uint32 public constant addressIndexInSignals = 4; // index of ethereum address in signals array
 
@@ -96,8 +96,8 @@ contract VerifiedTwitterEmail is ERC721Enumerable {
         );
 
         uint256[] memory bodySignals = new uint256[](usernameLengthInSignals);
-        for (uint256 i = 0; i < usernameLengthInSignals; i++) {
-            bodySignals[i] = signals[i];
+        for (uint256 i = usernameIndexInSignals; i < (usernameIndexInSignals + usernameLengthInSignals); i++) {
+            bodySignals[i - usernameIndexInSignals] = signals[i];
         }
 
         // Effects: Mint token
