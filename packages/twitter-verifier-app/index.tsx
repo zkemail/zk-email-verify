@@ -17,7 +17,7 @@ import "@rainbow-me/rainbowkit/styles.css";
 const { connectors } = getDefaultWallets({
   appName: "ZK Email - Twitter Verifier",
   chains: [goerli],
-  projectId: "", // TODO: Add wallet connect projectID
+  projectId: "b68298f4e6597f970ac06be1aea7998d",
 });
 
 const config = createConfig({
