@@ -3,8 +3,8 @@
   "include": ["."],
   "exclude": ["tests", "dist"],
   "compilerOptions": {
+    "skipLibCheck": true,
     "module": "esnext",
-    "baseUrl": "./",
     "noEmit": true
   }
 }

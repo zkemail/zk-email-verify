@@ -125,7 +125,7 @@ export const MainPage: React.FC<{}> = (props) => {
   };
 
   const reformatProofForChain = (proofStr: string) => {
-    if (!proofStr) return Array(8).fill("0");
+    if (!proofStr) return [];
     
     const proof = JSON.parse(proofStr);
 
@@ -142,9 +142,9 @@ export const MainPage: React.FC<{}> = (props) => {
     functionName: "mint",
     args: [
       reformatProofForChain(proof),
-      publicSignals ? JSON.parse(publicSignals) : Array(5).fill("0"),
+      publicSignals ? JSON.parse(publicSignals) : [],
     ],
-
+    enabled: !!(proof && publicSignals),
     onError: (error: { message: any }) => {
       console.error(error.message);
       // TODO: handle errors
