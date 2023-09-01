@@ -28,9 +28,6 @@ describe("EmailVerifier : Without body check", () => {
     circuit = await wasm_tester(
       path.join(__dirname, "./no-body-hash.test.circom"),
       {
-        // NOTE: We are running tests against pre-compiled circuit in the below path
-        // You need to manually compile when changes are made to circuit if `recompile` is set to `false`.
-        // circom "./tests/email-verifier-test.circom" --r1cs --wasm --sym --c --wat --output "./tests/compiled-test-circuit"
         recompile: true,
         output: path.join(__dirname, "./compiled-test-circuit"),
         include: path.join(__dirname, "../../../node_modules"),
@@ -42,7 +39,7 @@ describe("EmailVerifier : Without body check", () => {
     // The result wont have shaPrecomputeSelector, maxMessageLength, maxBodyLength, ignoreBodyHashCheck
     const emailVerifierInputs = generateCircuitInputs({
       rsaSignature: dkimResult.signature,
-      rsaModulus: dkimResult.modulus,
+      rsaPublicKey: dkimResult.publicKey,
       body: dkimResult.body,
       bodyHash: dkimResult.bodyHash,
       message: dkimResult.message,

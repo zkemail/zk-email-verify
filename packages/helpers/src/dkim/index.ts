@@ -30,7 +30,7 @@ export type DKIMVerificationResult = {
   message: Buffer;
   body: Buffer;
   bodyHash: string;
-  modulus: bigint;
+  publicKey: bigint;
 }
 
 export async function verifyDKIMSignature(email: Buffer) : Promise<DKIMVerificationResult> {
@@ -51,13 +51,12 @@ export async function verifyDKIMSignature(email: Buffer) : Promise<DKIMVerificat
 
   const signatureBigInt = BigInt("0x" + Buffer.from(signature, "base64").toString("hex"));
   const pubKeyData = pki.publicKeyFromPem(publicKey.toString());
-  const modulus = BigInt(pubKeyData.n.toString());
 
   return {
     signature: signatureBigInt,
     message: status.signature_header,
     body, 
     bodyHash,
-    modulus,
+    publicKey: BigInt(pubKeyData.n.toString()),
   }
 }

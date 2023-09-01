@@ -7,7 +7,7 @@ export const MAX_BODY_PADDED_BYTES = 1536; // NOTE: this must be the same as the
 
 export function generateTwitterVerifierCircuitInputs({
   rsaSignature,
-  rsaModulus,
+  rsaPublicKey,
   body,
   bodyHash,
   message, // the message that was signed (header + bodyHash)
@@ -17,12 +17,12 @@ export function generateTwitterVerifierCircuitInputs({
   message: Buffer;
   bodyHash: string;
   rsaSignature: BigInt;
-  rsaModulus: BigInt;
+  rsaPublicKey: BigInt;
   ethereumAddress: string;
 }) {
   const emailVerifierInputs = generateCircuitInputs({
     rsaSignature,
-    rsaModulus,
+    rsaPublicKey,
     body,
     bodyHash,
     message,

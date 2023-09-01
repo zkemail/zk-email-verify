@@ -1,13 +1,10 @@
 {
   "name": "@zk-email/contracts",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "scripts": {
     "publish": "yarn npm publish --access=public"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.9.3",
-    "@openzeppelin/contracts-upgradeable": "^4.9.2",
-    "ds-test": "https://github.com/dapphub/ds-test",
-    "forge-std": "https://github.com/foundry-rs/forge-std"
+    "@openzeppelin/contracts": "^4.9.3"
   }
 }

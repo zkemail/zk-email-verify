@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from "react";
+// @ts-ignore
 import { useAsync, useMount, useUpdateEffect } from "react-use";
 import styled from "styled-components";
 import _, { add } from "lodash";
 import {
   ICircuitInputs,
   generate_inputs,
-  insert13Before10,
   CircuitType,
 } from "../scripts/generate_input";
 import { rawEmailToBuffer } from "@zk-email/helpers/src/input-helpers";
 import { DKIMVerificationResult, verifyDKIMSignature } from "@zk-email/helpers/src/dkim";
 import { generateTwitterVerifierCircuitInputs } from "@twitter-verifier/circuits/helpers";
-import { sshSignatureToPubKey } from "@zk-email/helpers/src/sshFormat";
-import { Link, useSearchParams } from "react-router-dom";
 import atob from "atob";
 import {
   downloadProofFiles,
@@ -34,7 +32,7 @@ import { isSetIterator } from "util/types";
 
 export const MainPage: React.FC<{}> = (props) => {
   // raw user inputs
-  const filename = "email";
+  const filename = "twitter";
 
   const [emailSignals, setEmailSignals] = useState<string>("");
   const [emailFull, setEmailFull] = useState<string>(
@@ -126,26 +124,27 @@ export const MainPage: React.FC<{}> = (props) => {
     }));
   };
 
-  const reformatProofForChain = (proof: string) => {
+  const reformatProofForChain = (proofStr: string) => {
+    if (!proofStr) return [];
+    
+    const proof = JSON.parse(proofStr);
+
     return [
-      proof ? JSON.parse(proof)["pi_a"].slice(0, 2) : null,
-      proof
-        ? JSON.parse(proof)
-            ["pi_b"].slice(0, 2)
-            .map((g2point: any[]) => g2point.reverse())
-        : null,
-      proof ? JSON.parse(proof)["pi_c"].slice(0, 2) : null,
-    ];
+      proof.pi_a.slice(0, 2),
+      proof.pi_b.slice(0, 2).map((s: string[]) => s.reverse()).flat(),
+      proof.pi_c.slice(0, 2),
+    ].flat();
   };
 
   const { config } = usePrepareContractWrite({
-    addressOrName: import.meta.env.VITE_CONTRACT_ADDRESS, // TODO: get address
-    contractInterface: abi, // TODO: get abi
+    address: import.meta.env.VITE_CONTRACT_ADDRESS,
+    abi: abi,
     functionName: "mint",
     args: [
-      ...reformatProofForChain(proof),
-      publicSignals ? JSON.parse(publicSignals) : null,
+      reformatProofForChain(proof),
+      publicSignals ? JSON.parse(publicSignals) : [],
     ],
+    enabled: !!(proof && publicSignals),
     onError: (error: { message: any }) => {
       console.error(error.message);
       // TODO: handle errors
@@ -153,17 +152,6 @@ export const MainPage: React.FC<{}> = (props) => {
   });
 
   const { data, isLoading, isSuccess, write } = useContractWrite(config);
-
-  console.log(
-    "Other values:",
-    proof,
-    publicSignals,
-    write,
-    data,
-    isLoading,
-    isSuccess,
-    config
-  );
 
   useMount(() => {
     function handleKeyDown() {
@@ -334,15 +322,12 @@ export const MainPage: React.FC<{}> = (props) => {
 
                 input = await generateTwitterVerifierCircuitInputs({
                   rsaSignature: dkimResult.signature,
-                  rsaModulus: dkimResult.modulus,
+                  rsaPublicKey: dkimResult.publicKey,
                   body: dkimResult.body,
                   bodyHash: dkimResult.bodyHash,
                   message: dkimResult.message,
                   ethereumAddress,
                 })
-
-                // Set address_plus_one to make old circuits pass
-                input.address_plus_one = input.address as string;
 
                 console.log("Generated input:", JSON.stringify(input));
               } catch (e) {

@@ -1,9 +1,9 @@
 {
   "name": "@zk-email/circuits",
-  "version": "1.1.2",
+  "version": "2.0.0",
   "scripts": {
     "publish": "yarn npm publish --access=public",
-    "test": "NODE_OPTIONS=--max_old_space_size=4096 jest tests/*.ts"
+    "test": "NODE_OPTIONS=--max_old_space_size=8192 jest tests/*.ts"
   },
   "devDependencies": {
     "circom_tester": "^0.0.19",

@@ -8,6 +8,7 @@ import {
   Link,
   Navigate,
 } from "react-router-dom";
+// @ts-ignore
 import { useLocation } from "react-use";
 import styled from "styled-components";
 import { ConnectButton } from "@rainbow-me/rainbowkit";

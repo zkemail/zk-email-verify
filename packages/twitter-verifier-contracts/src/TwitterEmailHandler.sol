@@ -4,37 +4,35 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "forge-std/console.sol";
-// import "./utils/StringUtils.sol";
+import "@zk-email/contracts/DKIMRegistry.sol";
+import "./utils/StringUtils.sol";
 import "./utils/NFTSVG.sol";
-import {Verifier} from "./Groth16VerifierTwitter.sol";
-// import "./utils/MailServer.sol";
-import "@zk-email/contracts/EmailVerifier.sol";
+import { Verifier } from "./Groth16VerifierTwitter.sol";
 
-contract VerifiedTwitterEmail is ERC721Enumerable, EmailVerifier {
+
+contract VerifiedTwitterEmail is ERC721Enumerable {
     using Counters for Counters.Counter;
     using StringUtils for *;
     using NFTSVG for *;
 
-    Counters.Counter private tokenCounter;
-
-    uint16 public constant msg_len = 21; // header + body
     uint16 public constant bytesInPackedBytes = 7; // 7 bytes in a packed item returned from circom
-    uint32 public constant body_len = 3;
-    uint8 public constant rsa_modulus_chunks_len = 17;
-    uint256 public constant header_len = msg_len - body_len;
-    uint256 public constant addressIndexInSignals = msg_len - 1;
-
-    mapping(string => uint256[rsa_modulus_chunks_len]) public verifiedMailserverKeys;
-    mapping(uint256 => string) public tokenIDToName;
     string constant domain = "twitter.com";
-    // MailServer mailServer;
-    // Verifier public immutable verifier;
+    
+    uint16 public constant signalLength = 5; // length of signals array
+    uint32 public constant pubKeyHashIndexInSignals = 0; // index of DKIM public key hash in signals array
+    uint32 public constant usernameIndexInSignals = 1; // index of first packed twitter username in signals array
+    uint32 public constant usernameLengthInSignals = 3; // length of packed twitter username in signals array
+    uint32 public constant addressIndexInSignals = 4; // index of ethereum address in signals array
 
-    constructor(Verifier v, MailServer m) EmailVerifier(v, m) ERC721("VerifiedEmail", "VerifiedEmail") {
-        // verifier = v;
-        // mailServer = m;
-        require(rsa_modulus_chunks_len + body_len + 1 == msg_len, "Variable counts are wrong!");
+    Counters.Counter private tokenCounter;
+    DKIMRegistry dkimRegistry;
+    Verifier public immutable verifier;
+
+    mapping(uint256 => string) public tokenIDToName;
+
+    constructor(Verifier v, DKIMRegistry d) ERC721("VerifiedEmail", "VerifiedEmail") {
+        verifier = v;
+        dkimRegistry = d;
     }
 
     function tokenDesc(uint256 tokenId) public view returns (string memory) {
@@ -60,15 +58,16 @@ contract VerifiedTwitterEmail is ERC721Enumerable, EmailVerifier {
         // Usage: require(_domainCheck(senderBytes, domainStrings), "Invalid domain");
     }
 
-    function mint(uint256[8] memory proof, uint256[] memory signals)
-        public
-    {
+    /// Mint a token proving twitter ownership by verifying proof of email
+    /// @param proof ZK proof of the circuit - a[2], b[4] and c[2] encoded in series
+    /// @param signals Public signals of the circuit. First item is pubkey_hash, next 3 are twitter username, the last one is etherum address
+    function mint(uint256[8] memory proof, uint256[5] memory signals) public {
         // TODO no invalid signal check yet, which is fine since the zk proof does it
         // Checks: Verify proof and check signals
         // require(signals[0] == 1337, "invalid signals");
 
-        // 3 public signals are the masked packed message bytes, 17 are the modulus.
-        
+        // public signals are the masked packed message bytes, and hash of public key.
+
         // Check eth address committed to in proof matches msg.sender, to avoid replayability
         // require(address(uint160(signals[addressIndexInSignals])) == msg.sender, "Invalid address");
 
@@ -77,24 +76,50 @@ contract VerifiedTwitterEmail is ERC721Enumerable, EmailVerifier {
         // We will upload the version with these domain checks soon!
         // require(_domainCheck(headerSignals), "Invalid domain");
 
-        // Veiry RSA and proof
-        verifyEmail(domain, proof, signals, body_len, rsa_modulus_chunks_len);
+        // Verify the DKIM public key hash stored on-chain matches the one used in circuit
+        uint256 dkimPublicKeyHashInCircuit = signals[pubKeyHashIndexInSignals];
+        uint256 dkimPublicKeyHashOnChain = dkimRegistry.getDKIMPublicKeyHash(domain);
 
-        uint256[] memory bodySignals = new uint256[](body_len);
-        for (uint256 i = 0; i < body_len; i++) {
-            bodySignals[i] = signals[i];
+        require(dkimPublicKeyHashOnChain != uint256(0), "dkim for domain not found");
+
+        require(dkimPublicKeyHashInCircuit == dkimPublicKeyHashOnChain, "invalid signature"); 
+
+        // Veiry RSA and proof
+        require(
+            verifier.verifyProof(
+                [proof[0], proof[1]],
+                [[proof[2], proof[3]], [proof[4], proof[5]]],
+                [proof[6], proof[7]],
+                signals
+            ),
+            "Invalid Proof"
+        );
+
+        uint256[] memory bodySignals = new uint256[](usernameLengthInSignals);
+        for (uint256 i = usernameIndexInSignals; i < (usernameIndexInSignals + usernameLengthInSignals); i++) {
+            bodySignals[i - usernameIndexInSignals] = signals[i];
         }
 
         // Effects: Mint token
         uint256 tokenId = tokenCounter.current() + 1;
-        string memory messageBytes =
-            StringUtils.convertPackedBytesToString(bodySignals, bytesInPackedBytes * body_len, bytesInPackedBytes);
+        string memory messageBytes = StringUtils.convertPackedBytesToString(
+            bodySignals,
+            bytesInPackedBytes * usernameLengthInSignals,
+            bytesInPackedBytes
+        );
         tokenIDToName[tokenId] = messageBytes;
         _mint(msg.sender, tokenId);
         tokenCounter.increment();
     }
 
-    function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal {
-        require(from == address(0), "Cannot transfer - VerifiedEmail is soulbound");
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal {
+        require(
+            from == address(0),
+            "Cannot transfer - VerifiedEmail is soulbound"
+        );
     }
 }

@@ -1,6 +1,7 @@
 pragma circom 2.1.5;
 
 include "circomlib/circuits/bitify.circom";
+include "circomlib/circuits/mimcsponge.circom";
 include "./helpers/sha.circom";
 include "./helpers/rsa.circom";
 include "./helpers/base64.circom";
@@ -20,7 +21,7 @@ template EmailVerifier(max_header_bytes, max_body_bytes, n, k, ignore_body_hash_
     assert(n < (255 \ 2)); // we want a multiplication to fit into a circom signal
 
     signal input in_padded[max_header_bytes]; // prehashed email data, includes up to 512 + 64? bytes of padding pre SHA256, and padded with lots of 0s at end after the length
-    signal input modulus[k]; // rsa pubkey, verified with smart contract + DNSSEC proof. split up into k parts of n bits each.
+    signal input pubkey[k]; // rsa pubkey, verified with smart contract + DNSSEC proof. split up into k parts of n bits each.
     signal input signature[k]; // rsa signature. split up into k parts of n bits each.
     signal input in_len_padded_bytes; // length of in email data including the padding, which will inform the sha256 block length
 
@@ -34,6 +35,8 @@ template EmailVerifier(max_header_bytes, max_body_bytes, n, k, ignore_body_hash_
     // section of the "DKIM-Signature:"" line, along with the body hash.
     // Note that nothing above the "DKIM-Signature:" line is signed.
     signal output sha[256] <== Sha256Bytes(max_header_bytes)(in_padded, in_len_padded_bytes);
+    signal output pubkey_hash;
+
     var msg_len = (256 + n) \ n;
 
     component base_msg[msg_len];
@@ -56,7 +59,7 @@ template EmailVerifier(max_header_bytes, max_body_bytes, n, k, ignore_body_hash_
     for (var i = msg_len; i < k; i++) {
         rsa.base_message[i] <== 0;
     }
-    rsa.modulus <== modulus;
+    rsa.modulus <== pubkey;
     rsa.signature <== signature;
 
 
@@ -101,4 +104,11 @@ template EmailVerifier(max_header_bytes, max_body_bytes, n, k, ignore_body_hash_
             sha_body_bytes[i].out === sha_b64_out[i];
         }
     }
+
+    // Calculate the hash (MIMC) of public key and produce as an output
+    // This can be used to verify the public key is correct in contract without requiring the actual key
+    component hasher = MiMCSponge(k, 220, 1);
+    hasher.ins <== pubkey;
+    hasher.k <== 123;
+    pubkey_hash <== hasher.outs[0];
 }
