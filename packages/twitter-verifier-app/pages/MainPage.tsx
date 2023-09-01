@@ -137,7 +137,7 @@ export const MainPage: React.FC<{}> = (props) => {
   };
 
   const { config } = usePrepareContractWrite({
-    address: "0x76E5978bdfA5Da926eCE0cE23F7A07648C525b5F", // TODO: get address
+    address: import.meta.env.VITE_CONTRACT_ADDRESS,
     abi: abi,
     functionName: "mint",
     args: [
