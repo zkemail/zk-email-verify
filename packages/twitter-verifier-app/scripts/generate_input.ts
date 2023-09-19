@@ -178,7 +178,7 @@ export async function getCircuitInputs(
   const address = bytesToBigInt(fromHex(eth_address)).toString();
   const nullifier = signature[0];
   // bytesToBigInt(fromHex()).toString();
-  const address_plus_one = (bytesToBigInt(fromHex(eth_address)) + 1n).toString();
+  // const address_plus_one = (bytesToBigInt(fromHex(eth_address)) + 1n).toString();
 
   const USERNAME_SELECTOR = Buffer.from(STRING_PRESELECTOR);
 
@@ -207,9 +207,9 @@ export async function getCircuitInputs(
       in_body_len_padded_bytes,
       twitter_username_idx,
       address,
-      address_plus_one,
+      // address_plus_one,
       body_hash_idx,
-      // email_from_idx,
+      // email_from_idx: email_from_idx.toString(),
     };
   } else if (circuit === CircuitType.EMAIL_SUBJECT) {
     // First word after "subject:" (usually send/Send)
