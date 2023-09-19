@@ -1,4 +1,4 @@
-pragma circom 2.1.5;
+pragma circom 2.1.6;
 
 include "circomlib/circuits/sha256/constants.circom";
 include "circomlib/circuits/sha256/sha256compression.circom";

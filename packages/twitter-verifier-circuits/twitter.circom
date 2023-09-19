@@ -1,4 +1,4 @@
-pragma circom 2.1.5;
+pragma circom 2.1.6;
 
 include "@zk-email/circuits/regexes/from_regex.circom";
 include "@zk-email/circuits/email-verifier.circom";
