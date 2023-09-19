@@ -92,7 +92,7 @@ template RSAPad(n, k) {
             if (i+8 < n*k) {
                 modulus_prefix += modulus_bits[i+8];
                 if (i % 8 == 0) {
-                    var idx = (i - (base_len + 8)) / 8;
+                    var idx = (i - (base_len + 8)) \ 8;
                     modulus_zero[idx] = IsZero();
                     modulus_zero[idx].in <== modulus_prefix;
                     padded_message_bits[i] <== 1-modulus_zero[idx].out;
