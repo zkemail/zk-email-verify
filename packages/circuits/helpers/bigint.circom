@@ -374,10 +374,15 @@ template BigMod(n, k) {
         mod[i] <-- longdiv[1][i];
     }
     div[k] <-- longdiv[0][k];
-    component range_checks[k + 1];
+    component div_range_checks[k + 1];
     for (var i = 0; i <= k; i++) {
-        range_checks[i] = Num2Bits(n);
-        range_checks[i].in <== div[i];
+        div_range_checks[i] = Num2Bits(n);
+        div_range_checks[i].in <== div[i];
+    }
+    component mod_range_checks[k];
+    for (var i = 0; i < k; i++) {
+        mod_range_checks[i] = Num2Bits(n);
+        mod_range_checks[i].in <== mod[i];
     }
 
     component mul = BigMult(n, k + 1);
