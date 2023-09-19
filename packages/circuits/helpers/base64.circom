@@ -54,6 +54,12 @@ template Base64Lookup() {
     signal sum_slash <== sum_plus + equal_slash.out * (in + 16);
 
     out <== sum_slash;
+
+    // '='
+    component equal_eqsign = IsZero();
+    equal_eqsign.in <== in - 61;
+
+    1 === range_AZ + range_az + range_09 + equal_plus.out + equal_slash.out + equal_eqsign.out;
 }
 
 template Base64Decode(N) {
