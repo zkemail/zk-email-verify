@@ -1,6 +1,6 @@
 /*jslint browser: true*/
 /*global require, exports*/
-import { STRING_PRESELECTOR } from "../src/helpers/constants.ts";
+// import { STRING_PRESELECTOR } from "../src/helpers/constants.ts";
 import { minDfa, nfaToDfa, regexToNfa } from "./lexical";
 
 /** This section defines helper regex components -- to edit the regex used, edit the return
