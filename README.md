@@ -4,6 +4,10 @@
 
 If you're interested in building a project with zk email or would like to contribute, [dm us](https://twitter.com/yush_g/)! Get up to date on our broad progress on the [higher level org readme](https://github.com/zkemail). While this circom code is complete, it is quite slow client side (see benchmarks below), and we are working quite hard to put up a secure, ultrafast version with halo2 by Q2 2023. We are also hoping to release a broader SDK so it will be very easy to put up new zk email applications.
 
+## Bugfix Bounties
+
+We will award $50 for every successfully merged PR that resolves any [open issue](https://github.com/zkemail/zk-email-verify/issues).
+
 ## MVP App
 
 The application is located at https://zkemail.xyz. It only works on Chrome/Brave/Arc (or other Chromium-based browsers) due to download limits on other browsers. To understand the construction more, read [our blog post here](https://blog.aayushg.com/posts/zkemail).
