@@ -13,7 +13,7 @@ jobs:
           pkg-manager: yarn
           app-dir: ~/zk-email-verify
       - run:
-          command: yarn test
+          command: yarn test -w 2
           name: Run circom tests
           working_directory: ~/zk-email-verify/packages/circuits
 
