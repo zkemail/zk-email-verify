@@ -119,10 +119,10 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size, calculat
     // BODY HASH REGEX: 617,597 constraints
     // This extracts the body hash from the header (i.e. the part after bh= within the DKIM-signature section)
     // which is used to verify the body text matches this signed hash + the signature verifies this hash is legit
-    signal bh_regex_out, bh_reveal[max_header_bytes];
-    (bh_regex_out, bh_reveal) <== BodyHashRegex(max_header_bytes)(in_padded);
-    bh_regex_out === 1;
-    signal shifted_bh_out[LEN_SHA_B64] <== VarShiftLeft(max_header_bytes, LEN_SHA_B64)(bh_reveal, body_hash_idx);
+    // signal bh_regex_out, bh_reveal[max_header_bytes];
+    // (bh_regex_out, bh_reveal) <== BodyHashRegex(max_header_bytes)(in_padded);
+    // bh_regex_out === 1;
+    // signal shifted_bh_out[LEN_SHA_B64] <== VarShiftLeft(max_header_bytes, LEN_SHA_B64)(bh_reveal, body_hash_idx);
     // log(body_hash_regex.out);
 
     // SUBJECT HEADER REGEX: 736,553 constraints
