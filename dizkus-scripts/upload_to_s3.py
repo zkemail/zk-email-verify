@@ -11,18 +11,17 @@ s3 = boto3.client('s3')  # Ask Aayush for the access key and secret access key
 
 parser = argparse.ArgumentParser(description='Upload files to S3 bucket')
 parser.add_argument('--bucket_name', type=str, default='zkemail-zkey-chunks', help='Name of the S3 bucket')
-parser.add_argument('--dirs', type=str, default='./chunked_build/email, ./chunked_build/email/email_js', help="Comma seperated directories to upload files from")
-# parser.add_argument('--build_dir', type=str, default='chunked_build', help='Name of the build directory directory with the circuitname/ folder')
-# parser.add_argument('--circuit_name', type=str, default='email', help='Name of the circuit (i.e. the foldername in build_dir/)')
+parser.add_argument('--build-dir', type=str, default='chunked_build', help='Name of the build directory directory with the circuitname/ folder')
+parser.add_argument('--circuit-name', type=str, default='wallet', help='Name of the circuit (i.e. the foldername in build_dir/)')
 parser.add_argument('--prefix_to_tar', type=str, default='email.zkey', help='Prefix to match for files in order to compress to a .tar.gz and upload')
 parser.add_argument('--prefix', type=str, default='vkey.json,email.wasm', help='Comma-seperated prefixes to upload without compression')
 args = parser.parse_args()
 bucket_name = args.bucket_name
-# build_dir = args.build_dir
-# circuit_name = args.circuit_name
+build_dir = args.build_dir
+circuit_name = args.circuit_name
 prefix_to_tar = args.prefix_to_tar
 prefixes = args.prefix.split(',')
-dirs = args.dirs.split(',')
+dirs = [os.path.join(build_dir, circuit_name), os.path.join(build_dir, circuit_name, circuit_name + '_js')]
 
 # Get the latest commit hash
 commit_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('utf-8').strip()
