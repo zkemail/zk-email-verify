@@ -5,15 +5,33 @@ import time
 import gzip
 import argparse
 import subprocess
+from dotenv import load_dotenv
+load_dotenv('circuit.env')
 
 # Set up the client for the AWS S3 service
 s3 = boto3.client('s3')  # Ask Aayush for the access key and secret access key
 
 parser = argparse.ArgumentParser(description='Upload files to S3 bucket')
 parser.add_argument('--bucket_name', type=str, default='zkemail-zkey-chunks', help='Name of the S3 bucket')
-parser.add_argument('--build-dir', type=str, default='build', help='Name of the build directory directory with the circuitname/ folder')
-parser.add_argument('--circuit-name', type=str, default='wallet', help='Name of the circuit (i.e. the foldername in build_dir/)')
-parser.add_argument('--prefix', type=str, default='vkey.json,email.wasm', help='Comma-seperated prefixes to upload without compression')
+
+default_build_dir = 'build'
+default_circuit_name = 'wallet'
+default_prefix = 'vkey.json,email.wasm'
+
+build_dir_env = os.getenv('BUILD_DIR')
+circuit_name_env = os.getenv('CIRCUIT_NAME')
+
+if build_dir_env is None:
+    print("Warning: BUILD_DIR not found in circuit.env, defaulting to '{default_build_dir}'")
+    build_dir_env = default_build_dir
+
+if circuit_name_env is None:
+    print("Warning: CIRCUIT_NAME not found in circuit.env, defaulting to '{default_circuit_name}'")
+    circuit_name_env = default_circuit_name
+
+parser.add_argument('--build-dir', type=str, default=build_dir_env, help='Name of the build directory directory with the circuitname/ folder')
+parser.add_argument('--circuit-name', type=str, default=circuit_name_env, help='Name of the circuit (i.e. the foldername in build_dir/)')
+parser.add_argument('--prefix', type=str, default=default_prefix, help='Comma-seperated prefixes to upload without compression')
 args = parser.parse_args()
 bucket_name = args.bucket_name
 build_dir = args.build_dir
