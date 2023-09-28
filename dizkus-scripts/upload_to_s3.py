@@ -11,12 +11,12 @@ load_dotenv('circuit.env')
 # Set up the client for the AWS S3 service
 s3 = boto3.client('s3')  # Ask Aayush for the access key and secret access key
 
-parser = argparse.ArgumentParser(description='Upload files to S3 bucket')
+parser = argparse.ArgumentParser(description='Upload the compressed zkey, cpp, and js compilation files to S3 bucket')
 parser.add_argument('--bucket_name', type=str, default='zkemail-zkey-chunks', help='Name of the S3 bucket')
 
 default_build_dir = 'build'
 default_circuit_name = 'wallet'
-default_prefix = 'vkey.json,email.wasm'
+default_prefix = 'vkey.json,email.wasm,verifier.sol'
 
 build_dir_env = os.getenv('BUILD_DIR')
 circuit_name_env = os.getenv('CIRCUIT_NAME')
@@ -37,8 +37,12 @@ bucket_name = args.bucket_name
 build_dir = args.build_dir
 circuit_name = args.circuit_name
 prefix_to_tar = args.circuit_name + ".zkey"
+
 prefixes = args.prefix.split(',')
-dirs = [os.path.join(build_dir, circuit_name, ""), os.path.join(build_dir, circuit_name, circuit_name + '_js')]
+prefixes.append(circuit_name + '_js')
+prefixes.append(circuit_name + '_cpp')
+
+dirs = [os.path.join(build_dir, circuit_name, ""), os.path.join(build_dir, circuit_name, circuit_name + '_js'), os.path.join(build_dir, circuit_name, circuit_name + '_cpp')]
 
 # Get the latest commit hash
 commit_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('utf-8').strip()
@@ -86,10 +90,7 @@ for dir in dirs:
 
             os.remove(tar_file_name)
             os.remove(gz_file_name)
-
-        # If file starts with any one of the prefixes
+        # If file starts with any one of the prefixes (including js/cpp directories)
         if any(file.startswith(prefix) for prefix in prefixes):
-            # Upload the zip file to the AWS bucket, overwriting any existing file with the same name
+            # Upload the directory to the AWS bucket, overwriting any existing file with the same name
             upload_to_s3(file, dir)
-        # if file.startswith('vkey.json') or file.startswith('email.wasm'):
-        #     upload_to_s3(file, dir)
