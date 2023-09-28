@@ -4,15 +4,17 @@
 
 If you're interested in building a project with zk email or would like to contribute, we are happy to help brainstorm with you on our [developer Telegram group](https://t.me/+SYqeeJ7qI3I4OWQx)! Feel free to also dm @yush_g with questions on Twitter/Telegram. Get up to date on our broad progress on the [higher level org readme](https://github.com/zkemail). While this circom code is complete, it is quite slow client side (see benchmarks below), and we recommend that privacy-critical performance-critical apps use our [recursive halo2 circuits instead](https://github.com/zkemail/halo2-zk-email). We strongly recommend [using our SDK](https://www.npmjs.com/search?q=%40zk-email) instead of forking this repo, as we frequently fix critical bugs.
 
+To understand ZK Email, read [our blog post here](https://blog.aayushg.com/posts/zkemail).
+
 ## Bugfix Bounties
 
 We will award $50 for every successfully merged PR that resolves any [open issue](https://github.com/zkemail/zk-email-verify/issues).
 
 ## MVP App
 
-The application is located at https://zkemail.xyz. It only works on Chrome/Brave/Arc (or other Chromium-based browsers) due to download limits on other browsers. To understand the construction more, read [our blog post here](https://blog.aayushg.com/posts/zkemail).
+See our demos on https://prove.email. For instance, our Twitter verification application is at https://zkemail.xyz. It only works on Chrome/Brave/Arc (or other Chromium-based browsers) due to download limits on other browsers. 
 
-The documentation for the app is located at https://zkemail.xyz/docs (WIP). Made by [@yush_g](https://twitter.com/yush_g) and [@sampriti0](https://twitter.com/sampriti0) at [@0xparc](https://twitter.com/0xparc), dm if interested in usage or building next generation primitives like this. This is very much a work in progress, and we invite folks to contribute, or contact us for interesting projects that can be built on top of the tech! We are especially prioritizing optimizing circuits, making our end-to-end demo more efficient and on-chain, and an SDK/CLI.
+The documentation for the Twitter app is located at https://zkemail.xyz/docs. Made by [@yush_g](https://twitter.com/yush_g) and [@sampriti0](https://twitter.com/sampriti0) at [@0xparc](https://twitter.com/0xparc), dm if interested in usage or building next generation primitives like this. This is very much a work in progress, and we invite folks to contribute, or contact us for interesting projects that can be built on top of the tech! We are especially prioritizing optimizing circuits, making more production level demos, and improved SDK/CLI tooling.
 
 ### Local website
 
@@ -37,7 +39,7 @@ In gmail, download original message then copy paste the contents into the textbo
 
 ## Development Instructions
 
-This will let you build new zkeys from source.
+This will let you build new zkeys from source. To avoid setup, we recommend using https://zkrepl.dev to compile and iterate on early circuits.
 
 ### Filetree Description
 
