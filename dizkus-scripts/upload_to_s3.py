@@ -53,11 +53,24 @@ commit_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('utf-
 # zkey_dir = source + '/{build_dir}/{circuit_name}/'
 # wasm_dir = source + '/{build_dir}/{circuit_name}/{circuit_name}_js/'
 def upload_to_s3(filename, dir=""):
-    with open(dir + filename, 'rb') as file:
-        print("Starting upload...")
-        s3.upload_fileobj(file, bucket_name, commit_hash + '/' + filename, ExtraArgs={
-                          'ACL': 'public-read', 'ContentType': 'binary/octet-stream'})
-        print(f"Done uploading {filename} to: https://{bucket_name}.s3.amazonaws.com/{commit_hash}/{filename}")
+    if os.path.isfile(os.path.join(dir, filename)):
+        with open(os.path.join(dir, filename), 'rb') as file:
+            print("Starting upload...")
+            s3.upload_fileobj(file, bucket_name, commit_hash + '/' + filename, ExtraArgs={
+                              'ACL': 'public-read', 'ContentType': 'binary/octet-stream'})
+            print(f"Done uploading {filename} to: https://{bucket_name}.s3.amazonaws.com/{commit_hash}/{filename}")
+    elif os.path.isdir(os.path.join(dir, filename)):
+        for root, dirs, files in os.walk(os.path.join(dir, filename)):
+            for file in files:
+                file_path = os.path.join(root, file)
+                with open(file_path, 'rb') as file_obj:
+                    s3_key = os.path.join(commit_hash, file_path)
+                    print(f"Starting upload of {file_path} to {s3_key}...")
+                    s3.upload_fileobj(file_obj, bucket_name, s3_key, ExtraArgs={
+                                      'ACL': 'public-read', 'ContentType': 'binary/octet-stream'})
+                    print(f"Done uploading {file_path} to: https://{bucket_name}.s3.amazonaws.com/{s3_key}")
+    else:
+        print(f"Skipping {os.path.join(dir, filename)} as it is not a valid file or directory.")
 
 
 # Loop through the files in the remote directory
