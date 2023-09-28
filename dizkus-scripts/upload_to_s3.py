@@ -31,17 +31,17 @@ commit_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('utf-
 # source = '.'
 # zkey_dir = source + '/{build_dir}/{circuit_name}/'
 # wasm_dir = source + '/{build_dir}/{circuit_name}/{circuit_name}_js/'
-
 def upload_to_s3(filename, dir=""):
     with open(dir + filename, 'rb') as file:
         print("Starting upload...")
         s3.upload_fileobj(file, bucket_name, commit_hash + '/' + filename, ExtraArgs={
                           'ACL': 'public-read', 'ContentType': 'binary/octet-stream'})
-        print("Done uploading ", filename, "!")
+        print(f"Done uploading {filename} to: https://{bucket_name}.s3.amazonaws.com/{commit_hash}/{filename}")
 
 
 # Loop through the files in the remote directory
 for dir in dirs:
+    print("Searching for files in: ", dir)
     for file in os.listdir(dir):
         # Check if the file matches the pattern
         if file.startswith(prefix_to_tar):
@@ -76,4 +76,3 @@ for dir in dirs:
             upload_to_s3(file, dir)
         # if file.startswith('vkey.json') or file.startswith('email.wasm'):
         #     upload_to_s3(file, dir)
-
