@@ -48,16 +48,12 @@ contract WalletUtilsTest is Test {
             return privateKey;
         } catch {
             // This is the anvil default exposed secret key
-            return
-                0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
+            return 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
         }
     }
 
     // NOTE: This needs to manually be kept 1-1 with the Deploy in DeployWallet.s.sol to correctly test the Ownable properties
-    function deploy()
-        public
-        returns (address, address, address, address, address)
-    {
+    function deploy() public returns (address, address, address, address, address) {
         console.log("Deploy wallet: msg.sender, tx.origin:");
         console.log(msg.sender);
         console.log(tx.origin);
@@ -69,13 +65,8 @@ contract WalletUtilsTest is Test {
         tokenRegistry.setTokenAddress("TES", address(erc20));
         logic = new EmailWallet();
 
-        bytes memory initData = abi.encodeWithSelector(
-            logic.initialize.selector,
-            proofVerifier,
-            mailServer,
-            erc20,
-            tokenRegistry
-        );
+        bytes memory initData =
+            abi.encodeWithSelector(logic.initialize.selector, proofVerifier, mailServer, erc20, tokenRegistry);
         // This sets the logic owner to this contract, but the proxy owner is still the msg.sender/tx.origin?
         walletHandler = new ERC1967Proxy(address(logic), initData);
 
@@ -86,11 +77,7 @@ contract WalletUtilsTest is Test {
         // logic.transferOwnership(tx.origin);
         // walletHandler.transferOwnership(tx.origin);
         return (
-            address(walletHandler),
-            address(mailServer),
-            address(erc20),
-            address(tokenRegistry),
-            address(proofVerifier)
+            address(walletHandler), address(mailServer), address(erc20), address(tokenRegistry), address(proofVerifier)
         );
     }
 
@@ -102,13 +89,8 @@ contract WalletUtilsTest is Test {
         console.log(msg.sender);
         console.log(tx.origin);
 
-        (
-            address __walletHandler,
-            address _mailServer,
-            address _erc20,
-            address _tokenRegistry,
-            address _proofVerifier
-        ) = deploy();
+        (address __walletHandler, address _mailServer, address _erc20, address _tokenRegistry, address _proofVerifier) =
+            deploy();
         address payable _walletHandler = payable(__walletHandler);
         walletHandler = ERC1967Proxy(_walletHandler);
         mailServer = MailServer(_mailServer);
@@ -137,11 +119,7 @@ contract WalletUtilsTest is Test {
         packedBytes[1] = 18147879272211830;
         packedBytes[2] = 27917065853693287;
         packedBytes[3] = 28015;
-        string memory byteList = StringUtils.convertPackedBytesToString(
-            packedBytes,
-            30,
-            packSizeOld
-        );
+        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 30, packSizeOld);
         string memory intended_value = "zkemailverify@gmail.com";
         assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
         console.logString(byteList);
@@ -153,11 +131,7 @@ contract WalletUtilsTest is Test {
         packedBytes[1] = 14207229598262646;
         packedBytes[2] = 13067048790615872;
         packedBytes[3] = 7171939;
-        string memory byteList = StringUtils.convertPackedBytesToString(
-            packedBytes,
-            30,
-            packSizeOld
-        );
+        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 30, packSizeOld);
         string memory intended_value = "zkemailverify2@gmail.com";
         assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
         console.logString(byteList);
@@ -170,11 +144,7 @@ contract WalletUtilsTest is Test {
         packedBytes[1] = 3485236;
         packedBytes[2] = 0;
         packedBytes[3] = 0;
-        string memory byteList = StringUtils.convertPackedBytesToString(
-            packedBytes,
-            30,
-            packSizeOld
-        );
+        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 30, packSizeOld);
         string memory intended_value = "4.5";
         assertEq(StringUtils.stringToUint(byteList), 4);
         assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
@@ -187,11 +157,7 @@ contract WalletUtilsTest is Test {
         packedBytes[1] = 14207229598262646;
         packedBytes[2] = 13067048790615872;
         packedBytes[3] = 7171939;
-        string memory byteList = StringUtils.convertPackedBytesToString(
-            packedBytes,
-            30,
-            packSizeOld
-        );
+        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 30, packSizeOld);
         string memory intended_value = "zkemailverify2@gmail.com";
         assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
         console.logString(byteList);
@@ -203,11 +169,7 @@ contract WalletUtilsTest is Test {
         packedBytes[1] = 18147879272211830;
         packedBytes[2] = 27917065853693287;
         packedBytes[3] = 28015;
-        string memory byteList = StringUtils.convertPackedBytesToString(
-            packedBytes,
-            30,
-            packSizeOld
-        );
+        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 30, packSizeOld);
         string memory intended_value = "zkemailverify@gmail.com";
         assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
         console.logString(byteList);
@@ -217,24 +179,16 @@ contract WalletUtilsTest is Test {
     function testUnpackIntoString_TES() public {
         uint256[] memory packedBytes = new uint256[](1);
         packedBytes[0] = 357645418496;
-        string memory byteList = StringUtils.convertPackedBytesToString(
-            packedBytes,
-            30,
-            packSizeOld
-        );
+        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 30, packSizeOld);
         string memory intended_value = "TES";
         assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
         console.logString(byteList);
-    }    
+    }
 
     function testUnpackIntoString_Pack30_0() public {
         uint256[] memory packedBytes = new uint256[](1);
         packedBytes[0] = 1684956499;
-        string memory byteList = StringUtils.convertPackedBytesToString(
-            packedBytes,
-            30,
-            packSize
-        );
+        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 30, packSize);
         string memory intended_value = "Send";
         console.logString(byteList);
         assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
@@ -243,11 +197,7 @@ contract WalletUtilsTest is Test {
     function testUnpackIntoString_Pack30_1() public {
         uint256[] memory packedBytes = new uint256[](1);
         packedBytes[0] = 12544;
-        string memory byteList = StringUtils.convertPackedBytesToString(
-            packedBytes,
-            30,
-            packSize
-        );
+        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 30, packSize);
         string memory intended_value = "1";
         console.logString(byteList);
         assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
@@ -256,11 +206,7 @@ contract WalletUtilsTest is Test {
     function testUnpackIntoString_Pack30_2() public {
         uint256[] memory packedBytes = new uint256[](1);
         packedBytes[0] = 452605509632;
-        string memory byteList = StringUtils.convertPackedBytesToString(
-            packedBytes,
-            30,
-            packSize
-        );
+        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 30, packSize);
         string memory intended_value = "dai";
         console.logString(byteList);
         assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
@@ -270,13 +216,13 @@ contract WalletUtilsTest is Test {
     function testTransfer() public {
         uint256[27] memory publicSignals = [
             1684956499,
-            12544,
+            12800,
             0,
-            314627588096,
+            357645418496,
             1,
-            2551778469022082483410965627889617426416823186429164335788418290029794051477,
+            17566086257910673581798227137386378880654499631805096745898016564277405173221,
             1,
-            5034778214643319837174799286363441309283744411470368822683043587378340024371,
+            10351006309161521407380889618696480886000391759520254704936747509011242520900,
             1886180949733815343726466520516992271,
             1551366393280668736485689616947198994,
             1279057759087427731263511728885611780,
@@ -294,41 +240,38 @@ contract WalletUtilsTest is Test {
             342338521965453258686441392321054163,
             2269703683857229911110544415296249295,
             3643644972862751728748413716653892,
-            116047924164413653745103509059638115,
+            1091732335831413889009840339977333876,
             0
         ];
 
         uint256[2] memory proof_a = [
-            1113058512136436528729551194036449738912809020899493741812481941513158457638,
-            17904238425624368116392089213880809397074718297748087534228874805395955569494
+            21493526399630848714088576758790000612983801908965363000944303489035643164732,
+            612472284266767912042190211361186336975534684437563301308490256402913981593
         ];
 
         uint256[2][2] memory proof_b = [
             [
-                11136219955279097153007034948647904013979918882403246697434191106345505294456,
-                9093260394613016872854441391208801395771529268798604188959340370147578029605
+                15372974992241689584466152555994768384059989900465963124874246340360734821996,
+                15366895889108502348938089955913933229050968003147382792567346096201019063883
             ],
             [
-                19132160993168472870012250865400668085339138976788531705508362264317915314664,
-                7997890521177636789422279131989585239901152973726825553496440950816823393760
+                9236744782651475998928188339673956940316908995565005955716093491759519828720,
+                12781455257035000726917415477817976016404022734103586934519011190860062337748
             ]
         ];
 
         uint256[2] memory proof_c = [
-            4578204096286765672152304159882317307749862613194650587092484493827496450319,
-            20337996863975282865934752324832426699547899381722526747380818118899270980656
+            9321829112233388416227573508407590056900008135887969264346125936097751965530,
+            17887217773313831412531089288283151845052667698841944883373350348459704907197
         ];
 
         // Send 50 DAI from DAI contract (from people who accidentally sent it there) to the from wallet, as if they had sent that
         address DAI_ADDR = tokenRegistry.getTokenAddress("DAI");
         uint256 fromSalt = publicSignals[5];
-        address from_addr = EmailWallet(address(walletHandler))
-            .getOrCreateWallet(fromSalt);
+        address from_addr = EmailWallet(address(walletHandler)).getOrCreateWallet(fromSalt);
 
         uint256 toSalt = publicSignals[7];
-        address to_addr = EmailWallet(address(walletHandler)).getOrCreateWallet(
-            toSalt
-        );
+        address to_addr = EmailWallet(address(walletHandler)).getOrCreateWallet(toSalt);
 
         // Transfer money from the literal DAI contract to the from wallet
         vm.startPrank(DAI_ADDR);
@@ -342,20 +285,10 @@ contract WalletUtilsTest is Test {
 
         // Test email transfer from any address after spoofing msg.sender to a relayer
         // Right now this passes, but will have to eventually match the relayer commitment for gas reimbursement, at which point it will fail
-        EmailWallet(address(walletHandler)).transfer(
-            proof_a,
-            proof_b,
-            proof_c,
-            publicSignals
-        );
+        EmailWallet(address(walletHandler)).transfer(proof_a, proof_b, proof_c, publicSignals);
 
         // Test proof verification
-        bool verified = proofVerifier.verifyProof(
-            proof_a,
-            proof_b,
-            proof_c,
-            publicSignals
-        );
+        bool verified = proofVerifier.verifyProof(proof_a, proof_b, proof_c, publicSignals);
         assertEq(verified, true);
 
         // Test new balances of the from/to wallet
@@ -372,18 +305,12 @@ contract WalletUtilsTest is Test {
 
         // Call migrate as owner
         vm.startPrank(owner);
-        EmailWallet(address(walletHandler)).migrateAllToken(
-            toSalt,
-            fromSalt,
-            "DAI"
-        );
+        EmailWallet(address(walletHandler)).migrateAllToken(toSalt, fromSalt, "DAI");
         vm.stopPrank();
     }
 
     function queryNullifier(uint256 a) public view returns (bool) {
-        EmailWalletStorage handlerStorage = EmailWalletStorage(
-            address(walletHandler)
-        );
+        EmailWalletStorage handlerStorage = EmailWalletStorage(address(walletHandler));
         return handlerStorage.nullifier(a);
     }
 
@@ -402,9 +329,7 @@ contract WalletUtilsTest is Test {
         vm.startPrank(owner);
         EmailWalletV2 newLogicContract = new EmailWalletV2();
 
-        EmailWallet(address(walletHandler)).upgradeTo(
-            address(newLogicContract)
-        );
+        EmailWallet(address(walletHandler)).upgradeTo(address(newLogicContract));
 
         EmailWalletV2 walletV2 = EmailWalletV2(address(walletHandler));
 
@@ -425,7 +350,8 @@ contract WalletUtilsTest is Test {
 
     // TODO: This parses "TEST" as "TES" for some reason...
     function testSendingTestTokens() public {
-        bytes memory data = hex"09ff628408a85c56b07c13f0fa3395b3709b9c9a375c1a515a3e91fe8fadec18ddfe57e12a03af09ae53eb2b73ecfe85709b08509d96ecde972379f029d220300ceac74f10aca584ee8b174cf6b579afe167d1fd7ee000fb32994e0fac3033ea7cd0458e1da561066ea7cff503b4e455d1c58ca2d3ef4978646a19cb4a832ff5cd471bf11a542a361514e26fe8920561aeeed0ff36bf798f3726c1831c83c7b8941d5aec069efe6fd09650012fbff6bf9f21515903771dc93a2aecd2d99ed6da4ef0f5960c68aed43f982b5ef83fccd9e8fb1b8f70d9db4f1f6a539cff7034235ccaf38b005016bb6f52ef7110e700eddcc66f47b56a4e9ffdb747e511d9dd5ddf28567000000000000000000000000000000000000000000000000000000000646e6553000000000000000000000000000000000000000000000000000000000000320000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005345540000000000000000000000000000000000000000000000000000000000000000000015b7ae1110be0809b8c8d6f337aff9e4d36dc2883d85a2be79fc4f697c838d6100000000000000000000000000000000000000000000000000000000000000000c1cb0f5eb0b90d7267953b5a09bb039c7109bb8dabbf669fa6ceb63edaa578600000000000000000000000000000000016b43e6952aab3b98fa13a79bfd1d0f00000000000000000000000000000000012ac844c1e015b59ef3f0da0a3bbc120000000000000000000000000000000000f6566a962ca430e039640290cc3d0400000000000000000000000000000000014989db7f2905291b303638025cea230000000000000000000000000000000001c0937c78329eac9b8c2a001632c91b000000000000000000000000000000000193747ed5293b8fe2f9f1f21c95e1910000000000000000000000000000000001f1c4929e61b4109a70fe4abdd707d70000000000000000000000000000000001250a5450edc61ab00edf5154c461ab0000000000000000000000000000000000220f409ea9a8f706ca0e6b4c956320000000000000000000000000000000000079e5763e8d6c28b35ba7f30451cb710000000000000000000000000000000001a265a226a9688c3573a29ed89f9b4800000000000000000000000000000000002fc8e337e6f3a240312d4a81779e8e00000000000000000000000000000000010f48fd303674a9225afe165d4b7ea900000000000000000000000000000000004638b36fc9f5741ddadf4836005752000000000000000000000000000000000041ee979f0be1ba1e7091596553c5d30000000000000000000000000000000001b521080ac6e30c7f0abec6e09eddcf000000000000000000000000000000000000b3a543e094101d1676119351e7440000000000000000000000000000000001ca92eb3b14691a7fde3e89602b337b0000000000000000000000000000000000000000000000000000000000000000";
+        bytes memory data =
+            hex"09ff628408a85c56b07c13f0fa3395b3709b9c9a375c1a515a3e91fe8fadec18ddfe57e12a03af09ae53eb2b73ecfe85709b08509d96ecde972379f029d220300ceac74f10aca584ee8b174cf6b579afe167d1fd7ee000fb32994e0fac3033ea7cd0458e1da561066ea7cff503b4e455d1c58ca2d3ef4978646a19cb4a832ff5cd471bf11a542a361514e26fe8920561aeeed0ff36bf798f3726c1831c83c7b8941d5aec069efe6fd09650012fbff6bf9f21515903771dc93a2aecd2d99ed6da4ef0f5960c68aed43f982b5ef83fccd9e8fb1b8f70d9db4f1f6a539cff7034235ccaf38b005016bb6f52ef7110e700eddcc66f47b56a4e9ffdb747e511d9dd5ddf28567000000000000000000000000000000000000000000000000000000000646e6553000000000000000000000000000000000000000000000000000000000000320000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005345540000000000000000000000000000000000000000000000000000000000000000000015b7ae1110be0809b8c8d6f337aff9e4d36dc2883d85a2be79fc4f697c838d6100000000000000000000000000000000000000000000000000000000000000000c1cb0f5eb0b90d7267953b5a09bb039c7109bb8dabbf669fa6ceb63edaa578600000000000000000000000000000000016b43e6952aab3b98fa13a79bfd1d0f00000000000000000000000000000000012ac844c1e015b59ef3f0da0a3bbc120000000000000000000000000000000000f6566a962ca430e039640290cc3d0400000000000000000000000000000000014989db7f2905291b303638025cea230000000000000000000000000000000001c0937c78329eac9b8c2a001632c91b000000000000000000000000000000000193747ed5293b8fe2f9f1f21c95e1910000000000000000000000000000000001f1c4929e61b4109a70fe4abdd707d70000000000000000000000000000000001250a5450edc61ab00edf5154c461ab0000000000000000000000000000000000220f409ea9a8f706ca0e6b4c956320000000000000000000000000000000000079e5763e8d6c28b35ba7f30451cb710000000000000000000000000000000001a265a226a9688c3573a29ed89f9b4800000000000000000000000000000000002fc8e337e6f3a240312d4a81779e8e00000000000000000000000000000000010f48fd303674a9225afe165d4b7ea900000000000000000000000000000000004638b36fc9f5741ddadf4836005752000000000000000000000000000000000041ee979f0be1ba1e7091596553c5d30000000000000000000000000000000001b521080ac6e30c7f0abec6e09eddcf000000000000000000000000000000000000b3a543e094101d1676119351e7440000000000000000000000000000000001ca92eb3b14691a7fde3e89602b337b0000000000000000000000000000000000000000000000000000000000000000";
         (bool success, bytes memory result) = address(walletHandler).call(data);
         require(success, "Transfer failed");
     }
@@ -437,11 +363,7 @@ contract EmailWalletV2 is EmailWallet {
         verifier = v;
     }
 
-    function migrateAllToken(
-        uint256 fromSalt,
-        uint256 toSalt,
-        address token
-    ) public override onlyOwner {
+    function migrateAllToken(uint256 fromSalt, uint256 toSalt, address token) public override onlyOwner {
         revert("migrateAllToken is disabled");
     }
 }

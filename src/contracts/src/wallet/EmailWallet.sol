@@ -435,13 +435,13 @@ contract EmailWallet is
         string memory domain = "gmail.com"; // Change this later to actually parse the domain as the first half
 
         // Verify that the public key for RSA matches the hardcoded one
+        require(verifier.verifyProof(a, b, c, signals), "Invalid Proof"); // checks effects iteractions, this should come first
         for (uint256 i = body_len; i < msg_len - commitment_len; i++) {
             require(
                 mailServer.isVerified(domain, i - body_len, signals[i]),
                 "Invalid: RSA modulus not matched"
             );
         }
-        require(verifier.verifyProof(a, b, c, signals), "Invalid Proof"); // checks effects iteractions, this should come first
 
         // Calculate and emit transfer data
         address tokenAddress = tokenRegistry.getTokenAddress(
