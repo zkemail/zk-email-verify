@@ -55,7 +55,7 @@ yarn remove snarkjs
 # mv ../yarn.lock ../yarn.lock_old2
 # rm -rf ../node_modules_old2
 # mv ../node_modules ../node_modules_old2
-yarn add snarkjs@latest
+yarn add snarkjs@v0.4.7
 
 echo "****GENERATING ZKEY NONCHUNKED 0****"
 start=$(date +%s)
