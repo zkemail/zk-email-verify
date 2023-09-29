@@ -1,0 +1,29 @@
+Wed Sep 27 22:00:12 2023  [TRACE]: Start Initializing a b c A
+Wed Sep 27 22:00:12 2023  [TRACE]: Processing coefs
+Wed Sep 27 22:00:13 2023  [TRACE]: Calculating c
+Wed Sep 27 22:00:13 2023  [TRACE]: Initializing fft
+Wed Sep 27 22:00:13 2023  [TRACE]: Start iFFT A
+Wed Sep 27 22:00:14 2023  [TRACE]: a After ifft:
+Wed Sep 27 22:00:14 2023  [TRACE]: Start Shift A
+Wed Sep 27 22:00:14 2023  [TRACE]: a After shift:
+Wed Sep 27 22:00:14 2023  [TRACE]: Start FFT A
+Wed Sep 27 22:00:15 2023  [TRACE]: a After fft:
+Wed Sep 27 22:00:15 2023  [TRACE]: Start iFFT B
+Wed Sep 27 22:00:17 2023  [TRACE]: b After ifft:
+Wed Sep 27 22:00:17 2023  [TRACE]: Start Shift B
+Wed Sep 27 22:00:17 2023  [TRACE]: b After shift:
+Wed Sep 27 22:00:17 2023  [TRACE]: Start FFT B
+Wed Sep 27 22:00:18 2023  [TRACE]: b After fft:
+Wed Sep 27 22:00:18 2023  [TRACE]: Start iFFT C
+Wed Sep 27 22:00:19 2023  [TRACE]: c After ifft:
+Wed Sep 27 22:00:19 2023  [TRACE]: Start Shift C
+Wed Sep 27 22:00:19 2023  [TRACE]: c After shift:
+Wed Sep 27 22:00:19 2023  [TRACE]: Start FFT C
+Wed Sep 27 22:00:20 2023  [TRACE]: c After fft:
+Wed Sep 27 22:00:20 2023  [TRACE]: Start ABC
+Wed Sep 27 22:00:21 2023  [TRACE]: abc:
+Wed Sep 27 22:00:21 2023  [TRACE]: Start Multiexp H
+Wed Sep 27 22:00:32 2023  [TRACE]: Start Multiexp A
+Wed Sep 27 22:00:33 2023  [TRACE]: Start Multiexp B1
+Wed Sep 27 22:00:35 2023  [TRACE]: Start Multiexp B2
+Wed Sep 27 22:00:41 2023  [TRACE]: Start Multiexp C

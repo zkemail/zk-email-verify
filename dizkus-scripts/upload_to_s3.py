@@ -16,7 +16,7 @@ parser.add_argument('--bucket_name', type=str, default='zkemail-zkey-chunks', he
 
 default_build_dir = 'build'
 default_circuit_name = 'wallet'
-default_prefix = 'vkey.json,email.wasm,verifier.sol'
+default_prefix = 'vkey.json,email.wasm,verifier.sol,wallet_nonchunked.zkey'
 
 build_dir_env = os.getenv('BUILD_DIR')
 circuit_name_env = os.getenv('CIRCUIT_NAME')
@@ -63,8 +63,10 @@ def upload_to_s3(filename, dir=""):
         for root, dirs, files in os.walk(os.path.join(dir, filename)):
             for file in files:
                 file_path = os.path.join(root, file)
+                print(root, dir, file)
+                relative_path = os.path.relpath(file_path, os.path.join(build_dir, circuit_name))
                 with open(file_path, 'rb') as file_obj:
-                    s3_key = os.path.join(commit_hash, file_path)
+                    s3_key = os.path.join(commit_hash, relative_path)
                     print(f"Starting upload of {file_path} to {s3_key}...")
                     s3.upload_fileobj(file_obj, bucket_name, s3_key, ExtraArgs={
                                       'ACL': 'public-read', 'ContentType': 'binary/octet-stream'})
