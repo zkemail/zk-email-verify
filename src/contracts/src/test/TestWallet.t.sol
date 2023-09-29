@@ -245,24 +245,24 @@ contract WalletUtilsTest is Test {
         ];
 
         uint256[2] memory proof_a = [
-            21493526399630848714088576758790000612983801908965363000944303489035643164732,
-            612472284266767912042190211361186336975534684437563301308490256402913981593
+            7103410859629265394911162693061966420814179337647291527744232886893473441765,
+            260161128896969371943226255154761591383118114147756700356961933045935305039
         ];
 
         uint256[2][2] memory proof_b = [
             [
-                15366895889108502348938089955913933229050968003147382792567346096201019063883,
-                15372974992241689584466152555994768384059989900465963124874246340360734821996
+                4789815490568942206062490170171942776471708541161308378610524481338378723879,
+                2296335027855250688314445460304195292038180405319158355670314480024611693615
             ],
             [
-                12781455257035000726917415477817976016404022734103586934519011190860062337748,
-                9236744782651475998928188339673956940316908995565005955716093491759519828720
+                861863385595617122273065814567089131431614563206892673817359405072541433198,
+                1307100626757350643799721009132359168653854588915530175164718521790935150107    
             ]
         ];
 
         uint256[2] memory proof_c = [
-            9321829112233388416227573508407590056900008135887969264346125936097751965530,
-            17887217773313831412531089288283151845052667698841944883373350348459704907197
+            11318747235424828742617087661368273456337249698220196194853512949083513344711,
+            18114359536700760929116471934756436855339549250826326410032247472576624861339
         ];
 
         // Send 50 DAI from DAI contract (from people who accidentally sent it there) to the from wallet, as if they had sent that
@@ -283,13 +283,14 @@ contract WalletUtilsTest is Test {
         assert(startingFromDaiBalance >= daiAmount);
         vm.stopPrank();
 
+        // Test proof verification
+        bool verified = proofVerifier.verifyProof(proof_a, proof_b, proof_c, publicSignals);
+        assertEq(verified, true);
+        
         // Test email transfer from any address after spoofing msg.sender to a relayer
         // Right now this passes, but will have to eventually match the relayer commitment for gas reimbursement, at which point it will fail
         EmailWallet(address(walletHandler)).transfer(proof_a, proof_b, proof_c, publicSignals);
 
-        // Test proof verification
-        bool verified = proofVerifier.verifyProof(proof_a, proof_b, proof_c, publicSignals);
-        assertEq(verified, true);
 
         // Test new balances of the from/to wallet
         assert(startingFromDaiBalance > IERC20(DAI_ADDR).balanceOf(from_addr));
