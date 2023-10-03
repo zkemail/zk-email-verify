@@ -54,6 +54,12 @@ template TwitterVerifier(max_header_bytes, max_body_bytes, n, k, pack_size, expo
         signal (from_regex_out, from_regex_reveal[max_header_bytes]) <== FromRegex(max_header_bytes)(in_padded);
         log(from_regex_out);
         from_regex_out === 1;
+
+        // ensure `from` email < max length allowed
+        var max_header_bytes_bits = log2_ceil(max_header_bytes);
+        signal max_email_len_selector <== QuinSelector(max_header_bytes, max_header_bytes_bits)(from_regex_reveal, email_from_idx+max_email_from_len);
+        max_email_len_selector === 0;
+
         reveal_email_from_packed <== ShiftAndPack(max_header_bytes, max_email_from_len, pack_size)(from_regex_reveal, email_from_idx);
     }
 
