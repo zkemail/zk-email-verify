@@ -1,4 +1,4 @@
-pragma circom 2.1.2;
+pragma circom 2.1.6;
 include "./utils.circom";
 
 // A set of utils for shifting and packing signal arrays

@@ -1,4 +1,4 @@
-pragma circom 2.1.5;
+pragma circom 2.1.6;
 
 include "../../../node_modules/@zk-email/circuits/regexes/regex_helpers.circom";
 
