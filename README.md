@@ -176,6 +176,9 @@ Run
 ./7_gen_solidity_verifier.sh
 ```
 
+The generated `twitter-verifier-circuits/contracts/verifier.sol` can be copied over to `twitter-verifier-contracts/src/Groth16VerifierTwitter.sol`. You can deploy this contract to verify the proof generated using the `zkey` with own entropy.
+
+
 #### Server-side Prover: Rapidsnark Setup (Optional)
 
 If you want to run a fast server side prover, install rapidsnark and test proofgen:

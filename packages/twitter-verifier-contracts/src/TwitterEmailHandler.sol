@@ -77,10 +77,10 @@ contract VerifiedTwitterEmail is ERC721Enumerable {
         // require(_domainCheck(headerSignals), "Invalid domain");
 
         // Verify the DKIM public key hash stored on-chain matches the one used in circuit
-        uint256 dkimPublicKeyHashInCircuit = signals[pubKeyHashIndexInSignals];
-        uint256 dkimPublicKeyHashOnChain = dkimRegistry.getDKIMPublicKeyHash(domain);
+        bytes32 dkimPublicKeyHashInCircuit = bytes32(signals[pubKeyHashIndexInSignals]);
+        bytes32 dkimPublicKeyHashOnChain = dkimRegistry.getDKIMPublicKeyHash(domain);
 
-        require(dkimPublicKeyHashOnChain != uint256(0), "dkim for domain not found");
+        require(dkimPublicKeyHashOnChain != bytes32(0), "dkim for domain not found");
 
         require(dkimPublicKeyHashInCircuit == dkimPublicKeyHashOnChain, "invalid signature"); 
 
