@@ -1,6 +1,6 @@
 {
   "name": "@twitter-verifier/circuits",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "scripts": {
     "test": "NODE_OPTIONS=--max_old_space_size=16384 jest"
   },

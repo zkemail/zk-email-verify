@@ -1,6 +1,6 @@
 {
   "name": "@zk-email/twitter-verifier",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "dependencies": {
     "@rainbow-me/rainbowkit": "^1.0.9",
     "@testing-library/jest-dom": "^5.16.3",
