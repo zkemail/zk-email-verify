@@ -38,7 +38,7 @@ build_dir = args.build_dir
 circuit_name = args.circuit_name
 prefix_to_tar = args.circuit_name + ".zkey"
 prefixes = args.prefix.split(',')
-dirs = [os.path.join(build_dir, circuit_name, ""), os.path.join(build_dir, circuit_name, circuit_name + '_js')]
+dirs = [os.path.join(build_dir, circuit_name, ""), os.path.join(build_dir, circuit_name, circuit_name + '_js/')]
 
 # Get the latest commit hash
 commit_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('utf-8').strip()
