@@ -12,6 +12,10 @@ if [ ! -d "$BUILD_DIR"/partial_zkeys ]; then
     mkdir -p "$BUILD_DIR"/partial_zkeys
 fi
 
+yarn remove snarkjs
+yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8
+yarn
+
 echo "****GENERATING ZKEY NONCHUNKED 0****"
 start=$(date +%s)
 set -x

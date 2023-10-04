@@ -129,11 +129,8 @@ wget https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_21.ptau
 <!-- Previously snarkjs@git+https://github.com/vb7401/snarkjs.git#fae4fe381bdad2da13eee71010dfe477fc694ac1 -->
 <!-- Now -> yarn add https://github.com/vb7401/snarkjs/commits/chunk_zkey_gen -->
 
-#### Zkey Creation
 
-Put the email into `emls` folder. Use the below command to generate the input.json for twitter
-
-`ts-node  packages/twitter-verifier-app/scripts/generate_input.ts --email_file=./emls/zktestemail_twitter.eml`
+#### Building circuit and generating Zkeys
 
 You can also edit the constant filename at the top of generate_input.ts to import that file instead of the args. You can then use the output of running that file as the input file (you may need to rename it) for both zkey and verifier generation.
 
@@ -150,7 +147,33 @@ cp entropy.env.example entropy.env
 Fill out the env via random characters into the values for entropy1 and entropy2, and hexadecimal characters into the beacon. These scripts will compile and test your zkey for you, and generate a normal zkey with for an on chain verifier or server side prover, with the same entropy as the chunked one. If you only want the chunked one, use ./3_gen_chunk_zkey.sh in place of the generation.
 
 ```bash
-./1_compile.sh && ./2_gen_wtns.sh && ./3_gen_both_zkeys.sh && ./4_gen_vkey.sh && ./5_gen_proof.sh
+./1_compile.sh && ./3_gen_both_zkeys.sh && ./4_gen_vkey.sh
+```
+
+#### Generating input and witness
+
+Put the email into `emls` folder. Use the below command to generate the input.json for twitter
+
+`ts-node --project=tsconfig.json  packages/twitter-verifier-app/scripts/generate_input.ts --email_file=./emls/zktestemail_twitter.eml`
+
+`input.json` will be written to `/packages/twitter-verifier-circuits/inputs/input.json` which can be used for witness generation and proving.
+
+You can generate witness by running
+
+```bash
+./2_gen_wtns.sh
+```
+
+and create generate proof using
+```bash
+./5_gen_proof.sh
+```
+
+#### Generating solidity verifier
+
+Run
+```bash
+./7_gen_solidity_verifier.sh
 ```
 
 #### Server-side Prover: Rapidsnark Setup (Optional)
