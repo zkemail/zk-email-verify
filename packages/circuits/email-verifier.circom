@@ -1,7 +1,7 @@
 pragma circom 2.1.5;
 
 include "circomlib/circuits/bitify.circom";
-include "circomlib/circuits/mimcsponge.circom";
+include "circomlib/circuits/poseidon.circom";
 include "./helpers/sha.circom";
 include "./helpers/rsa.circom";
 include "./helpers/base64.circom";
@@ -105,10 +105,21 @@ template EmailVerifier(max_header_bytes, max_body_bytes, n, k, ignore_body_hash_
         }
     }
 
-    // Calculate the hash (MIMC) of public key and produce as an output
+    // Calculate the Poseidon hash of DKIM public key and produce as an output
     // This can be used to verify the public key is correct in contract without requiring the actual key
-    component hasher = MiMCSponge(k, 220, 1);
-    hasher.ins <== pubkey;
-    hasher.k <== 123;
-    pubkey_hash <== hasher.outs[0];
+    // We are converting pub_key (modulus) in to 9 chunks of 242 bits, assuming original n, k are 121 and 17.
+    // This is because Posiedon circuit only support array of 16 elements.
+    var k2_chunked_size = k >> 1;
+    if(k % 2 == 1) {
+        k2_chunked_size += 1;
+    }
+    signal pubkey_hash_input[k2_chunked_size];
+    for(var i = 0; i < k2_chunked_size; i++) {
+        if(i==k2_chunked_size-1 && k2_chunked_size % 2 == 1) {
+            pubkey_hash_input[i] <== pubkey[2*i];
+        } else {
+            pubkey_hash_input[i] <== pubkey[2*i] + (1<<n) * pubkey[2*i+1];
+        }
+    }
+    pubkey_hash <== Poseidon(k2_chunked_size)(pubkey_hash_input);
 }
