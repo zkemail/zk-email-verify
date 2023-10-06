@@ -1,11 +1,12 @@
 import fs from "fs";
-import { buildMimcSponge } from "circomlibjs";
+import { buildPoseidon } from "circomlibjs";
 import { wasm as wasm_tester } from "circom_tester";
 import { Scalar } from "ffjavascript";
 import path from "path";
 import { DKIMVerificationResult } from "@zk-email/helpers/src/dkim";
 import { generateCircuitInputs } from "@zk-email/helpers/src/input-helpers";
 import { verifyDKIMSignature } from "@zk-email/helpers/src/dkim";
+import { bigIntToChunkedBytes } from "@zk-email/helpers/src/binaryFormat";
 
 exports.p = Scalar.fromString(
   "21888242871839275222246405745257275088548364400416034343698204186575808495617"
@@ -192,15 +193,16 @@ describe("EmailVerifier", () => {
       maxBodyLength: 768,
     });
 
-    // Calculate the MIMC hash
-    const mimc = await buildMimcSponge();
-    const hash = mimc.multiHash(emailVerifierInputs.pubkey, 123, 1);
+    // Calculate the Poseidon hash with pubkey chunked to 9*242 like in circuit
+    const poseidon = await buildPoseidon();
+    const pubkeyChunked = bigIntToChunkedBytes(dkimResult.publicKey, 242, 9);
+    const hash = poseidon(pubkeyChunked);
 
     // Calculate the hash using the circuit
     const witness = await circuit.calculateWitness(emailVerifierInputs);
 
     await circuit.assertOut(witness, {
-      pubkey_hash: mimc.F.toObject(hash),
+      pubkey_hash: poseidon.F.toObject(hash),
     });
   });
 });
