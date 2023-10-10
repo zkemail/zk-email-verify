@@ -6,7 +6,8 @@ include "./helpers/sha.circom";
 include "./helpers/rsa.circom";
 include "./helpers/base64.circom";
 include "./helpers/extract.circom";
-include "./regexes/body_hash_regex.circom";
+// include "./regexes/body_hash_regex.circom";
+include "@zk-email/zk-regex-circom/circuits/common/body_hash_regex.circom";
 
 // Here, n and k are the biginteger parameters for RSA
 // This is because the number is chunked into k pack_size of n bits each
