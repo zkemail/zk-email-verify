@@ -8,7 +8,8 @@
     "@zk-email/circuits": "workspace:^",
     "@zk-email/helpers": "workspace:^",
     "big-integer": "^1.6.51",
-    "snarkjs": "git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8"
+    "snarkjs": "git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8",
+    "@zk-email/zk-regex-circom": "^1.1.0"
   },
   "devDependencies": {
     "chai": "^4.3.7",
