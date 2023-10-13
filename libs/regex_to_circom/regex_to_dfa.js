@@ -1,6 +1,9 @@
 /*jslint browser: true*/
 /*global require, exports*/
+<<<<<<< Updated upstream
 // import { STRING_PRESELECTOR } from "../src/helpers/constants.ts";
+=======
+>>>>>>> Stashed changes
 import { minDfa, nfaToDfa, regexToNfa } from "./lexical";
 
 /** This section defines helper regex components -- to edit the regex used, edit the return
@@ -69,7 +72,9 @@ function test_regex() {
   // console.log(raw_subject_regex);
 
   // -- GENERIC SUBJECT COMMANDS --
-  let raw_subject_regex = `((\r\n)|^)subject:[a-zA-Z]+ (\\$)?[0-9]+(.[0-9]+)? [a-zA-Z]+ to (${email_address_regex}|0x[0-9a-fA_F]+)\r\n`;
+  // let raw_subject_regex = `((\r\n)|^)subject:[a-zA-Z]+ (\\$)?[0-9]+(.[0-9]+)? [a-zA-Z]+ to (${email_address_regex}|0x[0-9a-fA_F]+)\r\n`;
+  let raw_subject_regex = `/<td[^>]*>\s*Payment to easyJet of [=A-Za-z0-9\.]+/`;
+  
 
   // -------- OTHER FIELD REGEXES --------
   let raw_from_regex = `(\r\n|^)from:([A-Za-z0-9 _.,"@-]+)<[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.-]+>\r\n`;
