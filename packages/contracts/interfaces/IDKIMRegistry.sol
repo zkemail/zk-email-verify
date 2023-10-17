@@ -5,9 +5,4 @@ interface IDKIMRegistry {
     function getDKIMPublicKeyHash(
         string memory domainName
     ) external view returns (bytes32);
-
-    function setDKIMPublicKeyHash(
-        string memory domainName,
-        bytes32 publicKeyHash
-    ) external;
 }
