@@ -1,7 +1,8 @@
 {
   "name": "@zk-email/contracts",
-  "version": "3.0.0",
+  "version": "3.1.2",
   "scripts": {
+    "build": "forge build",
     "publish": "yarn npm publish --access=public"
   },
   "dependencies": {

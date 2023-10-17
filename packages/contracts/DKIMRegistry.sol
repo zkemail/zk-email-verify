@@ -34,7 +34,7 @@ contract DKIMRegistry is IDKIMRegistry, Ownable {
     function setDKIMPublicKeyHash(
         string memory domainName,
         bytes32 publicKeyHash
-    ) public onlyOwner {
+    ) public virtual onlyOwner {
         dkimPublicKeyHashes[domainName] = publicKeyHash;
     }
 }
