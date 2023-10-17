@@ -48,17 +48,17 @@ Then deploy the contract to forked goerli:
 # Set terminal to the folder with this README
 cd src/contracts
 source .env
-export MAIN_CONTRACT_NAME=VerifiedTwitterEmail
+export MAIN_CONTRACT_NAME=EmailWallet
 export RPC_URL="http://127.0.0.1:8548"
 
 # Export to abi for relayers
-forge inspect src/TwitterEmailHandler.sol:$MAIN_CONTRACT_NAME abi >> contract.abi
+forge inspect src/wallet/EmailWallet.sol:$MAIN_CONTRACT_NAME abi >> contract.abi
 
 # First, test deploy without actually broadcasting it
-forge script script/Deploy.s.sol:Deploy -vvvv --rpc-url $RPC_URL
+forge script script/DeployWallet.s.sol:Deploy -vvvv --rpc-url $RPC_URL
 
 # Then, actually deploy
-forge script script/DeployTwitter.s.sol:Deploy -vvvv --rpc-url $RPC_URL --broadcast --slow
+forge script script/DeployWallet.s.sol:Deploy -vvvv --rpc-url $RPC_URL --broadcast --slow --verify
 
 # Verify the contract with the raw one via Etherscan
 forge verify-contract $EMAIL_ADDR $MAIN_CONTRACT_NAME --watch --etherscan-api-key $GOERLI_ETHERSCAN_API_KEY
