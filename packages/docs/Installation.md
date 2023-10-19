@@ -1,18 +1,19 @@
 # Installation
-In the case of any issues message in the `Telegram`, or check out the `FAQ`
+In the case of any issues message in the [Telegram](https://t.me/zkemail), or check out the [FAQ]().
+
+
 
 Install `rust/circom2` via the following steps, according to: https://docs.circom.io/getting-started/installation
 
-### `Rust` Installation (if not already installed):
 
+### **Rust** Installation (if not already installed):
 
 Install Rust by running the following commands:
 ```
 curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
 source "$HOME/.cargo/env"
-
 ```
-### Clone ```Circom``` Repository and Install Dependencies:
+### Clone **Circom** Repository and Install Dependencies:
 
 **For Ubuntu:**
 ```
