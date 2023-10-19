@@ -5,16 +5,16 @@ Install `rust/circom2` via the following steps, according to: https://docs.circo
 
 ### `Rust` Installation (if not already installed):
 
-```
-Install Rust by running the following commands:
 
+Install Rust by running the following commands:
+```
 curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
 source "$HOME/.cargo/env"
 
 ```
 ### Clone ```Circom``` Repository and Install Dependencies:
 
-For Ubuntu:
+**For Ubuntu:**
 ```
 git clone https://github.com/iden3/circom.git
 sudo apt update
@@ -25,11 +25,14 @@ cargo build --release
 cargo install --path circom
 
 ```
-For MacOS users (via Homebrew)
-```
-Install Homebrew, if you don't have it already
+**For MacOS users (via Homebrew)**
+
+If you do not have Homebrew installed, install it with the following command:
+
 ```
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+Once installed run these commmands:
 ```
 git clone https://github.com/iden3/circom.git
 brew install nlohmann-json gmp nasm
@@ -40,28 +43,10 @@ cargo install --path circom
 
 ### Installing our SDKs
 
+ In the root directory of your project run the following command to install the @zk-email/circuits, contracts and helpers package:
 
-2. In the root directory of your project run the following command to install the @zk-email/circuits package:
 ```
 npm i @zk-email/circuits
-```
-3. Run the following command to install the @zk-email/contracts package:
-```
 npm i @zk-email/contracts
-```
-
-4. Run the following command to install the @zk-email/helpers package:
-
-```
 npm i @zk-email/helpers
 ```
-
-
-## Quick start
-
-## Generating a Proof of Email
-
-## Testing
-
-
-## Contributing
