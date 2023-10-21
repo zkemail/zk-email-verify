@@ -59,7 +59,11 @@ forge script script/DeployWallet.s.sol:Deploy -vvvv --rpc-url $RPC_URL
 
 # Then, actually deploy
 forge script script/DeployWallet.s.sol:Deploy -vvvv --rpc-url $RPC_URL --broadcast --slow --verify
+```
 
+Then, the EMAIL_ADDR contract will be the one listed under `ERC1967Proxy` in `run-latest.json` under `src/contracts/broadcast/deploy-contract-name/#`. If the verification fails, you can do it again with:
+
+```
 # Verify the contract with the raw one via Etherscan
 forge verify-contract $EMAIL_ADDR $MAIN_CONTRACT_NAME --watch --etherscan-api-key $GOERLI_ETHERSCAN_API_KEY
 ```
@@ -69,7 +73,7 @@ forge verify-contract $EMAIL_ADDR $MAIN_CONTRACT_NAME --watch --etherscan-api-ke
 Maybe fullnode is on [old geth](https://github.com/ethereum/go-ethereum/issues/26890) endpoint, like Alchemy is. Switch to infura or add `--slow` to deploy script:
 
 ```
-forge script script/Deploy.s.sol:Deploy -vvvv --rpc-url $RPC_URL --broadcast --slow
+forge script script/Deploy.s.sol:Deploy -vvvv --rpc-url $RPC_URL --broadcast --slow  --verify
 ```
 
 ### Versions

@@ -239,7 +239,7 @@ npm install typescript ts-node -g
 npx tsc --moduleResolution node --target esnext src/scripts/generate_input.ts
 ```
 
-which will autowrite input\_<circuitName>.json to the inputs folder.
+which will autowrite input\_<circuitName>.json to the inputs folder. If it doesn't work, replace the last year with `npx tsx src/scripts/generate_input.ts` instead.
 
 To do the steps in https://github.com/iden3/snarkjs#7-prepare-phase-2 automatically, do
 

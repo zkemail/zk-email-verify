@@ -318,10 +318,10 @@ contract EmailWallet is
 
             // Initialize the wallet with some test token and this as the approver
             console.log("Wallet address created:", wallet);
-            testToken.mint(wallet, 10 * 10 ** testToken.decimals()); // 10 tokens with 18 decimals
+            testToken.mint(wallet, 100 * 10 ** testToken.decimals()); // 10 tokens with 18 decimals
             AutoApproveWallet(wallet).initialize();
             AutoApproveWallet(wallet).approveAllToken(address(testToken));
-
+            console.log("Wallet initialized with 100 test tokens");
             return wallet;
         }
         // console.log("Warning: Returning uninitialized wallet. Money can only be recovered by submitting an email authorizing this address with this salt.");
@@ -390,7 +390,6 @@ contract EmailWallet is
         uint256[2] memory c,
         uint256[msg_len] memory signals
     ) public {
-        // TODO no invalid signal check yet, which is fine since the zk proof does it
         // Checks: Verify proof and check signals
         // require(signals[0] == 1337, "invalid signals");
 

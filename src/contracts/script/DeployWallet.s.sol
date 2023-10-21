@@ -24,7 +24,7 @@ contract Deploy is Script, Test {
     //     vm.startBroadcast(sk);
     //     Verifier proofVerifier = new Verifier();
     //     MailServer mailServer = new MailServer();
-    //     TestEmailToken erc20 = new TestEmailToken(5000);
+    //     TestEmailToken erc20 = new TestEmailToken(5000000000);
 
     //     VerifiedWalletEmail testVerifier = new VerifiedWalletEmail(proofVerifier, mailServer, erc20);
     //     vm.stopBroadcast();
@@ -52,7 +52,7 @@ contract Deploy is Script, Test {
         console.log(tx.origin);
         Groth16Verifier proofVerifier = new Groth16Verifier();
         MailServer mailServer = new MailServer();
-        TestEmailToken erc20 = new TestEmailToken(5000);
+        TestEmailToken erc20 = new TestEmailToken(500000000);
         TokenRegistry tokenRegistry = new TokenRegistry();
         tokenRegistry.setTokenAddress("TEST", address(erc20));
         tokenRegistry.setTokenAddress("TES", address(erc20));
