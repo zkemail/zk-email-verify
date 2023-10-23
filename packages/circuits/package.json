@@ -11,5 +11,8 @@
     "circomlibjs": "^0.1.2",
     "ffjavascript": "^0.2.59",
     "jest": "^29.5.0"
+  },
+  "dependencies": {
+    "@zk-email/zk-regex-circom": "^1.1.0"
   }
 }
