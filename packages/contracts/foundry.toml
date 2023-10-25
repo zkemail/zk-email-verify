@@ -1,0 +1,4 @@
+[profile.default]
+src = './'
+out = 'out'
+allow_paths = ['../../node_modules']
