@@ -40,6 +40,7 @@ template PackBytes(max_in_signals, max_out_signals, pack_size) {
     }
 }
 
+// Shift the input left by variable size of bytes.
 // From https://demo.hedgedoc.org/s/Le0R3xUhB
 // Note that if len_bits < max_substr * C, C around 1, then
 // it's more efficient to use Sampriti's O(nk) solution instead
@@ -71,6 +72,31 @@ template VarShiftLeft(in_array_len, out_array_len) {
     // TODO: Assert the rest of the values are 0
     for (var i = 0; i < out_array_len; i++) {
         out[i] <== tmp[len_bits - 1][i];
+    }
+}
+
+// Shift the input left by variable size of bytes.
+// Its input and output are the same as those of VarShiftLeft.
+// However, it assumes the input is the masked bytes and checks that shift is the first index of the non-masked bytes.
+template VarShiftMaskedStr(in_array_len, out_array_len) {
+    signal input in[in_array_len]; // x
+    signal input shift; // k
+    signal output out[out_array_len] <== VarShiftLeft(in_array_len, out_array_len)(in, shift);
+
+    signal is_target_idx[in_array_len];
+    signal prev_byte[in_array_len];
+    signal is_this_zero[in_array_len];
+    signal is_prev_zero[in_array_len];
+    for(var i = 0; i < in_array_len; i++) {
+        is_target_idx[i] <== IsEqual()([i, shift]);
+        is_this_zero[i] <== IsZero()(in[i]);
+        is_target_idx[i] * is_this_zero[i] === 0;
+         if(i == 0) {
+            is_prev_zero[i] <== 1;
+        } else {
+            is_prev_zero[i] <== IsZero()(in[i-1]);
+        }
+        is_target_idx[i] * (1 - is_prev_zero[i]) === 0;
     }
 }
 
@@ -112,6 +138,32 @@ template ShiftAndPack(in_array_len, max_substr_len, pack_size) {
     // Note that this technically doesn't constrain the rest øf the bits after the max_substr_len to be 0/unmatched/unrevealed
     // Because of the constraints on signed inputs, it seems this should be OK security wise
     // But still, TODO unconstrained assert to double check they are 0
+    for (var i = 0; i < max_substr_len; i++) {
+        packer.in[i] <== shifter.out[i];
+    }
+    for (var i = 0; i < max_substr_len_packed; i++) {
+        out[i] <== packer.out[i];
+    }
+}
+
+// Shift the input left by variable size of bytes and pack the shifted bytes into fields under pack_size.
+// Its input and output are the same as those of ShiftAndPack.
+// However, it assumes the input is the masked bytes and checks that shift is the first index of the non-masked bytes.
+template ShiftAndPackMaskedStr(in_array_len, max_substr_len, pack_size) {
+    var max_substr_len_packed = ((max_substr_len - 1) \ pack_size + 1);
+
+    component shifter = VarShiftMaskedStr(in_array_len, max_substr_len);
+    component packer = PackBytes(max_substr_len, max_substr_len_packed, pack_size);
+
+    signal input in[in_array_len];
+    signal input shift;
+    signal output out[max_substr_len_packed];
+
+    for (var i = 0; i < in_array_len; i++) {
+        shifter.in[i] <== in[i];
+    }
+    shifter.shift <== shift;
+
     for (var i = 0; i < max_substr_len; i++) {
         packer.in[i] <== shifter.out[i];
     }
