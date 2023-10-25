@@ -2,12 +2,13 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./interfaces/IDKIMRegistry.sol";
 
 /**
   A Registry that store the hash(dkim_public_key) for each domain
   The hash is calculated by taking Poseidon of DKIM key split into 9 chunks of 242 bits each
  */
-contract DKIMRegistry is Ownable {
+contract DKIMRegistry is IDKIMRegistry, Ownable {
     // Mapping from domain name to DKIM public key hash
     mapping(string => bytes32) public dkimPublicKeyHashes;
 
@@ -33,7 +34,7 @@ contract DKIMRegistry is Ownable {
     function setDKIMPublicKeyHash(
         string memory domainName,
         bytes32 publicKeyHash
-    ) public onlyOwner {
+    ) public virtual onlyOwner {
         dkimPublicKeyHashes[domainName] = publicKeyHash;
     }
 }
