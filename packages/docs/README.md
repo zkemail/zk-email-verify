@@ -6,7 +6,28 @@ or subsets of domains, or have some specific text in the body. These can be used
 web2 interoperability, decentralized anonymous KYC, or interesting on-chain anonymity
 sets. For a deeper dive, read our full [blog post](https://blog.aayushg.com/posts/zkemail/).
 
-## Registering your email identity
+## Sections
+
+### [ZK-Email Overview](./zkEmailOverview/)
+
+Get started with zkEmail, install our SDKs and build your own application.
+
+### [Project Examples](./project-examples)
+
+Here you can find example projects that implement our packages.  You can check out our [twitter-verifier-docs](./project_examples/twitter-verifier-example-docs/twitter-verifier-example-docs/)
+
+
+### Regex To Circom
+The Regex to Circom section provides a detailed guide on how to convert regular expressions to Circom. This is a crucial step in creating your own ZK circuits. For a step-by-step guide, please refer to the [Regex to Circom README](./regex_to_circom/README.md).
+
+### [Contributing](/README.md) 
+ We need your help! 🫵
+ 
+## [FAQ](/README.md)
+
+
+
+<!-- ## Registering your email identity
 
 If you wish to generate a ZK proof of Twitter badge, you must do these:
 
@@ -74,7 +95,7 @@ the function.
 ZK proof protocols are generally specified as "arithmetic circuits" which
 enforce particular constraints on the inputs. These circuits allow you to
 constrain that two hidden "signals" add or multiply to another; signals can
-correspond to provided inputs or can be computed intermediates.
+correspond to provided inputs or can be computed intermediates. -->
 
 ## Additional Reading
 
