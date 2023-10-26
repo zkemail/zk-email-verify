@@ -45,7 +45,7 @@ template EmailVerify(max_header_bytes, max_body_bytes, n, k, pack_size, calculat
     // signal input in_body_len_padded_bytes;
 
     // Header reveal vars
-    // TODO: In reality, this max value is 320, and would allow people to break our gaurantees and spoof arbitrary email addresses by registering disgustingly subdomains and going past the end of the 30
+    // TODO: In reality, this max value is 320, and would allow people to break our gaurantees and spoof arbitrary email addresses by registering disgustingly long subdomains and going past the end of the 30
     var max_email_len = 31;
     var max_subject_amount_len = max_email_len;
     var max_subject_amount_packed_bytes = count_packed(max_subject_amount_len, pack_size);

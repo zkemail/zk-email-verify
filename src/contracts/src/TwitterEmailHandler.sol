@@ -18,7 +18,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable {
     Counters.Counter private tokenCounter;
 
     uint16 public constant msg_len = 21; // header + body
-    uint16 public constant bytesInPackedBytes = 7; // 7 bytes in a packed item returned from circom
+    uint16 public constant bytesInPackedBytes = 31; // 31 bytes in a packed item returned from circom
     uint256 public constant body_len = 3;
     uint256 public constant rsa_modulus_chunks_len = 17;
     uint256 public constant header_len = msg_len - body_len;
@@ -52,17 +52,15 @@ contract VerifiedTwitterEmail is ERC721Enumerable {
     }
 
     function _domainCheck(uint256[] memory headerSignals) public pure returns (bool) {
-        string memory senderBytes = StringUtils.convertPackedBytesToString(headerSignals, 18, bytesInPackedBytes);
+        string memory senderBytes = StringUtils.convertPackedBytesToString(headerSignals);
         string[2] memory domainStrings = ["verify@twitter.com", "info@twitter.com"];
-        return
-            StringUtils.stringEq(senderBytes, domainStrings[0]) || StringUtils.stringEq(senderBytes, domainStrings[1]);
+        return StringUtils.stringEq(senderBytes, domainStrings[0]) || StringUtils.stringEq(senderBytes, domainStrings[1]);
         // Usage: require(_domainCheck(senderBytes, domainStrings), "Invalid domain");
     }
 
     function mint(uint256[2] memory a, uint256[2][2] memory b, uint256[2] memory c, uint256[msg_len] memory signals)
         public
     {
-        // TODO no invalid signal check yet, which is fine since the zk proof does it
         // Checks: Verify proof and check signals
         // require(signals[0] == 1337, "invalid signals");
 
@@ -93,7 +91,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable {
         // Effects: Mint token
         uint256 tokenId = tokenCounter.current() + 1;
         string memory messageBytes =
-            StringUtils.convertPackedBytesToString(bodySignals, bytesInPackedBytes * body_len, bytesInPackedBytes);
+            StringUtils.convertPackedBytesToString(bodySignals);
         tokenIDToName[tokenId] = messageBytes;
         _mint(msg.sender, tokenId);
         tokenCounter.increment();

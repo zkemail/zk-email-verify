@@ -112,74 +112,11 @@ contract WalletUtilsTest is Test {
         vm.stopPrank();
     }
 
-    // Old unpacks
-    function testUnpackIntoFrom2() public {
-        uint256[] memory packedBytes = new uint256[](4);
-        packedBytes[0] = 30515164652858234;
-        packedBytes[1] = 18147879272211830;
-        packedBytes[2] = 27917065853693287;
-        packedBytes[3] = 28015;
-        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 30, packSizeOld);
-        string memory intended_value = "zkemailverify@gmail.com";
-        assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
-        console.logString(byteList);
-    }
-
-    function testUnpackIntoFrom2_1() public {
-        uint256[] memory packedBytes = new uint256[](4);
-        packedBytes[0] = 30515164652858234;
-        packedBytes[1] = 14207229598262646;
-        packedBytes[2] = 13067048790615872;
-        packedBytes[3] = 7171939;
-        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 30, packSizeOld);
-        string memory intended_value = "zkemailverify2@gmail.com";
-        assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
-        console.logString(byteList);
-    }
-
-    // Note that decimal points are removed
-    function testUnpackIntoFloat3() public {
-        uint256[] memory packedBytes = new uint256[](4);
-        packedBytes[0] = 0;
-        packedBytes[1] = 3485236;
-        packedBytes[2] = 0;
-        packedBytes[3] = 0;
-        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 30, packSizeOld);
-        string memory intended_value = "4.5";
-        assertEq(StringUtils.stringToUint(byteList), 4);
-        assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
-        console.logString(byteList);
-    }
-
-    function testUnpackIntoString4() public {
-        uint256[] memory packedBytes = new uint256[](4);
-        packedBytes[0] = 30515164652858234;
-        packedBytes[1] = 14207229598262646;
-        packedBytes[2] = 13067048790615872;
-        packedBytes[3] = 7171939;
-        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 30, packSizeOld);
-        string memory intended_value = "zkemailverify2@gmail.com";
-        assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
-        console.logString(byteList);
-    }
-
-    function testUnpackIntoString4_1() public {
-        uint256[] memory packedBytes = new uint256[](4);
-        packedBytes[0] = 30515164652858234;
-        packedBytes[1] = 18147879272211830;
-        packedBytes[2] = 27917065853693287;
-        packedBytes[3] = 28015;
-        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 30, packSizeOld);
-        string memory intended_value = "zkemailverify@gmail.com";
-        assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
-        console.logString(byteList);
-    }
-
     // TODO: This test succeeds but it should really be matching TEST...
     function testUnpackIntoString_TES() public {
         uint256[] memory packedBytes = new uint256[](1);
         packedBytes[0] = 357645418496;
-        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 30, packSizeOld);
+        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes);
         string memory intended_value = "TES";
         assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
         console.logString(byteList);
@@ -188,7 +125,7 @@ contract WalletUtilsTest is Test {
     function testUnpackIntoString_Pack30_0() public {
         uint256[] memory packedBytes = new uint256[](1);
         packedBytes[0] = 1684956499;
-        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 30, packSize);
+        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes);
         string memory intended_value = "Send";
         console.logString(byteList);
         assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
@@ -197,7 +134,7 @@ contract WalletUtilsTest is Test {
     function testUnpackIntoString_Pack30_1() public {
         uint256[] memory packedBytes = new uint256[](1);
         packedBytes[0] = 12544;
-        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 30, packSize);
+        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes);
         string memory intended_value = "1";
         console.logString(byteList);
         assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
@@ -206,7 +143,7 @@ contract WalletUtilsTest is Test {
     function testUnpackIntoString_Pack30_2() public {
         uint256[] memory packedBytes = new uint256[](1);
         packedBytes[0] = 452605509632;
-        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 30, packSize);
+        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes);
         string memory intended_value = "dai";
         console.logString(byteList);
         assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));

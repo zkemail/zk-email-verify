@@ -18,6 +18,7 @@ import "../utils/MailServer.sol";
 import "./TokenRegistry.sol";
 
 // Defines upgradable logic
+// TODO: Change console.logs to emits
 contract EmailWallet is
     EmailWalletStorage,
     Initializable,
@@ -416,9 +417,9 @@ contract EmailWallet is
         // Check from/to email domains are correct [in this case, only from domain is checked]
         // We will upload the version with these domain checks soon!
         // require(_domainCheck(headerSignals), "Invalid domain");
-        string memory command = StringUtils.convertPackedByteToString(bodySignals[0], packSize, packSize);
-        string memory amount = StringUtils.convertPackedByteToString(bodySignals[1], packSize, packSize);
-        string memory currency = StringUtils.convertPackedByteToString(bodySignals[3], packSize, packSize);
+        string memory command = StringUtils.convertPackedByteToString(bodySignals[0], packSize);
+        string memory amount = StringUtils.convertPackedByteToString(bodySignals[1], packSize);
+        string memory currency = StringUtils.convertPackedByteToString(bodySignals[3], packSize);
         bool canCreateFromWallet = bodySignals[4] == 1;
         uint256 fromSalt = bodySignals[5];
         bool canCreateToWallet = bodySignals[6] == 1;

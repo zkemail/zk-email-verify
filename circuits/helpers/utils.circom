@@ -146,15 +146,15 @@ template Packed2Bytes(n){
     }
 }
 
-// Written by us
-// n bytes per signal, n = 31 usually
+// n bytes per signal, n = 31 usually (i.e. 31 8-bit values being packed into 248 bits)
+// when calling this, you must constrain each 'in' value yourself to be < 256
+// TODO: Rangecheck in and out?
 template Bytes2Packed(n){
-    signal input in[n]; // each in is < 64
+    signal input in[n]; // each in is < 256 (i.e. 2^8)
     signal pow2[n+1]; // [k] is 2^k
     signal in_prefix_sum[n+1]; // each [k] is in[0] + 2^8 in[1]... 2^{8k-8} in[k-1]. cont.
     // [0] is 0. [1] is in[0]. [n+1] is out.
     signal output out; // < 2 ^ (8 * 31)
-    // Rangecheck in and out?
 
     // Witness gen out
     in_prefix_sum[0] <-- 0;

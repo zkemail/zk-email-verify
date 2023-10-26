@@ -14,7 +14,7 @@ contract TwitterUtilsTest is Test {
     MailServer mailServer;
     VerifiedTwitterEmail testVerifier;
 
-    uint16 public constant packSize = 7;
+    uint16 public constant packSize = 31;
 
     function setUp() public {
         proofVerifier = new Verifier();
@@ -34,8 +34,7 @@ contract TwitterUtilsTest is Test {
         packedBytes[2] = 0;
 
         // This is 0x797573685f670000000000000000000000000000000000000000000000000000
-        // packSize = 7
-        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 15, packSize);
+        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes);
         // This is 0x797573685f67, since strings are internally arbitrary length arrays
         string memory intended_value = "yush_g";
 
@@ -54,7 +53,7 @@ contract TwitterUtilsTest is Test {
         packedBytes[0] = 28557011619965818;
         packedBytes[1] = 1818845549;
         packedBytes[2] = 0;
-        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 15, packSize);
+        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, packSize);
         string memory intended_value = "zktestemail";
         assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
         assertEq(byteList, intended_value);
