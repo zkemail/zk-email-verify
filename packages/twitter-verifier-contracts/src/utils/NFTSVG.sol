@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
-import "./StringUtils.sol";
+import "@zk-email/contracts/utils/StringUtils.sol";
 
 /// https://github.com/nalinbhardwaj/ethdosnumber/blob/main/ethdos-contracts/src/NFTSVG.sol
 /// @title NFTSVG

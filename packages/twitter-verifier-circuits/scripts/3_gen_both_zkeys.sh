@@ -16,9 +16,6 @@ fi
 
 # First, chunked snarkjs
 yarn remove snarkjs
-# mv ../yarn.lock ../yarn.lock_old
-# rm -r ../../../node_modules_old
-# mv ../../../node_modules ../../../node_modules_old
 yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8
 yarn
 
@@ -52,10 +49,9 @@ echo
 
 # Then, nonchunked snarkjs
 yarn remove snarkjs
-# mv ../yarn.lock ../yarn.lock_old2
-# rm -rf ../../../node_modules_old2
-# mv ../../../node_modules ../../../node_modules_old2
-yarn add snarkjs@latest
+
+# TODO: Bump snarkjs to latest once the compiled solidity code works 
+yarn add snarkjs@v0.4.7
 
 echo "****GENERATING ZKEY NONCHUNKED 0****"
 start=$(date +%s)
@@ -85,8 +81,5 @@ echo "DONE ($((end - start))s)"
 echo
 
 yarn remove snarkjs
-# mv ../yarn.lock ../yarn.lock_old3
-# rm -rf ../../../node_modules_old3
-# mv ../../../node_modules ../../../node_modules_old3
 yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8
 yarn

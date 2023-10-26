@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@zk-email/contracts/DKIMRegistry.sol";
-import "./utils/StringUtils.sol";
+import "@zk-email/contracts/utils/StringUtils.sol";
 import "./utils/NFTSVG.sol";
 import { Verifier } from "./Groth16VerifierTwitter.sol";
 
@@ -15,7 +15,8 @@ contract VerifiedTwitterEmail is ERC721Enumerable {
     using StringUtils for *;
     using NFTSVG for *;
 
-    uint16 public constant bytesInPackedBytes = 7; // 7 bytes in a packed item returned from circom
+    // TODO: The deployed contract still says 7, update that to use this 31 value, after recompiling updated circuits
+    uint16 public constant bytesInPackedBytes = 31; // 7 bytes in a packed item returned from circom
     string constant domain = "twitter.com";
     
     uint16 public constant signalLength = 5; // length of signals array
@@ -102,6 +103,8 @@ contract VerifiedTwitterEmail is ERC721Enumerable {
 
         // Effects: Mint token
         uint256 tokenId = tokenCounter.current() + 1;
+
+        // TODO: Change bytesInPackedBytes * usernameLengthInSignals -> usernameLengthInSignals
         string memory messageBytes = StringUtils.convertPackedBytesToString(
             bodySignals,
             bytesInPackedBytes * usernameLengthInSignals,

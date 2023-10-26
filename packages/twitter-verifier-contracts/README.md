@@ -15,8 +15,9 @@ cp -r node_modules/@openzeppelin src/contracts/lib/@openzeppelin
 cd src/contracts
 
 forge install
-forge install dapphub/ds-test --no-commit --no-git
+forge install openzeppelin/openzeppelin-contracts foundry-rs/forge-std openzeppelin/openzeppelin-contracts-upgradeable dapphub/ds-test --no-commit
 ```
+Maybe try `--no-git` to the end of the final line if it fails, but this will mess up your development environment for future code changes.
 
 To test your own contracts, copy TestTwitter.t.sol into a new test file, and make sure you can compile your proof fine. You can run a specific test with `forge test --match test_name`. Then make sure the whole suite passes and isn't above the size limit:
 
@@ -52,10 +53,10 @@ export RPC_URL="http://127.0.0.1:8548"
 forge inspect src/TwitterEmailHandler.sol:$MAIN_CONTRACT_NAME abi >> contract.abi
 
 # First, test deploy without actually broadcasting it
-forge script script/Deploy.s.sol:Deploy -vvvv --rpc-url $RPC_URL
+forge script script/DeployTwitter.s.sol:Deploy -vvvv --rpc-url $RPC_URL
 
-# Then, actually deploy
-forge script script/Deploy.s.sol:Deploy -vvvv --rpc-url $RPC_URL --broadcast --slow
+# Then, actually deploy verified contracts
+forge script script/DeployTwitter.s.sol:Deploy -vvvv --rpc-url $RPC_URL --broadcast --slow --verify
 
 # Verify the contract with the raw one via Etherscan
 forge verify-contract $EMAIL_ADDR $MAIN_CONTRACT_NAME --watch --etherscan-api-key $GOERLI_ETHERSCAN_API_KEY
