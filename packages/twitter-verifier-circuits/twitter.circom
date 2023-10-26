@@ -79,12 +79,13 @@ template TwitterVerifier(max_header_bytes, max_body_bytes, n, k, pack_size, expo
 // In circom, all output signals of the main component are public (and cannot be made private), the input signals of the main component are private if not stated otherwise using the keyword public as above. The rest of signals are all private and cannot be made public.
 // This makes pubkey_hash and reveal_twitter_packed public. hash(signature) can optionally be made public, but is not recommended since it allows the mailserver to trace who the offender is.
 
+// TODO: Update deployed contract and zkey to reflect this number, as it the currently deployed contract uses 7
 // Args:
 // * max_header_bytes = 1024 is the max number of bytes in the header
 // * max_body_bytes = 1536 is the max number of bytes in the body after precomputed slice
 // * n = 121 is the number of bits in each chunk of the pubkey (RSA parameter)
-// * k = 17 is the number of chunks in the pubkey (RSA parameter)
-// * pack_size = 7 is the number of bytes that can fit into a 255ish bit signal (can increase later)
+// * k = 17 is the number of chunks in the pubkey (RSA parameter). Note 121 * 17 > 2048.
+// * pack_size = 31 is the number of bytes that can fit into a 255ish bit signal (can increase later)
 // * expose_from = 0 is whether to expose the from email address
 // * expose_to = 0 is whether to expose the to email (not recommended)
-component main { public [ address ] } = TwitterVerifier(1024, 1536, 121, 17, 7, 0, 0);
+component main { public [ address ] } = TwitterVerifier(1024, 1536, 121, 17, 31, 0, 0);
