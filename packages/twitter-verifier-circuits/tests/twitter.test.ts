@@ -1,6 +1,5 @@
 import { verifyDKIMSignature } from "@zk-email/helpers/src/dkim";
 import { generateTwitterVerifierCircuitInputs } from "../helpers";
-import snarkjs from "snarkjs";
 
 const path = require("path");
 const fs = require("fs");
@@ -48,4 +47,25 @@ describe("Twitter email test", function () {
     const witness = await circuit.calculateWitness(twitterVerifierInputs);
     await circuit.checkConstraints(witness);
   });
+
+  it("should fail if the twitter_username_idx is invalid", async function () {
+    const twitterVerifierInputs = generateTwitterVerifierCircuitInputs({
+      rsaSignature: dkimResult.signature,
+      rsaPublicKey: dkimResult.publicKey,
+      body: dkimResult.body,
+      bodyHash: dkimResult.bodyHash,
+      message: dkimResult.message,
+      ethereumAddress: "0x00000000000000000000",
+    });
+    twitterVerifierInputs.twitter_username_idx = (Number(twitterVerifierInputs.twitter_username_idx) + 1).toString();
+
+    expect.assertions(1);
+    try {
+      const witness = await circuit.calculateWitness(twitterVerifierInputs);
+      await circuit.checkConstraints(witness);
+    } catch (error) {
+      expect((error as Error).message).toMatch("Assert Failed");
+    }
+
+  })
 });

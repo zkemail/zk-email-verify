@@ -3631,6 +3631,7 @@ __metadata:
   dependencies:
     "@zk-email/circuits": "workspace:^"
     "@zk-email/helpers": "workspace:^"
+    "@zk-email/zk-regex-circom": ^1.1.1
     big-integer: ^1.6.51
     chai: ^4.3.7
     circom_tester: ^0.0.19
@@ -4694,7 +4695,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@zk-email/circuits@workspace:packages/circuits"
   dependencies:
-    "@zk-email/zk-regex-circom": ^1.1.0
+    "@zk-email/zk-regex-circom": ^1.1.1
     circom_tester: ^0.0.19
     circomlib: ^2.0.5
     circomlibjs: ^0.1.2
@@ -4813,13 +4814,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@zk-email/zk-regex-circom@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "@zk-email/zk-regex-circom@npm:1.1.0"
+"@zk-email/zk-regex-circom@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@zk-email/zk-regex-circom@npm:1.1.1"
   dependencies:
     commander: ^11.0.0
     snarkjs: ^0.7.0
-  checksum: ff132dc2aee74a3a79164d262309cb99fc65b74d59597380cb045584202821cb188b785e6c053518bea301c4fb820ae244a145335e572b9b37e350f1ed3794c8
+  checksum: 2eaebd33c80eda6b22c40bd7ae0ce667cdd188576b55092eea837cb4270a70598f174090c78b24558ebd66cada5d747dfdb9055db746fd261d2758d0a75a8fb1
   languageName: node
   linkType: hard
 

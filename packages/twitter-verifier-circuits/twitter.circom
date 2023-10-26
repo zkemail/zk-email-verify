@@ -1,6 +1,6 @@
 pragma circom 2.1.5;
 
-include "@zk-email/circuits/regexes/from_regex.circom";
+include "@zk-email/zk-regex-circom/circuits/common/from_addr_regex.circom";
 include "@zk-email/circuits/email-verifier.circom";
 include "./components/twitter_reset_regex.circom";
 
@@ -51,10 +51,10 @@ template TwitterVerifier(max_header_bytes, max_body_bytes, n, k, pack_size, expo
         signal input email_from_idx;
         signal output reveal_email_from_packed[max_email_from_packed_bytes]; // packed into 7-bytes. TODO: make this rotate to take up even less space
 
-        signal (from_regex_out, from_regex_reveal[max_header_bytes]) <== FromRegex(max_header_bytes)(in_padded);
+        signal (from_regex_out, from_regex_reveal[max_header_bytes]) <== FromAddrRegex(max_header_bytes)(in_padded);
         log(from_regex_out);
         from_regex_out === 1;
-        reveal_email_from_packed <== ShiftAndPack(max_header_bytes, max_email_from_len, pack_size)(from_regex_reveal, email_from_idx);
+        reveal_email_from_packed <== ShiftAndPackMaskedStr(max_header_bytes, max_email_from_len, pack_size)(from_regex_reveal, email_from_idx);
     }
 
 
@@ -73,7 +73,7 @@ template TwitterVerifier(max_header_bytes, max_body_bytes, n, k, pack_size, expo
     is_found_twitter === 0;
 
     // PACKING: 16,800 constraints (Total: 3,115,057)
-    reveal_twitter_packed <== ShiftAndPack(max_body_bytes, max_twitter_len, pack_size)(twitter_regex_reveal, twitter_username_idx);
+    reveal_twitter_packed <== ShiftAndPackMaskedStr(max_body_bytes, max_twitter_len, pack_size)(twitter_regex_reveal, twitter_username_idx);
 }
 
 // In circom, all output signals of the main component are public (and cannot be made private), the input signals of the main component are private if not stated otherwise using the keyword public as above. The rest of signals are all private and cannot be made public.
