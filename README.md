@@ -181,7 +181,7 @@ The generated `twitter-verifier-circuits/contracts/verifier.sol` can be copied o
 
 #### Server-side Prover: Rapidsnark Setup (Optional)
 
-If you want to run a fast server side prover, install rapidsnark and test proofgen:
+If you want to run a fast server side prover, compile the rapidsnark docker image, which you can get by docker pulling from `aayushg0/relayer:v0`. To build from source, install rapidsnark, install nvm and npm via instructions above, and test proofgen:
 
 ```bash
 cd ../../
@@ -274,10 +274,10 @@ npm install typescript ts-node -g
 # uncomment do_generate function call at end of file
 # go to tsconfig.json and change esnext to CommonJS
 # if weird things dont work with this and yarn start, go go node_modules/react-scripts/config/webpack.config.ts and add/cut `target: 'node',` after like 793 after `node:`.
-npx tsc --moduleResolution node --target esnext src/scripts/generate_input.ts
+npx tsx src/scripts/generate_input.ts
 ```
 
-which will autowrite input\_<circuitName>.json to the inputs folder.
+which will autowrite input\_<circuitName>.json to the inputs folder. If the last line doesn't work (i.e. the `npx tsx` command), try `npx tsc --moduleResolution node --target esnext src/scripts/generate_input.ts` instead, or refer to the Dockerfile.
 
 To do the steps in https://github.com/iden3/snarkjs#7-prepare-phase-2 automatically, do
 
@@ -323,7 +323,7 @@ To test solidity,
 ```bash
 cp node_modules/forge-std src/contracts/lib/forge-std
 cd src/contracts
-forge test
+forge test --fork-url https://eth-goerli.g.alchemy.com/v2/$ALCHEMY_GOERLI_KEY
 ```
 
 To deploy contracts, look at src/contracts/README.md.
@@ -381,7 +381,7 @@ For baremetal, proof generation time on 16 CPUs took 97 seconds. Generating zkey
 ```bash
 brew install git-filter-repo
 git filter-repo --replace-text <(echo "0x000000000000000000000000000000000000000000000000000000000abcdef")
-git filter-repo --path mit_msg.eml --invert-paths
+git filter-repo --invert-paths --path mit_msg.eml
 git remote add origin https://github.com/zk-email-verify/zk-email-verify
 ls
 git push --set-upstream origin main --force

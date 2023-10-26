@@ -11,12 +11,12 @@ load_dotenv('circuit.env')
 # Set up the client for the AWS S3 service
 s3 = boto3.client('s3')  # Ask Aayush for the access key and secret access key
 
-parser = argparse.ArgumentParser(description='Upload files to S3 bucket')
+parser = argparse.ArgumentParser(description='Upload the compressed zkey, cpp, and js compilation files to S3 bucket')
 parser.add_argument('--bucket_name', type=str, default='zkemail-zkey-chunks', help='Name of the S3 bucket')
 
 default_build_dir = 'build'
 default_circuit_name = 'wallet'
-default_prefix = 'vkey.json,email.wasm'
+default_prefix = 'vkey.json,email.wasm,verifier.sol,wallet_nonchunked.zkey'
 
 build_dir_env = os.getenv('BUILD_DIR')
 circuit_name_env = os.getenv('CIRCUIT_NAME')
@@ -37,8 +37,12 @@ bucket_name = args.bucket_name
 build_dir = args.build_dir
 circuit_name = args.circuit_name
 prefix_to_tar = args.circuit_name + ".zkey"
+
 prefixes = args.prefix.split(',')
-dirs = [os.path.join(build_dir, circuit_name, ""), os.path.join(build_dir, circuit_name, circuit_name + '_js/')]
+prefixes.append(circuit_name + '_js')
+prefixes.append(circuit_name + '_cpp')
+
+dirs = [os.path.join(build_dir, circuit_name, "")]
 
 # Get the latest commit hash
 commit_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('utf-8').strip()
@@ -49,11 +53,26 @@ commit_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('utf-
 # zkey_dir = source + '/{build_dir}/{circuit_name}/'
 # wasm_dir = source + '/{build_dir}/{circuit_name}/{circuit_name}_js/'
 def upload_to_s3(filename, dir=""):
-    with open(dir + filename, 'rb') as file:
-        print("Starting upload...")
-        s3.upload_fileobj(file, bucket_name, commit_hash + '/' + filename, ExtraArgs={
-                          'ACL': 'public-read', 'ContentType': 'binary/octet-stream'})
-        print(f"Done uploading {filename} to: https://{bucket_name}.s3.amazonaws.com/{commit_hash}/{filename}")
+    if os.path.isfile(os.path.join(dir, filename)):
+        with open(os.path.join(dir, filename), 'rb') as file:
+            print("Starting upload...")
+            s3.upload_fileobj(file, bucket_name, commit_hash + '/' + filename, ExtraArgs={
+                              'ACL': 'public-read', 'ContentType': 'binary/octet-stream'})
+            print(f"Done uploading {filename} to: https://{bucket_name}.s3.amazonaws.com/{commit_hash}/{filename}")
+    elif os.path.isdir(os.path.join(dir, filename)):
+        for root, dirs, files in os.walk(os.path.join(dir, filename)):
+            for file in files:
+                print(root, dir, file)
+                file_path = os.path.join(root, file)
+                relative_path = os.path.relpath(file_path, os.path.join(build_dir, circuit_name))
+                with open(file_path, 'rb') as file_obj:
+                    s3_key = os.path.join(commit_hash, relative_path)
+                    print(f"Starting upload of {file_path} to {s3_key}...")
+                    s3.upload_fileobj(file_obj, bucket_name, s3_key, ExtraArgs={
+                                      'ACL': 'public-read', 'ContentType': 'binary/octet-stream'})
+                    print(f"Done uploading {file_path} to: https://{bucket_name}.s3.amazonaws.com/{s3_key}")
+    else:
+        print(f"Skipping {os.path.join(dir, filename)} as it is not a valid file or directory.")
 
 
 # Loop through the files in the remote directory
@@ -86,10 +105,7 @@ for dir in dirs:
 
             os.remove(tar_file_name)
             os.remove(gz_file_name)
-
-        # If file starts with any one of the prefixes
+        # If file starts with any one of the prefixes (including js/cpp directories)
         if any(file.startswith(prefix) for prefix in prefixes):
-            # Upload the zip file to the AWS bucket, overwriting any existing file with the same name
+            # Upload the directory to the AWS bucket, overwriting any existing file with the same name
             upload_to_s3(file, dir)
-        # if file.startswith('vkey.json') or file.startswith('email.wasm'):
-        #     upload_to_s3(file, dir)

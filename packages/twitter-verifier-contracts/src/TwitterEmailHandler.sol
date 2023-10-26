@@ -102,6 +102,8 @@ contract VerifiedTwitterEmail is ERC721Enumerable {
 
         // Effects: Mint token
         uint256 tokenId = tokenCounter.current() + 1;
+
+        // TODO: Change bytesInPackedBytes * usernameLengthInSignals -> usernameLengthInSignals
         string memory messageBytes = StringUtils.convertPackedBytesToString(
             bodySignals,
             bytesInPackedBytes * usernameLengthInSignals,
