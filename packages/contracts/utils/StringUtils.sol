@@ -78,17 +78,7 @@ library StringUtils {
         pure
         returns (string memory extractedString)
     {
-        return convertPackedBytesToString(packedBytes, DEFAULT_PACK_SIZE);
-    }
-
-    // Note: This convenience function removes the max string length check, which may cause misalignment with the circom
-    // If using this, then the circom needs to rangecheck packed length in the circuit itself
-    function convertPackedBytesToString(uint256[] memory packedBytes, uint256 packSize) 
-        internal
-        pure
-        returns (string memory extractedString)
-    {
-        return convertPackedBytesToString(packedBytes, packedBytes.length * packSize, packSize);
+        return convertPackedBytesToString(packedBytes, packedBytes.length * DEFAULT_PACK_SIZE, DEFAULT_PACK_SIZE);
     }
 
     // Unpacks uint256s into bytes and then extracts the non-zero characters
