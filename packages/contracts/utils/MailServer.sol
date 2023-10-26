@@ -16,23 +16,23 @@ contract MailServer is Ownable {
     function initMailserverKeys() internal {
         // TODO: Create a type that takes in a raw RSA key, the bit count,
         // and whether or not its base64 encoded, and converts it to either 8 or 16 signals
-        verifiedMailserverKeys["gmail.com"][0] = 1886180949733815343726466520516992271;
-        verifiedMailserverKeys["gmail.com"][1] = 1551366393280668736485689616947198994;
-        verifiedMailserverKeys["gmail.com"][2] = 1279057759087427731263511728885611780;
-        verifiedMailserverKeys["gmail.com"][3] = 1711061746895435768547617398484429347;
-        verifiedMailserverKeys["gmail.com"][4] = 2329140368326888129406637741054282011;
-        verifiedMailserverKeys["gmail.com"][5] = 2094858442222190249786465516374057361;
-        verifiedMailserverKeys["gmail.com"][6] = 2584558507302599829894674874442909655;
-        verifiedMailserverKeys["gmail.com"][7] = 1521552483858643935889582214011445675;
-        verifiedMailserverKeys["gmail.com"][8] = 176847449040377757035522930003764000;
-        verifiedMailserverKeys["gmail.com"][9] = 632921959964166974634188077062540145;
-        verifiedMailserverKeys["gmail.com"][10] = 2172441457165086627497230906075093832;
-        verifiedMailserverKeys["gmail.com"][11] = 248112436365636977369105357296082574;
-        verifiedMailserverKeys["gmail.com"][12] = 1408592841800630696650784801114783401;
-        verifiedMailserverKeys["gmail.com"][13] = 364610811473321782531041012695979858;
-        verifiedMailserverKeys["gmail.com"][14] = 342338521965453258686441392321054163;
-        verifiedMailserverKeys["gmail.com"][15] = 2269703683857229911110544415296249295;
-        verifiedMailserverKeys["gmail.com"][16] = 3643644972862751728748413716653892;
+         verifiedMailserverKeys["gmail.com"][0] = 2107195391459410975264579855291297887;
+        verifiedMailserverKeys["gmail.com"][1] = 2562632063603354817278035230349645235;
+        verifiedMailserverKeys["gmail.com"][2] = 1868388447387859563289339873373526818;
+        verifiedMailserverKeys["gmail.com"][3] = 2159353473203648408714805618210333973;
+        verifiedMailserverKeys["gmail.com"][4] = 351789365378952303483249084740952389;
+        verifiedMailserverKeys["gmail.com"][5] = 659717315519250910761248850885776286;
+        verifiedMailserverKeys["gmail.com"][6] = 1321773785542335225811636767147612036;
+        verifiedMailserverKeys["gmail.com"][7] = 258646249156909342262859240016844424;
+        verifiedMailserverKeys["gmail.com"][8] = 644872192691135519287736182201377504;
+        verifiedMailserverKeys["gmail.com"][9] = 174898460680981733302111356557122107;
+        verifiedMailserverKeys["gmail.com"][10] = 1068744134187917319695255728151595132;
+        verifiedMailserverKeys["gmail.com"][11] = 1870792114609696396265442109963534232;
+        verifiedMailserverKeys["gmail.com"][12] = 8288818605536063568933922407756344;
+        verifiedMailserverKeys["gmail.com"][13] = 1446710439657393605686016190803199177;
+        verifiedMailserverKeys["gmail.com"][14] = 2256068140678002554491951090436701670;
+        verifiedMailserverKeys["gmail.com"][15] = 518946826903468667178458656376730744;
+        verifiedMailserverKeys["gmail.com"][16] = 3222036726675473160989497427257757;
 
         verifiedMailserverKeys["hotmail.com"][0] = 128339925410438117770406273090474249;
         verifiedMailserverKeys["hotmail.com"][1] = 2158906895782814996316644028571725310;
@@ -52,23 +52,23 @@ contract MailServer is Ownable {
         verifiedMailserverKeys["hotmail.com"][15] = 2611115500285740051274748743252547506;
         verifiedMailserverKeys["hotmail.com"][16] = 3841983033048617585564391738126779;
 
-        verifiedMailserverKeys["ethereum.org"][0] = 119886678941863893035426121053426453;
-        verifiedMailserverKeys["ethereum.org"][1] = 1819786846289142128062035525540154587;
-        verifiedMailserverKeys["ethereum.org"][2] = 18664768675154515296388092785538021;
-        verifiedMailserverKeys["ethereum.org"][3] = 2452916380017370778812419704280324749;
-        verifiedMailserverKeys["ethereum.org"][4] = 147541693845229442834461965414634823;
-        verifiedMailserverKeys["ethereum.org"][5] = 714676313158744653841521918164405002;
-        verifiedMailserverKeys["ethereum.org"][6] = 1495951612535183023869749054624579068;
-        verifiedMailserverKeys["ethereum.org"][7] = 974892773071523448175479681445882254;
-        verifiedMailserverKeys["ethereum.org"][8] = 53117264910028079;
-        verifiedMailserverKeys["ethereum.org"][9] = 0;
-        verifiedMailserverKeys["ethereum.org"][10] = 0;
-        verifiedMailserverKeys["ethereum.org"][11] = 0;
-        verifiedMailserverKeys["ethereum.org"][12] = 0;
-        verifiedMailserverKeys["ethereum.org"][13] = 0;
-        verifiedMailserverKeys["ethereum.org"][14] = 0;
-        verifiedMailserverKeys["ethereum.org"][15] = 0;
-        verifiedMailserverKeys["ethereum.org"][16] = 0;
+        verifiedMailserverKeys["ethereum.org"][0] = 1859851589285015402364374517208607421;
+        verifiedMailserverKeys["ethereum.org"][1] = 2481242972493130579716075269714038950;
+        verifiedMailserverKeys["ethereum.org"][2] = 1113377260370489008142295051480623915;
+        verifiedMailserverKeys["ethereum.org"][3] = 413415000215515422192897690843078165;
+        verifiedMailserverKeys["ethereum.org"][4] = 321395896911577724053460117017858232;
+        verifiedMailserverKeys["ethereum.org"][5] = 962219080380806566836448614909569903;
+        verifiedMailserverKeys["ethereum.org"][6] = 1347473540368313871255028394615231216;
+        verifiedMailserverKeys["ethereum.org"][7] = 1621587460770854960171142404501124155;
+        verifiedMailserverKeys["ethereum.org"][8] = 1471486493519418571789733020624669307;
+        verifiedMailserverKeys["ethereum.org"][9] = 1075518046606101497818726980522885370;
+        verifiedMailserverKeys["ethereum.org"][10] = 1035273355098862691341654610092734008;
+        verifiedMailserverKeys["ethereum.org"][11] = 1260143694364957878456822959976388437;
+        verifiedMailserverKeys["ethereum.org"][12] = 451630895668811590034023292968645260;
+        verifiedMailserverKeys["ethereum.org"][13] = 848440330274207230079809696156767021;
+        verifiedMailserverKeys["ethereum.org"][14] = 1027109192564933036184004289663638570;
+        verifiedMailserverKeys["ethereum.org"][15] = 615722519111225436423423623453523340;
+        verifiedMailserverKeys["ethereum.org"][16] = 3348884040059470563446926933801436;
 
         verifiedMailserverKeys["twitter.com"][0] = 1634582323953821262989958727173988295;
         verifiedMailserverKeys["twitter.com"][1] = 1938094444722442142315201757874145583;
@@ -133,5 +133,9 @@ contract MailServer is Ownable {
         verifiedMailserverKeys[domain][index] = val;
     }
 
+    function getMailserverKey(string memory domain, uint256 index) public returns (uint256) {
+        return verifiedMailserverKeys[domain][index];
+    }
+    
     // TODO: Add DNSSEC verification to add a key as well
 }
