@@ -1,7 +1,5 @@
-import { DKIMVerificationResult } from "@zk-email/helpers/src/dkim";
-import { generateCircuitInputs } from "@zk-email/helpers/src/input-helpers";
+import {DKIMVerificationResult, generateCircuitInputs, verifyDKIMSignature} from "@zk-email/helpers/src";
 
-const { verifyDKIMSignature } = require("@zk-email/helpers/src/dkim");
 const fs = require("fs");
 const path = require("path");
 const wasm_tester = require("circom_tester").wasm;
