@@ -12,12 +12,9 @@ import {
   assert,
   mergeUInt8Arrays,
   int8toBytes,
-  int64toBytes,
-} from "@zk-email/helpers/src/binaryFormat";
-import { CIRCOM_FIELD_MODULUS, MAX_HEADER_PADDED_BYTES, MAX_BODY_PADDED_BYTES, STRING_PRESELECTOR } from "@zk-email/helpers/src/constants";
-import { shaHash, partialSha, sha256Pad } from "@zk-email/helpers/src/shaHash";
-// @ts-ignore
-import { dkimVerify } from "@zk-email/helpers/src/dkim";
+  int64toBytes, CIRCOM_FIELD_MODULUS, MAX_HEADER_PADDED_BYTES, MAX_BODY_PADDED_BYTES, STRING_PRESELECTOR, shaHash, partialSha, sha256Pad, dkimVerify
+} from "@zk-email/helpers";
+
 import * as fs from "fs";
 import { pki } from "node-forge";
 

@@ -3,7 +3,7 @@ import { buildMimcSponge } from "circomlibjs";
 import { wasm as wasm_tester } from "circom_tester";
 import { Scalar } from "ffjavascript";
 import path from "path";
-import { DKIMVerificationResult, generateCircuitInputs, verifyDKIMSignature } from "@zk-email/helpers/src";
+import { DKIMVerificationResult, generateCircuitInputs, verifyDKIMSignature } from "@zk-email/helpers";
 
 
 exports.p = Scalar.fromString(

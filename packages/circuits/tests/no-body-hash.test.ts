@@ -1,4 +1,4 @@
-import {DKIMVerificationResult, generateCircuitInputs, verifyDKIMSignature} from "@zk-email/helpers/src";
+import {DKIMVerificationResult, generateCircuitInputs, verifyDKIMSignature} from "@zk-email/helpers";
 
 const fs = require("fs");
 const path = require("path");
