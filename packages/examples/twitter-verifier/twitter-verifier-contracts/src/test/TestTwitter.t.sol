@@ -15,7 +15,7 @@ contract TwitterUtilsTest is Test {
     DKIMRegistry dkimRegistry;
     VerifiedTwitterEmail testVerifier;
 
-    uint16 public constant packSize = 7;
+    uint16 public constant packSize = 31;
 
     function setUp() public {
         proofVerifier = new Verifier();

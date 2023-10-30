@@ -6,6 +6,8 @@ import {
   } from "../binaryFormat";
 import { pki } from "node-forge";
 
+// Fetch the DKIM public key from DNS and format it for circom
+// Does not output the hash, only outputs it split into 17 parts
 export default async function formatDkimKey(domain: string, selector: string) {
   // Construct the DKIM record name
   let dkimRecordName = `${selector}._domainkey.${domain}`;

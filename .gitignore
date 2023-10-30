@@ -60,7 +60,7 @@ packages/contracts/broadcast
 node_modules.nosync
 *Wallet*
 *wallet*
-circuits/regexes/subject_regex*
+tsconfig.tsbuildinfo
 
 # Files that never should be committed, but can be obtained by asking Aayush or generating them yourself
 *.eml
