@@ -32,6 +32,7 @@ packages/
     regexes/ # Generated regexes
     helpers/ # Common helper circom circuits imported in email circuits 
     test/ # Circom tests for circuit
+    email-verifier.com # circom circuit
   
   contracts # Solidity contracts for Email verification
 
@@ -43,7 +44,36 @@ packages/
 ## **Usage** 
 ## **@zk-email/helpers**
 
-The `@zk-email/helpers` package provides utility functions for generating proof inputs. The main function is 'generateCircuitInputs' which is found in the `input-helpers.ts` file:
+The `@zk-email/helpers` package provides utility functions for generating proof inputs. 
+
+The main helper files that are used in circom are `input-helpers.ts`, `shaHash.ts` `constants.ts`, and `binaryFormat.ts`
+
+constants.ts, binaryFormat and shaHash are all imported inside of the input-helpers.ts file.
+
+The **constants.ts** file exports the following constant values:
+
+- MAX_HEADER_PADDED_BYTES: Max allowed length of header 
+
+- MAX_BODY_PADDED_BYTES: Max allowed length of body (varies depending on email length specific to your application)
+
+- CIRCOM_BIGINT_N:
+
+- CIRCOM_BIGINT_K:
+     
+- CIRCOM_LEVELS
+    
+- STRING_PRESELECTOR: The string that comes before the target string in the email. 
+ 
+  ex: "This email was meant for @". What follows this is the username of the twitter account which we are trying to prove.
+
+
+
+The **binaryFormat.ts** file uses 
+
+The **shaHash.ts** file 
+
+
+The main function used to generate proof inputs is 'generateCircuitInputs' which is found in the input-helpers.ts file:
 
 ```javascript
 import { generateCircuitInputs } from "@zk-email/helpers";

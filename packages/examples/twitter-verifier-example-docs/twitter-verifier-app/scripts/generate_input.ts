@@ -13,7 +13,7 @@ import {
   mergeUInt8Arrays,
   int8toBytes,
   int64toBytes, shaHash, partialSha, sha256Pad, CIRCOM_FIELD_MODULUS, MAX_HEADER_PADDED_BYTES, MAX_BODY_PADDED_BYTES, STRING_PRESELECTOR, dkimVerify
-} from "@zk-email/helpers/src";
+} from "@zkemail/helpers";
 
 // @ts-ignore
 

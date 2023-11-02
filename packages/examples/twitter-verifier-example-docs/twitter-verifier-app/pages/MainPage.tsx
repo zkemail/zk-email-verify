@@ -14,7 +14,7 @@ import atob from "atob";
 
 import { packedNBytesToString, DKIMVerificationResult, verifyDKIMSignature, rawEmailToBuffer,  downloadProofFiles,
   generateProof,
-  verifyProof, } from "@zk-email/helpers/src";
+  verifyProof, } from "@zkemail/helpers";
 
 import { LabeledTextArea } from "../components/LabeledTextArea";
 import DragAndDropTextBox from "../components/DragAndDropTextBox";
@@ -25,7 +25,7 @@ import { NumberedStep } from "../components/NumberedStep";
 import { TopBanner } from "../components/TopBanner";
 import { useAccount, useContractWrite, usePrepareContractWrite } from "wagmi";
 import { ProgressBar } from "../components/ProgressBar";
-import { abi } from "@zk-email/helpers/src/twitterEmailHandler.abi";
+import { abi } from "@zkemail/helpers/twitterEmailHandler.abi";
 import { isSetIterator } from "util/types";
 
 export const MainPage: React.FC<{}> = (props) => {

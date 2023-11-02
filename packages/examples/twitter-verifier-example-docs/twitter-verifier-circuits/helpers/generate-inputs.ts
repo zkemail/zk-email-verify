@@ -1,4 +1,4 @@
-import { bytesToBigInt, fromHex, generateCircuitInputs } from "@zk-email/helpers/src";
+import { bytesToBigInt, fromHex, generateCircuitInputs } from "@zkemail/helpers";
 
 
 export const STRING_PRESELECTOR = "email was meant for @";
