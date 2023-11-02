@@ -3,27 +3,7 @@
 
 The zkEmail Verify SDK is a set of three npm packages designed to facilitate the verification of DKIM signatures in emails using zero-knowledge proofs.
 
-## **Installation**
 
-To get started with zk-email, install these three npm packages:
-## **1.  @zk-email/helpers**
-This package provides utility functions for email verification and cryptographic operations.
-```
-npm i @zk-email/helpers
-```
-
-## **2.  @zk-email/contracts**
-This package contains Solidity contracts for email verification. Import the contract from the package and deploy it in your migration script.
-
-```
-npm i @zk-email/circuits
-```
-
-## **3.  @zk-email/contracts**
-This package provides circuits for generating proofs and verifying DKIM signatures in emails. Import the necessary circuits from the package and use them to compile your circuit and generate a proof.
-```
-npm i @zk-email/circuits
-```
 ## Filetree Description
 Our packages are organized in a monorepo architecture. These are core reusable packages for general ZK email verification.
 ```
@@ -41,7 +21,6 @@ packages/
   ```
 
 
-## **Usage** 
 ## **@zk-email/helpers**
 
 The `@zk-email/helpers` package provides utility functions for generating proof inputs. 

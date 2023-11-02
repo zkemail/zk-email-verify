@@ -1,29 +1,65 @@
-# ZK Email
+# ZK Email Introduction
 
 ZK Email is an app for you to anonymously verify email signatures yet mask whatever
 data you would like. Each email can either be verified to be to/from specific domains
 or subsets of domains, or have some specific text in the body. These can be used for
 web2 interoperability, decentralized anonymous KYC, or interesting on-chain anonymity
-sets. For a deeper dive, read our full [blog post](https://blog.aayushg.com/posts/zkemail/).
+sets. 
+
+For a deeper dive, read our full [blog post](https://blog.aayushg.com/posts/zkemail/).
 
 ## Sections
 
-### [ZK-Email Overview](./zkEmailOverview/)
+### [Installation](./zkEmailDocs/Installation/README.md)
 
-Get started with zkEmail, install our SDKs and build your own application.
+Get started with zkEmail, install our SDKs so that you can build your own application.
+
+### [Package Overviews](./zkEmailDocs/Package%20Overviews/README.md)
+ Explore our npm sdk packages:
+1. **zk-email/helpers**: Utility functions for generating proof inputs.
+2. **zk-email/circuits**: Circuits for generating proofs and verifying DKIM signatures.
+3. **zk-email/contracts**: Solidity contracts for Email verification.
+
+
+### [Usage Guide](./zkEmailDocs/UsageGuide/README.md)
+This section provides a comprehensive guide on how to use the zkEmail packages. It covers everything from generating proof inputs, creating circuits for proofs, to verifying DKIM signatures. 
+
+It is recommended to go through this guide to understand how to effectively use the packages for email verification.
+
+
+
 
 ### [Project Examples](./project-examples)
 
 Here you can find example projects that implement our packages.  You can check out our [twitter-verifier-docs](./project_examples/twitter-verifier-example-docs/twitter-verifier-example-docs/)
 
 
-### Regex To Circom
-The Regex to Circom section provides a detailed guide on how to convert regular expressions to Circom. This is a crucial step in creating your own ZK circuits. For a step-by-step guide, please refer to the [Regex to Circom README](./regex_to_circom/README.md).
+<!-- ### Regex To Circom
+The Regex to Circom section provides a detailed guide on how to convert regular expressions to Circom. This is a crucial step in creating your own ZK circuits. For a step-by-step guide, please refer to the [Regex to Circom README](./regex_to_circom/README.md). -->
 
-### [Contributing](/README.md) 
- We need your help! 🫵
  
+
+
+## Terminology
+
+
+- **DKIM**: DomainKeys Identified Mail. An email authentication method designed to detect email spoofing.
+- **Zero-Knowledge Proofs**: A cryptographic method by which one party can prove to another that they know a value x, without conveying any information apart from the fact that they know the value x.
+- **RSA**: Rivest–Shamir–Adleman. A public-key cryptosystem widely used for secure data transmission.
+- **Circom**: A language for defining arithmetic circuits with a focus on zero-knowledge proofs.
+- **SnarkJS**: A JavaScript library for zkSNARKs.
+- **zkSNARKs**: Zero-Knowledge Succinct Non-Interactive Argument of Knowledge. A form of zero-knowledge proof that is particularly short and easy to verify.
+- **Poseidon Hash**: A cryptographic hash function optimized for zk-SNARKs.
+- **vkey**: A verification key used by the verifier to check the proof. Usually contained on the server side of an app.
+- **zkey**: Proving key usually on the client side of an application.
+- **witness**: In the context of zkSNARKs, a witness is the set of private inputs to the zkSNARK.
+- **constraints**: Constraints are the conditions that the zkSNARK must satisfy. The proving time increases with additional constraints!
+
 ## [FAQ](/README.md)
+Check out our [FAQ](/README.md) for more questions!
+
+
+
 
 
 

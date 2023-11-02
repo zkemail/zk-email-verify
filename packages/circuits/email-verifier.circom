@@ -24,7 +24,7 @@ template EmailVerifier(max_header_bytes, max_body_bytes, n, k, ignore_body_hash_
     signal input in_padded[max_header_bytes]; // prehashed email data, includes up to 512 + 64? bytes of padding pre SHA256, and padded with lots of 0s at end after the length
     signal input pubkey[k]; // rsa pubkey, verified with smart contract + DNSSEC proof. split up into k parts of n bits each.
     signal input signature[k]; // rsa signature. split up into k parts of n bits each.
-    signal input in_len_padded_bytes; // length of in email data including the padding, which will inform the sha256 block length
+    signal input in_len_padded_bytes; // length of email data including the padding, which will inform the sha256 block length
 
 
     // Base 64 body hash variables
