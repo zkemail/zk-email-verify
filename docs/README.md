@@ -18,7 +18,7 @@ Get started with zkEmail, install our SDKs so that you can build your own applic
  Explore our npm sdk packages:
 1. **zk-email/helpers**: Utility functions for generating proof inputs.
 2. **zk-email/circuits**: Circuits for generating proofs and verifying DKIM signatures.
-3. **zk-email/contracts**: Solidity contracts for Email verification.
+3. **zk-email/contracts**: Solidity contracts for email verification.
 
 
 ### [Usage Guide](./zkEmailDocs/UsageGuide/README.md)
@@ -54,15 +54,12 @@ The Regex to Circom section provides a detailed guide on how to convert regular 
 - **zkey**: Proving key usually on the client side of an application.
 - **witness**: In the context of zkSNARKs, a witness is the set of private inputs to the zkSNARK.
 - **constraints**: Constraints are the conditions that the zkSNARK must satisfy. The proving time increases with additional constraints!
+- **Regex**: Short for regular expression, this term represents sequence of characters that forms a search pattern, commonly used for string matching within text. In the context of zkEmail where it's used to parse email headers and extract relevant information. It refers to a 
+
+
 
 ## [FAQ](/README.md)
 Check out our [FAQ](/README.md) for more questions!
-
-
-
-
-
-
 <!-- ## Registering your email identity
 
 If you wish to generate a ZK proof of Twitter badge, you must do these:
@@ -144,6 +141,12 @@ Talk: https://www.youtube.com/watch?v=sPCHiUT3TmA
 Circom: https://github.com/iden3/circom
 
 SnarkJS: https://github.com/iden3/snarkjs
+
+## Tutorials
+Circom Workshop 1: https://learn.0xparc.org/materials/circom/learning-group-1/circom-1
+
+Circom Workshop 2: 
+https://learn.0xparc.org/materials/circom/learning-group-1/circom-2
 
 ## Related Work
 

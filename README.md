@@ -1,13 +1,19 @@
 
 
-# ZK-Email Ecosystem
+# Welcome to ZK-Email  
+![My Image](path/to/my/image.png)
+  
 
 ## Contributors 💡
 We will award $50 for every successfully merged PR that resolves any [open issue](https://github.com/zkemail/zk-email-verify/issues). If we forget, please dm us a reminder!
 
 We want to say thanks to these amazing contributors!!
+
 ## Projects 🛠
 Take a look at all of the cool innovative projects that are building on top of Zk-Email!
+
+- Zkp2p
+- Zk Email Safe 
 
 ## FAQ/Possible Errors
 ### Can you provide an example header for me to understand what exactly is signed?

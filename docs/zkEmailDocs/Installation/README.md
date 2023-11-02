@@ -19,4 +19,4 @@ This package provides circuits for generating proofs and verifying DKIM signatur
 npm i @zk-email/circuits
 ```
 
-[Package Overviews >](/packages/docs/zkEmailDocs/Package%20Overviews/README.md)
+[Package Overviews >](/docs/zkEmailDocs/Package%20Overviews/README.md)
