@@ -11,6 +11,7 @@
     "addressparser": "^1.0.1",
     "atob": "^2.1.2",
     "circomlibjs": "^0.1.7",
+    "ethers": "^6.8.0",
     "libmime": "^5.2.1",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",

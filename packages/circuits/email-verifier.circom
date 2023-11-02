@@ -72,7 +72,7 @@ template EmailVerifier(max_header_bytes, max_body_bytes, n, k, ignore_body_hash_
         // which is used to verify the body text matches this signed hash + the signature verifies this hash is legit
         signal (bh_regex_out, bh_reveal[max_header_bytes]) <== BodyHashRegex(max_header_bytes)(in_padded);
         bh_regex_out === 1;
-        signal shifted_bh_out[LEN_SHA_B64] <== VarShiftLeft(max_header_bytes, LEN_SHA_B64)(bh_reveal, body_hash_idx);
+        signal shifted_bh_out[LEN_SHA_B64] <== VarShiftMaskedStr(max_header_bytes, LEN_SHA_B64)(bh_reveal, body_hash_idx);
         // log(body_hash_regex.out);
 
 
