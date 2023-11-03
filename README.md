@@ -1,7 +1,3 @@
-
-
-# Welcome to ZK-Email  
-
 # Welcome to ZK-Email  
 ![My Image](path/to/my/image.png)
 
