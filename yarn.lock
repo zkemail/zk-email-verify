@@ -5,31 +5,10 @@ __metadata:
   version: 6
   cacheKey: 8
 
-"@adobe/css-tools@npm:^4.0.1":
-  version: 4.2.0
-  resolution: "@adobe/css-tools@npm:4.2.0"
-  checksum: dc5cc92ba3d562e7ffddb79d6d222c7e00b65f255fd2725b3d71490ff268844be322f917415d8c4ab39eca646343b632058db8bd5b1d646193fcc94d1d3e420b
-  languageName: node
-  linkType: hard
-
-"@adraffy/ens-normalize@npm:1.9.0":
-  version: 1.9.0
-  resolution: "@adraffy/ens-normalize@npm:1.9.0"
-  checksum: a8d47f85db7a0bba01227fae8781a3245a4517875503d6848a47ca29e7f7da271742a2f93b55afc1b9201e74eda1fd1f1e6e79e70f967359fd7f6ec3d45bf243
-  languageName: node
-  linkType: hard
-
-"@adraffy/ens-normalize@npm:1.9.2":
-  version: 1.9.2
-  resolution: "@adraffy/ens-normalize@npm:1.9.2"
-  checksum: a9fdeb9e080774c19e4b7f9f60aa5b37cf23fe0e8fe80284bf8221f7396e9f78642bfd39a09a94a4dc3fb8e70f2ac81545204bdcaf222d93f4c4c2ae1f0dca0b
-  languageName: node
-  linkType: hard
-
-"@adraffy/ens-normalize@npm:1.9.4":
-  version: 1.9.4
-  resolution: "@adraffy/ens-normalize@npm:1.9.4"
-  checksum: 7d7fff58ebe2c4961f7e5e61dad123aa6a63fec0df5c84af1fa41079dc05d398599690be4427b3a94d2baa94084544bcfdf2d51cbed7504b9b0583b0960ad550
+"@adraffy/ens-normalize@npm:1.10.0":
+  version: 1.10.0
+  resolution: "@adraffy/ens-normalize@npm:1.10.0"
+  checksum: af0540f963a2632da2bbc37e36ea6593dcfc607b937857133791781e246d47f870d5e3d21fa70d5cfe94e772c284588c81ea3f5b7f4ea8fbb824369444e4dbcb
   languageName: node
   linkType: hard
 
@@ -2255,6 +2234,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@noble/curves@npm:1.2.0":
+  version: 1.2.0
+  resolution: "@noble/curves@npm:1.2.0"
+  dependencies:
+    "@noble/hashes": 1.3.2
+  checksum: bb798d7a66d8e43789e93bc3c2ddff91a1e19fdb79a99b86cd98f1e5eff0ee2024a2672902c2576ef3577b6f282f3b5c778bebd55761ddbb30e36bf275e83dd0
+  languageName: node
+  linkType: hard
+
+"@noble/hashes@npm:1.3.2":
+  version: 1.3.2
+  resolution: "@noble/hashes@npm:1.3.2"
+  checksum: fe23536b436539d13f90e4b9be843cc63b1b17666a07634a2b1259dded6f490be3d050249e6af98076ea8f2ea0d56f578773c2197f2aa0eeaa5fba5bc18ba474
+  languageName: node
+  linkType: hard
+
 "@npmcli/agent@npm:^2.0.0":
   version: 2.2.0
   resolution: "@npmcli/agent@npm:2.2.0"
@@ -2398,38 +2393,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@twitter-verifier/circuits@workspace:^, @twitter-verifier/circuits@workspace:packages/twitter-verifier-circuits":
-  version: 0.0.0-use.local
-  resolution: "@twitter-verifier/circuits@workspace:packages/twitter-verifier-circuits"
-  dependencies:
-    "@zk-email/circuits": "workspace:^"
-    "@zk-email/helpers": "workspace:^"
-    big-integer: ^1.6.51
-    chai: ^4.3.7
-    circom_tester: ^0.0.19
-    circomlib: ^2.0.5
-    circomlibjs: ^0.1.2
-    ffjavascript: ^0.2.59
-    jest: ^29.5.0
-    mocha: ^10.2.0
-    snarkjs: "git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8"
-  languageName: unknown
-  linkType: soft
-
-"@types/aria-query@npm:^5.0.1":
-  version: 5.0.1
-  resolution: "@types/aria-query@npm:5.0.1"
-  checksum: 69fd7cceb6113ed370591aef04b3fd0742e9a1b06dd045c43531448847b85de181495e4566f98e776b37c422a12fd71866e0a1dfd904c5ec3f84d271682901de
-  languageName: node
-  linkType: hard
-
-"@types/atob@npm:^2.1.2":
-  version: 2.1.2
-  resolution: "@types/atob@npm:2.1.2"
-  checksum: 903df6e2d473c51ffff6f8aa2ad11127361a38ac409f30af1fe3c99e7a3b674740a685375097efe649036450822317641d3080c33ee849efca06945bd1386c61
-  languageName: node
-  linkType: hard
-
 "@types/babel__core@npm:^7.1.14":
   version: 7.20.3
   resolution: "@types/babel__core@npm:7.20.3"
@@ -2544,6 +2507,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/node@npm:18.15.13":
+  version: 18.15.13
+  resolution: "@types/node@npm:18.15.13"
+  checksum: 79cc5a2b5f98e8973061a4260a781425efd39161a0e117a69cd089603964816c1a14025e1387b4590c8e82d05133b7b4154fa53a7dffb3877890a66145e76515
+  languageName: node
+  linkType: hard
+
 "@types/set-cookie-parser@npm:^2.4.0":
   version: 2.4.5
   resolution: "@types/set-cookie-parser@npm:2.4.5"
@@ -2613,12 +2583,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@zk-email/docs@workspace:packages/docs":
-  version: 0.0.0-use.local
-  resolution: "@zk-email/docs@workspace:packages/docs"
-  languageName: unknown
-  linkType: soft
-
 "@zk-email/e2e-lambdatest@workspace:packages/e2e-lambdatest":
   version: 0.0.0-use.local
   resolution: "@zk-email/e2e-lambdatest@workspace:packages/e2e-lambdatest"
@@ -2651,78 +2615,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@zk-email/twitter-verifier-contracts@workspace:packages/twitter-verifier-contracts":
-  version: 0.0.0-use.local
-  resolution: "@zk-email/twitter-verifier-contracts@workspace:packages/twitter-verifier-contracts"
-  dependencies:
-    "@openzeppelin/contracts": ^4.9.3
-    "@openzeppelin/contracts-upgradeable": ^4.9.3
-    "@zk-email/contracts": "workspace:^"
-    ds-test: "https://github.com/dapphub/ds-test"
-    forge-std: "https://github.com/foundry-rs/forge-std"
-  languageName: unknown
-  linkType: soft
-
-"@zk-email/twitter-verifier@workspace:packages/twitter-verifier-app":
-  version: 0.0.0-use.local
-  resolution: "@zk-email/twitter-verifier@workspace:packages/twitter-verifier-app"
-  dependencies:
-    "@rainbow-me/rainbowkit": ^1.0.9
-    "@testing-library/jest-dom": ^5.16.3
-    "@testing-library/react": ^12.1.4
-    "@twitter-verifier/circuits": "workspace:^"
-    "@types/atob": ^2.1.2
-    "@types/jest": ^29.5.1
-    "@types/lodash": ^4.14.181
-    "@types/mocha": ^10.0.1
-    "@types/node": ^18.0.6
-    "@types/node-forge": ^1.3.2
-    "@types/styled-components": ^5.1.24
-    "@vitejs/plugin-react": ^4.0.0
-    "@zk-email/helpers": "workspace:^"
-    atob: ^2.1.2
-    browserify-fs: ^1.0.0
-    browserstack-local: ^1.5.1
-    browserstack-node-sdk: ^1.6.1
-    circomlibjs: ^0.1.2
-    ethers: ^6.7.1
-    jest: ^29.5.0
-    jest-environment-jsdom: ^29.5.0
-    jest-fetch-mock: ^3.0.3
-    jest-junit: ^15.0.0
-    jsdom-worker: ^0.3.0
-    lodash: ^4.17.21
-    madge: ^6.0.0
-    node-fetch: ^2.7.0
-    node-forge: ^1.3.1
-    puppeteer: 18.1
-    react: ^17.0.2
-    react-dom: ^17.0.2
-    react-is: ^18.2.0
-    react-router-dom: ^6.2.2
-    react-use: ^17.3.2
-    rollup-plugin-node-polyfills: ^0.2.1
-    selenium-webdriver: ^4.8.1
-    serve: ^14.0.1
-    snarkjs: "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
-    styled-components: ^5.3.5
-    viem: ^1.15.1
-    vite: ^4.4.9
-    vite-plugin-commonjs: ^0.7.1
-    vite-plugin-ngmi-polyfill: ^0.0.2
-    vite-plugin-node-polyfills: ^0.8.2
-    vite-tsconfig-paths: ^4.2.0
-    wagmi: ^1.3.10
-  languageName: unknown
-  linkType: soft
-
-"@zk-email/zk-regex-circom@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "@zk-email/zk-regex-circom@npm:1.1.0"
+"@zk-email/zk-regex-circom@npm:^1.1.1":
+  version: 1.2.0
+  resolution: "@zk-email/zk-regex-circom@npm:1.2.0"
   dependencies:
     commander: ^11.0.0
     snarkjs: ^0.7.0
-  checksum: 2eaebd33c80eda6b22c40bd7ae0ce667cdd188576b55092eea837cb4270a70598f174090c78b24558ebd66cada5d747dfdb9055db746fd261d2758d0a75a8fb1
+  checksum: 5925dca9c9ae60778cb159a24cc957ea77f50060c60d309f8bf9dfcb69bc56d3767ff9ec182cbb595200fb648619780a7d6b5c2868178bb40ca335a9d5f5560e
   languageName: node
   linkType: hard
 
@@ -2767,6 +2666,13 @@ __metadata:
   version: 3.0.0
   resolution: "aes-js@npm:3.0.0"
   checksum: 251e26d533cd1a915b44896b17d5ed68c24a02484cfdd2e74ec700a309267db96651ea4eb657bf20aac32a3baa61f6e34edf8e2fec2de440a655da9942d334b8
+  languageName: node
+  linkType: hard
+
+"aes-js@npm:4.0.0-beta.5":
+  version: 4.0.0-beta.5
+  resolution: "aes-js@npm:4.0.0-beta.5"
+  checksum: cc2ea969d77df939c32057f7e361b6530aa6cb93cb10617a17a45cd164e6d761002f031ff6330af3e67e58b1f0a3a8fd0b63a720afd591a653b02f649470e15b
   languageName: node
   linkType: hard
 
@@ -4100,44 +4006,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethers@npm:^6.7.1":
-  version: 6.7.1
-  resolution: "ethers@npm:6.7.1"
+"ethers@npm:^6.8.0":
+  version: 6.8.1
+  resolution: "ethers@npm:6.8.1"
   dependencies:
-    "@adraffy/ens-normalize": 1.9.2
-    "@noble/hashes": 1.1.2
-    "@noble/secp256k1": 1.7.1
+    "@adraffy/ens-normalize": 1.10.0
+    "@noble/curves": 1.2.0
+    "@noble/hashes": 1.3.2
     "@types/node": 18.15.13
     aes-js: 4.0.0-beta.5
     tslib: 2.4.0
     ws: 8.5.0
-  checksum: 07833692e3f53b18e28c4cba9f53f3d5ebff8360de02ad57b2584c00c52b88f5b790373f9b9f6b4f6b52ffa2074530a6101192b30c3260f7cdeff929d34bb88b
+  checksum: 78b48d2fd13cf77c7041379595a3155eaf6e4da423999b782e6ff14cc58e452ef8c52f3e2f6995fcd2b34dfdd55eaf5ece6067cd754fe0c72388b12e1768f1b3
   languageName: node
   linkType: hard
 
-"event-stream@npm:=3.3.4":
-  version: 3.3.4
-  resolution: "event-stream@npm:3.3.4"
-  dependencies:
-    duplexer: ~0.1.1
-    from: ~0
-    map-stream: ~0.1.0
-    pause-stream: 0.0.11
-    split: 0.3
-    stream-combiner: ~0.0.4
-    through: ~2.3.1
-  checksum: 80b467820b6daf824d9fb4345d2daf115a056e5c104463f2e98534e92d196a27f2df5ea2aa085624db26f4c45698905499e881d13bc7c01f7a13eac85be72a22
-  languageName: node
-  linkType: hard
-
-"eventemitter3@npm:^4.0.7":
-  version: 4.0.7
-  resolution: "eventemitter3@npm:4.0.7"
-  checksum: 1875311c42fcfe9c707b2712c32664a245629b42bb0a5a84439762dd0fd637fc54d078155ea83c2af9e0323c9ac13687e03cfba79b03af9f40c89b4960099374
-  languageName: node
-  linkType: hard
-
-"events@npm:^3.0.0, events@npm:^3.3.0":
+"events@npm:^3.3.0":
   version: 3.3.0
   resolution: "events@npm:3.3.0"
   checksum: f6f487ad2198aa41d878fa31452f1a3c00958f46e9019286ff4787c84aac329332ab45c9cdc8c445928fc6d7ded294b9e005a7fce9426488518017831b272780
@@ -7707,6 +7591,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tslib@npm:2.4.0":
+  version: 2.4.0
+  resolution: "tslib@npm:2.4.0"
+  checksum: 8c4aa6a3c5a754bf76aefc38026134180c053b7bd2f81338cb5e5ebf96fefa0f417bff221592bf801077f5bf990562f6264fecbc42cd3309b33872cb6fc3b113
+  languageName: node
+  linkType: hard
+
 "tslib@npm:^2.0.1, tslib@npm:^2.1.0":
   version: 2.6.2
   resolution: "tslib@npm:2.6.2"
@@ -8128,6 +8019,21 @@ __metadata:
     utf-8-validate:
       optional: true
   checksum: 3ca0dad26e8cc6515ff392b622a1467430814c463b3368b0258e33696b1d4bed7510bc7030f7b72838b9fdeb8dbd8839cbf808367d6aae2e1d668ce741d4308b
+  languageName: node
+  linkType: hard
+
+"ws@npm:8.5.0":
+  version: 8.5.0
+  resolution: "ws@npm:8.5.0"
+  peerDependencies:
+    bufferutil: ^4.0.1
+    utf-8-validate: ^5.0.2
+  peerDependenciesMeta:
+    bufferutil:
+      optional: true
+    utf-8-validate:
+      optional: true
+  checksum: 76f2f90e40344bf18fd544194e7067812fb1372b2a37865678d8f12afe4b478ff2ebc0c7c0aff82cd5e6b66fc43d889eec0f1865c2365d8f7a66d92da7744a77
   languageName: node
   linkType: hard
 

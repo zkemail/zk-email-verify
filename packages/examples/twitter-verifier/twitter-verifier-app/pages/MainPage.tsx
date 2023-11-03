@@ -8,23 +8,12 @@ import {
   generate_inputs,
   CircuitType,
 } from "../scripts/generate_input";
-<<<<<<<< HEAD:packages/examples/twitter-verifier-example-docs/twitter-verifier-app/pages/MainPage.tsx
-
 import { generateTwitterVerifierCircuitInputs } from "@twitter-verifier/circuits/helpers";
 import atob from "atob";
 
 import { packedNBytesToString, DKIMVerificationResult, verifyDKIMSignature, rawEmailToBuffer,  downloadProofFiles,
   generateProof,
   verifyProof, } from "@zkemail/helpers";
-
-========
-import { rawEmailToBuffer, DKIMVerificationResult, verifyDKIMSignature, downloadProofFiles,
-  generateProof,
-  verifyProof, packedNBytesToString } from "@zk-email/helpers";
-import { generateTwitterVerifierCircuitInputs } from "@twitter-verifier/circuits/helpers";
-import atob from "atob";
-
->>>>>>>> 85239ac2c41cd19a9dbc1b59145849fe2ddcd73f:packages/examples/twitter-verifier/twitter-verifier-app/pages/MainPage.tsx
 import { LabeledTextArea } from "../components/LabeledTextArea";
 import DragAndDropTextBox from "../components/DragAndDropTextBox";
 import { SingleLineInput } from "../components/SingleLineInput";

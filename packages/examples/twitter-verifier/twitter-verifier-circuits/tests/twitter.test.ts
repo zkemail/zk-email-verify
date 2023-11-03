@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:packages/examples/twitter-verifier-example-docs/twitter-verifier-circuits/tests/twitter.test.ts
-import { verifyDKIMSignature } from "@zkemail/helpers";
-========
 import { verifyDKIMSignature } from "@zk-email/helpers";
->>>>>>>> 85239ac2c41cd19a9dbc1b59145849fe2ddcd73f:packages/examples/twitter-verifier/twitter-verifier-circuits/tests/twitter.test.ts
 import { generateTwitterVerifierCircuitInputs } from "../helpers";
 
 const path = require("path");

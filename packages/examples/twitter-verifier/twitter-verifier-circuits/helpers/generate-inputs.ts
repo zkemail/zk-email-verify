@@ -1,11 +1,4 @@
-<<<<<<<< HEAD:packages/examples/twitter-verifier-example-docs/twitter-verifier-circuits/helpers/generate-inputs.ts
 import { bytesToBigInt, fromHex, generateCircuitInputs } from "@zkemail/helpers";
-
-========
-
-import { generateCircuitInputs, bytesToBigInt, fromHex } from "@zk-email/helpers";
->>>>>>>> 85239ac2c41cd19a9dbc1b59145849fe2ddcd73f:packages/examples/twitter-verifier/twitter-verifier-circuits/helpers/generate-inputs.ts
-
 export const STRING_PRESELECTOR = "email was meant for @";
 export const MAX_HEADER_PADDED_BYTES = 1024; // NOTE: this must be the same as the first arg in the email in main args circom
 export const MAX_BODY_PADDED_BYTES = 1536; // NOTE: this must be the same as the arg to sha the remainder number of bytes in the email in main args circom

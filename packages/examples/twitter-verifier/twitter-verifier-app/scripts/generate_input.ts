@@ -12,15 +12,10 @@ import {
   assert,
   mergeUInt8Arrays,
   int8toBytes,
-<<<<<<<< HEAD:packages/examples/twitter-verifier-example-docs/twitter-verifier-app/scripts/generate_input.ts
   int64toBytes, shaHash, partialSha, sha256Pad, CIRCOM_FIELD_MODULUS, MAX_HEADER_PADDED_BYTES, MAX_BODY_PADDED_BYTES, STRING_PRESELECTOR, dkimVerify
 } from "@zkemail/helpers";
 
-// @ts-ignore
-========
-  int64toBytes, CIRCOM_FIELD_MODULUS, MAX_HEADER_PADDED_BYTES, MAX_BODY_PADDED_BYTES, STRING_PRESELECTOR, shaHash, partialSha, sha256Pad, dkimVerify
-} from "@zk-email/helpers";
->>>>>>>> 85239ac2c41cd19a9dbc1b59145849fe2ddcd73f:packages/examples/twitter-verifier/twitter-verifier-app/scripts/generate_input.ts
+
 
 import * as fs from "fs";
 import { pki } from "node-forge";
