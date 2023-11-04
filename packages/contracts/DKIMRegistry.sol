@@ -17,49 +17,10 @@ contract DKIMRegistry is IDKIMRegistry, Ownable {
     event DKIMPublicKeyHashRevoked(bytes32 publicKeyHash);
 
     // Mapping from domain name to DKIM public key hash
-    mapping(string => bytes32[]) public dkimPublicKeyHashes;
+    mapping(string => mapping(bytes32 => bool)) public dkimPublicKeyHashes;
 
     // DKIM public that are revoked (eg: in case of private key compromise)
     mapping(bytes32 => bool) public revokedDKIMPublicKeyHashes;
-
-    constructor() {
-        // Set values for popular domains
-        dkimPublicKeyHashes["gmail.com"] = [
-            bytes32(
-                uint256(
-                    21238126716164910617487233347059218993958564577330259377744533585136010170208
-                )
-            )
-        ];
-        dkimPublicKeyHashes["hotmail.com"] = [
-            bytes32(
-                uint256(
-                    2431254542644577945126644490189743659677343436440304264654087065353925216026
-                )
-            )
-        ];
-        dkimPublicKeyHashes["twitter.com"] = [
-            bytes32(
-                uint256(
-                    5857406240302475676709141738935898448223932090884766940073913110146444539372
-                )
-            )
-        ];
-        dkimPublicKeyHashes["ethereum.org"] = [
-            bytes32(
-                uint256(
-                    1064717399289379939765004128465682276424933518837235377976999291216925329691
-                )
-            )
-        ];
-        dkimPublicKeyHashes["skiff.com"] = [
-            bytes32(
-                uint256(
-                    7901875575997183258695482461141301358756276811120772965768802311294654527542
-                )
-            )
-        ];
-    }
 
     function _stringEq(
         string memory a,
@@ -76,10 +37,8 @@ contract DKIMRegistry is IDKIMRegistry, Ownable {
             return false;
         }
 
-        for (uint256 i = 0; i < dkimPublicKeyHashes[domainName].length; ++i) {
-            if (dkimPublicKeyHashes[domainName][i] == publicKeyHash) {
-                return true;
-            }
+        if (dkimPublicKeyHashes[domainName][publicKeyHash]) {
+            return true;
         }
 
         return false;
@@ -94,7 +53,7 @@ contract DKIMRegistry is IDKIMRegistry, Ownable {
             "cannot set revoked pubkey"
         );
 
-        dkimPublicKeyHashes[domainName].push(publicKeyHash);
+        dkimPublicKeyHashes[domainName][publicKeyHash] = true;
 
         emit DKIMPublicKeyHashRegistered(domainName, publicKeyHash);
     }
