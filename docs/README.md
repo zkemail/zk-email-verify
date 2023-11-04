@@ -4,7 +4,7 @@ ZK Email is an app for you to anonymously verify email signatures yet mask whate
 data you would like. Each email can either be verified to be to/from specific domains
 or subsets of domains, or have some specific text in the body. These can be used for
 web2 interoperability, decentralized anonymous KYC, or interesting on-chain anonymity
-sets. 
+sets.
 
 For a deeper dive, read our full [blog post](https://blog.aayushg.com/posts/zkemail/).
 
@@ -22,7 +22,7 @@ Get started with zkEmail, install our SDKs so that you can build your own applic
 
 
 ### [Usage Guide](./zkEmailDocs/UsageGuide/README.md)
-This section provides a comprehensive guide on how to use the zkEmail packages. It covers everything from generating proof inputs, creating circuits for proofs, to verifying DKIM signatures. 
+This section provides a comprehensive guide on how to use the zkEmail packages. It covers everything from generating proof inputs, creating circuits for proofs, to verifying DKIM signatures.
 
 It is recommended to go through this guide to understand how to effectively use the packages for email verification.
 
@@ -39,8 +39,6 @@ Here you can find example projects that implement our SDKs:
 4. **zkEmail Safe**: Operate Safe multisigs through email verified using ZK proofs [ zkEmail Safe Github](https://github.com/javiersuweijie/zkemail-safe)
 <!-- ### Regex To Circom
 The Regex to Circom section provides a detailed guide on how to convert regular expressions to Circom. This is a crucial step in creating your own ZK circuits. For a step-by-step guide, please refer to the [Regex to Circom README](./regex_to_circom/README.md). -->
-
-
 ## Terminology
 
 
@@ -55,7 +53,7 @@ The Regex to Circom section provides a detailed guide on how to convert regular 
 - **zkey**: Proving key usually on the client side of an application.
 - **witness**: In the context of zkSNARKs, a witness is the set of private inputs to the zkSNARK.
 - **constraints**: Constraints are the conditions that the zkSNARK must satisfy. The proving time increases with additional constraints!
-- **Regex**: Short for regular expression, this term represents sequence of characters that forms a search pattern, commonly used for string matching within text. In the context of zkEmail where it's used to parse email headers and extract relevant information. 
+- **Regex**: Short for regular expression, this term represents sequence of characters that forms a search pattern, commonly used for string matching within text. In the context of zkEmail where it's used to parse email headers and extract relevant information.
 
 
 

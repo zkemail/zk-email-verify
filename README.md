@@ -33,6 +33,21 @@ The `@zk-email/circuits` package offers pre-built circuits for generating proofs
 ### `@zk-email/contracts`
 
 The `@zk-email/contracts` package contains Solidity contracts used for email verification. These contracts can be modified to suit different use cases, providing flexibility in their application. The `DKIMRegistry.sol` contract specifically contains the hash of DKIM keys for public domains. After compiling the circuit, `snarkjs` generates a Solidity file named `verifier.sol`, which allows for on-chain proof verification.
+
+## Filetree Description
+We follow a monorepo architecture where packages are located in the `packages` folder. There are core reusable packages which is for general ZK email verification
+
+```bash
+packages/
+  circuits/ # groth16 zk circuits
+    regexes/ # Generated regexes
+    helpers/ # Common helper functions used to generate inputs for circom 
+    test/ # Circom tests for circuit
+  
+  contracts # Solidity contracts for Email verification
+
+  helpers # Helper files for DKIM verification, input generation, etc.
+```
 ## Contributors 💡
 We will award $50 for every successfully merged PR that resolves any [open issue](https://github.com/zkemail/zk-email-verify/issues). If we forget, please dm us a reminder!
 

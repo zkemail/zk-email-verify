@@ -1,87 +1,49 @@
-# ZK Email Verify
+# Proof of Twitter Example 
+This is an example project that demonstrates how to use the ZK Email Verifier to prove ownership of a Twitter username on-chain.
 
-**We have one audit on this codebase (v2.0.1 on npm includes the fixes) and are working on a second one in Q3 2023. Our usecases and docs are listed at https://prove.email -- we highly highly recommend checking your assumptions and usecases with us over our [developer Telegram group](http://t.me/zkemail) -- there are a number of subtle gotchas that are good to be aware of.**
+## Overview 
+The Twitter Email Verifier is a frontend application that interacts with the ZK Email Verifier. It allows users to generate proofs of Twitter username ownership and verify them.
 
-If you're interested in building a project with zk email or would like to contribute, we are happy to help brainstorm with you on our [developer Telegram group](https://t.me/+SYqeeJ7qI3I4OWQx)! Feel free to also dm @yush_g with questions on Twitter/Telegram. Get up to date on our broad progress on the [higher level org readme](https://github.com/zkemail). While this circom code is complete, it is quite slow client side (see benchmarks below), and we recommend that privacy-critical performance-critical apps use our [recursive halo2 circuits instead](https://github.com/zkemail/halo2-zk-email). We strongly recommend [using our SDK](https://www.npmjs.com/search?q=%40zk-email) instead of forking this repo, as we frequently fix critical bugs.
-
-To understand ZK Email, read [our blog post here](https://blog.aayushg.com/posts/zkemail).
-
-## Bugfix Bounties
-
-We will award $50 for every successfully merged PR that resolves any [open issue](https://github.com/zkemail/zk-email-verify/issues). If we forget, please dm us a reminder!
-
-## MVP Description
-
-See our demos on https://prove.email, including [email wallet](https://emailwallet.org) and [proof of Twitter on-chain](https://zkemail.xyz)! Our organization's plan is in the [Github organization README](https://github.com/zkemail/), along with various project ideas.
+Check out our demo [here](twitter.prove.email)
 
 Note that local proving only works on Chrome/Brave/Arc (or other Chromium-based browsers) due to 1GB download limits on other browsers.
 
-While it is an open source public goods project, we intend to be thorough and deploy our SDK as well as applications built atop it into production. This is an always-evolving work in progress, and we invite folks to contribute, or contact us for interesting projects that can be built on top of the tech! We are especially prioritizing optimizing circuits, making more production level demos, and improved SDK/CLI tooling.
-
-### Credits
-This was originally conceived of in August 2022 by [@yush_g](https://twitter.com/yush_g) and [@sampriti0](https://twitter.com/sampriti0) at [@0xparc](https://twitter.com/0xparc), and has been improved since by several contributors supported by EF PSE including Sora, Saleel, Tyler, Sambhav, Javier, Rasul, Vivek, and more. We are grateful to circomlib, 0xparc, and double blind for their circuits. [DM us](http://t.me/zkemail) if interested in discussing usage, integrations, or building next generation primitives like this! 
-
-### Local Twitter Demo
-
-To run the frontend with existing circuits (there is no backend or server), enable Node 16 (with nvm) and run:
+## Getting Started locally
+1. Ensure you have Node 16 enabled (you can use nvm for this).
+2. Navigate to the twitter-verifier-app directory:
 
 ```bash
 cd packages/twitter-verifier-app
+```
+3. Start the application:
+
+```bash
 yarn start
 ```
 
-If the frontend shows an error on fullProve line, run this and rerun
-
-```bash
-yarn add snarkjs@https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e
+ If the frontend shows an error on the fullProve line, run this command and then restart the application:
 ```
+yarn add snarkjs@https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e
+``````
 
-### Getting email headers
+## Getting email headers
 
 In Outlook, turn on plain text mode. Copy paste the 'full email details' into the textbox on the (only client side!) webpage.
 
-In gmail, download original message then copy paste the contents into the textbox.
+In gmail and yahoo, download original message then copy paste the contents into the textbox.
 
-## Development Instructions
+## Usage
+To use the application, follow the on-screen instructions to generate a proof of Twitter username ownership. You'll need to provide an email from Twitter (such as a password reset email) as part of this process.
 
-This will let you build new zkeys from source. To avoid setup, we recommend using https://zkrepl.dev to compile and iterate on early circuits.
+In your inbox, find the email from Twitter and click the three dot menu, then "Show original" then "Copy to clipboard". If on Outlook, download the original email as .eml and copy it instead.
 
-### Filetree Description
+## Suport
 
-We follow a monorepo architecture where packages are located in the `packages` folder. There are core reusable packages which is for general ZK email verification, and then there are packages for the Twitter verification app.
 
-```bash
-packages/
-  circuits/ # groth16 zk circuits
-    regexes/ # Generated regexes
-    helpers/ # Common helper circom circuits imported in email circuits
-    test/ # Circom tests for circuit
-  
-  contracts # Solidity contracts for Email verification
 
-  helpers # Helper files for DKIM verification, input generation, etc.
 
-  twitter-verifier-circuits/
-    components/ # Circom components for Twitter verification
-    contracts/ # Auto generated verifier contract
-    helpers/ # Helper files for input generation
-    inputs/ # Test inputs for example witness generation for compilation
-    scripts/ # Run snarkjs ceremony to generate zkey with yarn compile
-      *.sh # Scripts to compile the chunked keys on a remote server
-      *.circom # Final circom file that imports from the circuits
-      sample_input.json # Generated by running generate_input.ts on an email file, or by asking Aayush for one
 
-  twitter-verifier-contracts/ # Solidity contracts for Twitter verification
-    src/test  # Foundry test for contracts
-    src/utils # Utils for SVG and others
-
-  twitter-verifier-app/ # React frontend for Twitter verification
-
-  docs/
-  e2e-lambdatest/
-```
-
-### Regex to Circom
+<!-- ### Regex to Circom
 
 See regex_to_circom/README.md for usage instructions.
 
@@ -130,7 +92,7 @@ wget https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_21.ptau
 <!-- Now -> yarn add https://github.com/vb7401/snarkjs/commits/chunk_zkey_gen -->
 
 
-#### Building circuit and generating Zkeys
+<!-- #### Building circuit and generating Zkeys
 
 You can also edit the constant filename at the top of generate_input.ts to import that file instead of the args. You can then use the output of running that file as the input file (you may need to rename it) for both zkey and verifier generation.
 
@@ -174,7 +136,7 @@ and create generate proof using
 Run
 ```bash
 ./7_gen_solidity_verifier.sh
-```
+``` 
 
 The generated `twitter-verifier-circuits/contracts/verifier.sol` can be copied over to `twitter-verifier-contracts/src/Groth16VerifierTwitter.sol`. You can deploy this contract to verify the proof generated using the `zkey` with own entropy.
 
@@ -328,7 +290,6 @@ forge test
 
 To deploy contracts, look at src/contracts/README.md.
 
-## Performance
 
 ### Constraint breakdown
 
@@ -414,6 +375,8 @@ const word_char = '(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|
 let regex = `email was meant for @${word_char}+`;
 ```
 
-To understand these better, use https://cyberzhg.github.io/toolbox/ and use the 3 regex tools for visualization of the min-DFA state.
+To understand these better, use https://cyberzhg.github.io/toolbox/ and use the 3 regex tools for visualization of the min-DFA state. -->
 
 
+### Credits
+This was originally conceived of in August 2022 by [@yush_g](https://twitter.com/yush_g) and [@sampriti0](https://twitter.com/sampriti0) at [@0xparc](https://twitter.com/0xparc), and has been improved since by several contributors supported by EF PSE including Sora, Saleel, Tyler, Sambhav, Javier, Rasul, Vivek, and more. We are grateful to circomlib, 0xparc, and double blind for their circuits. [DM us](http://t.me/zkemail) if interested in discussing usage, integrations, or building next generation primitives like this! 
