@@ -13,36 +13,97 @@ import "./interfaces/IDKIMRegistry.sol";
   Input is DKIM pub key split into 17 chunks of 121 bits. You can use `helpers` package to fetch/split DKIM keys
  */
 contract DKIMRegistry is IDKIMRegistry, Ownable {
-    event DKIMPublicKeyHashSet(string domainName, bytes32 publicKeyHash);
+    event DKIMPublicKeyHashRegistered(string domainName, bytes32 publicKeyHash);
+    event DKIMPublicKeyHashRevoked(bytes32 publicKeyHash);
 
     // Mapping from domain name to DKIM public key hash
-    mapping(string => bytes32) public dkimPublicKeyHashes;
+    mapping(string => bytes32[]) public dkimPublicKeyHashes;
+
+    // DKIM public that are revoked (eg: in case of private key compromise)
+    mapping(bytes32 => bool) public revokedDKIMPublicKeyHashes;
 
     constructor() {
         // Set values for popular domains
-        dkimPublicKeyHashes["gmail.com"] = bytes32(uint256(21238126716164910617487233347059218993958564577330259377744533585136010170208));
-        dkimPublicKeyHashes["hotmail.com"] = bytes32(uint256(2431254542644577945126644490189743659677343436440304264654087065353925216026));
-        dkimPublicKeyHashes["twitter.com"] = bytes32(uint256(5857406240302475676709141738935898448223932090884766940073913110146444539372));
-        dkimPublicKeyHashes["ethereum.org"] = bytes32(uint256(1064717399289379939765004128465682276424933518837235377976999291216925329691));
-        dkimPublicKeyHashes["skiff.com"] = bytes32(uint256(7901875575997183258695482461141301358756276811120772965768802311294654527542));
+        dkimPublicKeyHashes["gmail.com"] = [
+            bytes32(
+                uint256(
+                    21238126716164910617487233347059218993958564577330259377744533585136010170208
+                )
+            )
+        ];
+        dkimPublicKeyHashes["hotmail.com"] = [
+            bytes32(
+                uint256(
+                    2431254542644577945126644490189743659677343436440304264654087065353925216026
+                )
+            )
+        ];
+        dkimPublicKeyHashes["twitter.com"] = [
+            bytes32(
+                uint256(
+                    5857406240302475676709141738935898448223932090884766940073913110146444539372
+                )
+            )
+        ];
+        dkimPublicKeyHashes["ethereum.org"] = [
+            bytes32(
+                uint256(
+                    1064717399289379939765004128465682276424933518837235377976999291216925329691
+                )
+            )
+        ];
+        dkimPublicKeyHashes["skiff.com"] = [
+            bytes32(
+                uint256(
+                    7901875575997183258695482461141301358756276811120772965768802311294654527542
+                )
+            )
+        ];
     }
 
-    function _stringEq(string memory a, string memory b) internal pure returns (bool) {
+    function _stringEq(
+        string memory a,
+        string memory b
+    ) internal pure returns (bool) {
         return keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b));
     }
 
-    function getDKIMPublicKeyHash(
-        string memory domainName
-    ) public view returns (bytes32) {
-        return dkimPublicKeyHashes[domainName];
+    function isDKIMPublicKeyHashValid(
+        string memory domainName,
+        bytes32 publicKeyHash
+    ) public view returns (bool) {
+        if (revokedDKIMPublicKeyHashes[publicKeyHash]) {
+            return false;
+        }
+
+        for (uint256 i = 0; i < dkimPublicKeyHashes[domainName].length; ++i) {
+            if (dkimPublicKeyHashes[domainName][i] == publicKeyHash) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     function setDKIMPublicKeyHash(
         string memory domainName,
         bytes32 publicKeyHash
-    ) public virtual onlyOwner {
-        dkimPublicKeyHashes[domainName] = publicKeyHash;
+    ) public onlyOwner {
+        require(
+            !revokedDKIMPublicKeyHashes[publicKeyHash],
+            "cannot set revoked pubkey"
+        );
 
-        emit DKIMPublicKeyHashSet(domainName, publicKeyHash);
+        dkimPublicKeyHashes[domainName].push(publicKeyHash);
+
+        emit DKIMPublicKeyHashRegistered(domainName, publicKeyHash);
+    }
+
+    function revokeDKIMPublicKeyHash(
+        bytes32 publicKeyHash
+    ) public onlyOwner {
+        revokedDKIMPublicKeyHashes[publicKeyHash] = true;
+
+        emit DKIMPublicKeyHashRevoked(publicKeyHash);
     }
 }
