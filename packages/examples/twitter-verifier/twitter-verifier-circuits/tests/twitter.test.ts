@@ -1,4 +1,4 @@
-import { verifyDKIMSignature } from "@zk-email/helpers/src/dkim";
+import { verifyDKIMSignature } from "@zk-email/helpers";
 import { generateTwitterVerifierCircuitInputs } from "../helpers";
 
 const path = require("path");
@@ -15,7 +15,7 @@ exports.p = Scalar.fromString(
 describe("Twitter email test", function () {
   jest.setTimeout(10 * 60 * 1000); // 10 minutes
 
-  let dkimResult: import("@zk-email/helpers/src/dkim").DKIMVerificationResult;
+  let dkimResult: import("@zkemail/helpers").DKIMVerificationResult;
   let circuit: any;
 
   beforeAll(async () => {

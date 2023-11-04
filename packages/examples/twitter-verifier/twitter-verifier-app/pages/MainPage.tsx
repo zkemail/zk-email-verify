@@ -8,16 +8,12 @@ import {
   generate_inputs,
   CircuitType,
 } from "../scripts/generate_input";
-import { rawEmailToBuffer } from "@zk-email/helpers/src/input-helpers";
-import { DKIMVerificationResult, verifyDKIMSignature } from "@zk-email/helpers/src/dkim";
 import { generateTwitterVerifierCircuitInputs } from "@twitter-verifier/circuits/helpers";
 import atob from "atob";
-import {
-  downloadProofFiles,
+
+import { packedNBytesToString, DKIMVerificationResult, verifyDKIMSignature, rawEmailToBuffer,  downloadProofFiles,
   generateProof,
-  verifyProof,
-} from "@zk-email/helpers/src/zkp";
-import { packedNBytesToString } from "@zk-email/helpers/src/binaryFormat";
+  verifyProof, } from "@zkemail/helpers";
 import { LabeledTextArea } from "../components/LabeledTextArea";
 import DragAndDropTextBox from "../components/DragAndDropTextBox";
 import { SingleLineInput } from "../components/SingleLineInput";
@@ -27,7 +23,7 @@ import { NumberedStep } from "../components/NumberedStep";
 import { TopBanner } from "../components/TopBanner";
 import { useAccount, useContractWrite, usePrepareContractWrite } from "wagmi";
 import { ProgressBar } from "../components/ProgressBar";
-import { abi } from "@zk-email/helpers/src/twitterEmailHandler.abi";
+import { abi } from "@zkemail/helpers/twitterEmailHandler.abi";
 import { isSetIterator } from "util/types";
 
 export const MainPage: React.FC<{}> = (props) => {
