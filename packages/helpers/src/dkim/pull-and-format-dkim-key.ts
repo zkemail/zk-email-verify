@@ -6,16 +6,18 @@ import {
   } from "../binaryFormat";
 import { pki } from "node-forge";
 
-export default async function formatDkimKey(domain: string, selector: string) {
+// Fetch the DKIM public key from DNS and format it for circom
+// Does not output the hash, only outputs it split into 17 parts
+export default async function formatDkimKey(domain: string, selector: string, print: boolean = true) {
   // Construct the DKIM record name
   let dkimRecordName = `${selector}._domainkey.${domain}`;
-  console.log(dkimRecordName);
+  if (print) console.log(dkimRecordName);
   // Lookup the DKIM record in DNS
   let records;
   try {
     records = await dns.promises.resolveTxt(dkimRecordName);
   } catch (err) {
-    console.error(err);
+    if (print) console.error(err);
     return;
   }
 
@@ -39,7 +41,7 @@ export default async function formatDkimKey(domain: string, selector: string) {
     return;
   }
   let formattedKey = matches.join("\n");
-  console.log("Key: ", formattedKey);
+  if (print) console.log("Key: ", formattedKey);
 
   // Convert to PEM format
   let pemKey = `-----BEGIN PUBLIC KEY-----\n${formattedKey}\n-----END PUBLIC KEY-----`;
@@ -49,17 +51,17 @@ export default async function formatDkimKey(domain: string, selector: string) {
 
   // Get the modulus n only
   let n = publicKey.n;
-  console.log("Modulus n:", n.toString(16));
+  if (print) console.log("Modulus n:", n.toString(16));
 
   // Convert binary to BigInt
   let bigIntKey = BigInt(publicKey.n.toString());
-  console.log(bigIntKey);
-  console.log(toCircomBigIntBytes(bigIntKey));
+  if (print) console.log(bigIntKey);
+  if (print) console.log(toCircomBigIntBytes(bigIntKey));
   return toCircomBigIntBytes(bigIntKey);
 }
 
 // formatDkimKey("gmail.com", "20221208");
-formatDkimKey("gmail.com", "20230601");
+// formatDkimKey("gmail.com", "20230601");
 // formatDkimKey("twitter.com", "dkim-201406");
 // formatDkimKey("ethereum.org", "salesforceeth123321");
 // // let pubkey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq8JxVBMLHZRj1WvIMSHApRY3DraE/EiFiR6IMAlDq9GAnrVy0tDQyBND1G8+1fy5RwssQ9DgfNe7rImwxabWfWxJ1LSmo/DzEdOHOJNQiP/nw7MdmGu+R9hEvBeGRQAmn1jkO46KIw/p2lGvmPSe3+AVD+XyaXZ4vJGTZKFUCnoctAVUyHjSDT7KnEsaiND2rVsDvyisJUAH+EyRfmHSBwfJVHAdJ9oD8cn9NjIun/EHLSIwhCxXmLJlaJeNAFtcGeD2aRGbHaS7M6aTFP+qk4f2ucRx31cyCxbu50CDVfU+d4JkIDNBFDiV+MIpaDFXIf11bGoS08oBBQiyPXgX0wIDAQAB";
