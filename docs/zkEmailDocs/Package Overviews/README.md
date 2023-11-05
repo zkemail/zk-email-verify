@@ -14,17 +14,18 @@ The zk-email/circuits package provides pre-built circuits for generating proofs 
 
 Key considerations:
 - the `email-verifier.circom` file is a standard template that can be used for email verification and customized for specific applications
-- Reads the DKIM headers and uses Regex
+- It processes DKIM headers and employs Regex for pattern matching in emails.
+- By default, inputs are kept private unless stated otherwise, while outputs are always made public.
 
 
 
 ## zk-email/contracts
 The @zk-email/contracts package contains Solidity contracts that are used for email verification. These contracts are designed to be modified for each use case, allowing for flexibility in their application.
 
-The `DKIMRegistry.sol` contract contains hash of the DKIM keys for public domains 
+The `DKIMRegistry.sol` contract contains hash of the DKIM keys for public domains
 
 Key considerations:
-- After compiling your circuit, snarkjs will generate a Solidity file named `verifier.sol`. This file allows you to verify your proof on-chain. 
+- After compiling your circuit, snarkjs will generate a Solidity file named `verifier.sol`. This file allows you to verify your proof on-chain.
 
 
 

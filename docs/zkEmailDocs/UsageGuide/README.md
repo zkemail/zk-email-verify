@@ -1,4 +1,6 @@
-# Usage Guide 
+# Usage Guide
+
+For an easy setup, we suggest utilizing [Zkrepl](https://github.com/zkemail/zk-regex), a playground for compiling and testing your circuits in the early stages of development. 
 
 ## Step 1: Generate Circuit inputs
 
@@ -40,7 +42,7 @@ const circuitInputs = generateCircuitInputs({
 
 The rsaSignature, rsaPublicKey, body, bodyHash, and message are all available in the header of an email. To get these, you will need to parse the email header. The other values are optional and have default values, but you can override them if necessary.
 
-## Step 2:  Use the Circuits 
+## Step 2:  Use the Circuits
 Next, use `email-veriifier.circom` from the zk-email/circuits package to create your zk proof to verify the DKIM signature.
 
 
@@ -59,23 +61,20 @@ Here's an example of how you can set up your own circuit:
 include "@zk-email/circuits/email-verifier.circom";
 
 template MyCircuit() {
-    signal input // inputs from your input.ts file 
-    
-    // Witnesses and constraints for regex go here 
-    
-    signal output // output that is public 
+    signal input // inputs from your input.ts file
+
+    // Witnesses and constraints for regex go here
+
+    signal output // output that is public
 
     component emailVerifier {
-        // public inputs are specified here
-    } = MyCircuit();
+ // public inputs are specified here
+         } = MyCircuit();
 }
 ```
 
 ## Step 3: Compile the Circuit
 
-// Neot completely sure on this part for the installations 
-
-To avoid setup, we recommend using  [Zkrepl](https://github.com/zkemail/zk-regex) to compile and iterate on early circuits.
 
 To compile the circuit locally, you can use the `circom` command-line tool. Make sure you have `circom` installed globally by running `npm install -g circom`.  Then, navigate to the directory where your circuit file is located and run the following command:
 
@@ -99,4 +98,35 @@ These commands will generate the proving and verifying keys, as well as the proo
 Once you have the keys and the verifier contract, you can use them to verify the DKIM signature in your application. 
 
 ## Step 4: Verify the Circuit 
+You have the option to validate your circuit either on-chain or off-chain.
+
+### Off-chain Verification
+
+```javascript
+const { proof, publicSignals } = await snarkjs.groth16.fullProve(
+    input,
+    "circuit.wasm",
+    "circuit_final.zkey"
+);
+const vKey = JSON.parse(fs.readFileSync("verification_key.json").toString());
+const res = await snarkjs.groth16.verify(vKey, publicSignals, proof);
+console.log(res); // true if verification is successful
+```
+
+### On-chain Verification
+
+After generating the `verifier.sol` file using `snarkjs`, you can use it to verify your proof on-chain. Here's an example of how you can do this in Solidity:
+
+```javascript
+// Assuming you have a contract instance `verifier` of the Verifier contract
+bool result = verifier.verifyProof(
+    proof.a,
+    proof.b,
+    proof.c,
+    publicSignals
+);
+require(result, "The proof is not valid!");
+```
+
+
 

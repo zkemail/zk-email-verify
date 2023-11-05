@@ -28,17 +28,19 @@ yarn add snarkjs@https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a73463
 
 ## Getting email headers
 
+### Outlook
 In Outlook, turn on plain text mode. Copy paste the 'full email details' into the textbox on the (only client side!) webpage.
 
+### Gmail and Yahoo
 In gmail and yahoo, download original message then copy paste the contents into the textbox.
 
 ## Usage
 To use the application, follow the on-screen instructions to generate a proof of Twitter username ownership. You'll need to provide an email from Twitter (such as a password reset email) as part of this process.
 
-In your inbox, find the email from Twitter and click the three dot menu, then "Show original" then "Copy to clipboard". If on Outlook, download the original email as .eml and copy it instead.
+In your inbox, find the email from Twitter and click the three dot menu, then "Show original" then "Copy to clipboard". If its on Outlook, download the original email as .eml and copy it instead.
 
-## Suport
-
+## Support
+If you encounter any issues while using the Twitter Email Verifier. Feel free to open an issue on our Github repository or message us in our Telegram groupchat 
 
 
 
