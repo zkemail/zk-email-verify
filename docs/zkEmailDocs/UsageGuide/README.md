@@ -168,7 +168,7 @@ snarkjs zkey export solidityverifier multiplier2_0001.zkey verifier.sol
 
 ```
 
-This will generate a `verifier.sol` contract. 
+This will generate a `verifier.sol` contract.
 
 
 
