@@ -8,16 +8,12 @@ import {
   generate_inputs,
   CircuitType,
 } from "../scripts/generate_input";
-import { rawEmailToBuffer } from "@zk-email/helpers/src/input-helpers";
-import { DKIMVerificationResult, verifyDKIMSignature } from "@zk-email/helpers/src/dkim";
+import { rawEmailToBuffer, DKIMVerificationResult, verifyDKIMSignature, downloadProofFiles,
+  generateProof,
+  verifyProof, packedNBytesToString } from "@zk-email/helpers";
 import { generateTwitterVerifierCircuitInputs } from "@twitter-verifier/circuits/helpers";
 import atob from "atob";
-import {
-  downloadProofFiles,
-  generateProof,
-  verifyProof,
-} from "@zk-email/helpers/src/zkp";
-import { packedNBytesToString } from "@zk-email/helpers/src/binaryFormat";
+
 import { LabeledTextArea } from "../components/LabeledTextArea";
 import DragAndDropTextBox from "../components/DragAndDropTextBox";
 import { SingleLineInput } from "../components/SingleLineInput";

@@ -1,4 +1,4 @@
-import { verifyDKIMSignature } from "@zk-email/helpers/src/dkim";
+import { verifyDKIMSignature } from "@zk-email/helpers";
 import { generateTwitterVerifierCircuitInputs } from "../helpers";
 
 const path = require("path");
