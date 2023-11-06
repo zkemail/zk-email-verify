@@ -1,11 +1,12 @@
 {
   "name": "@zk-email/contracts",
-  "version": "4.0.2",
+  "version": "4.1.0",
   "scripts": {
     "build": "forge build",
     "publish": "yarn npm publish --access=public"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.9.3"
+    "@openzeppelin/contracts": "^4.9.3",
+    "dotenv": "^16.3.1"
   }
 }
