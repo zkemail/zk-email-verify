@@ -20,6 +20,11 @@ contract TwitterUtilsTest is Test {
     function setUp() public {
         proofVerifier = new Verifier();
         dkimRegistry = new DKIMRegistry();
+
+        dkimRegistry.setDKIMPublicKeyHash(
+            "twitter.com",
+            bytes32(uint256(5857406240302475676709141738935898448223932090884766940073913110146444539372))
+        );
         testVerifier = new VerifiedTwitterEmail(proofVerifier, dkimRegistry);
     }
 
@@ -36,7 +41,11 @@ contract TwitterUtilsTest is Test {
 
         // This is 0x797573685f670000000000000000000000000000000000000000000000000000
         // packSize = 7
-        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 15, packSize);
+        string memory byteList = StringUtils.convertPackedBytesToString(
+            packedBytes,
+            15,
+            packSize
+        );
         // This is 0x797573685f67, since strings are internally arbitrary length arrays
         string memory intended_value = "yush_g";
 
@@ -56,7 +65,11 @@ contract TwitterUtilsTest is Test {
         packedBytes[0] = 28557011619965818;
         packedBytes[1] = 1818845549;
         packedBytes[2] = 0;
-        string memory byteList = StringUtils.convertPackedBytesToString(packedBytes, 15, packSize);
+        string memory byteList = StringUtils.convertPackedBytesToString(
+            packedBytes,
+            15,
+            packSize
+        );
         string memory intended_value = "zktestemail";
         assertEq(bytes32(bytes(byteList)), bytes32(bytes(intended_value)));
         console.logString(byteList);
@@ -65,7 +78,9 @@ contract TwitterUtilsTest is Test {
     // Should pass (note that there are extra 0 bytes, which are filtered out but should be noted in audits)
     function testVerifyTestEmail() public {
         uint256[5] memory publicSignals;
-        publicSignals[0] = 5857406240302475676709141738935898448223932090884766940073913110146444539372;
+        publicSignals[
+            0
+        ] = 5857406240302475676709141738935898448223932090884766940073913110146444539372;
         publicSignals[1] = 28557011619965818;
         publicSignals[2] = 1818845549;
         publicSignals[3] = 0;
@@ -103,7 +118,12 @@ contract TwitterUtilsTest is Test {
         ];
 
         // Test proof verification
-        bool verified = proofVerifier.verifyProof(proof_a, proof_b, proof_c, publicSignals);
+        bool verified = proofVerifier.verifyProof(
+            proof_a,
+            proof_b,
+            proof_c,
+            publicSignals
+        );
         assertEq(verified, true);
 
         // Test mint after spoofing msg.sender
@@ -116,7 +136,9 @@ contract TwitterUtilsTest is Test {
     // Should pass (note that there are extra 0 bytes, which are filtered out but should be noted in audits)
     function testVerifyYushEmail() public {
         uint256[5] memory publicSignals;
-        publicSignals[0] = 5857406240302475676709141738935898448223932090884766940073913110146444539372; // DKIM hash
+        publicSignals[
+            0
+        ] = 5857406240302475676709141738935898448223932090884766940073913110146444539372; // DKIM hash
         publicSignals[1] = 28557011619965818;
         publicSignals[2] = 1818845549;
         publicSignals[3] = 0;
@@ -155,7 +177,12 @@ contract TwitterUtilsTest is Test {
         ];
 
         // Test proof verification
-        bool verified = proofVerifier.verifyProof(proof_a, proof_b, proof_c, publicSignals);
+        bool verified = proofVerifier.verifyProof(
+            proof_a,
+            proof_b,
+            proof_c,
+            publicSignals
+        );
         assertEq(verified, true);
 
         // Test mint after spoofing msg.sender
@@ -180,6 +207,8 @@ contract TwitterUtilsTest is Test {
         }
         console.log(chainId);
         // Local chain, xdai, goerli, mainnet
-        assert(chainId == 31337 || chainId == 100 || chainId == 5 || chainId == 1);
+        assert(
+            chainId == 31337 || chainId == 100 || chainId == 5 || chainId == 1
+        );
     }
 }
