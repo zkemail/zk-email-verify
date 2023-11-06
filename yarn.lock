@@ -7707,6 +7707,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dotenv@npm:^16.3.1":
+  version: 16.3.1
+  resolution: "dotenv@npm:16.3.1"
+  checksum: 15d75e7279018f4bafd0ee9706593dd14455ddb71b3bcba9c52574460b7ccaf67d5cf8b2c08a5af1a9da6db36c956a04a1192b101ee102a3e0cf8817bbcf3dfd
+  languageName: node
+  linkType: hard
+
 "ds-test@https://github.com/dapphub/ds-test":
   version: 1.0.0
   resolution: "ds-test@https://github.com/dapphub/ds-test.git#commit=e282159d5170298eb2455a6c05280ab5a73a4ef0"
@@ -14272,6 +14279,7 @@ __metadata:
     "@babel/preset-typescript": ^7.21.5
     babel-jest: ^29.5.0
     babel-preset-jest: ^29.5.0
+    dotenv: ^16.3.1
     husky: ^8.0.3
     jest: ^29.5.0
     ts-jest: ^29.1.0

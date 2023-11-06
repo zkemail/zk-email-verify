@@ -112,7 +112,7 @@ async function getSelectors(filename: string) {
   console.log("Domains with at least one matched selector: ");
   console.log(Array.from(matchedDomains));
   fs.writeFileSync('domain_results.txt', JSON.stringify(Array.from(matchedDomains), null, 2));
-  fs.writeFileSync('selector_results.txt', JSON.stringify(matchedSelectors  , null, 2));
+  fs.writeFileSync('selector_results.txt', JSON.stringify(matchedSelectors, null, 2));
 }
 
 let domain = process.argv[2] || 'gmail.com';
