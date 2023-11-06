@@ -56,8 +56,8 @@ We want to say thanks to these amazing contributors!!
 ## Projects 🛠
 Take a look at all of the cool innovative projects that are building on top of Zk-Email!
 
-- Zkp2p
-- Zk Email Safe 
+- [Zkp2p](https://zkp2p.xyz/)
+- [Zk Email Safe](https://ethglobal.com/showcase/zkemail-safe-z8dps)
 
 ## FAQ/Possible Errors
 ### Can you provide an example header for me to understand what exactly is signed?

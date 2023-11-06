@@ -34,10 +34,17 @@ In Outlook, turn on plain text mode. Copy paste the 'full email details' into th
 ### Gmail and Yahoo
 In gmail and yahoo, download original message then copy paste the contents into the textbox.
 
-## Usage
-To use the application, follow the on-screen instructions to generate a proof of Twitter username ownership. You'll need to provide an email from Twitter (such as a password reset email) as part of this process.
+## Registering your email identity
+If you wish to generate a ZK proof of Twitter badge, you must do these:
 
-In your inbox, find the email from Twitter and click the three dot menu, then "Show original" then "Copy to clipboard". If its on Outlook, download the original email as .eml and copy it instead.
+Send yourself a password reset email from Twitter in incognito.
+In your inbox, find the email from Twitter and download headers (three dots, then download message).
+Copy paste the entire contents of the file into the box below. We admit it is an unfortunate flow, but we are still searching for a good Twitter email that anyone can induce that cannot be injected.
+Paste in your sending Ethereum address
+Click "Generate Proof"
+Note that it is completely client side and open source, and you are not trusting us with any private information.
+
+
 
 ## Support
 If you encounter any issues while using the Twitter Email Verifier. Feel free to open an issue on our Github repository or message us in our Telegram groupchat 
