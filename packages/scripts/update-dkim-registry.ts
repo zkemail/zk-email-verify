@@ -53,7 +53,7 @@ async function getPublicKeyForDomainAndSelector(
   let dkimRecord = records[0].join("");
   let match = dkimRecord.match(/p=([^;]+)/);
   if (!match) {
-    console.error("No public key found in DKIM record");
+    console.error(`No public key found in DKIM record for ${domain}`);
     return;
   }
 
@@ -129,6 +129,8 @@ async function getDKIMPublicKeysForDomains(filename: string) {
     "20230601",
     "20221208",
     "20210112",
+    "dkim-201406",
+    "1a1hai",
     "v1",
     "v2",
     "v3",
@@ -178,7 +180,9 @@ async function getDKIMPublicKeysForDomains(filename: string) {
     results.push(...(await Promise.all(promises)));
   }
 
-  const matchedSelectors: { [key: string]: string[] } = {};
+  const matchedSelectors: {
+    [key: string]: { publicKey: string; selector: string }[];
+  } = {};
 
   for (let result of results) {
     if (result.match && result.publicKey) {
@@ -188,8 +192,13 @@ async function getDKIMPublicKeysForDomains(filename: string) {
 
       const publicKey = result.publicKey.toString();
 
-      if (!matchedSelectors[result.domain].includes(publicKey)) {
-        matchedSelectors[result.domain].push(publicKey);
+      if (
+        !matchedSelectors[result.domain].find((d) => d.publicKey === publicKey)
+      ) {
+        matchedSelectors[result.domain].push({
+          selector: result.selector,
+          publicKey,
+        });
       }
     }
   }
@@ -221,7 +230,7 @@ async function updateDKIMRegistry(
   // Can be used at https://zkrepl.dev/?gist=43ce7dce2466c63812f6efec5b13aa73 to get pubkey hash
   const chunkedDKIMPubKeyMap: { [key: string]: string[][] } = {};
   for (let domain of Object.keys(domainPubKeyMap)) {
-    for (let publicKey of domainPubKeyMap[domain]) {
+    for (let { publicKey } of domainPubKeyMap[domain]) {
       const pubkeyChunked = bigIntToChunkedBytes(BigInt(publicKey), 121, 17);
 
       if (!chunkedDKIMPubKeyMap[domain]) {
@@ -241,7 +250,7 @@ async function updateDKIMRegistry(
   const domainHashedPubKeyMap: { [key: string]: string[] } = {};
   const poseidon = await buildPoseidon();
   for (let domain of Object.keys(domainPubKeyMap)) {
-    for (let publicKey of domainPubKeyMap[domain]) {
+    for (let { publicKey } of domainPubKeyMap[domain]) {
       const pubkeyChunked = bigIntToChunkedBytes(BigInt(publicKey), 242, 9);
       const hash = poseidon(pubkeyChunked);
 

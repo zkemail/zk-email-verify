@@ -220,3 +220,5 @@ me.com
 ethereum.org
 wharton.upenn.edu
 gmail.com
+twitter.com
+icloud.com
