@@ -12,6 +12,7 @@
   "dependencies": {
     "circomlibjs": "^0.1.7",
     "dotenv": "^16.3.1",
+    "ethers": "^6.8.1",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
   },

@@ -20,7 +20,10 @@ async function updateContract(domain: string, pubkeyHashes: string[]) {
   const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
   const contract = new ethers.Contract(process.env.DKIM_REGISTRY, abi, wallet);
 
-  const hashes = pubkeyHashes.map((hash) => BigInt(hash));
+  const hashes = pubkeyHashes.map((hash) =>
+    ethers.hexlify(hash)
+  );
+
   const tx = await contract.setDKIMPublicKeyHashes(domain, hashes);
   await tx.wait();
 
@@ -212,18 +215,18 @@ async function updateDKIMRegistry(
   }
 ) {
   const domainsFile = "./domains.txt";
-  const domainPubKeyMap = await getDKIMPublicKeysForDomains(domainsFile);
+  // const domainPubKeyMap = await getDKIMPublicKeysForDomains(domainsFile);
 
-  if (writeToFile) {
-    fs.writeFileSync(
-      "out/domain-dkim-keys.json",
-      JSON.stringify(domainPubKeyMap, null, 2)
-    );
-  }
+  // if (writeToFile) {
+  //   fs.writeFileSync(
+  //     "out/domain-dkim-keys.json",
+  //     JSON.stringify(domainPubKeyMap, null, 2)
+  //   );
+  // }
 
-  // const domainPubKeyMap = JSON.parse(
-  //   fs.readFileSync("out/domain-dkim-keys.json").toString()
-  // );
+  const domainPubKeyMap = JSON.parse(
+    fs.readFileSync("out/domain-dkim-keys.json").toString()
+  );
 
   // Saving pubkeys into chunks of 121 * 17
   // This is what is used in EmailVerifier.cicrom
