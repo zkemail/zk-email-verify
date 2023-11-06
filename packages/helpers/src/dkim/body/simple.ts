@@ -1,6 +1,4 @@
-'use strict';
-
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 
 /**
  * Class for calculating body hash of an email message body stream
@@ -8,13 +6,20 @@ import crypto from 'crypto';
  *
  * @class
  */
-class SimpleHash {
+export class SimpleHash {
+    byteLength: number;
+    bodyHashedBytes: number;
+    private remainder: Buffer[];
+    private bodyHash: crypto.Hash;
+    private maxBodyLength: number;
+    private fullBody: Buffer;
+    private lastNewline: boolean;
     /**
      * @param {String} [algorithm] Hashing algo, either "sha1" or "sha256"
      * @param {Number} [maxBodyLength] Allowed body length count, the value from the l= parameter
      */
-    constructor(algorithm, maxBodyLength) {
-        algorithm = (algorithm || 'sha256').split('-').pop();
+    constructor(algorithm: string, maxBodyLength: number) {
+        algorithm = algorithm?.split('-')?.pop() || 'sha256';
         this.bodyHash = crypto.createHash(algorithm);
 
         this.remainder = [];
@@ -28,7 +33,7 @@ class SimpleHash {
         this.fullBody = Buffer.alloc(0);
     }
 
-    _updateBodyHash(chunk) {
+    private updateBodyHash(chunk: Buffer) {
         // the following is needed for l= option
         if (
             typeof this.maxBodyLength === 'number' &&
@@ -41,7 +46,7 @@ class SimpleHash {
                 return;
             }
             // only use allowed size of bytes
-            chunk = chunk.slice(0, this.maxBodyLength - this.bodyHashedBytes);
+            chunk = chunk.subarray(0, this.maxBodyLength - this.bodyHashedBytes);
         }
 
         this.bodyHashedBytes += chunk.length;
@@ -51,7 +56,7 @@ class SimpleHash {
         //process.stdout.write(chunk);
     }
 
-    update(chunk) {
+    update(chunk: Buffer) {
         if (this.remainder.length) {
             // see if we can release the last remainder
             for (let i = 0; i < chunk.length; i++) {
@@ -59,7 +64,7 @@ class SimpleHash {
                 if (c !== 0x0a && c !== 0x0d) {
                     // found non-line terminator byte, can release previous chunk
                     for (let remainderChunk of this.remainder) {
-                        this._updateBodyHash(remainderChunk);
+                        this.updateBodyHash(remainderChunk);
                     }
                     this.remainder = [];
                 }
@@ -67,7 +72,7 @@ class SimpleHash {
         }
 
         // find line terminators from the end of chunk
-        let matchStart = false;
+        let matchStart: boolean | number = false;
         for (let i = chunk.length - 1; i >= 0; i--) {
             let c = chunk[i];
             if (c === 0x0a || c === 0x0d) {
@@ -83,22 +88,20 @@ class SimpleHash {
             this.remainder.push(chunk);
             return;
         } else if (matchStart !== false) {
-            this.remainder.push(chunk.slice(matchStart));
-            chunk = chunk.slice(0, matchStart);
+            this.remainder.push(chunk.subarray(matchStart));
+            chunk = chunk.subarray(0, matchStart);
         }
 
-        this._updateBodyHash(chunk);
+        this.updateBodyHash(chunk);
         this.lastNewline = chunk[chunk.length - 1] === 0x0a;
     }
 
-    digest(encoding) {
+    digest(encoding: crypto.BinaryToTextEncoding) {
         if (!this.lastNewline || !this.bodyHashedBytes) {
             // emit empty line buffer to keep the stream flowing
-            this._updateBodyHash(Buffer.from('\r\n'));
+            this.updateBodyHash(Buffer.from('\r\n'));
         }
 
         return this.bodyHash.digest(encoding);
     }
 }
-
-export { SimpleHash };
