@@ -3706,6 +3706,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/circomlibjs@npm:^0.1.5":
+  version: 0.1.5
+  resolution: "@types/circomlibjs@npm:0.1.5"
+  checksum: 5f9ad10f2b3047f31c915a814984a1a531fd02595d085b9046f66b4526123069b199e8e69c60abdf6ec4b50f509aba902567d5dc545210acd3a322df31d8dcfb
+  languageName: node
+  linkType: hard
+
 "@types/connect@npm:^3.4.33":
   version: 3.4.35
   resolution: "@types/connect@npm:3.4.35"
@@ -4716,6 +4723,7 @@ __metadata:
   resolution: "@zk-email/contracts@workspace:packages/contracts"
   dependencies:
     "@openzeppelin/contracts": ^4.9.3
+    dotenv: ^16.3.1
   languageName: unknown
   linkType: soft
 
@@ -4754,6 +4762,18 @@ __metadata:
     pako: ^2.1.0
     psl: ^1.9.0
     snarkjs: "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
+  languageName: unknown
+  linkType: soft
+
+"@zk-email/scripts@workspace:packages/scripts":
+  version: 0.0.0-use.local
+  resolution: "@zk-email/scripts@workspace:packages/scripts"
+  dependencies:
+    "@types/circomlibjs": ^0.1.5
+    circomlibjs: ^0.1.7
+    dotenv: ^16.3.1
+    ts-node: ^10.9.1
+    typescript: ^5.2.2
   languageName: unknown
   linkType: soft
 
