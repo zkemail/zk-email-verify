@@ -8,6 +8,8 @@ const network = 'goerli'; // or whatever network you're using
 const alchemyApiKey = process.env.ALCHEMY_GOERLI_KEY;
 const infuraApiKey = process.env.INFURA_KEY;
 const localSecretKey = process.env.PRIVATE_KEY || '0';
+const mailserver_address = "0x638E55F942cBD6f8cb715e9C6a9d747c6F852196";
+
 const default_abi = [{
     "inputs": [
       {
@@ -38,12 +40,13 @@ async function updateMailserverKeys(domain: string, selector: string, contract_a
   const wallet = new ethers.Wallet(localSecretKey, provider);
   const contract = new ethers.Contract(contract_address, abi, wallet);
 
-  const publicKeyParts = await formatDkimKey(domain, selector);
+  const publicKeyParts = await formatDkimKey(domain, selector, false);
 
   if (!publicKeyParts) {
       console.log('No public key found');
       return;
   }
+
   if (parallel) {
     let nonce = await provider.getTransactionCount(wallet.address);
     const txs = publicKeyParts.map(async (part, i) => {
@@ -63,7 +66,7 @@ async function updateMailserverKeys(domain: string, selector: string, contract_a
   }
 }
 
-async function testSelector(domain: string, selector: string) {
+async function  testSelector(domain: string, selector: string) {
   try {
     const publicKeyParts = await formatDkimKey(domain, selector, false);
     if (publicKeyParts) {
@@ -80,9 +83,10 @@ async function testSelector(domain: string, selector: string) {
 
 // Filename is a file where each line is a domain
 // This searches for default selectors like "google" or "default"
-async function getSelectors(filename: string) {
+async function getSelectors(filename: string, update_contract = false) {
   const fs = require('fs');
-  const selectors = ['google', 'default', 'mail', 'smtpapi', 'dkim', 'v1', 'v2', 'v3', 'k1', 'k2', 'k3', 'hs1', 'hs2', 's1', 's2', 's3', '200608', 'sig1', 'sig2', 'sig3', 'selector', 'selector1', 'selector2', '20230601', '20221208', '20210112', 'mindbox', 'bk', 'sm1', 'sm2', 'gmail', '10dkim1', '11dkim1', '12dkim1', 'memdkim', 'm1', 'mx', 'sel1', 'bk', 'scph1220', 'ml', 'pps1', 'scph0819', 'skiff1', 's1024', 'selector1'];
+  // const selectors = ['google']
+  const selectors = ['google', 'default', 'mail', 'smtpapi', 'dkim', '200608', '20230601', '20221208', '20210112', 'v1', 'v2', 'v3', 'k1', 'k2', 'k3', 'hs1', 'hs2', 's1', 's2', 's3', 'sig1', 'sig2', 'sig3', 'selector', 'selector1', 'selector2', 'mindbox', 'bk', 'sm1', 'sm2', 'gmail', '10dkim1', '11dkim1', '12dkim1', 'memdkim', 'm1', 'mx', 'sel1', 'bk', 'scph1220', 'ml', 'pps1', 'scph0819', 'skiff1', 's1024', 'selector1'];
 
   const data = fs.readFileSync(filename, 'utf8');
   const domains = data.split('\n');
@@ -111,15 +115,26 @@ async function getSelectors(filename: string) {
   }
   console.log("Domains with at least one matched selector: ");
   console.log(Array.from(matchedDomains));
+
+  // Update mailserver contract with found keys
+  if (update_contract) {
+    for (let domain of Object.keys(matchedSelectors)) {
+      console.log(`Domain: ${domain}, Selectors: ${matchedSelectors[domain]}`);
+      for (let selector of matchedSelectors[domain]) {
+        await updateMailserverKeys(domain, selector, mailserver_address, default_abi, true);
+      }
+    }
+  }
+
   fs.writeFileSync('domain_results.txt', JSON.stringify(Array.from(matchedDomains), null, 2));
-  fs.writeFileSync('selector_results.txt', JSON.stringify(matchedSelectors  , null, 2));
+  fs.writeFileSync('selector_results.txt', JSON.stringify(matchedSelectors, null, 2));
 }
 
 let domain = process.argv[2] || 'gmail.com';
 let selector = process.argv[3] || '20230601';
 domain = 'protonmail.com';
 selector = 'protonmail3';
-domain = 'pm.me';
-selector = 'protonmail3';
-// updateMailserverKeys(domain, selector, "0xbfc2f7c49f040403eef1dbe8ad089fee87edbf57", default_abi);
-getSelectors('src/dkim/domains.txt');
+// domain = 'pm.me';
+// selector = 'protonmail3';
+// updateMailserverKeys(domain, selector, mailserver_address, default_abi);
+getSelectors('src/dkim/domains.txt', true);
