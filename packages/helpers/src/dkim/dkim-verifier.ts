@@ -1,4 +1,4 @@
-var isNode = false;    
+var isNode = false;
 if (typeof process === 'object') {
   if (typeof process.versions === 'object') {
     if (typeof process.versions.node !== 'undefined') {
@@ -13,10 +13,22 @@ import { MessageParser } from "./message-parser";
 import { dkimBody } from "./body";
 import { generateCanonicalizedHeader } from "./header";
 import addressparser from "addressparser";
-import crypto from "crypto";
+import * as crypto from "crypto";
+import { ParseDkimHeaders, ParsedHeaders } from "dkim";
 
-class DkimVerifier extends MessageParser {
-  constructor(options) {
+export class DkimVerifier extends MessageParser {
+  envelopeFrom: string | boolean;
+  headerFrom: string[];
+  results: { [key: string]: any }[];
+  private options: Record<string, any>;
+  private resolver: (...args: [name: string, type: string]) => Promise<any>;
+  private minBitLength: number;
+  private signatureHeaders: ParseDkimHeaders[] & { [key: string]: any }[];
+  private bodyHashes: Map<string, any>;
+  private arc: { chain: false };
+  private seal: { bodyHash: string; };
+  private sealBodyHashKey: string = '';
+  constructor(options: Record<string, any>) {
     super();
 
     this.options = options || {};
@@ -25,7 +37,7 @@ class DkimVerifier extends MessageParser {
 
     this.results = [];
 
-    this.signatureHeaders = [];
+    this.signatureHeaders = [] as any;
     this.bodyHashes = new Map();
 
     this.headerFrom = [];
@@ -42,29 +54,29 @@ class DkimVerifier extends MessageParser {
       let bodyCanon = "relaxed";
       let hashAlgo = "sha256";
       this.sealBodyHashKey = `${bodyCanon}:${hashAlgo}:`;
-      this.bodyHashes.set(this.sealBodyHashKey, dkimBody(bodyCanon, hashAlgo, false));
+      this.bodyHashes.set(this.sealBodyHashKey, dkimBody(bodyCanon, hashAlgo, 0));
     }
   }
 
-  async messageHeaders(headers) {
+  async messageHeaders(headers: ParsedHeaders) {
     this.headers = headers;
 
     this.signatureHeaders = headers.parsed
       .filter((h) => h.key === "dkim-signature")
       .map((h) => {
-        const value = parseDkimHeaders(h.line);
+        const value: ParseDkimHeaders & { [key: string]: any } = parseDkimHeaders(h.line);
         value.type = "DKIM";
         return value;
       });
 
     let fromHeaders = headers?.parsed?.filter((h) => h.key === "from");
-    for (let fromHeader of fromHeaders) {
-      fromHeader = fromHeader.line.toString();
-      let splitterPos = fromHeader.indexOf(":");
+    for (const fromHeader of fromHeaders) {
+      let fromHeaderString = fromHeader.line.toString();
+      let splitterPos = fromHeaderString.indexOf(":");
       if (splitterPos >= 0) {
-        fromHeader = fromHeader.substr(splitterPos + 1);
+        fromHeaderString = fromHeaderString.substr(splitterPos + 1);
       }
-      let from = addressparser(fromHeader.trim());
+      let from = addressparser(fromHeaderString.trim());
       for (let addr of from) {
         if (addr && addr.address) {
           this.headerFrom.push(addr.address);
@@ -78,12 +90,12 @@ class DkimVerifier extends MessageParser {
     } else {
       let returnPathHeader = headers.parsed.filter((h) => h.key === "return-path").pop();
       if (returnPathHeader) {
-        returnPathHeader = returnPathHeader.line.toString();
-        let splitterPos = returnPathHeader.indexOf(":");
+        let returnPathHeaderString = returnPathHeader.line.toString();
+        let splitterPos = returnPathHeaderString.indexOf(":");
         if (splitterPos >= 0) {
-          returnPathHeader = returnPathHeader.substr(splitterPos + 1);
+          returnPathHeaderString = returnPathHeaderString.substr(splitterPos + 1);
         }
-        let returnPath = addressparser(returnPathHeader.trim());
+        let returnPath = addressparser(returnPathHeaderString.trim());
         this.envelopeFrom = returnPath.length && returnPath[0].address ? returnPath[0].address : false;
       }
     }
@@ -127,7 +139,7 @@ class DkimVerifier extends MessageParser {
     }
   }
 
-  async nextChunk(chunk) {
+  async nextChunk(chunk: Buffer) {
     for (let bodyHash of this.bodyHashes.values()) {
       bodyHash.update(chunk);
     }
@@ -150,10 +162,10 @@ class DkimVerifier extends MessageParser {
           continue;
         }
 
-        let signingHeaderLines = getSigningHeaderLines(this.headers.parsed, signatureHeader.parsed?.h?.value, true);
+        let signingHeaderLines = getSigningHeaderLines((this.headers as { parsed: { key: string | null; casedKey: string | undefined; line: Buffer; }[]; original: Buffer; }).parsed, signatureHeader.parsed?.h?.value, true);
 
-        let { canonicalizedHeader } = generateCanonicalizedHeader(signatureHeader.type, signingHeaderLines, {
-          signatureHeaderLine: signatureHeader.original,
+        let { canonicalizedHeader } = generateCanonicalizedHeader(signatureHeader.type, signingHeaderLines as any, {
+          signatureHeaderLine: signatureHeader.original as string,
           canonicalization: signatureHeader.canonicalization,
           instance: ["ARC", "AS"].includes(signatureHeader.type) ? signatureHeader.parsed?.i?.value : false,
         });
@@ -164,7 +176,7 @@ class DkimVerifier extends MessageParser {
         };
 
         let publicKey, rr, modulusLength;
-        let status = {
+        let status: { [key: string]: any } = {
           result: "neutral",
           comment: false,
           // ptype properties
@@ -181,7 +193,7 @@ class DkimVerifier extends MessageParser {
         };
 
         if (signatureHeader.type === "DKIM" && this.headerFrom?.length) {
-          status.aligned = this.headerFrom?.length ? getAlignment(this.headerFrom[0].split("@").pop(), [signatureHeader.signingDomain]) : false;
+          status.aligned = this.headerFrom?.length ? getAlignment(this.headerFrom[0] ?? ''.split("@")?.pop(), [signatureHeader.signingDomain]) : false;
         }
 
         let bodyHashObj = this.bodyHashes.get(signatureHeader.bodyHashKey);
@@ -216,14 +228,14 @@ class DkimVerifier extends MessageParser {
               status.signature_value = signatureHeader.parsed?.b?.value;
               status.result = ver_result ? "pass" : "fail";
 
-              if (status === "fail") {
+              if (status?.result === "fail") {
                 status.comment = "bad signature";
               }
-            } catch (err) {
-              status.result = "neutral";
+            } catch (err: any) {
               status.comment = err.message;
+              status.result = "neutral";
             }
-          } catch (err) {
+          } catch (err: any) {
             if (err.rr) {
               rr = err.rr;
             }
@@ -272,7 +284,7 @@ class DkimVerifier extends MessageParser {
           status.comment = `invalid body length ${signatureHeader.bodyHashedBytes}`;
         }
 
-        let result = {
+        let result: { [key: string]: any } = {
           signingDomain: signatureHeader.signingDomain,
           selector: signatureHeader.selector,
           signature: signatureHeader.parsed?.b?.value,
@@ -339,5 +351,3 @@ class DkimVerifier extends MessageParser {
     }
   }
 }
-
-export { DkimVerifier };
