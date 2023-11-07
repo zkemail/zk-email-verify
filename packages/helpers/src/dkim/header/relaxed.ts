@@ -1,9 +1,8 @@
-'use strict';
-
+import { Options, SignatureType, SigningHeaderLines } from 'dkim';
 import { formatSignatureHeaderLine, formatRelaxedLine } from '../tools';
 
 // generate headers for signing
-const relaxedHeaders = (type, signingHeaderLines, options) => {
+export const relaxedHeaders = (type: SignatureType, signingHeaderLines: SigningHeaderLines, options: Options) => {
     let { signatureHeaderLine, signingDomain, selector, algorithm, canonicalization, bodyHash, signTime, signature, instance, bodyHashedBytes } = options || {};
     let chunks = [];
 
@@ -11,7 +10,7 @@ const relaxedHeaders = (type, signingHeaderLines, options) => {
         chunks.push(formatRelaxedLine(signedHeaderLine.line, '\r\n'));
     }
 
-    let opts = false;
+    let opts: boolean | Record<string, unknown> = false;
 
     if (!signatureHeaderLine) {
         opts = {
@@ -52,7 +51,7 @@ const relaxedHeaders = (type, signingHeaderLines, options) => {
                     b: signature || 'a'.repeat(73)
                 },
                 opts
-            ),
+            ) as Record<string, string | boolean>,
             true
         );
     }
@@ -69,5 +68,3 @@ const relaxedHeaders = (type, signingHeaderLines, options) => {
 
     return { canonicalizedHeader: Buffer.concat(chunks), signatureHeaderLine, dkimHeaderOpts: opts };
 };
-
-export { relaxedHeaders };
