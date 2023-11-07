@@ -215,18 +215,21 @@ async function updateDKIMRegistry(
   }
 ) {
   const domainsFile = "./domains.txt";
-  // const domainPubKeyMap = await getDKIMPublicKeysForDomains(domainsFile);
+  const domainPubKeyMap = await getDKIMPublicKeysForDomains(domainsFile);
 
-  // if (writeToFile) {
-  //   fs.writeFileSync(
-  //     "out/domain-dkim-keys.json",
-  //     JSON.stringify(domainPubKeyMap, null, 2)
-  //   );
-  // }
+  if (writeToFile) {
+    if (!fs.existsSync("out")) {
+      fs.mkdirSync("out");
+    }
+    fs.writeFileSync(
+      "out/domain-dkim-keys.json",
+      JSON.stringify(domainPubKeyMap, null, 2)
+    );
+  }
 
-  const domainPubKeyMap = JSON.parse(
-    fs.readFileSync("out/domain-dkim-keys.json").toString()
-  );
+  // const domainPubKeyMap = JSON.parse(
+  //   fs.readFileSync("out/domain-dkim-keys.json").toString()
+  // );
 
   // Saving pubkeys into chunks of 121 * 17
   // This is what is used in EmailVerifier.cicrom
