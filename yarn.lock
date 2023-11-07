@@ -14699,7 +14699,7 @@ __metadata:
     readline: ^1.3.0
   bin:
     snarkjs: build/cli.cjs
-  checksum: 6040ce61d8eefc4ffacc28a743445372caf24d64207ba6e474deba1d8b4591b255fdad8f962f89cb228f9c5af5a359d809d4408e1fd7ca64c8e1d634f1893831
+  checksum: 9011df4b58475a0b4ae988f8b459a9a4d2bb5d2b60221d0ec370a10f2492c88909768215f3b22e514b2cf24dca79818790447005a33ed6aee177b9fda6948a75
   languageName: node
   linkType: hard
 
@@ -14720,7 +14720,7 @@ __metadata:
     r1csfile: 0.0.41
   bin:
     snarkjs: build/cli.cjs
-  checksum: 03909c769b2fa2c210b0a9ef17c7132824de0aa247626a02864a35d966350e9d2769121e1fab96ce2c81284a956694afb1e2819738e784c889ed6c0fe0d305ab
+  checksum: f2050f0135d50d459ea0edddf3e394e833a2d28c6648e5889b2f896814865e5c60606e978a8a106bd5bfe7e27501c315f249db5b71895d5e7e6e9a87bfcd55ab
   languageName: node
   linkType: hard
 
