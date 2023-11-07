@@ -1,7 +1,7 @@
 // Calculates relaxed body hash for a message body stream
-
+import { ParsedHeaders } from 'dkim';
 import { parseHeaders } from './tools';
-import { Writable } from 'stream';
+import { Writable, WritableOptions } from 'stream';
 
 /**
  * Class for separating header from body
@@ -9,8 +9,14 @@ import { Writable } from 'stream';
  * @class
  * @extends Writable
  */
-class MessageParser extends Writable {
-    constructor(options) {
+export class MessageParser extends Writable {
+    byteLength: number;
+    headers: ParsedHeaders | boolean;
+    private state: string;
+    private stateBytes: unknown[];
+    private headerChunks: Buffer[];
+    private lastByte: number = 0;
+    constructor(options?: WritableOptions) {
         super(options);
 
         this.byteLength = 0;
@@ -22,19 +28,19 @@ class MessageParser extends Writable {
         this.headerChunks = [];
     }
 
-    async nextChunk(/* chunk */) {
+    async nextChunk(...args: any) {
         // Override in child class
     }
 
-    async finalChunk() {
+    async finalChunk(...args: any) {
         // Override in child class
     }
 
-    async messageHeaders() {
+    async messageHeaders(headers: ParsedHeaders) {
         // Override in child class
     }
 
-    async processChunk(chunk) {
+    async processChunk(chunk: Buffer) {
         if (!chunk || !chunk.length) {
             return;
         }
@@ -62,10 +68,10 @@ class MessageParser extends Writable {
                         await this.messageHeaders(this.headers);
                         return;
                     }
-                    this.headerChunks.push(chunk.slice(0, i + 1));
+                    this.headerChunks.push(chunk.subarray(0, i + 1));
                     this.headers = parseHeaders(Buffer.concat(this.headerChunks));
                     await this.messageHeaders(this.headers);
-                    chunk = chunk.slice(i + 1);
+                    chunk = chunk.subarray(i + 1);
                     break;
                 }
             }
@@ -79,7 +85,7 @@ class MessageParser extends Writable {
         await this.nextChunk(chunk);
     }
 
-    *ensureLinebreaks(input) {
+    *ensureLinebreaks(input: Buffer) {
         let pos = 0;
         for (let i = 0; i < input.length; i++) {
             let c = input[i];
@@ -91,7 +97,7 @@ class MessageParser extends Writable {
                 if (i === 0 || pos === i) {
                     buf = Buffer.from('\r\n');
                 } else {
-                    buf = Buffer.concat([input.slice(pos, i), Buffer.from('\r\n')]);
+                    buf = Buffer.concat([input.subarray(pos, i), Buffer.from('\r\n')]);
                 }
                 yield buf;
 
@@ -101,12 +107,12 @@ class MessageParser extends Writable {
         if (pos === 0) {
             yield input;
         } else if (pos < input.length) {
-            let buf = input.slice(pos);
+            let buf = input.subarray(pos);
             yield buf;
         }
     }
 
-    async writeAsync(chunk, encoding) {
+    async writeAsync(chunk: any, encoding: BufferEncoding) {
         if (!chunk || !chunk.length) {
             return;
         }
@@ -122,7 +128,7 @@ class MessageParser extends Writable {
         }
     }
 
-    _write(chunk, encoding, callback) {
+    _write(chunk: any, encoding: BufferEncoding, callback: (error?: Error | null) => void) {
         this.writeAsync(chunk, encoding)
             .then(() => callback())
             .catch(err => callback(err));
@@ -138,11 +144,9 @@ class MessageParser extends Writable {
         }
     }
 
-    _final(callback) {
+    _final(callback: (error?: Error | null) => void) {
         this.finish()
             .then(() => callback())
             .catch(err => callback(err));
     }
 }
-
-export { MessageParser };
