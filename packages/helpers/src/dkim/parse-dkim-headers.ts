@@ -30,6 +30,7 @@ const valueParser = (str: string) => {
             let c = line.charAt(i);
 
             switch (state) {
+                // @ts-ignore
                 case 'key':
                     if (c === '=') {
                         state = 'value';
@@ -153,6 +154,7 @@ const headerParser = (buf: Buffer | string) => {
             let c = line.charAt(i);
 
             switch (state) {
+                // @ts-ignore
                 case 'key':
                     if (c === '=') {
                         state = 'value';
@@ -220,7 +222,7 @@ const headerParser = (buf: Buffer | string) => {
                         case '\\':
                             escaped = true;
                             break;
-
+                        // @ts-ignore
                         case quote:
                             state = lastState as string;
                         // falls through
