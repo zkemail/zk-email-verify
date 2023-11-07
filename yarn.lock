@@ -3651,6 +3651,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@types/addressparser@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "@types/addressparser@npm:1.0.3"
+  dependencies:
+    "@types/node": "*"
+  checksum: 7e7b6d3dfa8133b878c92a7cc1a654244a22a9f5848254c3531c0897e8e55863af194120dc247b811ce90df771903056048b1ecbdaee1c866b2c9b43bd41ead2
+  languageName: node
+  linkType: hard
+
 "@types/aria-query@npm:^5.0.1":
   version: 5.0.1
   resolution: "@types/aria-query@npm:5.0.1"
@@ -3902,6 +3911,13 @@ __metadata:
   version: 15.7.5
   resolution: "@types/prop-types@npm:15.7.5"
   checksum: 5b43b8b15415e1f298243165f1d44390403bb2bd42e662bca3b5b5633fdd39c938e91b7fce3a9483699db0f7a715d08cef220c121f723a634972fdf596aec980
+  languageName: node
+  linkType: hard
+
+"@types/psl@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "@types/psl@npm:1.1.2"
+  checksum: fc0a7ae56ca53157035226d964f5a37749187804c07787d25a3f8e0235130c277b52d027139d1a7058d7826014a8019d68d46e2719b0404ac8545d39d41fc43a
   languageName: node
   linkType: hard
 
@@ -4742,6 +4758,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@zk-email/helpers@workspace:packages/helpers"
   dependencies:
+    "@types/addressparser": ^1.0.3
+    "@types/atob": ^2.1.2
+    "@types/jest": ^29.5.1
+    "@types/lodash": ^4.14.181
+    "@types/mocha": ^10.0.1
+    "@types/node": ^18.0.6
+    "@types/node-forge": ^1.3.2
+    "@types/psl": ^1.1.2
     addressparser: ^1.0.1
     atob: ^2.1.2
     circomlibjs: ^0.1.7
@@ -14675,7 +14699,7 @@ __metadata:
     readline: ^1.3.0
   bin:
     snarkjs: build/cli.cjs
-  checksum: 9011df4b58475a0b4ae988f8b459a9a4d2bb5d2b60221d0ec370a10f2492c88909768215f3b22e514b2cf24dca79818790447005a33ed6aee177b9fda6948a75
+  checksum: 6040ce61d8eefc4ffacc28a743445372caf24d64207ba6e474deba1d8b4591b255fdad8f962f89cb228f9c5af5a359d809d4408e1fd7ca64c8e1d634f1893831
   languageName: node
   linkType: hard
 
@@ -14696,7 +14720,7 @@ __metadata:
     r1csfile: 0.0.41
   bin:
     snarkjs: build/cli.cjs
-  checksum: f2050f0135d50d459ea0edddf3e394e833a2d28c6648e5889b2f896814865e5c60606e978a8a106bd5bfe7e27501c315f249db5b71895d5e7e6e9a87bfcd55ab
+  checksum: 03909c769b2fa2c210b0a9ef17c7132824de0aa247626a02864a35d966350e9d2769121e1fab96ce2c81284a956694afb1e2819738e784c889ed6c0fe0d305ab
   languageName: node
   linkType: hard
 
