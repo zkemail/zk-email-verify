@@ -1,7 +1,7 @@
 import { SimpleHash } from './simple';
 import { RelaxedHash } from './relaxed';
 
-export const dkimBody = (canonicalization: unknown, ...options: [string, number]) => {
+export const dkimBody = (canonicalization: any, ...options: [string, number]) => {
     canonicalization = (canonicalization ?? 'simple/simple').toString().split('/').pop()?.toLowerCase().trim();
     switch (canonicalization) {
         case 'simple':
