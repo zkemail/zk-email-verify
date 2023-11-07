@@ -5,7 +5,7 @@ const libmime = require('libmime');
 import crypto, { KeyObject } from "crypto";
 import parseDkimHeaders from "./parse-dkim-headers";
 import psl from "psl";
-import { Parsed, SignatureType } from 'dkim';
+import { Parsed, SignatureType } from './index';
 import { DkimVerifier } from './dkim-verifier';
 
 var isNode = false;

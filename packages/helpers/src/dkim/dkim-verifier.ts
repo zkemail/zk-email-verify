@@ -14,7 +14,7 @@ import { dkimBody } from "./body";
 import { generateCanonicalizedHeader } from "./header";
 import addressparser from "addressparser";
 import * as crypto from "crypto";
-import { ParseDkimHeaders, ParsedHeaders } from "dkim";
+import { ParseDkimHeaders, ParsedHeaders } from "./index";
 
 export class DkimVerifier extends MessageParser {
   envelopeFrom: string | boolean;

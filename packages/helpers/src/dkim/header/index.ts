@@ -1,4 +1,4 @@
-import { Options, SignatureType, SigningHeaderLines } from 'dkim';
+import { Options, SignatureType, SigningHeaderLines } from '../index';
 import { relaxedHeaders } from './relaxed';
 import { simpleHeaders } from './simple';
 
