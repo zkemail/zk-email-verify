@@ -1,7 +1,12 @@
 import { setImmediate } from 'timers';
 import { pki } from 'node-forge';
-
-/* eslint no-control-regex: 0 */
+import punycode from "punycode";
+const libmime = require('libmime');
+import crypto, { KeyObject } from "crypto";
+import parseDkimHeaders from "./parse-dkim-headers";
+import psl from "psl";
+import { Parsed, SignatureType } from 'dkim';
+import { DkimVerifier } from './dkim-verifier';
 
 var isNode = false;
 if (typeof process === "object") {
@@ -12,18 +17,12 @@ if (typeof process === "object") {
   }
 }
 const LOCAL = isNode;
-
-import punycode from "punycode";
-import libmime from "libmime";
-let dns;
+let dns: any;
 if (LOCAL) {
   dns = require("dns").promises;
 }
-import crypto from "crypto";
-import parseDkimHeaders from "./parse-dkim-headers";
-import psl from "psl";
 
-const defaultDKIMFieldNames =
+export const defaultDKIMFieldNames =
   "From:Sender:Reply-To:Subject:Date:Message-ID:To:" +
   "Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:" +
   "Content-Description:Resent-Date:Resent-From:Resent-Sender:" +
@@ -33,15 +32,15 @@ const defaultDKIMFieldNames =
 
 const keyOrderingDKIM = ["v", "a", "c", "d", "h", "i", "l", "q", "s", "t", "x", "z", "bh", "b"];
 
-const writeToStream = async (stream, input, chunkSize) => {
+export const writeToStream = async (stream: DkimVerifier, input: Buffer & { pipe: (...args: any) => void, on: (...args: any) => void }, chunkSize: number = 0) => {
   chunkSize = chunkSize || 64 * 1024;
 
   if (typeof input === "string") {
-    input = Buffer.from(input);
+    input = Buffer.from(input) as Buffer & { pipe: (...args: any) => void, on: (...args: any) => void };
   }
 
   return new Promise((resolve, reject) => {
-    if (typeof input.on === "function") {
+    if (typeof input?.on === "function") {
       // pipe as stream
       console.log('pipe')
       input.pipe(stream);
@@ -55,9 +54,9 @@ const writeToStream = async (stream, input, chunkSize) => {
 
         let chunk;
         if (pos + chunkSize >= input.length) {
-          chunk = input.slice(pos);
+          chunk = input.subarray(pos);
         } else {
-          chunk = input.slice(pos, pos + chunkSize);
+          chunk = input.subarray(pos, pos + chunkSize);
         }
         pos += chunk.length;
 
@@ -76,8 +75,8 @@ const writeToStream = async (stream, input, chunkSize) => {
   });
 };
 
-const parseHeaders = (buf) => {
-  let rows = buf
+export const parseHeaders = (buf: Buffer) => {
+  let rows: string[][] = buf
     .toString("binary")
     .replace(/[\r\n]+$/, "")
     .split(/\r?\n/)
@@ -89,22 +88,22 @@ const parseHeaders = (buf) => {
     }
   }
 
-  rows = rows.map((row) => {
-    row = row.join("\r\n");
-    let key = row.match(/^[^:]+/);
+  const mappedRows: { key: string | null; casedKey: string | undefined; line: Buffer }[] = rows.map((row) => {
+    const str = row.join("\r\n");
+    let key: RegExpMatchArray | string | null = str.match(/^[^:]+/);
     let casedKey;
     if (key) {
       casedKey = key[0].trim();
       key = casedKey.toLowerCase();
     }
 
-    return { key, casedKey, line: Buffer.from(row, "binary") };
+    return { key, casedKey, line: Buffer.from(str, "binary") };
   });
 
-  return { parsed: rows, original: buf };
+  return { parsed: mappedRows, original: buf };
 };
 
-const getSigningHeaderLines = (parsedHeaders, fieldNames, verify) => {
+export const getSigningHeaderLines = (parsedHeaders: Parsed[], fieldNames: string | string[], verify: boolean) => {
   fieldNames = (typeof fieldNames === "string" ? fieldNames : defaultDKIMFieldNames)
     .split(":")
     .map((key) => key.trim().toLowerCase())
@@ -113,7 +112,7 @@ const getSigningHeaderLines = (parsedHeaders, fieldNames, verify) => {
   let signingList = [];
 
   if (verify) {
-    let parsedList = [].concat(parsedHeaders);
+    let parsedList = ([] as Parsed[]).concat(parsedHeaders);
     for (let fieldName of fieldNames) {
       for (let i = parsedList.length - 1; i >= 0; i--) {
         let header = parsedList[i];
@@ -127,7 +126,7 @@ const getSigningHeaderLines = (parsedHeaders, fieldNames, verify) => {
   } else {
     for (let i = parsedHeaders.length - 1; i >= 0; i--) {
       let header = parsedHeaders[i];
-      if (fieldNames.includes(header.key)) {
+      if (fieldNames.includes(header.key ?? '')) {
         signingList.push(header);
       }
     }
@@ -143,10 +142,10 @@ const getSigningHeaderLines = (parsedHeaders, fieldNames, verify) => {
  * Generates `DKIM-Signature: ...` header for selected values
  * @param {Object} values
  */
-const formatSignatureHeaderLine = (type, values, folded) => {
-  type = (type || "").toString().toUpperCase();
+export const formatSignatureHeaderLine = (type: SignatureType, values: Record<string, string | boolean>, folded: boolean): string => {
+  type = (type ?? "").toString().toUpperCase() as SignatureType;
 
-  let keyOrdering, headerKey;
+  let keyOrdering: string[], headerKey: string;
   switch (type) {
     case "DKIM":
       headerKey = "DKIM-Signature";
@@ -162,8 +161,6 @@ const formatSignatureHeaderLine = (type, values, folded) => {
       break;
 
     case "ARC":
-      throw Error("err");
-
     case "AS":
       throw Error("err");
 
@@ -177,13 +174,13 @@ const formatSignatureHeaderLine = (type, values, folded) => {
       .filter((key) => values[key] !== false && typeof values[key] !== "undefined" && values.key !== null && keyOrdering.includes(key))
       .sort((a, b) => keyOrdering.indexOf(a) - keyOrdering.indexOf(b))
       .map((key) => {
-        let val = values[key] || "";
+        let val = values[key] ?? "";
         if (key === "b" && folded && val) {
           // fold signature value
           return `${key}=${val}`.replace(/.{75}/g, "$& ").trim();
         }
 
-        if (["d", "s"].includes(key)) {
+        if (["d", "s"].includes(key) && typeof val === 'string') {
           try {
             // convert to A-label if needed
             val = punycode.toASCII(val);
@@ -192,7 +189,7 @@ const formatSignatureHeaderLine = (type, values, folded) => {
           }
         }
 
-        if (key === "i" && type === "DKIM") {
+        if (key === "i" && type === "DKIM" && typeof val === 'string') {
           let atPos = val.indexOf("@");
           if (atPos >= 0) {
             let domainPart = val.substr(atPos + 1);
@@ -217,7 +214,7 @@ const formatSignatureHeaderLine = (type, values, folded) => {
   return header;
 };
 
-async function resolveDNSHTTP(name, type) {
+async function resolveDNSHTTP(name: string, type: string) {
   const resp = await fetch(
     "https://dns.google/resolve?" +
     new URLSearchParams({
@@ -231,7 +228,7 @@ async function resolveDNSHTTP(name, type) {
 }
 
 // from https://developers.google.com/web/updates/2012/06/How-to-convert-ArrayBuffer-to-and-from-String
-function str2ab(str) {
+function str2ab(str: string) {
   const buf = new ArrayBuffer(str.length);
   const bufView = new Uint8Array(buf);
   for (let i = 0, strLen = str.length; i < strLen; i++) {
@@ -240,7 +237,7 @@ function str2ab(str) {
   return buf;
 }
 
-function importRsaKey(pem) {
+function importRsaKey(pem: string) {
   // fetch the part of the PEM string between header and footer
   const pemHeader = "-----BEGIN PUBLIC KEY-----";
   const pemFooter = "-----END PUBLIC KEY-----";
@@ -262,7 +259,7 @@ function importRsaKey(pem) {
   );
 }
 
-const getPublicKey = async (type, name, minBitLength, resolver) => {
+export const getPublicKey = async (type: string, name: string, minBitLength: number, resolver: (...args: [name: string, type: string]) => Promise<any>) => {
   minBitLength = minBitLength || 1024;
   if (LOCAL) {
     resolver = resolver || dns.resolve;
@@ -288,15 +285,13 @@ const getPublicKey = async (type, name, minBitLength, resolver) => {
     //'v=DKIM1;p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwe34ubzrMzM9sT0XVkcc3UXd7W+EHCyHoqn70l2AxXox52lAZzH/UnKwAoO+5qsuP7T9QOifIJ9ddNH9lEQ95Y/GdHBsPLGdgSJIs95mXNxscD6MSyejpenMGL9TPQAcxfqY5xPViZ+1wA1qcryjdZKRqf1f4fpMY+x3b8k7H5Qyf/Smz0sv4xFsx1r+THNIz0rzk2LO3GvE0f1ybp6P+5eAelYU4mGeZQqsKw/eB20I3jHWEyGrXuvzB67nt6ddI+N2eD5K38wg/aSytOsb5O+bUSEe7P0zx9ebRRVknCD6uuqG3gSmQmttlD5OrMWSXzrPIXe8eTBaaPd+e/jfxwIDAQAB'
     // v=DKIM1;p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwe34ubzrMzM9sT0XVkcc3UXd7W+EHCyHoqn70l2AxXox52lAZzH/UnKwAoO+5qsuP7T9QOifIJ9ddNH9lEQ95Y/GdHBsPLGdgSJIs95mXNxscD6MSyejpenMGL9TPQAcxfqY5xPViZ+1wA1qcr""yjdZKRqf1f4fpMY+x3b8k7H5Qyf/Smz0sv4xFsx1r+THNIz0rzk2LO3GvE0f1ybp6P+5eAelYU4mGeZQqsKw/eB20I3jHWEyGrXuvzB67nt6ddI+N2eD5K38wg/aSytOsb5O+bUSEe7P0zx9ebRRVknCD6uuqG3gSmQmttlD5OrMWSXzrPIXe8eTBaaPd+e/jfxwIDAQAB
     if (!publicKeyValue) {
-      let err = new Error("Missing key value");
-      err.code = "EINVALIDVAL";
-      err.rr = rr;
+      const err = new CustomError("Missing key value", "EINVALIDVAL", rr);
       throw err;
     }
 
     /*let validation = base64Schema.validate(publicKeyValue);
         if (validation.error) {
-            let err = new Error('Invalid base64 format for public key');
+            throw new Error('Invalid base64 format for public key');
             err.code = 'EINVALIDVAL';
             err.rr = rr;
             err.details = validation.error;
@@ -304,9 +299,7 @@ const getPublicKey = async (type, name, minBitLength, resolver) => {
         }*/
 
     if (type === "DKIM" && entry?.parsed?.v && (entry?.parsed?.v?.value || "").toString().toLowerCase().trim() !== "dkim1") {
-      let err = new Error("Unknown key version");
-      err.code = "EINVALIDVER";
-      err.rr = rr;
+      const err = new CustomError("Unknown key version", "EINVALIDVER", rr);
       throw err;
     }
 
@@ -325,21 +318,18 @@ const getPublicKey = async (type, name, minBitLength, resolver) => {
 
     let keyType;
     if (LOCAL) {
-      keyType = publicKeyObj.asymmetricKeyType;
+      keyType = (publicKeyObj as KeyObject).asymmetricKeyType;
     } else {
-      keyType = publicKeyObj.algorithm.name.split("-")[0].toLowerCase();
+      keyType = (publicKeyObj as CryptoKey).algorithm.name.split("-")[0].toLowerCase();
     }
 
-    if (!["rsa", "ed25519"].includes(keyType) || (entry?.parsed?.k && entry?.parsed?.k?.value?.toLowerCase() !== keyType)) {
-      let err = new Error("Unknown key type (${keyType})");
-      err.code = "EINVALIDTYPE";
-      err.rr = rr;
-      throw err;
+    if (!["rsa", "ed25519"].includes(keyType ?? '') || (entry?.parsed?.k && entry?.parsed?.k?.value?.toLowerCase() !== keyType)) {
+      throw new CustomError("Unknown key type (${keyType})", "EINVALIDTYPE", rr);
     }
 
     let modulusLength;
-    if (publicKeyObj.algorithm) {
-      modulusLength = publicKeyObj.algorithm.modulusLength;
+    if ((publicKeyObj as CryptoKey).algorithm) {
+      modulusLength = (publicKeyObj as CryptoKey & { algorithm: { modulusLength: number } }).algorithm?.modulusLength;
     } else {
       // fall back to node-forge
       const pubKeyData = pki.publicKeyFromPem(publicKeyPem.toString());
@@ -348,10 +338,7 @@ const getPublicKey = async (type, name, minBitLength, resolver) => {
     }
 
     if (keyType === "rsa" && modulusLength < 1024) {
-      let err = new Error("RSA key too short");
-      err.code = "ESHORTKEY";
-      err.rr = rr;
-      throw err;
+      throw new CustomError("RSA key too short", "ESHORTKEY", rr);
     }
 
     return {
@@ -361,12 +348,10 @@ const getPublicKey = async (type, name, minBitLength, resolver) => {
     };
   }
 
-  let err = new Error("Missing key value");
-  err.code = "EINVALIDVAL";
-  throw err;
+  throw new CustomError("Missing key value", "EINVALIDVAL", rr);
 };
 
-const escapePropValue = (value) => {
+export const escapePropValue = (value: string) => {
   value = (value || "")
     .toString()
     .replace(/[\x00-\x1F]+/g, " ")
@@ -382,7 +367,7 @@ const escapePropValue = (value) => {
   return `"${value.replace(/["\\]/g, (c) => `\\${c}`)}"`;
 };
 
-const escapeCommentValue = (value) => {
+export const escapeCommentValue = (value: string) => {
   value = (value || "")
     .toString()
     .replace(/[\x00-\x1F]+/g, " ")
@@ -392,7 +377,7 @@ const escapeCommentValue = (value) => {
   return `${value.replace(/[\\)]/g, (c) => `\\${c}`)}`;
 };
 
-const formatAuthHeaderRow = (method, status) => {
+export const formatAuthHeaderRow = (method: string, status: Record<string, any>) => {
   status = status || {};
   let parts = [];
 
@@ -417,7 +402,7 @@ const formatAuthHeaderRow = (method, status) => {
   return parts.join(" ");
 };
 
-const formatRelaxedLine = (line, suffix) => {
+export const formatRelaxedLine = (line: Buffer | string, suffix?: string) => {
   let result =
     line
       ?.toString("binary")
@@ -432,7 +417,7 @@ const formatRelaxedLine = (line, suffix) => {
   return Buffer.from(result, "binary");
 };
 
-const formatDomain = (domain) => {
+export const formatDomain = (domain: string) => {
   domain = domain.toLowerCase().trim();
   try {
     domain = punycode.toASCII(domain).toLowerCase().trim();
@@ -442,8 +427,8 @@ const formatDomain = (domain) => {
   return domain;
 };
 
-const getAlignment = (fromDomain, domainList, strict) => {
-  domainList = [].concat(domainList || []);
+export const getAlignment = (fromDomain: string, domainList: string[], strict: boolean = false) => {
+  domainList = ([] as string[]).concat(domainList || []);
   if (strict) {
     fromDomain = formatDomain(fromDomain);
     for (let domain of domainList) {
@@ -466,7 +451,7 @@ const getAlignment = (fromDomain, domainList, strict) => {
   return false;
 };
 
-const validateAlgorithm = (algorithm, strict) => {
+export const validateAlgorithm = (algorithm: string, strict: boolean) => {
   try {
     if (!algorithm || !/^[^-]+-[^-]+$/.test(algorithm)) {
       throw new Error("Invalid algorithm format");
@@ -481,29 +466,22 @@ const validateAlgorithm = (algorithm, strict) => {
     if (!["sha256"].concat(!strict ? "sha1" : []).includes(hashAlgo)) {
       throw new Error("Unknown hashing algorithm: " + hashAlgo);
     }
-  } catch (err) {
-    err.code = "EINVALIDALGO";
+  } catch (err: unknown) {
+    if (err !== null && typeof err === 'object' && Object.hasOwn(err, 'code')) {
+      (err as { code: string }).code = "EINVALIDALGO";
+    }
     throw err;
   }
 };
 
-export {
-  writeToStream,
-  parseHeaders,
+export class CustomError extends Error {
+  code: string;
+  rr: string;
+  constructor(message: string, code: string, rr?: string) {
+    super(message);
+    this.code = code;
+    this.rr = rr ?? '';
+  }
+}
 
-  defaultDKIMFieldNames,
-
-  getSigningHeaderLines,
-  formatSignatureHeaderLine,
-  parseDkimHeaders,
-  getPublicKey,
-  formatAuthHeaderRow,
-  escapeCommentValue,
-
-  validateAlgorithm,
-
-  getAlignment,
-
-  formatRelaxedLine,
-  formatDomain,
-};
+export { parseDkimHeaders }
