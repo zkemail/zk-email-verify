@@ -1,11 +1,10 @@
-'use strict';
-
+import { Options, SignatureType, SigningHeaderLines } from 'dkim';
 import { formatSignatureHeaderLine } from '../tools';
 
-const formatSimpleLine = (line, suffix) => Buffer.from(line.toString('binary') + (suffix ? suffix : ''), 'binary');
+const formatSimpleLine = (line: Buffer | string, suffix?: string) => Buffer.from(line.toString('binary') + (suffix ? suffix : ''), 'binary');
 
 // generate headers for signing
-const simpleHeaders = (type, signingHeaderLines, options) => {
+export const simpleHeaders = (type: SignatureType, signingHeaderLines: SigningHeaderLines, options: Options) => {
     let { signatureHeaderLine, signingDomain, selector, algorithm, canonicalization, bodyHash, signTime, signature, instance, bodyHashedBytes } = options || {};
     let chunks = [];
 
@@ -13,7 +12,7 @@ const simpleHeaders = (type, signingHeaderLines, options) => {
         chunks.push(formatSimpleLine(signedHeaderLine.line, '\r\n'));
     }
 
-    let opts = false;
+    let opts: boolean | Record<string, any> = false;
 
     if (!signatureHeaderLine) {
         opts = {
@@ -54,7 +53,7 @@ const simpleHeaders = (type, signingHeaderLines, options) => {
                     b: signature || 'a'.repeat(73)
                 },
                 opts
-            ),
+            ) as Record<string, string | boolean>,
             true
         );
     }
@@ -71,5 +70,3 @@ const simpleHeaders = (type, signingHeaderLines, options) => {
 
     return { canonicalizedHeader: Buffer.concat(chunks), signatureHeaderLine, dkimHeaderOpts: opts };
 };
-
-export { simpleHeaders };
