@@ -22,29 +22,6 @@ contract DKIMRegistry is IDKIMRegistry, Ownable {
     // DKIM public that are revoked (eg: in case of private key compromise)
     mapping(bytes32 => bool) public revokedDKIMPublicKeyHashes;
 
-    constructor() {
-        // Set values for popular domains
-        dkimPublicKeyHashes["gmail.com"][
-            bytes32(uint256(21238126716164910617487233347059218993958564577330259377744533585136010170208))
-        ] = true;
-
-        dkimPublicKeyHashes["hotmail.com"][
-            bytes32(uint256(2431254542644577945126644490189743659677343436440304264654087065353925216026))
-        ] = true;
-
-        dkimPublicKeyHashes["twitter.com"][
-            bytes32(uint256(5857406240302475676709141738935898448223932090884766940073913110146444539372))
-        ] = true;
-
-        dkimPublicKeyHashes["ethereum.org"][
-            bytes32(uint256(1064717399289379939765004128465682276424933518837235377976999291216925329691))
-        ] = true;
-
-        dkimPublicKeyHashes["skiff.com"][
-            bytes32(uint256(7901875575997183258695482461141301358756276811120772965768802311294654527542))
-        ] = true;
-    }
-
     function _stringEq(
         string memory a,
         string memory b
@@ -79,6 +56,15 @@ contract DKIMRegistry is IDKIMRegistry, Ownable {
         dkimPublicKeyHashes[domainName][publicKeyHash] = true;
 
         emit DKIMPublicKeyHashRegistered(domainName, publicKeyHash);
+    }
+
+    function setDKIMPublicKeyHashes(
+        string memory domainName,
+        bytes32[] memory publicKeyHashes
+    ) public onlyOwner {
+        for (uint256 i = 0; i < publicKeyHashes.length; i++) {
+            setDKIMPublicKeyHash(domainName, publicKeyHashes[i]);
+        }
     }
 
     function revokeDKIMPublicKeyHash(bytes32 publicKeyHash) public onlyOwner {

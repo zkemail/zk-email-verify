@@ -3706,6 +3706,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/circomlibjs@npm:^0.1.5":
+  version: 0.1.5
+  resolution: "@types/circomlibjs@npm:0.1.5"
+  checksum: 5f9ad10f2b3047f31c915a814984a1a531fd02595d085b9046f66b4526123069b199e8e69c60abdf6ec4b50f509aba902567d5dc545210acd3a322df31d8dcfb
+  languageName: node
+  linkType: hard
+
 "@types/connect@npm:^3.4.33":
   version: 3.4.35
   resolution: "@types/connect@npm:3.4.35"
@@ -4716,6 +4723,7 @@ __metadata:
   resolution: "@zk-email/contracts@workspace:packages/contracts"
   dependencies:
     "@openzeppelin/contracts": ^4.9.3
+    dotenv: ^16.3.1
   languageName: unknown
   linkType: soft
 
@@ -4754,6 +4762,19 @@ __metadata:
     pako: ^2.1.0
     psl: ^1.9.0
     snarkjs: "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
+  languageName: unknown
+  linkType: soft
+
+"@zk-email/scripts@workspace:packages/scripts":
+  version: 0.0.0-use.local
+  resolution: "@zk-email/scripts@workspace:packages/scripts"
+  dependencies:
+    "@types/circomlibjs": ^0.1.5
+    circomlibjs: ^0.1.7
+    dotenv: ^16.3.1
+    ethers: ^6.8.1
+    ts-node: ^10.9.1
+    typescript: ^5.2.2
   languageName: unknown
   linkType: soft
 
@@ -8297,6 +8318,21 @@ __metadata:
     tslib: 2.4.0
     ws: 8.5.0
   checksum: 967e4bdc23eae48444361ededa77cd884271ab7af059a0458b3c2ec52338124258cb92dbb28b37f53c7b532313dcbb209792ea3232c87927c94164697948182d
+  languageName: node
+  linkType: hard
+
+"ethers@npm:^6.8.1":
+  version: 6.8.1
+  resolution: "ethers@npm:6.8.1"
+  dependencies:
+    "@adraffy/ens-normalize": 1.10.0
+    "@noble/curves": 1.2.0
+    "@noble/hashes": 1.3.2
+    "@types/node": 18.15.13
+    aes-js: 4.0.0-beta.5
+    tslib: 2.4.0
+    ws: 8.5.0
+  checksum: 78b48d2fd13cf77c7041379595a3155eaf6e4da423999b782e6ff14cc58e452ef8c52f3e2f6995fcd2b34dfdd55eaf5ece6067cd754fe0c72388b12e1768f1b3
   languageName: node
   linkType: hard
 

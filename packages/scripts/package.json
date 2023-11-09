@@ -1,0 +1,23 @@
+{
+  "name": "@zk-email/scripts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "update-dkim-registry": "ts-node dkim/update-dkim-registry",
+    "update-abis": "cp -r ../contracts/out/DKIMRegistry.sol ./abis/"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "circomlibjs": "^0.1.7",
+    "dotenv": "^16.3.1",
+    "ethers": "^6.8.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  },
+  "devDependencies": {
+    "@types/circomlibjs": "^0.1.5"
+  }
+}
