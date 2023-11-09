@@ -1,10 +1,11 @@
 import { ethers, JsonRpcProvider } from "ethers";
 import { buildPoseidon } from "circomlibjs";
 import dns from "dns";
+import path from "path";
 import forge from "node-forge";
 import { bigIntToChunkedBytes } from "@zk-email/helpers/src/binaryFormat";
 const fs = require("fs");
-import { abi } from "@zk-email/contracts/out/DKIMRegistry.sol/DKIMRegistry.json";
+import { abi } from "../abis/DKIMRegistry.json";
 require("dotenv").config();
 
 async function updateContract(domain: string, pubkeyHashes: string[]) {
@@ -20,9 +21,7 @@ async function updateContract(domain: string, pubkeyHashes: string[]) {
   const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
   const contract = new ethers.Contract(process.env.DKIM_REGISTRY, abi, wallet);
 
-  const hashes = pubkeyHashes.map((hash) =>
-    ethers.hexlify(hash)
-  );
+  const hashes = pubkeyHashes.map((hash) => ethers.toBeArray(BigInt(hash)));
 
   const tx = await contract.setDKIMPublicKeyHashes(domain, hashes);
   await tx.wait();
@@ -209,27 +208,30 @@ async function getDKIMPublicKeysForDomains(filename: string) {
   return matchedSelectors;
 }
 
-async function updateDKIMRegistry(
-  { writeToFile } = {
-    writeToFile: false,
-  }
-) {
-  const domainsFile = "./domains.txt";
-  const domainPubKeyMap = await getDKIMPublicKeysForDomains(domainsFile);
-
-  if (writeToFile) {
-    if (!fs.existsSync("out")) {
-      fs.mkdirSync("out");
+async function updateDKIMRegistry({
+  domainListFile,
+  writeToFile,
+}: {
+  domainListFile: string;
+  writeToFile: boolean;
+}) {
+  function _writeToFile(filename: string, data: object) {
+    if (!writeToFile) return;
+    if (!fs.existsSync(path.join(__dirname, "out"))) {
+      fs.mkdirSync(path.join(__dirname, "out"));
     }
     fs.writeFileSync(
-      "out/domain-dkim-keys.json",
-      JSON.stringify(domainPubKeyMap, null, 2)
+      path.join(__dirname, "out/" + filename),
+      JSON.stringify(data, null, 2)
     );
   }
 
-  // const domainPubKeyMap = JSON.parse(
-  //   fs.readFileSync("out/domain-dkim-keys.json").toString()
-  // );
+  // const domainPubKeyMap = await getDKIMPublicKeysForDomains(domainListFile);
+  // _writeToFile("dkim-keys.json", domainPubKeyMap);
+
+  const domainPubKeyMap = JSON.parse(
+    fs.readFileSync(path.join(__dirname, "out/dkim-keys.json")).toString()
+  );
 
   // Saving pubkeys into chunks of 121 * 17
   // This is what is used in EmailVerifier.cicrom
@@ -245,12 +247,7 @@ async function updateDKIMRegistry(
       chunkedDKIMPubKeyMap[domain].push(pubkeyChunked.map((s) => s.toString()));
     }
   }
-  if (writeToFile) {
-    fs.writeFileSync(
-      "out/domain-dkim-keys-chunked.json",
-      JSON.stringify(chunkedDKIMPubKeyMap, null, 2)
-    );
-  }
+  _writeToFile("dkim-keys-chunked.json", chunkedDKIMPubKeyMap);
 
   // Generate pub key hash using 242 * 9 chunks (Poseidon lib don't take more than 16 inputs)
   const domainHashedPubKeyMap: { [key: string]: string[] } = {};
@@ -266,12 +263,7 @@ async function updateDKIMRegistry(
       domainHashedPubKeyMap[domain].push(poseidon.F.toObject(hash).toString());
     }
   }
-  if (writeToFile) {
-    fs.writeFileSync(
-      "out/domain-dkim-key-hashes.json",
-      JSON.stringify(domainHashedPubKeyMap, null, 2)
-    );
-  }
+  _writeToFile("dkim-keys-hashed.json", domainHashedPubKeyMap);
 
   // Update Mailserver contract with found keys
   for (let domain of Object.keys(domainHashedPubKeyMap)) {
@@ -279,4 +271,7 @@ async function updateDKIMRegistry(
   }
 }
 
-updateDKIMRegistry({ writeToFile: true });
+updateDKIMRegistry({
+  domainListFile: path.join(__dirname, "domains.txt"),
+  writeToFile: true,
+});
