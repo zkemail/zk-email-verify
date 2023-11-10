@@ -3,7 +3,12 @@
 
 ZK Email is an application that allows for anonymous verification of email signatures while masking specific data. It enables verification of emails to/from specific domains or subsets of domains, as well as verification based on specific text in the email body. This technology can be used for web2 interoperability, decentralized anonymous KYC, or to create interesting on-chain anonymity sets.
 
-Visit our [docs](/docs/README.md) to learn how to build on top of zkEmail.
+**For ZK Email, the function we care about is**
+```
+DKIM = RSA_verify(sha_hash(header | sha_hash(body)), pk)
+```
+
+Visit our [docs](/docs/README.md) to learn more about the project and how to build on top of zkEmail.
 ## Installation
 To get started with the ZK Email Verifier, follow these steps:
 1. Install the `@zk-email/helpers` package:
