@@ -15,7 +15,7 @@ exports.p = Scalar.fromString(
 describe("Twitter email test", function () {
   jest.setTimeout(10 * 60 * 1000); // 10 minutes
 
-  let dkimResult: import("@zkemail/helpers").DKIMVerificationResult;
+  let dkimResult: import("@zk-email/helpers").DKIMVerificationResult;
   let circuit: any;
 
   beforeAll(async () => {
