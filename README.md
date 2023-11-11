@@ -41,3 +41,16 @@ The `@zk-email/contracts` package contains Solidity contracts used for email ver
 
 ## Filetree Description
 We follow a monorepo architecture where packages are located in the `packages` folder. There are core reusable packages which is for general ZK email verification
+
+
+```bash
+packages/
+  circuits/ # groth16 zk circuits
+    regexes/ # Generated regexes
+    helpers/ # Common helper circom circuits imported in email circuits
+    test/ # Circom tests for circuit
+  
+  contracts # Solidity contracts for Email verification
+
+  helpers # Helper files for DKIM verification, input generation, etc.
+  ```
