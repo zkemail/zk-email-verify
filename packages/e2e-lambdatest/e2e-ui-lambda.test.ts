@@ -5,7 +5,7 @@ import path from "path";
 const pageUrl = "https://dev.zkemail.xyz/";
 
 const testEthAddress = "0x00000000000000000000";
-const testEmailFilePath = path.join(__dirname, "..", "src", "__fixtures__/email/zktestemail.test-eml");
+const testEmailFilePath = path.join(__dirname, "../..", "__fixtures__/email/zktestemail.test-eml");
 const testEmailText = fs.readFileSync(testEmailFilePath, "utf8"); 
 // const testProofFile = "/__fixtures__/proofs/zktestemail.test-proof.json"
 // const testProofText = fs.readFileSync(__dirname + testProofFile, "utf8"); 
