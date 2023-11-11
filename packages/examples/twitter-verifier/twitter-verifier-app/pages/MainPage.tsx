@@ -13,7 +13,7 @@ import atob from "atob";
 
 import { packedNBytesToString, DKIMVerificationResult, verifyDKIMSignature, rawEmailToBuffer,  downloadProofFiles,
   generateProof,
-  verifyProof, } from "@zkemail/helpers";
+  verifyProof, } from "@zk-email/helpers";
 import { LabeledTextArea } from "../components/LabeledTextArea";
 import DragAndDropTextBox from "../components/DragAndDropTextBox";
 import { SingleLineInput } from "../components/SingleLineInput";
