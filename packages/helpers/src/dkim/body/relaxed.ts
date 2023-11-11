@@ -1,8 +1,4 @@
-/* eslint no-control-regex: 0 */
-
-'use strict';
-
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 
 const CHAR_CR = 0x0d;
 const CHAR_LF = 0x0a;
@@ -15,13 +11,22 @@ const CHAR_TAB = 0x09;
  *
  * @class
  */
-class RelaxedHash {
+export class RelaxedHash {
+    byteLength: number;
+    bodyHashedBytes: number;
+    private remainder: Buffer | boolean;
+    private bodyHash: crypto.Hash;
+    private maxBodyLength: number;
+    private maxSizeReached: boolean;
+    private emptyLinesQueue: Array<Buffer>;
+    private fullBody: Buffer;
+
     /**
      * @param {String} [algorithm] Hashing algo, either "sha1" or "sha256"
      * @param {Number} [maxBodyLength] Allowed body length count, the value from the l= parameter
      */
-    constructor(algorithm, maxBodyLength) {
-        algorithm = (algorithm || 'sha256').split('-').pop().toLowerCase();
+    constructor(algorithm: string, maxBodyLength: number) {
+        algorithm = algorithm?.split('-')?.pop()?.toLowerCase() || 'sha256';
 
         this.bodyHash = crypto.createHash(algorithm);
 
@@ -38,7 +43,7 @@ class RelaxedHash {
         this.fullBody = Buffer.alloc(0);
     }
 
-    _updateBodyHash(chunk) {
+    private updateBodyHash(chunk: Buffer) {
         if (this.maxSizeReached) {
             return;
         }
@@ -67,16 +72,16 @@ class RelaxedHash {
         //process.stdout.write(chunk);
     }
 
-    _drainPendingEmptyLines() {
+    private drainPendingEmptyLines() {
         if (this.emptyLinesQueue.length) {
             for (let emptyLine of this.emptyLinesQueue) {
-                this._updateBodyHash(emptyLine);
+                this.updateBodyHash(emptyLine);
             }
             this.emptyLinesQueue = [];
         }
     }
 
-    _pushBodyHash(chunk) {
+    private pushBodyHash(chunk: Buffer) {
         if (!chunk || !chunk.length) {
             return;
         }
@@ -87,7 +92,7 @@ class RelaxedHash {
         // buffer line endings and empty lines
         for (let i = chunk.length - 1; i >= 0; i--) {
             if (chunk[i] !== CHAR_LF && chunk[i] !== CHAR_CR) {
-                this._drainPendingEmptyLines();
+                this.drainPendingEmptyLines();
                 if (i < chunk.length - 1) {
                     this.emptyLinesQueue.push(chunk.subarray(i + 1));
                     chunk = chunk.subarray(0, i + 1);
@@ -102,10 +107,10 @@ class RelaxedHash {
             return;
         }
 
-        this._updateBodyHash(chunk);
+        this.updateBodyHash(chunk);
     }
 
-    fixLineBuffer(line) {
+    fixLineBuffer(line: Buffer) {
         let resultLine = [];
 
         let nonWspFound = false;
@@ -149,7 +154,7 @@ class RelaxedHash {
         return Buffer.from(resultLine);
     }
 
-    update(chunk, final) {
+    update(chunk: Buffer | null, final: boolean) {
         this.byteLength += (chunk && chunk.length) || 0;
         if (this.maxSizeReached) {
             return;
@@ -166,7 +171,7 @@ class RelaxedHash {
         let lineNeedsFixing = false;
         let cursorPos = 0;
 
-        if (this.remainder && this.remainder.length) {
+        if (this.remainder && this.remainder instanceof Buffer && this.remainder.length) {
             if (chunk) {
                 // concatting chunks might be bad for performance :S
                 chunk = Buffer.concat([this.remainder, chunk]);
@@ -197,11 +202,11 @@ class RelaxedHash {
                             // emit pending bytes up to the last line break before current line
                             if (lineEndPos >= 0 && lineEndPos >= cursorPos) {
                                 let chunkPart = chunk.subarray(cursorPos, lineEndPos + 1);
-                                this._pushBodyHash(chunkPart);
+                                this.pushBodyHash(chunkPart);
                             }
 
                             let line = chunk.subarray(lineEndPos + 1, pos + 1);
-                            this._pushBodyHash(this.fixLineBuffer(line));
+                            this.pushBodyHash(this.fixLineBuffer(line));
 
                             lineNeedsFixing = false;
 
@@ -235,7 +240,7 @@ class RelaxedHash {
             let chunkPart = chunk.subarray(cursorPos, lineEndPos + 1);
 
             if (chunkPart.length) {
-                this._pushBodyHash(lineNeedsFixing ? this.fixLineBuffer(chunkPart) : chunkPart);
+                this.pushBodyHash(lineNeedsFixing ? this.fixLineBuffer(chunkPart) : chunkPart);
                 lineNeedsFixing = false;
             }
 
@@ -249,26 +254,24 @@ class RelaxedHash {
         if (final) {
             let chunkPart = (cursorPos && chunk && chunk.subarray(cursorPos)) || chunk;
             if (chunkPart && chunkPart.length) {
-                this._pushBodyHash(lineNeedsFixing ? this.fixLineBuffer(chunkPart) : chunkPart);
+                this.pushBodyHash(lineNeedsFixing ? this.fixLineBuffer(chunkPart) : chunkPart);
                 lineNeedsFixing = false;
             }
 
             if (this.bodyHashedBytes) {
                 // terminating line break for non-empty messages
-                this._updateBodyHash(Buffer.from([CHAR_CR, CHAR_LF]));
+                this.updateBodyHash(Buffer.from([CHAR_CR, CHAR_LF]));
             }
         }
     }
 
-    digest(encoding) {
+    digest(encoding: crypto.BinaryToTextEncoding) {
         this.update(null, true);
 
         // finalize
         return this.bodyHash.digest(encoding);
     }
 }
-
-export { RelaxedHash };
 
 /*
 let fs = require('fs');

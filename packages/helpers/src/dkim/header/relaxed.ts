@@ -1,19 +1,16 @@
-'use strict';
-
-import { formatSignatureHeaderLine } from '../tools';
-
-const formatSimpleLine = (line, suffix) => Buffer.from(line.toString('binary') + (suffix ? suffix : ''), 'binary');
+import { Options, SignatureType, SigningHeaderLines } from '../index';
+import { formatSignatureHeaderLine, formatRelaxedLine } from '../tools';
 
 // generate headers for signing
-const simpleHeaders = (type, signingHeaderLines, options) => {
+export const relaxedHeaders = (type: SignatureType, signingHeaderLines: SigningHeaderLines, options: Options) => {
     let { signatureHeaderLine, signingDomain, selector, algorithm, canonicalization, bodyHash, signTime, signature, instance, bodyHashedBytes } = options || {};
     let chunks = [];
 
     for (let signedHeaderLine of signingHeaderLines.headers) {
-        chunks.push(formatSimpleLine(signedHeaderLine.line, '\r\n'));
+        chunks.push(formatRelaxedLine(signedHeaderLine.line, '\r\n'));
     }
 
-    let opts = false;
+    let opts: boolean | Record<string, unknown> = false;
 
     if (!signatureHeaderLine) {
         opts = {
@@ -30,7 +27,7 @@ const simpleHeaders = (type, signingHeaderLines, options) => {
         }
 
         if (instance) {
-            // ARC only (should never happen thoug as simple algo is not allowed)
+            // ARC only
             opts.i = instance;
         }
 
@@ -50,18 +47,18 @@ const simpleHeaders = (type, signingHeaderLines, options) => {
             type,
             Object.assign(
                 {
-                    // make sure that b= has a value, otherwise folding would be different
+                    // make sure that b= always has a value, otherwise folding would be different
                     b: signature || 'a'.repeat(73)
                 },
                 opts
-            ),
+            ) as Record<string, string | boolean>,
             true
         );
     }
 
     chunks.push(
         Buffer.from(
-            formatSimpleLine(signatureHeaderLine)
+            formatRelaxedLine(signatureHeaderLine)
                 .toString('binary')
                 // remove value from b= key
                 .replace(/([;:\s]+b=)[^;]+/, '$1'),
@@ -71,5 +68,3 @@ const simpleHeaders = (type, signingHeaderLines, options) => {
 
     return { canonicalizedHeader: Buffer.concat(chunks), signatureHeaderLine, dkimHeaderOpts: opts };
 };
-
-export { simpleHeaders };

@@ -1,10 +1,10 @@
 import { pki } from "node-forge";
 import { DkimVerifier } from "./dkim-verifier";
-import { writeToStream } from "./tools";
+import { getSigningHeaderLines, parseDkimHeaders, parseHeaders, writeToStream } from "./tools";
 
 export const dkimVerify = async (input: Buffer, options: any = {}) => {
   let dkimVerifier = new DkimVerifier(options);
-  await writeToStream(dkimVerifier, input);
+  await writeToStream(dkimVerifier, input as any);
 
   const result = {
     //headers: dkimVerifier.headers,
@@ -33,7 +33,7 @@ export type DKIMVerificationResult = {
   publicKey: bigint;
 }
 
-export async function verifyDKIMSignature(email: Buffer) : Promise<DKIMVerificationResult> {
+export async function verifyDKIMSignature(email: Buffer): Promise<DKIMVerificationResult> {
   const result = await dkimVerify(email);
 
   if (!result.results[0]) {
@@ -55,8 +55,31 @@ export async function verifyDKIMSignature(email: Buffer) : Promise<DKIMVerificat
   return {
     signature: signatureBigInt,
     message: status.signature_header,
-    body, 
+    body,
     bodyHash,
     publicKey: BigInt(pubKeyData.n.toString()),
   }
+}
+
+export type SignatureType = 'DKIM' | 'ARC' | 'AS';
+
+export type ParsedHeaders = ReturnType<typeof parseHeaders>;
+
+export type Parsed = ParsedHeaders['parsed'][0];
+
+export type ParseDkimHeaders = ReturnType<typeof parseDkimHeaders>
+
+export type SigningHeaderLines = ReturnType<typeof getSigningHeaderLines>
+
+export interface Options {
+  signatureHeaderLine: string;
+  signingDomain?: string;
+  selector?: string;
+  algorithm?: string;
+  canonicalization: string;
+  bodyHash?: string;
+  signTime?: string | number | Date;
+  signature?: string;
+  instance: string | boolean;
+  bodyHashedBytes?: string;
 }

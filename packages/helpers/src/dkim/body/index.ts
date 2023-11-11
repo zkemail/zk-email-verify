@@ -1,8 +1,8 @@
 import { SimpleHash } from './simple';
 import { RelaxedHash } from './relaxed';
 
-const dkimBody = (canonicalization, ...options) => {
-    canonicalization = (canonicalization || 'simple/simple').toString().split('/').pop().toLowerCase().trim();
+export const dkimBody = (canonicalization: any, ...options: [string, number]) => {
+    canonicalization = (canonicalization ?? 'simple/simple').toString().split('/').pop()?.toLowerCase().trim();
     switch (canonicalization) {
         case 'simple':
             return new SimpleHash(...options);
@@ -12,5 +12,3 @@ const dkimBody = (canonicalization, ...options) => {
             throw new Error('Unknown body canonicalization');
     }
 };
-
-export { dkimBody };

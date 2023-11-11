@@ -1,15 +1,17 @@
-'use strict';
-
 // NB! fails to properly parse nested comments (should be rare enough though)
 
-const valueParser = str => {
+interface Part {
+    [key: string]: string;
+}
+
+const valueParser = (str: string) => {
     let line = str.replace(/\s+/g, ' ').trim();
 
-    let parts = [];
-    let lastState = false;
+    let parts: Part[] = [];
+    let lastState: string | boolean = false;
 
     const createPart = () => {
-        let part = {
+        let part: Part = {
             key: '',
             value: ''
         };
@@ -28,6 +30,7 @@ const valueParser = str => {
             let c = line.charAt(i);
 
             switch (state) {
+                // @ts-ignore
                 case 'key':
                     if (c === '=') {
                         state = 'value';
@@ -68,7 +71,7 @@ const valueParser = str => {
                 }
 
                 case 'quoted':
-                    if (escaped === true) {
+                    if (escaped === true && typeof lastState === 'string') {
                         curPart[lastState] += c;
                         break;
                     }
@@ -79,11 +82,13 @@ const valueParser = str => {
                             break;
 
                         case quote:
-                            state = lastState;
+                            state = lastState as string;
                             break;
 
                         default:
-                            curPart[lastState] += c;
+                            if (typeof lastState === 'string') {
+                                curPart[lastState] += c;
+                            }
                             break;
                     }
 
@@ -91,7 +96,7 @@ const valueParser = str => {
             }
         }
 
-        let result = {
+        let result: { [key: string]: any } = {
             value: parts[0].key
         };
         parts.slice(1).forEach(part => {
@@ -105,7 +110,7 @@ const valueParser = str => {
                     }
                     curRes = curRes[p];
                 }
-                curRes[final] = part.value;
+                curRes[final ?? ''] = part.value;
             }
         });
 
@@ -115,19 +120,19 @@ const valueParser = str => {
     return parse();
 };
 
-const headerParser = buf => {
+const headerParser = (buf: Buffer | string) => {
     let line = (buf || '').toString().trim();
     let splitterPos = line.indexOf(':');
-    let headerKey;
+    let headerKey: string;
     if (splitterPos >= 0) {
         headerKey = line.substr(0, splitterPos).trim().toLowerCase();
         line = line.substr(splitterPos + 1).trim();
     }
 
-    let parts = [];
-    let lastState = false;
+    let parts: { [key: string]: any }[] = [];
+    let lastState: string | boolean = false;
 
-    const createPart = () => {
+    const createPart = (): { [key: string]: string | boolean } => {
         let part = {
             key: '',
             value: '',
@@ -149,6 +154,7 @@ const headerParser = buf => {
             let c = line.charAt(i);
 
             switch (state) {
+                // @ts-ignore
                 case 'key':
                     if (c === '=') {
                         state = 'value';
@@ -201,7 +207,7 @@ const headerParser = buf => {
                             break;
 
                         case ')':
-                            state = lastState;
+                            state = lastState as string;
                             break;
 
                         default:
@@ -216,13 +222,15 @@ const headerParser = buf => {
                         case '\\':
                             escaped = true;
                             break;
-
+                        // @ts-ignore
                         case quote:
-                            state = lastState;
+                            state = lastState as string;
                         // falls through
 
                         default:
-                            curPart[lastState] += c;
+                            if (typeof lastState === 'string') {
+                                curPart[lastState] += c;
+                            }
                             break;
                     }
 
@@ -237,14 +245,14 @@ const headerParser = buf => {
                 }
             }
 
-            parts[i].key = parts[i].key.toLowerCase();
+            parts[i].key = (parts[i].key).toLowerCase();
 
             if (!parts[i].key) {
                 // remove empty value
                 parts.splice(i, 1);
             } else if (['bh', 'b', 'p', 'h'].includes(parts[i].key)) {
                 // remove unneeded whitespace
-                parts[i].value = parts[i].value.replace(/\s+/g, '');
+                parts[i].value = parts[i].value?.replace(/\s+/g, '');
             } else if (['l', 'v', 't'].includes(parts[i].key) && !isNaN(parts[i].value)) {
                 parts[i].value = Number(parts[i].value);
             } else if (parts[i].key === 'i' && /^arc-/i.test(headerKey)) {
@@ -252,7 +260,7 @@ const headerParser = buf => {
             }
         }
 
-        let result = {
+        let result: { [key: string]: any } = {
             header: headerKey
         };
 
@@ -266,7 +274,7 @@ const headerParser = buf => {
         }
 
         parts.forEach(part => {
-            let entry = {
+            let entry: { [key: string]: any } = {
                 value: part.value
             };
 
@@ -283,7 +291,9 @@ const headerParser = buf => {
                 if (!result[part.key]) {
                     result[part.key] = [];
                 }
-                result[part.key].push(entry);
+                if (Array.isArray(result[part.key])) {
+                    result[part.key].push(entry);
+                }
             } else {
                 result[part.key] = entry;
             }
