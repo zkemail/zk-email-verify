@@ -89,7 +89,7 @@ template MyCircuit() {
 }
 ```
 
-## Step 4: Compile the Circuit
+## Step 4: Compile your circuit
 
 To compile the circuit locally, you need to have Rust and Circom installed first. You can visit this link to install both https://docs.circom.io/getting-started/installation/#installing-dependencies
 
@@ -116,56 +116,59 @@ This operation will produce a file named 'witness.wtns'. This file is encoded in
 
 ## Step 6: Proving the Circuit
 
-To prove your circuit you need to install SnarkJs
+The next step involves using the `snarkjs` command-line tool to generate the keys and the verifier contract. If you haven't installed `snarkjs` globally, you can do so by running `npm install -g snarkjs`.
 
-```
-npm i -g snarkjs
-```
+The generation of the zk proof requires a trusted setup, which includes the `powers of tau ceremony` and `phase 2`. Click [here](https://zkp2p.gitbook.io/zkp2p/developer/circuits/trusted-setup-ceremony/) to read more about Trusted Setup.
 
-
-
-To generate the keys and the verifier contract, you can use the `snarkjs` command-line tool. Make sure you have `snarkjs` installed globally by running `npm install -g snarkjs`. Then, run the following commands:
-
+Firstly, you need to determine the constraint size of your circuit. You can do this by running the following command:
 ```bash
-snarkjs setup
-snarkjs calculatewitness
-snarkjs proof
-snarkjs verify
+snarkjs r1cs info myCircuit.r1cs
 ```
 
-These commands will generate the proving and verifying keys, as well as the proof and the verification result. You can find more information about using `snarkjs` in the [official documentation](https://github.com/iden3/snarkjs).
+### Powers of Tau
+After obtaining the constraint size, find the next highest power of 2 and replace the '12' in the following command with that number. This command initiates the Powers of tau ceremony.
 
-Once you have the keys and the verifier contract, you can use them to verify the DKIM signature in your application.
+```
+snarkjs powersoftau new bn128 12 pot12_0000.ptau -v
+```
 
-## Step 5: Verify the Circuit
-You have the option to validate your circuit either on-chain or off-chain.
+Then contribute to the ceremony by running:
+```bash
+snarkjs powersoftau contribute pot12_0000.ptau pot12_0001.ptau --name="First contribution" -v
+```
+### Phase 2
+
+For Phase 2 of the trusted setup you can either use https://docs.circom.io/getting-started/proving-circuits/#phase-2 or [P0tion](https://github.com/privacy-scaling-explorations/p0tion) 
+
+## Step 7: Verify your circuit
+
+After this process you should get three files
+-  the proving key(vkey) 
+- proof.json
+- public.json
+
+You can use these files to verify your circuit. 
 
 ### Off-chain Verification
+To verify your proof run:
 
-```javascript
-const { proof, publicSignals } = await snarkjs.groth16.fullProve(
-    input,
-    "circuit.wasm",
-    "circuit_final.zkey"
-);
-const vKey = JSON.parse(fs.readFileSync("verification_key.json").toString());
-const res = await snarkjs.groth16.verify(vKey, publicSignals, proof);
-console.log(res); // true if verification is successful
+```bash
+snarkjs groth16 verify verification_key.json public.json proof.json
+
 ```
+
+The command uses the files verification_key.json we exported earlier,proof.json and public.json to check if the proof is valid. If the proof is valid, the command outputs an OK.
+
 
 ### On-chain Verification
+To create a solidity verifier that allows you to verify your proof on the ethereum blockchain, run:
 
-After generating the `verifier.sol` file using `snarkjs`, you can use it to verify your proof on-chain. Here's an example of how you can do this in Solidity:
+```bash
+snarkjs zkey export solidityverifier multiplier2_0001.zkey verifier.sol
 
-```javascript
-// Assuming you have a contract instance `verifier` of the Verifier contract
-bool result = verifier.verifyProof(
-    proof.a,
-    proof.b,
-    proof.c,
-    publicSignals
-);
-require(result, "The proof is not valid!");
 ```
+
+This will generate a `verifier.sol` contract. 
+
 
 
