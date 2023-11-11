@@ -3156,7 +3156,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@zk-email/helpers@^3.0.0, @zk-email/helpers@workspace:packages/helpers":
+"@zk-email/helpers@workspace:^, @zk-email/helpers@workspace:packages/helpers":
   version: 0.0.0-use.local
   resolution: "@zk-email/helpers@workspace:packages/helpers"
   dependencies:
@@ -8030,7 +8030,7 @@ __metadata:
     "@babel/preset-env": ^7.22.2
     "@babel/preset-react": ^7.22.0
     "@babel/preset-typescript": ^7.23.2
-    "@zk-email/helpers": ^3.0.0
+    "@zk-email/helpers": "workspace:^"
     babel-jest: ^29.5.0
     babel-preset-jest: ^29.5.0
     husky: ^8.0.3
