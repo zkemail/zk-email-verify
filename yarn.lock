@@ -3842,6 +3842,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/libmime@npm:^5.0.3":
+  version: 5.0.3
+  resolution: "@types/libmime@npm:5.0.3"
+  dependencies:
+    "@types/node": "*"
+  checksum: 9fcda9aa901927d78410721fd7222366fe547a4df29d9d3b4f5151ccb6cda36e9ba7886488e415cab485790d30a08b19d94b78039d65057b9ddf024f34850bd9
+  languageName: node
+  linkType: hard
+
 "@types/lodash@npm:^4.14.181":
   version: 4.14.195
   resolution: "@types/lodash@npm:4.14.195"
@@ -14294,6 +14303,7 @@ __metadata:
     "@babel/preset-env": ^7.22.2
     "@babel/preset-react": ^7.22.0
     "@babel/preset-typescript": ^7.21.5
+    "@types/libmime": ^5.0.3
     babel-jest: ^29.5.0
     babel-preset-jest: ^29.5.0
     husky: ^8.0.3

@@ -16,6 +16,7 @@
     "@babel/preset-env": "^7.22.2",
     "@babel/preset-react": "^7.22.0",
     "@babel/preset-typescript": "^7.21.5",
+    "@types/libmime": "^5.0.3",
     "babel-jest": "^29.5.0",
     "babel-preset-jest": "^29.5.0",
     "husky": "^8.0.3",

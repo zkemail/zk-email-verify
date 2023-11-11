@@ -1,7 +1,7 @@
 import { setImmediate } from 'timers';
 import { pki } from 'node-forge';
 import punycode from "punycode";
-const libmime = require('libmime');
+import libmime from "libmime";
 import crypto, { KeyObject } from "crypto";
 import parseDkimHeaders from "./parse-dkim-headers";
 import psl from "psl";
