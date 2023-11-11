@@ -29,7 +29,7 @@ yarn add snarkjs@https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a73463
 ## Getting email headers
 
 ### Outlook
-In Outlook, turn on plain text mode. Copy paste the 'full email details' into the textbox on the (only client side!) webpage.
+In Outlook, turn on plain text mode. Copy paste in the 'full email details' into the textbox on the (only client side!) webpage.
 
 ### Gmail and Yahoo
 In gmail and yahoo, download original message then copy paste the contents into the textbox.
