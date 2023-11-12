@@ -1418,7 +1418,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/preset-typescript@npm:^7.21.0, @babel/preset-typescript@npm:^7.23.2":
+"@babel/preset-typescript@npm:^7.21.0, @babel/preset-typescript@npm:^7.23.2, @babel/preset-typescript@npm:^7.23.3":
   version: 7.23.3
   resolution: "@babel/preset-typescript@npm:7.23.3"
   dependencies:
@@ -4770,6 +4770,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@zk-email/helpers@workspace:packages/helpers"
   dependencies:
+    "@babel/preset-typescript": ^7.23.3
     addressparser: ^1.0.1
     atob: ^2.1.2
     circomlibjs: ^0.1.7
