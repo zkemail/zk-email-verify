@@ -4752,12 +4752,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@zk-email/docs@workspace:packages/docs":
-  version: 0.0.0-use.local
-  resolution: "@zk-email/docs@workspace:packages/docs"
-  languageName: unknown
-  linkType: soft
-
 "@zk-email/e2e-lambdatest@workspace:packages/e2e-lambdatest":
   version: 0.0.0-use.local
   resolution: "@zk-email/e2e-lambdatest@workspace:packages/e2e-lambdatest"
