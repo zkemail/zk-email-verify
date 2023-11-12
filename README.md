@@ -19,6 +19,10 @@ npm install @zk-email/helpers
 ```shell
 npm install @zk-email/contracts
 ```
+3. Install the `@zk-email/circuits` package:
+```shell
+npm install @zk-email/circuits
+```
 ## Package Overviews
 
 The ZK Email Verifier codebase consists of three main packages:
