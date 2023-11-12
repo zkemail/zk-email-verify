@@ -4,7 +4,7 @@ import { wasm as wasm_tester } from "circom_tester";
 import { Scalar } from "ffjavascript";
 import path from "path";
 
-import { DKIMVerificationResult, generateCircuitInputs, verifyDKIMSignature, bigIntToChunkedBytes } from "@zk-email/helpers";
+import { DKIMVerificationResult, generateCircuitInputs, verifyDKIMSignature, bigIntToChunkedBytes } from "@zkemail/helpers";
 
 
 exports.p = Scalar.fromString(

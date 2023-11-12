@@ -1,0 +1,39 @@
+.App {
+  font-family: sans-serif;
+  text-align: center;
+}
+
+.fields > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 40px;
+}
+
+.fields > div > label {
+  width: 150px;
+}
+
+.fields > div > input,
+.fields > div > textarea {
+  flex: 2;
+}
+
+textarea {
+  /* white-space: pre; */
+  background: transparent;
+  color: #fff;
+}
+
+body {
+  padding: 16px;
+}
+
+h1 {
+  font-weight: 300;
+  line-height: 1.1;
+}
+html {
+  background: #171717 !important;
+  color: #fff;
+}
