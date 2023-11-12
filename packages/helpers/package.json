@@ -21,6 +21,7 @@
     "snarkjs": "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
   },
   "devDependencies": {
+    "@babel/preset-typescript": "^7.23.3",
     "msw": "^1.2.2"
   }
 }
