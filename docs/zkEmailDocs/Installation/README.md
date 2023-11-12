@@ -12,7 +12,7 @@ This package contains Solidity contracts for email verification.
 ```
 npm i @zk-email/contracts
 ```
-## **3. @zk-email/circuits
+## **3. @zk-email/circuits**
 This package provides circuits for generating proofs and verifying DKIM signatures in emails.
 ```
 npm i @zk-email/circuits
