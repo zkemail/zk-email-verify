@@ -4,7 +4,7 @@ This is an example project that demonstrates how to use the ZK Email Verifier to
 ## Overview 
 The Twitter Email Verifier is a frontend application that interacts with the ZK Email Verifier. It allows users to generate proofs of Twitter username ownership and verify them.
 
-Check out our demo [here](twitter.prove.email)
+Check out our demo [here](https://twitter.prove.email/)
 
 Note that local proving only works on Chrome/Brave/Arc (or other Chromium-based browsers) due to 1GB download limits on other browsers.
 
@@ -47,7 +47,7 @@ Note that it is completely client side and open source, and you are not trusting
 
 
 ## Support
-If you encounter any issues while using the Twitter Email Verifier. Feel free to open an issue on our Github repository or message us in our Telegram groupchat 
+If you encounter any issues while using the Twitter Email Verifier. Feel free to open an issue on our Github repository or message us in our Telegram groupchat
 
 
 
