@@ -26,7 +26,6 @@ const setTextAreaValue = async (page: Page, selector: string, value: string) => 
         const prototype = Object.getPrototypeOf(element);
         // @ts-ignore
         const prototypeValueSetter = Object.getOwnPropertyDescriptor(prototype, 'value').set;
-        
         if (valueSetter && valueSetter !== prototypeValueSetter) {
           // @ts-ignore
         	prototypeValueSetter.call(element, value);
