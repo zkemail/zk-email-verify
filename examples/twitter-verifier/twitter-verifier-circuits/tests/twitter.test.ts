@@ -30,7 +30,7 @@ describe("Twitter email test", function () {
       // You need to manually compile when changes are made to circuit if `recompile` is set to `false`.
       recompile: true,
       output: path.join(__dirname, "../build/twitter"),
-      include: path.join(__dirname, "../../../../node_modules"),
+      include: path.join(__dirname, "../node_modules"),
     });
   });
 

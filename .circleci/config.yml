@@ -25,7 +25,7 @@ jobs:
           path: ~/zk-email-verify
       - node/install-packages:
           pkg-manager: yarn
-          app-dir: ~/zk-email-verify
+          app-dir: ~/zk-email-verify/examples/twitter-verifier/twitter-verifier-circuits
       - run:
           command: yarn test
           name: Run circom tests
@@ -42,7 +42,7 @@ jobs:
             apk add nodejs npm && npm install --global yarn
       - node/install-packages:
           pkg-manager: yarn
-          app-dir: ~/zk-email-verify
+          app-dir: ~/zk-email-verify/examples/twitter-verifier/twitter-verifier-contracts
       - run:
           name: run foundry tests
           working_directory: ~/zk-email-verify/examples/twitter-verifier/twitter-verifier-contracts
@@ -57,7 +57,7 @@ jobs:
       - run: node --version
       - node/install-packages:
           pkg-manager: yarn
-          app-dir: ~/zk-email-verify
+          app-dir: ~/zk-email-verify/examples/twitter-verifier/twitter-verifier-app
       - run:
           command: yarn test
           name: Run unit tests
