@@ -44,3 +44,10 @@ describe("App", () => {
     expect(linkElement).toBeInTheDocument();
   });
 });
+
+
+describe("App", () => {
+  test("hello", () => {
+    expect(1).toBe(1);
+  });
+})

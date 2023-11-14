@@ -90,3 +90,8 @@ tsbuildinfo
 **/build
 **/dist
 tsconfig.tsbuildinfo
+
+
+examples/**/.yarn
+!examples/**/.env
+

@@ -28,6 +28,7 @@ export default defineConfig({
       buffer: "buffer",
       fs: "browserify-fs",
     },
+    preserveSymlinks: true,
   },
   server: {
     port: 3000,
