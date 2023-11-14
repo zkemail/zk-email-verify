@@ -165,7 +165,7 @@ The command uses the files verification_key.json we exported earlier,proof.json 
 To create a solidity verifier that allows you to verify your proof on the ethereum blockchain, run:
 
 ```bash
-snarkjs zkey export solidityverifier multiplier2_0001.zkey verifier.sol
+snarkjs zkey export solidityverifier muyCircuit_0001.zkey verifier.sol
 
 ```
 

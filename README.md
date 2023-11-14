@@ -58,6 +58,16 @@ We will award $50 for every successfully merged PR that resolves any [open issue
 
 We want to say thanks to these amazing contributors!!
 
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+
 ## Projects 🛠
 Take a look at all of the cool innovative projects that are building on top of Zk-Email!
 
