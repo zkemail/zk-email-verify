@@ -2595,13 +2595,13 @@ __metadata:
 
 "@twitter-verifier/circuits@file:../twitter-verifier-circuits::locator=%40zk-email%2Ftwitter-verifier%40workspace%3A.":
   version: 2.1.0
-  resolution: "@twitter-verifier/circuits@file:../twitter-verifier-circuits#../twitter-verifier-circuits::hash=d73d9b&locator=%40zk-email%2Ftwitter-verifier%40workspace%3A."
+  resolution: "@twitter-verifier/circuits@file:../twitter-verifier-circuits#../twitter-verifier-circuits::hash=7ce91c&locator=%40zk-email%2Ftwitter-verifier%40workspace%3A."
   dependencies:
     "@zk-email/helpers": ../../../packages/helpers
     "@zk-email/zk-regex-circom": ^1.1.1
     big-integer: ^1.6.51
     snarkjs: "git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8"
-  checksum: a996ef49ac9f00949921a4c6722590534d709df67926722392d67db150348d92584f40132e7fcfbd10651f513135eeafdeae8fa0b5cd2d64392ea35cc935c17b
+  checksum: c7df4c7a72d47d59cf484d28cb199f20137f7190046ac1dcbb7234b109945f003b43b68ed3b38267c437774b71430e4b95763db032a14f2472273aeeca2958e7
   languageName: node
   linkType: hard
 
@@ -3628,16 +3628,16 @@ __metadata:
 
 "@zk-email/circuits@file:../../../packages/circuits::locator=%40zk-email%2Ftwitter-verifier%40workspace%3A.":
   version: 3.2.0
-  resolution: "@zk-email/circuits@file:../../../packages/circuits#../../../packages/circuits::hash=8cd812&locator=%40zk-email%2Ftwitter-verifier%40workspace%3A."
+  resolution: "@zk-email/circuits@file:../../../packages/circuits#../../../packages/circuits::hash=dbb352&locator=%40zk-email%2Ftwitter-verifier%40workspace%3A."
   dependencies:
     "@zk-email/zk-regex-circom": ^1.1.1
-  checksum: 43d9c3351726607d365f1ace585aac6e0b1f422cbd47174f665571afd32fe93a221c8a90767a08724ecb4a6cd62fd0163447d13b581e61d2bf96d1876359b0f6
+  checksum: adc6e99452f9a8eaee494bc96f29b471731514d6acb0315d5b8ab07c82ae7a59356b3607ca6d9013e9b51383b279ca389385308c08d2755e9ee472da920b87c0
   languageName: node
   linkType: hard
 
-"@zk-email/helpers@file:../../../packages/helpers::locator=%40twitter-verifier%2Fcircuits%40file%3A..%2Ftwitter-verifier-circuits%23..%2Ftwitter-verifier-circuits%3A%3Ahash%3Dd73d9b%26locator%3D%2540zk-email%252Ftwitter-verifier%2540workspace%253A.":
+"@zk-email/helpers@file:../../../packages/helpers::locator=%40twitter-verifier%2Fcircuits%40file%3A..%2Ftwitter-verifier-circuits%23..%2Ftwitter-verifier-circuits%3A%3Ahash%3D7ce91c%26locator%3D%2540zk-email%252Ftwitter-verifier%2540workspace%253A.":
   version: 3.0.0
-  resolution: "@zk-email/helpers@file:../../../packages/helpers#../../../packages/helpers::hash=5b15cc&locator=%40twitter-verifier%2Fcircuits%40file%3A..%2Ftwitter-verifier-circuits%23..%2Ftwitter-verifier-circuits%3A%3Ahash%3Dd73d9b%26locator%3D%2540zk-email%252Ftwitter-verifier%2540workspace%253A."
+  resolution: "@zk-email/helpers@file:../../../packages/helpers#../../../packages/helpers::hash=5b15cc&locator=%40twitter-verifier%2Fcircuits%40file%3A..%2Ftwitter-verifier-circuits%23..%2Ftwitter-verifier-circuits%3A%3Ahash%3D7ce91c%26locator%3D%2540zk-email%252Ftwitter-verifier%2540workspace%253A."
   dependencies:
     addressparser: ^1.0.1
     atob: ^2.1.2
