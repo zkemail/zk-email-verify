@@ -20,7 +20,8 @@ Next, create an `inputs.ts` file. In this file, you will use the `generateCircui
 Here is a sample code snippet to guide you:
 
 ```javascript
-import { generateCircuitInputs, verifyDKIMSignature } from "@zk-email/helpers";
+import { generateCircuitInputs } from "@zk-email/helpers/dist/input-helpers";
+import { verifyDKIMSignature } from "@zk-email/helpers/dist/dkim"
 import fs from "fs";
 import path from "path";
 
@@ -164,7 +165,7 @@ The command uses the files verification_key.json we exported earlier,proof.json 
 To create a solidity verifier that allows you to verify your proof on the ethereum blockchain, run:
 
 ```bash
-snarkjs zkey export solidityverifier multiplier2_0001.zkey verifier.sol
+snarkjs zkey export solidityverifier muyCircuit_0001.zkey verifier.sol
 
 ```
 
