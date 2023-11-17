@@ -22,7 +22,7 @@ contract TwitterUtilsTest is Test {
         dkimRegistry = new DKIMRegistry();
 
         dkimRegistry.setDKIMPublicKeyHash(
-            "twitter.com",
+            "x.com",
             bytes32(uint256(5857406240302475676709141738935898448223932090884766940073913110146444539372))
         );
         testVerifier = new VerifiedTwitterEmail(proofVerifier, dkimRegistry);
