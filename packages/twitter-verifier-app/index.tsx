@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import App from "./App";
 import { WagmiConfig, createConfig } from "wagmi";
 import { createPublicClient, http } from 'viem'
-import { goerli } from "wagmi/chains";
+import { sepolia } from "wagmi/chains";
 import {
   getDefaultWallets,
   RainbowKitProvider,
@@ -16,14 +16,14 @@ import "@rainbow-me/rainbowkit/styles.css";
 
 const { connectors } = getDefaultWallets({
   appName: "ZK Email - Twitter Verifier",
-  chains: [goerli],
+  chains: [sepolia],
   projectId: "b68298f4e6597f970ac06be1aea7998d",
 });
 
 const config = createConfig({
   autoConnect: true,
   publicClient: createPublicClient({
-    chain: goerli,
+    chain: sepolia,
     transport: http()
   }),
   connectors: connectors,
@@ -33,7 +33,7 @@ const config = createConfig({
 ReactDOM.render(
   <React.StrictMode>
     <WagmiConfig config={config}>
-      <RainbowKitProvider chains={[goerli]} theme={darkTheme()}>
+      <RainbowKitProvider chains={[sepolia]} theme={darkTheme()}>
         <App />
       </RainbowKitProvider>
     </WagmiConfig>

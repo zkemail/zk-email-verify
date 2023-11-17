@@ -262,7 +262,7 @@ export const MainPage: React.FC<{}> = (props) => {
         <NumberedStep step={6}>
           Click <b>"Verify"</b> and then <b>"Mint Twitter Badge On-Chain"</b>,
           and approve to mint the NFT badge that proves Twitter ownership! Note
-          that it is 700K gas right now so only feasible on Goerli, though we
+          that it is 700K gas right now so only feasible on Sepolia, though we
           intend to reduce this soon.
         </NumberedStep>
       </Col>
@@ -481,7 +481,7 @@ export const MainPage: React.FC<{}> = (props) => {
           {isSuccess && (
             <div>
               Transaction:{" "}
-              <a href={"https://goerli.etherscan.io/tx/" + data?.hash}>
+              <a href={"https://sepolia.etherscan.io/tx/" + data?.hash}>
                 {data?.hash}
               </a>
             </div>
