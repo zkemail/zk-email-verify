@@ -55,10 +55,11 @@ jobs:
       - checkout:
           path: ~/zk-email-verify
       - run: node --version
-      - node/install-packages:
-          override-ci-command: yarn
-          cache-path: ~/zk-email-verify/examples/twitter-verifier/twitter-verifier-app/node_modules
-          app-dir: ~/zk-email-verify/examples/twitter-verifier/twitter-verifier-app
+      - run: yarn --version
+      - run:
+          name: Install packages
+          command: yarn
+          working_directory: ~/zk-email-verify/examples/twitter-verifier/twitter-verifier-app
       - run:
           command: yarn test
           name: Run unit tests
