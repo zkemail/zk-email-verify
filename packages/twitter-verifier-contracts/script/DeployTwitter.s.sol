@@ -27,6 +27,12 @@ contract Deploy is Script, Test {
         DKIMRegistry dkimRegistry = new DKIMRegistry();
         console.log("Deployed DKIMRegistry at address: %s", address(dkimRegistry));
 
+        // x.com hash for selector dkim-202308
+        dkimRegistry.setDKIMPublicKeyHash(
+            "x.com",
+            bytes32(uint256(1983664618407009423875829639306275185491946247764487749439145140682408188330))
+        );
+
         VerifiedTwitterEmail testVerifier = new VerifiedTwitterEmail(proofVerifier, dkimRegistry);
         console.log("Deployed VerifiedTwitterEmail at address: %s", address(testVerifier));
 
