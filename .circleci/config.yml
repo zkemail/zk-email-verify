@@ -55,9 +55,6 @@ jobs:
       - checkout:
           path: ~/zk-email-verify
       - run: node --version
-      - run:
-          command: |
-            apk add nodejs npm && npm install --global yarn
       - node/install-packages:
           override-ci-command: yarn
           cache-path: ~/zk-email-verify/examples/twitter-verifier/twitter-verifier-app/node_modules
