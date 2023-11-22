@@ -71,9 +71,12 @@ We want to say thanks to these amazing contributors!!
 ## Projects 🛠
 Take a look at all of the cool innovative projects that are building on top of Zk-Email!
 
-- [Zkp2p](https://zkp2p.xyz/)
-- [Zk Email Safe](https://ethglobal.com/showcase/zkemail-safe-z8dps)
+- [ZKP2P: Decentralized Venmo <> USDC Bridge](https://zkp2p.xyz/)
+- [ZK Email Safe: 2FA for on-chain transactions](https://ethglobal.com/showcase/zkemail-safe-z8dps)
+- [Email Wallet: Send transactions via email, including account recovery!](https://emailwallet.org)
+- [Nozee: Anonymous Proofs of Email Domain via JWTs](https://nozee.xyz)
 
+Check out the rest of our proof of identity applications on our website [prove.email](https://prove.email).
 
 ## FAQ/Possible Errors
 ### Can you provide an example header for me to understand what exactly is signed?
@@ -167,7 +170,7 @@ zkp.ts is the key file that calls the important proving functions. You should be
 
 ### What is the licensing on this technology?
 
-Everything we write is MIT licensed. Note that circom and circomlib is GPL. Broadly we are pro permissive open source usage with attribution! We hope that those who derive profit from this, contribute that money altruistically back to this technology and open source public good.
+Everything we write is MIT licensed. Note that circom and circomlib is GPL. Broadly we are pro permissive open source usage, and really appreciate attribution! We hope that those who derive profit from this, contribute a significant portion of that money altruistically back to help advance and maintain this technology and open source public good.
 
 ## To-Do
 
