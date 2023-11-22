@@ -1,4 +1,4 @@
-# Miscellanious Docs
+# Miscellaneous Docs
 **This file contains additional information that you may find useful towards building your own application**
 
 
@@ -56,7 +56,7 @@ You can also edit the constant filename at the top of generate_input.ts to impor
 To create a chunked zkey for in-browser proving, run the following on a high CPU computer:
 
 ```bash
-yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8 # Swap to chunked generation version for browser, leave this line out for serverside proofs onluy
+yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8 # Swap to chunked generation version for browser, leave this line out for serverside proofs only
 
 cd packages/twitter-verifier-circuits/scripts
 cp circuit.env.example circuit.env
