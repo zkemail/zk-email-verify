@@ -96,7 +96,7 @@ To compile the circuit locally, you need to have Rust and Circom installed first
 
 
 ```bash
-circom MyCircuit.circom -o --r1cs --wasm --sym --c 
+circom -l node_modules MyCircuit.circom -o --r1cs --wasm --sym --c 
 ```
 *Note: You can add -l to specify the directory where the directive `include` should look for the circuits indicated.
 
