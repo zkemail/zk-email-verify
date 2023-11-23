@@ -8,7 +8,7 @@ For an easy setup, we suggest utilizing [Zkrepl](https://github.com/zkemail/zk-r
 ## Step 1: Create the Regex File
 Transform your target email string into a regex format and compile it into a regex.circom file. For guidance, visit our [zk-regex repository](https://github.com/zkemail/zk-regex).
 
-Use our dedicated tool to convert regex into circom code [here](https://zkregex.com/)
+Use our dedicated tool to convert regex into circom code here: [regextoCircomTool](https://zkregex.com/)
 
 
 ## Step 2: Generate Circuit Inputs
