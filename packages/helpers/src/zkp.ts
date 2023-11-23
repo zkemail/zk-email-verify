@@ -25,28 +25,25 @@ async function storeArrayBuffer(keyname: string, buffer: ArrayBuffer) {
 // and named such that filename===`${name}.zkey${a}` in order for it to be found by snarkjs.
 export async function downloadFromFilename(filename: string, compressed = false) {
   const link = loadURL + filename;
-  try {
-    const zkeyResp = await fetch(link, {
-      method: "GET",
-    });
-    const zkeyBuff = await zkeyResp.arrayBuffer();
-    if (!compressed) {
-      await storeArrayBuffer(filename, zkeyBuff);
-    } else {
-      // uncompress the data
-      const zkeyUncompressed = await uncompress(zkeyBuff);
-      const rawFilename = filename.replace(zkeyExtensionRegEx, ""); // replace .gz with ""
-      // store the uncompressed data
-      console.log("storing file in localforage", rawFilename);
-      await storeArrayBuffer(rawFilename, zkeyUncompressed);
-      console.log("stored file in localforage", rawFilename);
-      // await localforage.setItem(filename, zkeyBuff);
-    }
-    console.log(`Storage of ${filename} successful!`);
-  } catch (e) {
-    console.log(`Storage of ${filename} unsuccessful, make sure IndexedDB is enabled in your browser.`);
-    console.log(e);
+
+  const zkeyResp = await fetch(link, {
+    method: "GET",
+  });
+
+  const zkeyBuff = await zkeyResp.arrayBuffer();
+  if (!compressed) {
+    await storeArrayBuffer(filename, zkeyBuff);
+  } else {
+    // uncompress the data
+    const zkeyUncompressed = await uncompress(zkeyBuff);
+    const rawFilename = filename.replace(zkeyExtensionRegEx, ""); // replace .gz with ""
+    // store the uncompressed data
+    console.log("storing file in localforage", rawFilename);
+    await storeArrayBuffer(rawFilename, zkeyUncompressed);
+    console.log("stored file in localforage", rawFilename);
+    // await localforage.setItem(filename, zkeyBuff);
   }
+  console.log(`Storage of ${filename} successful!`);
 }
 
 export const downloadProofFiles = async function (filename: string, onFileDownloaded: () => void) {
@@ -56,7 +53,7 @@ export const downloadProofFiles = async function (filename: string, onFileDownlo
     const itemCompressed = await localforage.getItem(targzFilename);
     const item = await localforage.getItem(`${filename}.zkey${c}`);
     if (item) {
-      console.log(`${filename}.zkey${c}${item ? "" : zkeyExtension} already found in localstorage!`);
+      console.log(`${filename}.zkey${c}${item ? "" : zkeyExtension} already found in localforage!`);
       onFileDownloaded();
       continue;
     }
@@ -78,7 +75,7 @@ export const uncompressProofFiles = async function (filename: string) {
     if (!itemCompressed) {
       console.error(`Error downloading file ${targzFilename}`);
     } else {
-      console.log(`${filename}.zkey${c}${item ? "" : zkeyExtension} already found in localstorage!`);
+      console.log(`${filename}.zkey${c}${item ? "" : zkeyExtension} already found in localforage!`);
       continue;
     }
     filePromises.push(downloadFromFilename(targzFilename));
