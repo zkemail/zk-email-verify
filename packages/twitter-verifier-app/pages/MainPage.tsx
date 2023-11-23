@@ -353,7 +353,7 @@ export const MainPage: React.FC<{}> = (props) => {
                 });
               }
               catch (e) {
-                console.error(e);
+                console.log(e);
                 setDisplayMessage("Error downloading proof files");
                 setStatus("error-failed-to-download");
                 return;

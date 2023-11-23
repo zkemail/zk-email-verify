@@ -20,15 +20,24 @@ async function storeArrayBuffer(keyname: string, buffer: ArrayBuffer) {
   return await localforage.setItem(keyname, buffer);
 }
 
+async function downloadWithRetries(link: string, downloadAttempts: number) {
+  for (let i = 1; i <= downloadAttempts; i++) {
+    console.log(`download attempt ${i} for ${link}`);
+    let response = await fetch(link, { method: "GET" });
+    if (response.status == 200) {
+      return response;
+    }
+  }
+  throw new Error(`Error downloading ${link} after ${downloadAttempts} retries`);
+}
+
 // GET the compressed file from the remote server, then store it with localforage
 // Note that it must be stored as an uncompressed ArrayBuffer
 // and named such that filename===`${name}.zkey${a}` in order for it to be found by snarkjs.
 export async function downloadFromFilename(filename: string, compressed = false) {
   const link = loadURL + filename;
 
-  const zkeyResp = await fetch(link, {
-    method: "GET",
-  });
+  const zkeyResp = await downloadWithRetries(link, 3);
 
   const zkeyBuff = await zkeyResp.arrayBuffer();
   if (!compressed) {
