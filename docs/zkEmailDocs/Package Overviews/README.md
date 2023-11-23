@@ -1,6 +1,8 @@
 # Package Overviews
 This document provides an overview of the three main packages that make up ZK Email Verifier. Each package serves a specific purpose in the process of verifying DKIM signatures in emails using zero-knowledge proofs.
 
+
+
 ## zk-email/helpers
 The @zk-email/helpers package offers a set of utility functions designed to assist in the creation of inputs for zk circuits. 
 
@@ -17,15 +19,23 @@ Key considerations:
 - It processes DKIM headers and employs Regex for pattern matching in emails.
 - By default, inputs are kept private unless stated otherwise, while outputs are always made public.
 
+## **Circuit Helpers**
 
+### ***Base64.circom***: 
+The base64.circom file is a part of the zk-email/circuits package and provides functionality for decoding base64 encoded data within arithimetic circuits. 
 
-## zk-email/contracts
-The @zk-email/contracts package contains Solidity contracts that are used for email verification. These contracts are designed to be modified for each use case, allowing for flexibility in their application.
+It includes two templates:
+- Base64Lookup: Converts a base64 character into its 6-bit binary representation.
 
-The `DKIMRegistry.sol` contract contains hash of the DKIM keys for public domains
+- Base64Decode: Decodes a base64 encoded string into binary data.
 
-Key considerations:
-- After compiling your circuit, snarkjs will generate a Solidity file named `verifier.sol`. This file allows you to verify your proof on-chain.
+To use these templates in your Circom program, you need to import the base64.circom file. Here's how you can do it:
+
+```bash
+include "path/to/base64.circom";
+```
+
+Replace "path/to/base64.circom" with the actual path to the base64.circom file.
 
 
 
