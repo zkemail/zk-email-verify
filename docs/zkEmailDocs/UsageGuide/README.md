@@ -5,8 +5,10 @@ This guide provides a step-by-step walkthrough on how to use the ZK Email Verifi
 
 For an easy setup, we suggest utilizing [Zkrepl](https://github.com/zkemail/zk-regex), a playground for compiling and testing your circuits in the early stages of development.
 
-## Step 1: Generating the Regex File
-To convert your target email string into a regex format and compile it into a regex.circom file, please refer to our [zk-regex repository](www.github.com/zkemail/zk-regex).
+## Step 1: Create the Regex File
+Transform your target email string into a regex format and compile it into a regex.circom file. For guidance, visit our [zk-regex repository](https://github.com/zkemail/zk-regex).
+
+Use our dedicated tool to convert regex into circom code [here](https://zkregex.com/)
 
 
 ## Step 2: Generate Circuit Inputs
@@ -139,16 +141,16 @@ snarkjs powersoftau contribute pot12_0000.ptau pot12_0001.ptau --name="First con
 ```
 ### Phase 2
 
-For Phase 2 of the trusted setup you can either use https://docs.circom.io/getting-started/proving-circuits/#phase-2 or [P0tion](https://github.com/privacy-scaling-explorations/p0tion) 
+For Phase 2 of the trusted setup you can either use https://docs.circom.io/getting-started/proving-circuits/#phase-2 or [P0tion](https://github.com/privacy-scaling-explorations/p0tion)
 
 ## Step 7: Verify your circuit
 
 After this process you should get three files
--  the proving key(vkey) 
+-  the proving key(vkey)
 - proof.json
 - public.json
 
-You can use these files to verify your circuit. 
+You can use these files to verify your circuit.
 
 ### Off-chain Verification
 To verify your proof run:
