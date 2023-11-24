@@ -19,6 +19,21 @@ Key considerations:
 - It processes DKIM headers and employs Regex for pattern matching in emails.
 - By default, inputs are kept private unless stated otherwise, while outputs are always made public.
 
+
+## zk-email/contracts
+
+The @zk-email/contracts package contains the main contract of the SDK, `DKIMRegistry.sol`. This Solidity contract serves as a registry for storing the hash of the DomainKeys Identified Mail (DKIM) public key for each domain.
+
+Key considerations:
+- The `DKIMRegistry.sol` contract maintains a record of the DKIM key hashes for public domains. The hash is calculated by taking the Poseidon hash of the DKIM key split into 9 chunks of 242 bits each.
+
+- The contract provides functions for registering, revoking, and validating DKIM public key hashes.
+
+- It emits events upon successful registration (`DKIMPublicKeyHashRegistered`) and revocation (`DKIMPublicKeyHashRevoked`) of DKIM public key hashes.
+
+
+- The `DKIMRegistry` contract is used in conjunction with the `EmailVerifier` circuit to verify emails. The `EmailVerifier` circuit checks the DKIM signature of an email against the DKIM public key hash stored in the `DKIMRegistry` contract for the email's domain.
+
 ## **Circuit Helpers**
 The `circuits` directory includes a `helpers` folder, which houses a variety of Circom helper templates. These templates are instrumental in constructing your primary circuit file.
 
@@ -37,7 +52,7 @@ It includes two templates:
 To use these templates in your Circom program, you need to import the base64.circom file. Here's how you can do it:
 
 ```bash
-include "path/to/base64.circom";
+include "path/to/base64.circom"
 ```
 
 Replace "path/to/base64.circom" with the actual path to the base64.circom file.
@@ -145,7 +160,7 @@ Outputs:
 To use these templates in your Circom program, you need to import the extract.circom file. Here's how you can do it:
 
 ```bash
-include "path/to/extract.circom";
+include "path/to/extract.circom"
 ```
 
 Replace "path/to/extract.circom" with the actual path to the extract.circom file.
