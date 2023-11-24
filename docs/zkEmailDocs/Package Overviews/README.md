@@ -22,7 +22,7 @@ Key considerations:
 ## **Circuit Helpers**
 The `circuits` directory includes a `helpers` folder, which houses a variety of Circom helper templates. These templates are instrumental in constructing your primary circuit file.
 
-### **Base64.circom**: 
+### **base64.circom**: 
 The base64.circom file is a part of the zk-email/circuits package and provides functionality for decoding base64 encoded data within arithimetic circuits. 
 
 **Overview**
@@ -48,7 +48,97 @@ The extract.circom file is part of the zk-email/circuits package. It provides a 
 
 **Overview**
 
-The file includes several templates for shifting and packing signal arrays, and for extracting reveal signals and packed signals. These templates include `PackBytes`, `VarShiftLeft`, `VarShiftMaskedStr`, `ClearSubarrayAfterEndIndex`, `ShiftAndPack`, and `ShiftAndPackMaskedStr`.
+The file includes several templates:
+
+`PackBytes(max_in_signals, max_out_signals, pack_size)`
+
+A template that packs a number of chunks (i.e., number of char signals that fit into a signal) from the input signals into the output signals.
+
+Inputs:
+
+- in: An array of signals to be packed.
+- max_in_signals: The maximum number of input signals.
+- max_out_signals: The maximum number of output signals.
+- pack_size: The number of chunks to be packed into a signal.
+
+Outputs:
+
+- out: An array of packed signals.
+
+`VarShiftLeft(in_array_len, out_array_len)`
+
+A template that shifts the input signals left by a variable size of bytes.
+
+Inputs:
+
+- in: An array of signals to be shifted.
+- shift: The number of bytes to shift.
+- in_array_len: The length of the input array.
+- out_array_len: The length of the output array.
+
+Outputs:
+
+- out: An array of shifted signals.
+
+`VarShiftMaskedStr(in_array_len, out_array_len)`
+
+Similar to VarShiftLeft, but it assumes the input is the masked bytes and checks that shift is the first index of the non-masked bytes.
+
+Inputs:
+
+- in: An array of masked signals to be shifted.
+- shift: The number of bytes to shift.
+- in_array_len: The length of the input array.
+- out_array_len: The length of the output array.
+
+Outputs:
+
+- out: An array of shifted signals.
+
+`ClearSubarrayAfterEndIndex(n, nBits)`
+
+A template that clears a subarray after a specified end index.
+
+Inputs:
+
+- in: An array of signals.
+- end: The end index.
+
+Outputs:
+
+- out: An array of signals with the subarray after the end index cleared.
+
+`ShiftAndPack(in_array_len, max_substr_len, pack_size)`
+
+A template that shifts the input signals left by a variable size of bytes and packs the shifted bytes into fields under a specified pack size.
+
+Inputs:
+
+- in: An array of signals to be shifted and packed.
+- shift: The number of bytes to shift.
+- in_array_len: The length of the input array.
+- max_substr_len: The maximum length of the substring.
+- pack_size: The number of chunks to be packed into a signal.
+
+Outputs:
+
+- out: An array of shifted and packed signals.
+
+`ShiftAndPackMaskedStr(in_array_len, max_substr_len, pack_size)`
+
+Similar to ShiftAndPack, but it assumes the input is the masked bytes and checks that shift is the first index of the non-masked bytes.
+
+Inputs:
+
+- in: An array of masked signals to be shifted and packed.
+- shift: The number of bytes to shift.
+- in_array_len: The length of the input array.
+- max_substr_len: The maximum length of the substring.
+- pack_size: The number of chunks to be packed into a signal.
+
+Outputs:
+
+- out: An array of shifted and packed signals.
 
 **Importing**
 
