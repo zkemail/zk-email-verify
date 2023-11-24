@@ -20,14 +20,19 @@ Key considerations:
 - By default, inputs are kept private unless stated otherwise, while outputs are always made public.
 
 ## **Circuit Helpers**
+The `circuits` directory includes a `helpers` folder, which houses a variety of Circom helper templates. These templates are instrumental in constructing your primary circuit file.
 
-### ***Base64.circom***: 
+### **Base64.circom**: 
 The base64.circom file is a part of the zk-email/circuits package and provides functionality for decoding base64 encoded data within arithimetic circuits. 
+
+**Overview**
 
 It includes two templates:
 - Base64Lookup: Converts a base64 character into its 6-bit binary representation.
 
 - Base64Decode: Decodes a base64 encoded string into binary data.
+
+**Importing**
 
 To use these templates in your Circom program, you need to import the base64.circom file. Here's how you can do it:
 
@@ -36,6 +41,24 @@ include "path/to/base64.circom";
 ```
 
 Replace "path/to/base64.circom" with the actual path to the base64.circom file.
+
+### **extract.circom**: 
+
+The extract.circom file is part of the zk-email/circuits package. It provides a set of utilities for manipulating signal arrays within arithmetic circuits.
+
+**Overview**
+
+The file includes several templates for shifting and packing signal arrays, and for extracting reveal signals and packed signals. These templates include `PackBytes`, `VarShiftLeft`, `VarShiftMaskedStr`, `ClearSubarrayAfterEndIndex`, `ShiftAndPack`, and `ShiftAndPackMaskedStr`.
+
+**Importing**
+
+To use these templates in your Circom program, you need to import the extract.circom file. Here's how you can do it:
+
+```bash
+include "path/to/extract.circom";
+```
+
+Replace "path/to/extract.circom" with the actual path to the extract.circom file.
 
 
 
