@@ -18,6 +18,7 @@ Key considerations:
 - the `email-verifier.circom` file is a standard template that can be used for email verification and customized for specific applications
 - It processes DKIM headers and employs Regex for pattern matching in emails.
 - By default, inputs are kept private unless stated otherwise, while outputs are always made public.
+- Upon obtaining the vkey and zkey, you can establish a `verifier.sol `contract, enabling on-chain proof verification!
 
 
 ## zk-email/contracts
