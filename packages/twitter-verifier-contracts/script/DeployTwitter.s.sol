@@ -8,7 +8,7 @@ import "../src/TwitterEmailHandler.sol";
 import "../src/Groth16VerifierTwitter.sol";
 
 contract Deploy is Script, Test {
-    function getPrivateKey() internal returns (uint256) {
+    function getPrivateKey() internal view returns (uint256) {
         try vm.envUint("PRIVATE_KEY") returns (uint256 privateKey) {
             return privateKey;
         } catch {

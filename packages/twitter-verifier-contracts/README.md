@@ -10,19 +10,15 @@ To setup,
 
 ```
 curl -L https://foundry.paradigm.xyz | bash && source ~/.bashrc && foundryup
-forge install foundry-rs/forge-std
-cp -r node_modules/@openzeppelin src/contracts/lib/@openzeppelin
-cd src/contracts
-
 forge install
-forge install openzeppelin/openzeppelin-contracts foundry-rs/forge-std openzeppelin/openzeppelin-contracts-upgradeable dapphub/ds-test --no-commit
+forge install openzeppelin/openzeppelin-contracts@v4.9.3 foundry-rs/forge-std openzeppelin/openzeppelin-contracts-upgradeable@v4.9.3 dapphub/ds-test --no-commit
 ```
 Maybe try `--no-git` to the end of the final line if it fails, but this will mess up your development environment for future code changes.
 
 To test your own contracts, copy TestTwitter.t.sol into a new test file, and make sure you can compile your proof fine. You can run a specific test with `forge test --match test_name`. Then make sure the whole suite passes and isn't above the size limit:
 
 ```
-forge test --fork-url https://eth-goerli.g.alchemy.com/v2/$ALCHEMY_GOERLI_KEY
+forge test --fork-url "https://eth-goerli.g.alchemy.com/v2/$ALCHEMY_GOERLI_KEY"
 forge build --sizes # Make sure these are all below 24kB
 ```
 
