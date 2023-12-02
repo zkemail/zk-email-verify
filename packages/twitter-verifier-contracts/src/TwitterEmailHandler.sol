@@ -62,7 +62,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable {
     /// Mint a token proving twitter ownership by verifying proof of email
     /// @param proof ZK proof of the circuit - a[2], b[4] and c[2] encoded in series
     /// @param signals Public signals of the circuit. First item is pubkey_hash, next 3 are twitter username, the last one is etherum address
-    function mint(uint256[8] memory proof, uint256[5] memory signals) public {
+    function mint(uint256[8] memory proof, uint256[3] memory signals) public {
         // TODO no invalid signal check yet, which is fine since the zk proof does it
         // Checks: Verify proof and check signals
         // require(signals[0] == 1337, "invalid signals");
