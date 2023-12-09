@@ -1,0 +1,22 @@
+/// <reference types="node" />
+export declare function bytesToString(bytes: Uint8Array): string;
+export declare function stringToBytes(str: string): Uint8Array;
+export declare function bufferToUint8Array(buf: Buffer): Uint8Array;
+export declare function bufferToHex(buf: Buffer): String;
+export declare function Uint8ArrayToCharArray(a: Uint8Array): string[];
+export declare function Uint8ArrayToString(a: Uint8Array): Promise<string>;
+export declare function Uint8ArrayToHex(a: Uint8Array): Promise<string>;
+export declare function bufferToString(buf: Buffer): String;
+export declare function bytesToBigInt(bytes: Uint8Array): bigint;
+export declare function bigIntToChunkedBytes(num: BigInt | bigint, bytesPerChunk: number, numChunks: number): string[];
+export declare function toCircomBigIntBytes(num: BigInt | bigint): string[];
+export declare function toHex(bytes: Uint8Array): string;
+export declare function fromHex(hexString: string): Uint8Array;
+export declare function int64toBytes(num: number): Uint8Array;
+export declare function int8toBytes(num: number): Uint8Array;
+export declare function bitsToUint8(bits: string[]): Uint8Array;
+export declare function uint8ToBits(uint8: Uint8Array): string;
+export declare function mergeUInt8Arrays(a1: Uint8Array, a2: Uint8Array): Uint8Array;
+export declare function assert(cond: boolean, errorMessage: string): void;
+export declare function packedNBytesToString(packedBytes: bigint[], n?: number): string;
+export declare function packBytesIntoNBytes(messagePaddedRaw: Uint8Array | string, n?: number): Array<bigint>;

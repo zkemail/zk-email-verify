@@ -2,7 +2,6 @@
 #
 #
 
-dist
 
 # dependencies
 /node_modules
@@ -84,9 +83,8 @@ packages/circuits/tests/compiled-test-circuit/*
 **/.vite
 **/.yarn/*
 
-tsbuildinfo
+*.tsbuildinfo
 
 **/node_modules
 **/build
-**/dist
 tsconfig.tsbuildinfo
