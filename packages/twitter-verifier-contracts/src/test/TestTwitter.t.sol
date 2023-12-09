@@ -77,7 +77,7 @@ contract TwitterUtilsTest is Test {
 
     // Should pass (note that there are extra 0 bytes, which are filtered out but should be noted in audits)
     function testVerifyTestEmail() public {
-        uint256[5] memory publicSignals;
+        uint256[3] memory publicSignals;
         publicSignals[
             0
         ] = 1983664618407009423875829639306275185491946247764487749439145140682408188330; // DKIM hash
@@ -134,14 +134,12 @@ contract TwitterUtilsTest is Test {
 
     // Should pass (note that there are extra 0 bytes, which are filtered out but should be noted in audits)
     function testVerifyYushEmail() public {
-        uint256[5] memory publicSignals;
+        uint256[3] memory publicSignals;
         publicSignals[
             0
         ] = 5857406240302475676709141738935898448223932090884766940073913110146444539372; // DKIM hash
         publicSignals[1] = 28557011619965818;
         publicSignals[2] = 1818845549;
-        publicSignals[3] = 0;
-        publicSignals[4] = 706787187238086675321187262313978339498517045894; // Wallet address
 
         // TODO switch order
         uint256[2] memory proof_a = [
