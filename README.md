@@ -1,6 +1,6 @@
 # Anonymous KYC with ZK Email
 
-Generate an anonymous proof of personhood badge at [anonkyc.com](https://anonkyc.com).
+Generate an anonymous proof of personhood badge at [anonkyc.com](https://anonkyc.com). Note: website likely doesn't work right now due to DKIM public keys changing.
 
 ## What is ZK KYC?
 
