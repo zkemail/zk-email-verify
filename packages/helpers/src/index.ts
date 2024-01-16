@@ -1,3 +1,4 @@
+export * from "./dkim";
 export * from "./binaryFormat";
 export * from "./constants";
 export * from "./fast-sha256";
