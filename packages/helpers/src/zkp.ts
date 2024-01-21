@@ -4,11 +4,7 @@ import pako from "pako";
 // @ts-ignore
 import * as snarkjs from "snarkjs";
 
-export const loadURL =
-  "https://twitter-verifier-zkeys.s3.amazonaws.com/751fae9012c8a36543f60a2d2ec528d088ed6df0/";
-// export const loadURL = "http://localhost:3001/";
 const compressed = true;
-// const loadURL = "/zkemail-zkey-chunks/";
 
 const zkeyExtension = ".gz";
 const zkeyExtensionRegEx = new RegExp(`\\b${zkeyExtension}$\\b`, "i"); // = /.gz$/i
@@ -46,10 +42,11 @@ async function downloadWithRetries(link: string, downloadAttempts: number) {
 // Note that it must be stored as an uncompressed ArrayBuffer
 // and named such that filename===`${name}.zkey${a}` in order for it to be found by snarkjs.
 export async function downloadFromFilename(
+  baseUrl: string,
   filename: string,
   compressed = false
 ) {
-  const link = loadURL + filename;
+  const link = baseUrl + filename;
 
   const zkeyResp = await downloadWithRetries(link, 3);
 
@@ -70,17 +67,18 @@ export async function downloadFromFilename(
 }
 
 export const downloadProofFiles = async function (
-  filename: string,
+  baseUrl: string,
+  circuitName: string,
   onFileDownloaded: () => void
 ) {
   const filePromises = [];
   for (const c of zkeySuffix) {
-    const targzFilename = `${filename}.zkey${c}${zkeyExtension}`;
+    const targzFilename = `${circuitName}.zkey${c}${zkeyExtension}`;
     const itemCompressed = await localforage.getItem(targzFilename);
-    const item = await localforage.getItem(`${filename}.zkey${c}`);
+    const item = await localforage.getItem(`${circuitName}.zkey${c}`);
     if (item) {
       console.log(
-        `${filename}.zkey${c}${
+        `${circuitName}.zkey${c}${
           item ? "" : zkeyExtension
         } already found in localforage!`
       );
@@ -88,8 +86,7 @@ export const downloadProofFiles = async function (
       continue;
     }
     filePromises.push(
-      // downloadFromFilename(targzFilename, true).then(
-      downloadFromFilename(targzFilename, compressed).then(() =>
+      downloadFromFilename(baseUrl, targzFilename, compressed).then(() =>
         onFileDownloaded()
       )
     );
@@ -98,36 +95,14 @@ export const downloadProofFiles = async function (
   await Promise.all(filePromises);
 };
 
-export const uncompressProofFiles = async function (filename: string) {
-  const filePromises = [];
-  for (const c of zkeySuffix) {
-    const targzFilename = `${filename}.zkey${c}${zkeyExtension}`;
-    const item = await localforage.getItem(`${filename}.zkey${c}`);
-    const itemCompressed = await localforage.getItem(targzFilename);
-    if (!itemCompressed) {
-      console.error(`Error downloading file ${targzFilename}`);
-    } else {
-      console.log(
-        `${filename}.zkey${c}${
-          item ? "" : zkeyExtension
-        } already found in localforage!`
-      );
-      continue;
-    }
-    filePromises.push(downloadFromFilename(targzFilename));
-  }
-  console.log(filePromises);
-  await Promise.all(filePromises);
-};
-
-export async function generateProof(input: any, filename: string) {
+export async function generateProof(input: any, baseUrl: string, circuitName: string) {
   // TODO: figure out how to generate this s.t. it passes build
   console.log("generating proof for input");
   console.log(input);
   const { proof, publicSignals } = await snarkjs.groth16.fullProve(
     input,
-    `${loadURL}${filename}.wasm`,
-    `${filename}.zkey`
+    `${baseUrl}${circuitName}.wasm`,
+    `${circuitName}.zkey`
   );
   console.log(`Generated proof ${JSON.stringify(proof)}`);
 
@@ -137,10 +112,14 @@ export async function generateProof(input: any, filename: string) {
   };
 }
 
-export async function verifyProof(proof: any, publicSignals: any, vkey: any) {
+export async function verifyProof(proof: any, publicSignals: any, baseUrl: string, circuitName: string) {
   console.log("PROOF", proof);
   console.log("PUBLIC SIGNALS", publicSignals);
-  console.log("VK", vkey);
+ 
+  const response = await downloadWithRetries(`${baseUrl}${circuitName}.vkey.json`, 3);
+  const vkey = await response.json();
+  console.log("vkey", vkey);
+  
   const proofVerified = await snarkjs.groth16.verify(
     vkey,
     publicSignals,
