@@ -18,11 +18,11 @@ export interface DKIMVerificationResult {
 export async function verifyDKIMSignature(
   email: Buffer | string,
   domain: string = "",
-  tryRevertForwarderChanges: boolean = true
+  tryRevertARCChanges: boolean = true
 ): Promise<DKIMVerificationResult> {
   let dkimResult = await tryVerifyDKIM(email, domain);
 
-  if (dkimResult.status.result !== "pass" && tryRevertForwarderChanges) {
+  if (dkimResult.status.result !== "pass" && tryRevertARCChanges) {
     console.info("DKIM verification failed. Trying to verify after reverting forwarder changes...");
 
     const modified = await revertForwarderChanges(email.toString());
@@ -35,13 +35,16 @@ export async function verifyDKIMSignature(
     );
   }
 
+  const { publicKey, signature, status, body, bodyHash } = dkimResult;
+  const pubKeyData = pki.publicKeyFromPem(publicKey.toString());
+
   return {
-    signature: BigInt("0x" + Buffer.from(dkimResult.signature, "base64").toString("hex")),
-    message: Buffer.from(dkimResult.signingHeaders.canonicalizedHeader, "base64"),
-    body: dkimResult.body,
-    bodyHash: dkimResult.bodyHash,
+    signature: BigInt("0x" + Buffer.from(signature, "base64").toString("hex")),
+    message: status.signature_header,
+    body: body,
+    bodyHash: bodyHash,
     signingDomain: dkimResult.signingDomain,
-    publicKey: BigInt(pki.publicKeyFromPem(dkimResult.publicKey).n.toString()),
+    publicKey: BigInt(pubKeyData.n.toString()),
     selector: dkimResult.selector,
     algo: dkimResult.algo,
     format: dkimResult.format,
@@ -51,9 +54,7 @@ export async function verifyDKIMSignature(
 
 async function tryVerifyDKIM(email: Buffer | string, domain: string = "") {
   let dkimVerifier = new DkimVerifier({});
-  console.log(email);
   await writeToStream(dkimVerifier, email as any);
-  console.log(dkimVerifier);
 
   let domainToVerifyDKIM = domain;
   if (!domainToVerifyDKIM) {
