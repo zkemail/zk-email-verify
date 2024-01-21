@@ -1,6 +1,6 @@
 {
   "name": "@zk-email/helpers",
-  "version": "3.0.2",
+  "version": "3.1.0",
   "main": "dist",
   "scripts": {
     "build": "yarn g:tsc",
@@ -8,6 +8,10 @@
     "prepublish": "yarn build",
     "publish": "yarn npm publish --access=public"
   },
+  "files": [
+    "dist",
+    "src"
+  ],
   "dependencies": {
     "addressparser": "^1.0.1",
     "atob": "^2.1.2",
