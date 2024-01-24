@@ -8,11 +8,12 @@ if (typeof process === 'object') {
 }
 const LOCAL = isNode;
 
+// @ts-ignore
+import addressparser from "addressparser";
 import { getSigningHeaderLines, getPublicKey, parseDkimHeaders, formatAuthHeaderRow, getAlignment } from "./tools";
 import { MessageParser } from "./message-parser";
 import { dkimBody } from "./body";
 import { generateCanonicalizedHeader } from "./header";
-import addressparser from "addressparser";
 import * as crypto from "crypto";
 import { ParseDkimHeaders, ParsedHeaders } from "./index";
 

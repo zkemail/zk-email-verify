@@ -29,11 +29,11 @@ It is recommended to go through this guide to understand how to effectively use 
 
 
 
-### [Project Examples](./project-examples)
+### Project Examples
 
 Here you can find example projects that implement our SDKs:
 
-1. **Twitter email verifier**: Prove you own a twitter username on chain. [Link to README](/packages/examples/twitter-verifier/README.md)
+1. **Twitter email verifier**: Prove you own a twitter username on chain. [Link to README](docs/twitterREADME.md)
 2. **Email wallet**: Send money to anyone anonymously using email. [Email wallet Github](https://github.com/zkemail/email-wallet)
 3. **ZKP2P**: ZKP2P is a trustless and privacy-preserving fiat-to-crypto onramp powered by ZK proofs [ZKP2P Github](https://github.com/zkp2p/zk-p2p)
 4. **zkEmail Safe**: Operate Safe multisigs through email verified using ZK proofs [ zkEmail Safe Github](https://github.com/javiersuweijie/zkemail-safe)

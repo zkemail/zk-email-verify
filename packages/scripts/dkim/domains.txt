@@ -222,3 +222,4 @@ wharton.upenn.edu
 gmail.com
 twitter.com
 icloud.com
+x.com
