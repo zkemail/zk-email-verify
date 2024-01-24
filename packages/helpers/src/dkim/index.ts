@@ -83,3 +83,9 @@ export interface Options {
   instance: string | boolean;
   bodyHashedBytes?: string;
 }
+
+// export dkim functions
+export * from "./dkim-verifier";
+export * from "./message-parser";
+export * from "./parse-dkim-headers";
+export * from "./tools";
