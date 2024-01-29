@@ -302,7 +302,7 @@ export const getPublicKey = async (
 ) => {
   minBitLength = minBitLength || 1024;
   if (!IS_BROWSER) {
-    resolver = resolver || require("dns").resolve;
+    resolver = resolver || require("dns").promises.resolve;
   } else {
     resolver = resolveDNSHTTP;
   }
