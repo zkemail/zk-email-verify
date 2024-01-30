@@ -10,9 +10,9 @@
     "./node_modules/@types/node/index.d.ts",
   ],
   "compilerOptions": {
-    "module": "ES2022",
+    "module": "commonjs",
     "declaration": true,
     "baseUrl": "./src",
     "outDir": "dist" 
-  },
+  }
 }
