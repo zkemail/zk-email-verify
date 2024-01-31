@@ -2,6 +2,7 @@ import { StringDecoder } from "string_decoder";
 import _localforage from "localforage";
 import { downloadFromFilename, downloadProofFiles } from "../src/zkp";
 import { server } from './mocks/server.js'
+import { MOCK_BASE_URL, MOCK_CIRCUIT_NAME } from "./mocks/handlers.js";
 
 // this is mocked in __mocks__/localforage.ts
 jest.mock("localforage");
@@ -37,7 +38,7 @@ describe('Test zkp fetch and store', () => {
     // downloadFileFromFilename requests the file from the server, which we mocked with msw.
     // The server returns a gz file of a file containing "not compressed 👍", 
     // which is defined in __fixtures__/compressed-files/compressed.txt.gz
-    await downloadFromFilename(filename, true);
+    await downloadFromFilename(MOCK_BASE_URL, filename, true);
     // check that localforage.setItem was called once to save the zkey file.
     expect(localforage.setItem).toBeCalledTimes(1);
     const filenameRaw = localforage.setItem.mock.calls[0][0];
@@ -53,7 +54,7 @@ describe('Test zkp fetch and store', () => {
   test('should should download all the zkeys and save them in local storage for snarkjs to access.', async () => {
     // downloadProofFiles calls downloadFromFilename 10 times, one for each zkey, b-k.
     const onDownloaded = jest.fn();
-    await downloadProofFiles("email", onDownloaded);
+    await downloadProofFiles(MOCK_BASE_URL, "email", onDownloaded);
     expect(localforage.setItem).toBeCalledTimes(10);
 
     // check the first one

@@ -1,5 +1,4 @@
 import { rest } from 'msw'
-import { loadURL } from '../../src/zkp'
 import fs from 'fs';
 import path from 'path';
 
@@ -18,16 +17,18 @@ const zkeyGzHandler = async (_, res, ctx) => {
     )
 };
 
+export const MOCK_BASE_URL = "http://mock.mock/";
+
 export const handlers = [
   // Handles a .gz request
-  rest.get(loadURL + "email.zkeyb.gz", zkeyGzHandler),
-  rest.get(loadURL + "email.zkeyc.gz", zkeyGzHandler),
-  rest.get(loadURL + "email.zkeyd.gz", zkeyGzHandler),
-  rest.get(loadURL + "email.zkeye.gz", zkeyGzHandler),
-  rest.get(loadURL + "email.zkeyf.gz", zkeyGzHandler),
-  rest.get(loadURL + "email.zkeyg.gz", zkeyGzHandler),
-  rest.get(loadURL + "email.zkeyh.gz", zkeyGzHandler),
-  rest.get(loadURL + "email.zkeyi.gz", zkeyGzHandler),
-  rest.get(loadURL + "email.zkeyj.gz", zkeyGzHandler),
-  rest.get(loadURL + "email.zkeyk.gz", zkeyGzHandler),
+  rest.get(MOCK_BASE_URL + "email.zkeyb.gz", zkeyGzHandler),
+  rest.get(MOCK_BASE_URL + "email.zkeyc.gz", zkeyGzHandler),
+  rest.get(MOCK_BASE_URL + "email.zkeyd.gz", zkeyGzHandler),
+  rest.get(MOCK_BASE_URL + "email.zkeye.gz", zkeyGzHandler),
+  rest.get(MOCK_BASE_URL + "email.zkeyf.gz", zkeyGzHandler),
+  rest.get(MOCK_BASE_URL + "email.zkeyg.gz", zkeyGzHandler),
+  rest.get(MOCK_BASE_URL + "email.zkeyh.gz", zkeyGzHandler),
+  rest.get(MOCK_BASE_URL + "email.zkeyi.gz", zkeyGzHandler),
+  rest.get(MOCK_BASE_URL + "email.zkeyj.gz", zkeyGzHandler),
+  rest.get(MOCK_BASE_URL + "email.zkeyk.gz", zkeyGzHandler),
 ];
