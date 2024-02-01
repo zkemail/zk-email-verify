@@ -1,0 +1,16 @@
+{
+  "include": ["."],
+  "exclude": ["tests", "dist", "**/node_modules"],
+  "compilerOptions": {
+    "outDir": "dist",
+    "skipLibCheck": true,
+    "jsx": "react-jsx",
+    "module": "CommonJS",
+    "typeRoots": ["./node_modules/@types"],
+    "esModuleInterop": true,
+    "target": "es2022",
+    "isolatedModules": true,
+    "strict": true,
+    "noEmit": true
+  }
+}
