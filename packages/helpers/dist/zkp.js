@@ -26,13 +26,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.buildInput = exports.verifyProof = exports.generateProof = exports.uncompressProofFiles = exports.downloadProofFiles = exports.downloadFromFilename = exports.loadURL = void 0;
+exports.buildInput = exports.verifyProof = exports.generateProof = exports.uncompressProofFiles = exports.downloadProofFiles = exports.downloadFromFilename = void 0;
 const vkey_1 = require("./vkey");
 const localforage_1 = __importDefault(require("localforage"));
 const uncompress_1 = require("./uncompress");
 // @ts-ignore
 const snarkjs = __importStar(require("snarkjs"));
-exports.loadURL = "https://twitter-verifier-zkeys.s3.amazonaws.com/751fae9012c8a36543f60a2d2ec528d088ed6df0/";
+// export const loadURL = "https://twitter-verifier-zkeys.s3.amazonaws.com/751fae9012c8a36543f60a2d2ec528d088ed6df0/";
 // export const loadURL = "http://localhost:3001/";
 const compressed = true;
 // const loadURL = "/zkemail-zkey-chunks/";
@@ -56,8 +56,8 @@ async function downloadWithRetries(link, downloadAttempts) {
 // GET the compressed file from the remote server, then store it with localforage
 // Note that it must be stored as an uncompressed ArrayBuffer
 // and named such that filename===`${name}.zkey${a}` in order for it to be found by snarkjs.
-async function downloadFromFilename(filename, compressed = false) {
-    const link = exports.loadURL + filename;
+async function downloadFromFilename(loadURL, filename, compressed = false) {
+    const link = loadURL + filename;
     const zkeyResp = await downloadWithRetries(link, 3);
     const zkeyBuff = await zkeyResp.arrayBuffer();
     if (!compressed) {
@@ -76,7 +76,7 @@ async function downloadFromFilename(filename, compressed = false) {
     console.log(`Storage of ${filename} successful!`);
 }
 exports.downloadFromFilename = downloadFromFilename;
-const downloadProofFiles = async function (filename, onFileDownloaded) {
+const downloadProofFiles = async function (loadURL, filename, onFileDownloaded) {
     const filePromises = [];
     for (const c of zkeySuffix) {
         const targzFilename = `${filename}.zkey${c}${zkeyExtension}`;
@@ -89,13 +89,13 @@ const downloadProofFiles = async function (filename, onFileDownloaded) {
         }
         filePromises.push(
         // downloadFromFilename(targzFilename, true).then(
-        downloadFromFilename(targzFilename, compressed).then(() => onFileDownloaded()));
+        downloadFromFilename(loadURL, targzFilename, compressed).then(() => onFileDownloaded()));
     }
     console.log(filePromises);
     await Promise.all(filePromises);
 };
 exports.downloadProofFiles = downloadProofFiles;
-const uncompressProofFiles = async function (filename) {
+const uncompressProofFiles = async function (loadURL, filename) {
     const filePromises = [];
     for (const c of zkeySuffix) {
         const targzFilename = `${filename}.zkey${c}${zkeyExtension}`;
@@ -108,17 +108,17 @@ const uncompressProofFiles = async function (filename) {
             console.log(`${filename}.zkey${c}${item ? "" : zkeyExtension} already found in localforage!`);
             continue;
         }
-        filePromises.push(downloadFromFilename(targzFilename));
+        filePromises.push(downloadFromFilename(loadURL, targzFilename));
     }
     console.log(filePromises);
     await Promise.all(filePromises);
 };
 exports.uncompressProofFiles = uncompressProofFiles;
-async function generateProof(input, filename) {
+async function generateProof(loadURL, input, filename) {
     // TODO: figure out how to generate this s.t. it passes build
     console.log("generating proof for input");
     console.log(input);
-    const { proof, publicSignals } = await snarkjs.groth16.fullProve(input, `${exports.loadURL}${filename}.wasm`, `${filename}.zkey`);
+    const { proof, publicSignals } = await snarkjs.groth16.fullProve(input, `${loadURL}${filename}.wasm`, `${filename}.zkey`);
     console.log(`Generated proof ${JSON.stringify(proof)}`);
     return {
         proof,
