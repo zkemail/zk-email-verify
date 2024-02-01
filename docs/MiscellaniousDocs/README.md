@@ -38,7 +38,7 @@ yarn install # If this fails, delete yarn.lock and try again
 To get the ptau, do (note that you only need the 22 file right now)
 
 ```bash
-cd packages/twitter-verifier-circuits
+cd examples/twitter-verifier/twitter-verifier-circuits
 
 wget https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_22.ptau
 
@@ -58,7 +58,7 @@ To create a chunked zkey for in-browser proving, run the following on a high CPU
 ```bash
 yarn add snarkjs@git+https://github.com/vb7401/snarkjs.git#24981febe8826b6ab76ae4d76cf7f9142919d2b8 # Swap to chunked generation version for browser, leave this line out for serverside proofs onluy
 
-cd packages/twitter-verifier-circuits/scripts
+cd examples/twitter-verifier/twitter-verifier-circuits/scripts
 cp circuit.env.example circuit.env
 cp entropy.env.example entropy.env
 ```
@@ -73,9 +73,9 @@ Fill out the env via random characters into the values for entropy1 and entropy2
 
 Put the email into `emls` folder. Use the below command to generate the input.json for twitter
 
-`ts-node --project=tsconfig.json  packages/twitter-verifier-app/scripts/generate_input.ts --email_file=./emls/zktestemail_twitter.eml`
+`ts-node --project=tsconfig.json  examples/twitter-verifier/twitter-verifier-app/scripts/generate_input.ts --email_file=./emls/zktestemail_twitter.eml`
 
-`input.json` will be written to `/packages/twitter-verifier-circuits/inputs/input.json` which can be used for witness generation and proving.
+`input.json` will be written to `/examples/twitter-verifier/twitter-verifier-circuits/inputs/input.json` which can be used for witness generation and proving.
 
 You can generate witness by running
 

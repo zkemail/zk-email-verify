@@ -137,7 +137,7 @@ export const MainPage: React.FC<{}> = (props) => {
   };
 
   const { config } = usePrepareContractWrite({
-    address: import.meta.env.VITE_CONTRACT_ADDRESS,
+    address: process.env.VITE_CONTRACT_ADDRESS as `0x${string}`,
     abi: abi,
     functionName: "mint",
     args: [
