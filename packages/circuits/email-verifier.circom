@@ -32,7 +32,7 @@ template EmailVerifier(max_header_bytes, max_body_bytes, n, k, ignore_body_hash_
     var LEN_SHA_B64 = 44;     // ceil(32 / 3) * 4, due to base64 encoding.
 
     // Assert padding is all zeroes
-    component assert_header_padding = AssertZeroes(in_len_padded_bytes);
+    component assert_header_padding = AssertZeroes(max_header_bytes);
     assert_header_padding.in <== in_padded;
     assert_header_padding.start_index <== in_len_padded_bytes + 1;
 
@@ -96,7 +96,7 @@ template EmailVerifier(max_header_bytes, max_body_bytes, n, k, ignore_body_hash_
         signal input in_body_len_padded_bytes;
 
         // Assert padding is all zeroes
-        component assert_body_padding = AssertZeroes(in_body_len_padded_bytes);
+        component assert_body_padding = AssertZeroes(max_body_bytes);
         assert_body_padding.in <== in_body_padded;
         assert_body_padding.start_index <== in_body_len_padded_bytes + 1;
 
