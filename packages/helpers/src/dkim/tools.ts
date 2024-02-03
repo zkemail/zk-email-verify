@@ -10,19 +10,7 @@ import parseDkimHeaders from "./parse-dkim-headers";
 import { Parsed, SignatureType } from "./index";
 import { DkimVerifier } from "./dkim-verifier";
 
-var isNode = false;
-if (typeof process === "object") {
-  if (typeof process.versions === "object") {
-    if (typeof process.versions.node !== "undefined") {
-      isNode = true;
-    }
-  }
-}
-const LOCAL = isNode;
-let dns: any;
-if (LOCAL) {
-  dns = require("dns").promises;
-}
+const IS_BROWSER = typeof window !== "undefined";
 
 export const defaultDKIMFieldNames =
   "From:Sender:Reply-To:Subject:Date:Message-ID:To:" +
@@ -313,8 +301,8 @@ export const getPublicKey = async (
   resolver: (...args: [name: string, type: string]) => Promise<any>
 ) => {
   minBitLength = minBitLength || 1024;
-  if (LOCAL) {
-    resolver = resolver || dns.resolve;
+  if (!IS_BROWSER) {
+    resolver = resolver || require("dns").promises.resolve;
   } else {
     resolver = resolveDNSHTTP;
   }
@@ -369,7 +357,7 @@ export const getPublicKey = async (
       ).replace(/.{64}/g, "$&\n")}\n-----END PUBLIC KEY-----`
     );
     let publicKeyObj;
-    if (LOCAL) {
+    if (!IS_BROWSER) {
       publicKeyObj = crypto.createPublicKey({
         key: publicKeyPem,
         format: "pem",
@@ -379,7 +367,7 @@ export const getPublicKey = async (
     }
 
     let keyType;
-    if (LOCAL) {
+    if (!IS_BROWSER) {
       keyType = (publicKeyObj as KeyObject).asymmetricKeyType;
     } else {
       keyType = (publicKeyObj as CryptoKey).algorithm.name

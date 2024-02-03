@@ -13,6 +13,6 @@
     "module": "commonjs",
     "declaration": true,
     "baseUrl": "./src",
-    "outDir": "dist"
+    "outDir": "dist" 
   }
 }

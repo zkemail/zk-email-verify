@@ -7,6 +7,3 @@ export * from "./poseidonHash";
 export * from "./rsa";
 export * from "./shaHash";
 export * from "./sshFormat";
-export * from "./twitterEmailHandler.abi";
-export * from "./uncompress";
-export * from "./vkey";
