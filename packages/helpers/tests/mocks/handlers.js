@@ -2,6 +2,8 @@ import { rest } from 'msw'
 import fs from 'fs';
 import path from 'path';
 
+export const loadURL = "https://test/endpoint/";
+
 const getCompressedTestFile = () => {
   const buffer = fs.readFileSync(path.join(__dirname, `../test-data/compressed-files/compressed.txt.gz`));
   return buffer;

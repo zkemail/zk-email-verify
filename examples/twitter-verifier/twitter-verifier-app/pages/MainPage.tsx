@@ -33,6 +33,7 @@ import { isSetIterator } from "util/types";
 export const MainPage: React.FC<{}> = (props) => {
   // raw user inputs
   const filename = "twitter";
+  const LOAD_URL = import.meta.env.LOAD_URL
 
   const [emailSignals, setEmailSignals] = useState<string>("");
   const [emailFull, setEmailFull] = useState<string>(
@@ -137,7 +138,7 @@ export const MainPage: React.FC<{}> = (props) => {
   };
 
   const { config } = usePrepareContractWrite({
-    address: import.meta.env.VITE_CONTRACT_ADDRESS,
+    address: process.env.VITE_CONTRACT_ADDRESS as `0x${string}`,
     abi: abi,
     functionName: "mint",
     args: [
@@ -348,7 +349,7 @@ export const MainPage: React.FC<{}> = (props) => {
               );
               setStatus("downloading-proof-files");
               try {
-                await downloadProofFiles(filename, () => {
+                await downloadProofFiles(LOAD_URL, filename, () => {
                   setDownloadProgress((p) => p + 1);
                 });
               }
@@ -371,6 +372,7 @@ export const MainPage: React.FC<{}> = (props) => {
               console.log("Starting proof generation");
               // alert("Generating proof, will fail due to input");
               const { proof, publicSignals } = await generateProof(
+                LOAD_URL,
                 input,
                 filename
               );
