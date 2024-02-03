@@ -6,6 +6,7 @@ include "./helpers/sha.circom";
 include "./helpers/rsa.circom";
 include "./helpers/base64.circom";
 include "./helpers/extract.circom";
+include "./helpers/utils.circom";
 // include "./regexes/body_hash_regex.circom";
 include "@zk-email/zk-regex-circom/circuits/common/body_hash_regex.circom";
 
@@ -30,6 +31,9 @@ template EmailVerifier(max_header_bytes, max_body_bytes, n, k, ignore_body_hash_
     // Base 64 body hash variables
     var LEN_SHA_B64 = 44;     // ceil(32 / 3) * 4, due to base64 encoding.
 
+    // Assert padding is all zeroes
+    AssertZeroes(max_header_bytes)(in_padded, in_len_padded_bytes + 1);
+    
     // SHA HEADER: 506,670 constraints
     // This calculates the SHA256 hash of the header, which is the "base_msg" that is RSA signed.
     // The header signs the fields in the "h=Date:From:To:Subject:MIME-Version:Content-Type:Message-ID;"
@@ -89,6 +93,9 @@ template EmailVerifier(max_header_bytes, max_body_bytes, n, k, ignore_body_hash_
         signal input in_body_padded[max_body_bytes];
         signal input in_body_len_padded_bytes;
 
+        // Assert padding is all zeroes
+        AssertZeroes(max_body_bytes)(in_body_padded, in_body_len_padded_bytes + 1);
+        
         // This verifies that the hash of the body, when calculated from the precomputed part forwards,
         // actually matches the hash in the header
         signal sha_body_out[256] <== Sha256BytesPartial(max_body_bytes)(in_body_padded, in_body_len_padded_bytes, precomputed_sha);

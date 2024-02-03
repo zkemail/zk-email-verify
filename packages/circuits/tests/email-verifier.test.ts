@@ -134,6 +134,28 @@ describe("EmailVerifier", () => {
     }
   });
 
+  it("should fail if message padding is tampered", async function () {
+    const emailVerifierInputs = generateCircuitInputs({
+      rsaSignature: dkimResult.signature,
+      rsaPublicKey: dkimResult.publicKey,
+      body: dkimResult.body,
+      bodyHash: dkimResult.bodyHash,
+      message: dkimResult.message,
+      shaPrecomputeSelector: "How are",
+      maxMessageLength: 640,
+      maxBodyLength: 768,
+    });
+    emailVerifierInputs.in_padded[640 - 1] = "1";
+
+    expect.assertions(1);
+    try {
+      const witness = await circuit.calculateWitness(emailVerifierInputs);
+      await circuit.checkConstraints(witness);
+    } catch (error) {
+      expect((error as Error).message).toMatch("Assert Failed");
+    }
+  });
+
   it("should fail if body is tampered", async function () {
     const invalidBody = Buffer.from(dkimResult.body);
     invalidBody[invalidBody.length - 1] = 1;
@@ -148,6 +170,28 @@ describe("EmailVerifier", () => {
       maxMessageLength: 640,
       maxBodyLength: 768,
     });
+
+    expect.assertions(1);
+    try {
+      const witness = await circuit.calculateWitness(emailVerifierInputs);
+      await circuit.checkConstraints(witness);
+    } catch (error) {
+      expect((error as Error).message).toMatch("Assert Failed");
+    }
+  });
+
+  it("should fail if body padding is tampered", async function () {
+    const emailVerifierInputs = generateCircuitInputs({
+      rsaSignature: dkimResult.signature,
+      rsaPublicKey: dkimResult.publicKey,
+      body: dkimResult.body,
+      bodyHash: dkimResult.bodyHash,
+      message: dkimResult.message,
+      shaPrecomputeSelector: "How are",
+      maxMessageLength: 640,
+      maxBodyLength: 768,
+    });
+    emailVerifierInputs.in_body_padded[768 - 1] = "1";
 
     expect.assertions(1);
     try {
