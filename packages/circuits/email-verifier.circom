@@ -72,11 +72,6 @@ template EmailVerifier(max_header_bytes, max_body_bytes, n, k, ignore_body_hash_
     if (ignore_body_hash_check != 1) {
         signal input body_hash_idx;
 
-        // Assert padding is all zeroes
-        for (var i = in_body_len_padded_bytes; i < max_body_bytes; i++) {
-            in_body_padded[i] === 0;
-        }
-
         // BODY HASH REGEX: 617,597 constraints
         // This extracts the body hash from the header (i.e. the part after bh= within the DKIM-signature section)
         // which is used to verify the body text matches this signed hash + the signature verifies this hash is legit
@@ -98,6 +93,11 @@ template EmailVerifier(max_header_bytes, max_body_bytes, n, k, ignore_body_hash_
         signal input precomputed_sha[32];
         signal input in_body_padded[max_body_bytes];
         signal input in_body_len_padded_bytes;
+
+        // Assert padding is all zeroes
+        for (var i = in_body_len_padded_bytes; i < max_body_bytes; i++) {
+            in_body_padded[i] === 0;
+        }
 
         // This verifies that the hash of the body, when calculated from the precomputed part forwards,
         // actually matches the hash in the header
