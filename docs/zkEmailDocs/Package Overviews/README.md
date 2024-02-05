@@ -9,16 +9,6 @@ Key considerations:
 - It includes functions for handling RSA signatures, public keys, email bodies, and hashes.
 - Developers should familiarize themselves with the generateCircuitInputs function in the `input.helpers.ts` file, which is central to the operation of the SDK.
 
-## zk-email/circuits
-The zk-email/circuits package provides pre-built circuits for generating proofs and verifying DKIM signatures. These circuits are designed to be used with the zk-email/helpers package to generate the necessary inputs.
-
-Key considerations:
-- the `email-verifier.circom` file is a standard template that can be used for email verification and customized for specific applications
-- It processes DKIM headers and employs Regex for pattern matching in emails.
-- By default, inputs are kept private unless stated otherwise, while outputs are always made public.
-- Upon obtaining the vkey and zkey, you can establish a `verifier.sol `contract, enabling on-chain proof verification!
-
-
 ## zk-email/contracts
 
 The @zk-email/contracts package contains the main contract of the SDK, `DKIMRegistry.sol`. This Solidity contract serves as a registry for storing the hash of the DomainKeys Identified Mail (DKIM) public key for each domain.
@@ -32,6 +22,15 @@ Key considerations:
 
 
 - The `DKIMRegistry` contract is used in conjunction with the `EmailVerifier` circuit to verify emails. The `EmailVerifier` circuit checks the DKIM signature of an email against the DKIM public key hash stored in the `DKIMRegistry` contract for the email's domain.
+
+## zk-email/circuits
+The zk-email/circuits package provides pre-built circuits for generating proofs and verifying DKIM signatures. These circuits are designed to be used with the zk-email/helpers package to generate the necessary inputs.
+
+Key considerations:
+- the `email-verifier.circom` file is a standard template that can be used for email verification and customized for specific applications
+- It processes DKIM headers and employs Regex for pattern matching in emails.
+- By default, inputs are kept private unless stated otherwise, while outputs are always made public.
+- Upon obtaining the vkey and zkey, you can establish a `verifier.sol `contract, enabling on-chain proof verification!
 
 ## **Circuit Helpers**
 The `circuits` directory includes a `helpers` folder, which houses a variety of Circom helper templates. These templates are instrumental in constructing your primary circuit file.
@@ -164,6 +163,16 @@ include "path/to/extract.circom"
 
 Replace "path/to/extract.circom" with the actual path to the extract.circom file.
 
+### Recent updates: zk-email-verify audit fixes
+
+We've recently completed an audit of our circom helper templates. We've addressed each issue raised in the audit and have listed the corresponding PRs below for you to see the fixes in detail.
+
+- Missing constraint for illegal characters: [PR#103](https://github.com/zkemail/zk-email-verify/pull/103)
+- Incorrect use of division operation: [PR#104](https://github.com/zkemail/zk-email-verify/pull/104/commits/531f9c2b811cc06a935cb80a17311d28e3662871)
+- Missing range checks for output signals: [PR#104](https://github.com/zkemail/zk-email-verify/pull/104/commits/9c14d51f130bb0cb0cf6eecb4945cbc5ff72f48a)
+- Missing constraints for a signal input: [PR#104](https://github.com/zkemail/zk-email-verify/commit/4d4128c9980336d7f6dc0dcc7e1458203af15b4d)
+- Missing constraints for output signals: [PR#104](https://github.com/zkemail/zk-email-verify/commit/4d4128c9980336d7f6dc0dcc7e1458203af15b4d)
+- Issue with value retrieval in the LongToShortNoEndCarry: [PR#104](https://github.com/zkemail/zk-email-verify/pull/104)
 
 
 [Usage Guide >](/docs/zkEmailDocs/UsageGuide/README.md)
