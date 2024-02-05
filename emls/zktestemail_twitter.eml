@@ -1,70 +1,71 @@
 Delivered-To: zkemailverify@gmail.com
-Received: by 2002:abe:244f:0:b0:351:8511:f81d with SMTP id k76csp1565968vlk;
-        Sat, 11 Feb 2023 09:22:14 -0800 (PST)
-X-Google-Smtp-Source: AK7set/Y3OsAAeTIiMSNbcB9uLcnu/XZVkr0lwa3Lhc02UYddJqHwBqjTSDEn8LEcuk5B2ooL7iz
-X-Received: by 2002:a05:690c:b99:b0:52e:9f98:3afb with SMTP id ck25-20020a05690c0b9900b0052e9f983afbmr7390402ywb.8.1676136134009;
-        Sat, 11 Feb 2023 09:22:14 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1676136133; cv=none;
+Received: by 2002:a2e:86cc:0:b0:2c5:4c8d:4156 with SMTP id n12csp458172ljj;
+        Fri, 17 Nov 2023 10:51:51 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IErAUsOShVy/SydlHmMfxGKmD3rPXtdOGPFOFsGwDAOa37CDTfbJWIRwIR5MQ9Wn3xvbZIB
+X-Received: by 2002:a25:b088:0:b0:da0:365c:ff67 with SMTP id f8-20020a25b088000000b00da0365cff67mr357032ybj.12.1700247111386;
+        Fri, 17 Nov 2023 10:51:51 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1700247111; cv=none;
         d=google.com; s=arc-20160816;
-        b=XizR8dC+HfpBsj5NgSZvKF6bGWkJfnE5N8tcK+jWhnn4aC1T8qXM/aPjeKXbasjxVw
-         EwD0BSIvm28FQ+no5vP1F+/jLaCMB5YvCQBQwadWrzFmhZnYHZ5j/sHeYeAxitbvwzuq
-         W8soAUmi4jkytC+tbQkHl7FIjAZ8yLgcMnzKWvNYD5VhfSMfr0q0ZJthzX5AjyP47zjk
-         Noliyk67gPd3ZEeR66wHDVIUaZb9AhExIPfPyg/uO3Qi3vlgoDVYdNYEwY763XK8sMtk
-         PfZJ9AyarJiBzEUGXMMmaqM3wdxcvAUV8d8EF4HaIU4U1Q0UatOomAGOo1H+JADR0fH/
-         ZX5Q==
+        b=l2f3anN6X5STLWnzmfwQ+tLXCddnXIhBo01AYPbVjAY1NbooJMwPT0AZrBQEDPWRGA
+         DdW0i1GT2HxEx6O79HGalFQPjHla41Ua2YVO6/brj51n2yqBciC9FRyA5MrfiHGl57rI
+         YAnFSUEtXuCtyzKbu+uNViIomvWWSWn2q8tFX5gktvDYNY99XRJfeFxOAmVVOn7rcqw7
+         sXzQJ7VrQns4O9NKqvL6S+Yz6N2RPsNj1ejPnM4J7KrbW/FEoMCXrtQvIQ0X/QCwL7EX
+         pKCIJAUySjQ5B2tLwNKdnBg7X3xbT6+XtVxUqzvkoC5+RpS5K+3M3a7GpZ8e6tzrvYk+
+         H9NA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
         h=feedback-id:message-id:mime-version:subject:to:from:date
          :dkim-signature;
-        bh=luw1SBOWXFuYP/jkF1TjW99cBB9mxovOyljNia105q8=;
-        b=Yw8cjT3S7XHSO4MoOvbKTK/zg5wCWRH91dUpNvyHyQGohemvn6oBL4on6IOZ6wRseC
-         SJkH6T7facdD6VOFyzdHkGOPTXKPMP90HveULVk7f+57u4aTPpxnRtG6DZlWOqnh/GZl
-         gvaoWDYrge43sbFMbYd3goNfGuDHOZJbOit+g+GReQ6XBOY2oI7UgYuDtrYR/NB0MBJW
-         Ed2mr4E3XxX3N+i5fZle4OjfK3xPN+N8huFNaS9x4bOxs8jb+XjRV2vMhadhpmLDRlxN
-         7iVAWYGz7sa9DOPGKQxh+1cGmlgUJiyeOshHwzK7kKjSFUANfB1qlqZKd7kAc6KYPQ0R
-         zDcg==
+        bh=YV00MHhJux22qGziFWSFbBXZ2W1TfXtQouchTjrBWjY=;
+        fh=Qucd5jr0BRTm6OpFMmwLcT3PVc7bDi7S8Smuj215K70=;
+        b=dSvVjMKtkrZSRvFriAAWR5GXradAalUxdC5ctI6d08R6Tmh9zDLJeZ8mlGNVo+tlDA
+         NGeNBj6NHCdqQ7sj5rdmKJ5LBot9wTQen7OYh8PGgeX34JlZdbNmOaDKVDFONaa9Hl8b
+         h2L6UE7goJTTe0S305TcfqfDPObp9rwGth3DNMsrOgRZKkCcxaG6NYjP/vF1kwhxmhgd
+         eGVNHzz3hY1YDqDOo9Z9jWZtvR83DUOY9CaNeZhKf0cmhAIpFO44OijcjtPuzKGAWi+Q
+         GR9QpB/A/WwlsuL1woE0FQrAESThrFeWq9YsC1OD3XCyNPgx6Ccwf77puY/dY69ENI0T
+         D04A==
 ARC-Authentication-Results: i=1; mx.google.com;
-       dkim=pass header.i=@twitter.com header.s=dkim-201406 header.b=Mf8VchLe;
-       spf=pass (google.com: domain of n0399d118e2-e108b1a8a8ec4d32-zkemailverify===gmail.com@bounce.twitter.com designates 199.16.156.166 as permitted sender) smtp.mailfrom="n0399d118e2-e108b1a8a8ec4d32-zkemailverify===gmail.com@bounce.twitter.com";
-       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=twitter.com
-Return-Path: <n0399d118e2-e108b1a8a8ec4d32-zkemailverify===gmail.com@bounce.twitter.com>
-Received: from spring-chicken-ba.twitter.com (spring-chicken-ba.twitter.com. [199.16.156.166])
-        by mx.google.com with ESMTPS id f184-20020a816ac1000000b0050a5b687438si2536384ywc.362.2023.02.11.09.22.13
+       dkim=pass header.i=@x.com header.s=dkim-202308 header.b=sMbjywAn;
+       spf=pass (google.com: domain of n06789e9b5c-e3cd8db39638424c-zkemailverify===gmail.com@bounce.x.com designates 199.16.156.147 as permitted sender) smtp.mailfrom="n06789e9b5c-e3cd8db39638424c-zkemailverify===gmail.com@bounce.x.com";
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=x.com
+Return-Path: <n06789e9b5c-e3cd8db39638424c-zkemailverify===gmail.com@bounce.x.com>
+Received: from spring-chicken-ah.x.com (spring-chicken-ah.twitter.com. [199.16.156.147])
+        by mx.google.com with ESMTPS id j65-20020a255544000000b00da160dbe3a2si1317978ybb.355.2023.11.17.10.51.51
         for <zkemailverify@gmail.com>
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 11 Feb 2023 09:22:13 -0800 (PST)
-Received-SPF: pass (google.com: domain of n0399d118e2-e108b1a8a8ec4d32-zkemailverify===gmail.com@bounce.twitter.com designates 199.16.156.166 as permitted sender) client-ip=199.16.156.166;
+        Fri, 17 Nov 2023 10:51:51 -0800 (PST)
+Received-SPF: pass (google.com: domain of n06789e9b5c-e3cd8db39638424c-zkemailverify===gmail.com@bounce.x.com designates 199.16.156.147 as permitted sender) client-ip=199.16.156.147;
 Authentication-Results: mx.google.com;
-       dkim=pass header.i=@twitter.com header.s=dkim-201406 header.b=Mf8VchLe;
-       spf=pass (google.com: domain of n0399d118e2-e108b1a8a8ec4d32-zkemailverify===gmail.com@bounce.twitter.com designates 199.16.156.166 as permitted sender) smtp.mailfrom="n0399d118e2-e108b1a8a8ec4d32-zkemailverify===gmail.com@bounce.twitter.com";
-       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=twitter.com
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=twitter.com;
-	s=dkim-201406; t=1676136133;
-	bh=luw1SBOWXFuYP/jkF1TjW99cBB9mxovOyljNia105q8=;
+       dkim=pass header.i=@x.com header.s=dkim-202308 header.b=sMbjywAn;
+       spf=pass (google.com: domain of n06789e9b5c-e3cd8db39638424c-zkemailverify===gmail.com@bounce.x.com designates 199.16.156.147 as permitted sender) smtp.mailfrom="n06789e9b5c-e3cd8db39638424c-zkemailverify===gmail.com@bounce.x.com";
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=x.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=x.com;
+	s=dkim-202308; t=1700247111;
+	bh=YV00MHhJux22qGziFWSFbBXZ2W1TfXtQouchTjrBWjY=;
 	h=Date:From:To:Subject:MIME-Version:Content-Type:Message-ID;
-	b=Mf8VchLeAPEOR6FSuqtVMIW0Zut2I+Apy+kLYu93HIzNKlJR2obsh/wirFuTo0qje
-	 KQWpAlyaOGrtWiw7q7Kx7BEZ4wXuKmenccAdNUvS0AedwVeIIgemQHh5ebgw51b1hD
-	 mlZw66c8Q7ffC4cPvGzKM1TYdFt5yNaSSWYLWIoFvQiLL7ePodeYgdT0IMp4kjRl97
-	 sXbdEInGVPYI1g1KkzjhORYI9eBKkZVT4YA/BZZ0WF3fSC1DkF1TecUotNZaDVjB0i
-	 1QxDKumXbQxzmrJ8Z/8jFZ/kaCPKpMSg8RXYzpvaPe635vblMOMPtpIYvRy93vlGxf
-	 ltxUwAkCsug8Q==
-X-MSFBL: JEendVXqQSf0QfW2bVHGwxqI6nksIAh1iV1Le82G8P0=|eyJnIjoiQnVsayIsImI
-	iOiJhdGxhLWJzZy0yOS1zcjEtQnVsay4xODYiLCJyIjoiemtlbWFpbHZlcmlmeUB
-	nbWFpbC5jb20iLCJ1IjoiemtlbWFpbHZlcmlmeUBnbWFpbC5jb21AaWlkIyNlMTA
-	4YjFhOGE4ZWM0ZDMyODMwNjdiNTVhMDA5MTJiOUB1c2IjIzI0QDI5NkAxNjI0NDU
-	3Nzc1ODk0OTg2NzU0QDBAMjRmODhjZTY1YmE4ZWMyNjI2YWZkNjQxZGFkMTY5YzI
-	yNjJiZjE4NSJ9
-Date: Sat, 11 Feb 2023 17:22:13 +0000
-From: Twitter <info@twitter.com>
+	b=sMbjywAnkykug8qkzKFezrQ02HaXhXunHMQUHURzUq9IEeeRREHgwhuafSA5ehJ2j
+	 NWA2a+osbJ99EGhuBd75WIzYrWBVaehpeJ7Fbse7vzzSa49+lHvcIgZgxmwaES1yOr
+	 sYm0QsOp0wDVX+wEifRTqqAtJwaped7tAjtl9EX5iZrqScnDi3B4qu+rriWpxymlRy
+	 n/x3H5LUfKcipZARs9yz+1MVVlKJQ8a870Hr06mVIaxESxH38+++w2+IkgD/kl5DrE
+	 EOLW4xlfZvAbWKrwzDND/5tHwLR+RwaJ1tEEbInOmFSeYk+MSsWP4as9cnmYK3ORGK
+	 5Cy/FY+YvwAGQ==
+X-MSFBL: ZP95sgd7MYs5w6zVdVQBqAUgV5kHgEUV1shXV5/ku9E=|eyJiIjoiYXRsYS1iamo
+	tMjItc3IxLUJ1bGsuMTY3IiwiciI6InprZW1haWx2ZXJpZnlAZ21haWwuY29tIiw
+	iZyI6IkJ1bGsiLCJ1IjoiemtlbWFpbHZlcmlmeUBnbWFpbC5jb21AaWlkIyNlM2N
+	kOGRiMzk2Mzg0MjRjODI0NDQyZTdkYzE2N2ZiOEB1c2IjIzI0QDI5NkAxNjI0NDU
+	3Nzc1ODk0OTg2NzU0QDBAMTExYjVjNjViYTMwMjM2MWQwOGMxY2U4MGRhZDQ0ODY
+	0ODJjNzM0MCJ9
+Date: Fri, 17 Nov 2023 18:51:51 +0000
+From: Twitter <info@x.com>
 To: zk_practice <zkemailverify@gmail.com>
 Subject: Password reset request
 MIME-Version: 1.0
 Content-Type: multipart/alternative; 
-	boundary="----=_Part_327915209_1341522477.1676136133617"
+	boundary="----=_Part_15608526_1728745155.1700247111137"
 X-Twitter-CID: ibis2-password_reset_pin_based_email
-Message-ID: <1D.E4.03737.5CEC7E36@twitter.com>
-Feedback-ID: atla.c5bbd1c7e491b5023ff4b22a03711997:Twitter
+Message-ID: <D6.6C.16707.746B7556@x.com>
+Feedback-ID: atla.c5bbd1c7e491b5023ff4b22a03711997:X
 
-------=_Part_327915209_1341522477.1676136133617
+------=_Part_15608526_1728745155.1700247111137
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
@@ -74,7 +75,7 @@ Reset your password?
 
 If you requested a password reset for zktestemail, use the confirmation code below to complete the process. If you didn't make this request, ignore this email.
 
-> akfrmhya
+> 9hngewaq
 
 
 Getting a lot of password reset emails?
@@ -88,14 +89,14 @@ Help
 > https://support.twitter.com/articles/14663
 
 Not my account
-> https://twitter.com/account/not_my_account/1624457775894986754/8D785-ED35A-167613?ut=1&amp;cn=cGFzc3dvcmRfcmVzZXRfcGluX2Jhc2VkX2VtYWls
+> https://twitter.com/account/not_my_account/1624457775894986754/42752-7AG53-170024?ut=1&amp;cn=cGFzc3dvcmRfcmVzZXRfcGluX2Jhc2VkX2VtYWls
 
 Email security tips
 > https://support.twitter.com/articles/204820-fake-twitter-emails
 
-Twitter, Inc. 1355 Market Street, Suite 900 San Francisco, CA 94103
+X Corp. 1355 Market Street, Suite 900 San Francisco, CA 94103
 
-------=_Part_327915209_1341522477.1676136133617
+------=_Part_15608526_1728745155.1700247111137
 Content-Type: text/html; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
@@ -224,7 +225,7 @@ e-height:1px;font-size:1px;" class=3D"logo_space"> <img width=3D"1" height=
 =3D"1" style=3D"display: block;margin:0;padding:0;display:block;-ms-interpo=
 lation-mode:bicubic;border:none;outline:none;" src=3D"https://twitter.com/s=
 cribe/ibis?t=3D1&amp;cn=3DcGFzc3dvcmRfcmVzZXRfcGluX2Jhc2VkX2VtYWls&amp;iid=
-=3De108b1a8a8ec4d3283067b55a00912b9&amp;uid=3D1624457775894986754&amp;nid=
+=3De3cd8db39638424c824442e7dc167fb8&amp;uid=3D1624457775894986754&amp;nid=
 =3D296+20" /> </td>
 </tr>
 </tbody>
@@ -274,7 +275,7 @@ t, ignore this email. </td>
 ht:1px;font-size:1px;font-family:'HelveticaNeue', 'Helvetica Neue', Helveti=
 ca, Arial, sans-serif;font-size:14px;line-height:16px;font-weight:400;color=
 :#292F33;text-align:left;text-decoration:none;-webkit-font-smoothing:antial=
-iased;"> <strong>akfrmhya</strong> </td>
+iased;"> <strong>9hngewaq</strong> </td>
 </tr>
 <!--*********** end password reset pin ************-->
 <tr>
@@ -299,8 +300,8 @@ tica, Arial, sans-serif;font-size:16px;line-height:20px;font-weight:400;col=
 or:#292F33;text-align:left;text-decoration:none;-webkit-font-smoothing:anti=
 aliased;"> You can change your <a href=3D"https://twitter.com/i/redirect?ur=
 l=3Dhttps%3A%2F%2Ftwitter.com%2Fsettings%2Fsecurity&amp;t=3D1&amp;cn=3DcGFz=
-c3dvcmRfcmVzZXRfcGluX2Jhc2VkX2VtYWls&amp;sig=3D4f2138a21ba47b29174181b08569=
-71ac67b6f7f0&amp;iid=3De108b1a8a8ec4d3283067b55a00912b9&amp;uid=3D162445777=
+c3dvcmRfcmVzZXRfcGluX2Jhc2VkX2VtYWls&amp;sig=3D98c177c4db55dd1e2997f667f683=
+ae47bda42155&amp;iid=3De3cd8db39638424c824442e7dc167fb8&amp;uid=3D162445777=
 5894986754&amp;nid=3D296+3" style=3D"text-decoration:none;border-style:none=
 ;border:0;padding:0;margin:0;border:none;text-decoration:none;font-weight:4=
 00;color:#1DA1F2;">account settings</a> to require personal information to =
@@ -341,7 +342,7 @@ thing:antialiased;font-family:'HelveticaNeue', 'Helvetica Neue', Helvetica,=
  Arial, sans-serif;font-size:12px;line-height:16px;font-weight:600;color:#1=
 DA1F2;text-align:left;text-decoration:none;-webkit-font-smoothing:antialias=
 ed;">Help</a> &nbsp;|&nbsp; <a href=3D"https://twitter.com/account/not_my_a=
-ccount/1624457775894986754/8D785-ED35A-167613?ut=3D1&amp;cn=3DcGFzc3dvcmRfc=
+ccount/1624457775894986754/42752-7AG53-170024?ut=3D1&amp;cn=3DcGFzc3dvcmRfc=
 mVzZXRfcGluX2Jhc2VkX2VtYWls" class=3D"small-copy" style=3D"text-decoration:=
 none;border-style:none;border:0;padding:0;margin:0;font-family:'HelveticaNe=
 ue', 'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:12px;line-hei=
@@ -352,8 +353,8 @@ eight:600;color:#1DA1F2;text-align:left;text-decoration:none;-webkit-font-s=
 moothing:antialiased;">Not my account</a> &nbsp;|&nbsp; <a href=3D"https://=
 twitter.com/i/redirect?url=3Dhttps%3A%2F%2Fsupport.twitter.com%2Farticles%2=
 F204820-fake-twitter-emails&amp;t=3D1&amp;cn=3DcGFzc3dvcmRfcmVzZXRfcGluX2Jh=
-c2VkX2VtYWls&amp;sig=3D53906e913dd2fe024d96561261d0eed884844e3e&amp;iid=3De=
-108b1a8a8ec4d3283067b55a00912b9&amp;uid=3D1624457775894986754&amp;nid=3D296=
+c2VkX2VtYWls&amp;sig=3D949b9a32f074eddda1b81922b8a2d99037d51a52&amp;iid=3De=
+3cd8db39638424c824442e7dc167fb8&amp;uid=3D1624457775894986754&amp;nid=3D296=
 +6" class=3D"small-copy" style=3D"text-decoration:none;border-style:none;bo=
 rder:0;padding:0;margin:0;font-family:'HelveticaNeue', 'Helvetica Neue', He=
 lvetica, Arial, sans-serif;font-size:12px;line-height:16px;font-weight:400;=
@@ -385,8 +386,8 @@ lvetica Neue', Helvetica, Arial, sans-serif;font-size:12px;line-height:16px=
 ;border-style:none;border:0;padding:0;margin:0;font-family:'HelveticaNeue',=
  'Helvetica Neue', Helvetica, Arial, sans-serif;-webkit-font-smoothing:anti=
 aliased;color:#8899A6;font-size:12px;padding:0px;margin:0px;font-weight:nor=
-mal;line-height:12px;cursor:default;">Twitter, Inc. 1355 Market Street, Sui=
-te 900 San Francisco, CA 94103</a> </span> </td>
+mal;line-height:12px;cursor:default;">X Corp. 1355 Market Street, Suite 900=
+ San Francisco, CA 94103</a> </span> </td>
 </tr>
 <tr>
 <td height=3D"72" style=3D"height:72px;padding:0;margin:0;line-height:1px;f=
@@ -400,4 +401,4 @@ ont-size:1px;"></td>
 </table>
 </body>
 </html>
-------=_Part_327915209_1341522477.1676136133617--
+------=_Part_15608526_1728745155.1700247111137--

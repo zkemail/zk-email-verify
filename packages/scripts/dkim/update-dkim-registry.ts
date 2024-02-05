@@ -170,6 +170,7 @@ async function getDKIMPublicKeysForDomains(filename: string) {
     "skiff1",
     "s1024",
     "selector1",
+    "dkim-202308"
   ];
 
   let results = [];
@@ -226,12 +227,12 @@ async function updateDKIMRegistry({
     );
   }
 
-  // const domainPubKeyMap = await getDKIMPublicKeysForDomains(domainListFile);
-  // _writeToFile("dkim-keys.json", domainPubKeyMap);
+  const domainPubKeyMap = await getDKIMPublicKeysForDomains(domainListFile);
+  _writeToFile("dkim-keys.json", domainPubKeyMap);
 
-  const domainPubKeyMap = JSON.parse(
-    fs.readFileSync(path.join(__dirname, "out/dkim-keys.json")).toString()
-  );
+  // const domainPubKeyMap = JSON.parse(
+  //   fs.readFileSync(path.join(__dirname, "out/dkim-keys.json")).toString()
+  // );
 
   // Saving pubkeys into chunks of 121 * 17
   // This is what is used in EmailVerifier.cicrom

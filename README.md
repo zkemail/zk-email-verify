@@ -1,9 +1,14 @@
 # Welcome to ZK-Email
-![My Image](path/to/my/image.png)
+![My Image](public/zkEmailLogo.jpg)
 
 ZK Email is an application that allows for anonymous verification of email signatures while masking specific data. It enables verification of emails to/from specific domains or subsets of domains, as well as verification based on specific text in the email body. This technology can be used for web2 interoperability, decentralized anonymous KYC, or to create interesting on-chain anonymity sets.
 
-Visit our [docs](/docs/README.md) to learn how to build on top of zkEmail.
+**For ZK Email, the function we care about is**
+```
+DKIM = RSA_verify(sha_hash(header | sha_hash(body)), pk)
+```
+
+Visit our [docs](/docs/README.md) to learn more about the project and how to build on top of zkEmail.
 ## Installation
 To get started with the ZK Email Verifier, follow these steps:
 1. Install the `@zk-email/helpers` package:
@@ -14,7 +19,6 @@ npm install @zk-email/helpers
 ```shell
 npm install @zk-email/contracts
 ```
-
 3. Install the `@zk-email/circuits` package:
 ```shell
 npm install @zk-email/circuits
@@ -37,6 +41,7 @@ The `@zk-email/contracts` package contains Solidity contracts used for email ver
 ## Filetree Description
 We follow a monorepo architecture where packages are located in the `packages` folder. There are core reusable packages which is for general ZK email verification
 
+
 ```bash
 packages/
   circuits/ # groth16 zk circuits
@@ -53,11 +58,25 @@ We will award $50 for every successfully merged PR that resolves any [open issue
 
 We want to say thanks to these amazing contributors!!
 
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+
 ## Projects 🛠
 Take a look at all of the cool innovative projects that are building on top of Zk-Email!
 
-- Zkp2p
-- Zk Email Safe 
+- [ZKP2P: Decentralized Venmo <> USDC Bridge](https://zkp2p.xyz/)
+- [ZK Email Safe: 2FA for on-chain transactions](https://ethglobal.com/showcase/zkemail-safe-z8dps)
+- [Email Wallet: Send transactions via email, including account recovery!](https://emailwallet.org)
+- [Nozee: Anonymous Proofs of Email Domain via JWTs](https://nozee.xyz)
+
+Check out the rest of our proof of identity applications on our website [prove.email](https://prove.email).
 
 ## FAQ/Possible Errors
 ### Can you provide an example header for me to understand what exactly is signed?
@@ -151,7 +170,7 @@ zkp.ts is the key file that calls the important proving functions. You should be
 
 ### What is the licensing on this technology?
 
-Everything we write is MIT licensed. Note that circom and circomlib is GPL. Broadly we are pro permissive open source usage with attribution! We hope that those who derive profit from this, contribute that money altruistically back to this technology and open source public good.
+Everything we write is MIT licensed. Note that circom and circomlib is GPL. Broadly we are pro permissive open source usage, and really appreciate attribution! We hope that those who derive profit from this, contribute a significant portion of that money altruistically back to help advance and maintain this technology and open source public good.
 
 ## To-Do
 

@@ -17,7 +17,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable {
 
     // TODO: The deployed contract still says 7, update that to use this 31 value, after recompiling updated circuits
     uint16 public constant bytesInPackedBytes = 31; // 7 bytes in a packed item returned from circom
-    string constant domain = "twitter.com";
+    string constant domain = "x.com";
     
     uint16 public constant signalLength = 5; // length of signals array
     uint32 public constant pubKeyHashIndexInSignals = 0; // index of DKIM public key hash in signals array
@@ -53,7 +53,7 @@ contract VerifiedTwitterEmail is ERC721Enumerable {
 
     function _domainCheck(uint256[] memory headerSignals) public pure returns (bool) {
         string memory senderBytes = StringUtils.convertPackedBytesToString(headerSignals, 18, bytesInPackedBytes);
-        string[2] memory domainStrings = ["verify@twitter.com", "info@twitter.com"];
+        string[2] memory domainStrings = ["verify@x.com", "info@x.com"];
         return
             StringUtils.stringEq(senderBytes, domainStrings[0]) || StringUtils.stringEq(senderBytes, domainStrings[1]);
         // Usage: require(_domainCheck(senderBytes, domainStrings), "Invalid domain");
