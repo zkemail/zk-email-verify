@@ -4,20 +4,6 @@ include "./utils.circom";
 // A set of utils for shifting and packing signal arrays
 // Performs extraction of reveal signals and packed signals
 
-// From https://github.com/iden3/circomlib/blob/master/circuits/multiplexer.circom
-function log2(a) {
-    if (a == 0) {
-        return 0;
-    }
-    var n = 1;
-    var r = 1;
-    while (n<a) {
-        r++;
-        n *= 2;
-    }
-    return r;
-}
-
 // Pack size is # of chunks i.e. number of char signals that fit into a signal (default 7 but can be 30)
 template PackBytes(max_in_signals, max_out_signals, pack_size) {
     assert(max_out_signals == ((max_in_signals - 1) \ pack_size + 1)); // Packing constant is wrong

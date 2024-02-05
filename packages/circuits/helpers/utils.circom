@@ -5,6 +5,20 @@ include "circomlib/circuits/comparators.circom";
 include "circomlib/circuits/mimcsponge.circom";
 include "./fp.circom";
 
+// From https://github.com/iden3/circomlib/blob/master/circuits/multiplexer.circom
+function log2(a) {
+    if (a == 0) {
+        return 0;
+    }
+    var n = 1;
+    var r = 1;
+    while (n<a) {
+        r++;
+        n *= 2;
+    }
+    return r;
+}
+
 // returns ceil(log2(a+1))
 function log2_ceil(a) {
     var n = a+1;
@@ -120,6 +134,27 @@ template Bytes2Packed(n){
         for (var j = 0; j < 8; j++) {
             nbytes.out[k * 8 + j] === bytes[k].out[j];
         }
+    }
+}
+
+// Asserts input contains only 0s from start_index to in_array_len
+template AssertZeroes(in_array_len) {
+    var len_bits = log2(in_array_len);
+    assert(in_array_len <= (1 << len_bits));
+    
+    signal input in[in_array_len];
+    signal input start_index;
+
+    // TODO: Should we check padding_start_index < in_array_len AND/OR
+    // log2(padding_start_index) <= len_bits
+    
+    component lessThans[in_array_len];
+
+    for (var i = 0; i < in_array_len; i++) {
+        lessThans[i] = LessThan(len_bits);
+        lessThans[i].in[0] <== start_index - 1;
+        lessThans[i].in[1] <== i;
+        lessThans[i].out * in[i] === 0;
     }
 }
 
