@@ -8,7 +8,8 @@
     "prepare": "husky install"
   },
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "scripts"
   ],
   "packageManager": "yarn@3.2.3",
   "devDependencies": {
