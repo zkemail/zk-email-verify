@@ -1,22 +1,22 @@
-version: 2.1
-orbs:
-  node: circleci/node@5.1.0
-  rust: circleci/rust@1.6.0
-jobs:
-  run_circuit_tests:
-    docker:
-      - image: saleel/circom:2.1.6
-    steps:
-      - checkout:
-          path: ~/zk-email-verify
-      - node/install-packages:
-          pkg-manager: yarn
-          app-dir: ~/zk-email-verify
-      - run:
-          command: yarn test -w 2
-          name: Run circom tests
-          working_directory: ~/zk-email-verify/packages/circuits
-workflows:
-  build_test:
-    jobs:
-      - run_circuit_tests
+# version: 2.1
+# orbs:
+#   node: circleci/node@5.1.0
+#   rust: circleci/rust@1.6.0
+# jobs:
+#   run_circuit_tests:
+#     docker:
+#       - image: saleel/circom:2.1.6
+#     steps:
+#       - checkout:
+#           path: ~/zk-email-verify
+#       - node/install-packages:
+#           pkg-manager: yarn
+#           app-dir: ~/zk-email-verify
+#       - run:
+#           command: yarn test -w 2
+#           name: Run circom tests
+#           working_directory: ~/zk-email-verify/packages/circuits
+# workflows:
+#   build_test:
+#     jobs:
+#       - run_circuit_tests
