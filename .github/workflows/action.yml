@@ -42,3 +42,31 @@ jobs:
       - name: Run Tests
         working-directory: ./packages/circuits
         run: yarn test
+
+  run_helpers_tests:
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'yarn'
+      
+      - name: Install Yarn dependencies
+        working-directory: ./packages/helpers
+        run: yarn install
+      
+      - name: Run test
+        working-directory: ./packages/helpers
+        run: yarn test
+     
+      - name: Run build
+        working-directory: ./packages/helpers
+        run: yarn build
+     
+      - name: Run Tests
+        working-directory: ./packages/helpers
+        run: yarn test
