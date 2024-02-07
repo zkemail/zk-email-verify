@@ -2806,6 +2806,7 @@ __metadata:
     pki: ^1.1.0
     psl: ^1.9.0
     snarkjs: "https://github.com/sampritipanda/snarkjs.git#fef81fc51d17a734637555c6edbd585ecda02d9e"
+    typescript: ^5.2.2
   languageName: unknown
   linkType: soft
 
