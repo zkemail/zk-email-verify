@@ -73,6 +73,14 @@ To set up your own circuit for the email-verifier, you can follow these steps:
 5. Define the output signal, which will be public.
 6. Instantiate the `emailVerifier` component within your `MyCircuit` template.
 
+NOTE: For teams using the email verifier circuit with the `ignoreBodyHashCheck` option disabled, please be aware of an important consideration. If you are conducting a body hash check within your own circuit configurations, it is essential to implement AssertZeroes for all characters beyond the specified limit.
+```
+AssertZeroes(max_body_bytes)(in_body_padded, in_body_len_padded_bytes + 1);
+```
+- max_body_bytes: maximum number of bytes that the email body can occupy.
+- in_body_padded: email body content that has been padded to meet the required size for processing.
+- length of the email body including the padding.
+
 Here's an example of how you can set up your own circuit:
 
 ```javascript
