@@ -1,13 +1,7 @@
-import fs from "fs";
-import { buildMimcSponge } from "circomlibjs";
 import { wasm as wasm_tester } from "circom_tester";
 import { Scalar } from "ffjavascript";
 import path from "path";
-import { DKIMVerificationResult } from "@zk-email/helpers/src/dkim";
-import { generateCircuitInputs } from "@zk-email/helpers/src/input-helpers";
-import { verifyDKIMSignature } from "@zk-email/helpers/src/dkim";
 import { sha256Pad, shaHash } from "@zk-email/helpers/src/shaHash";
-import { MAX_HEADER_PADDED_BYTES } from "@twitter-verifier/circuits/helpers";
 import { Uint8ArrayToCharArray, uint8ToBits } from "@zk-email/helpers/src/binaryFormat";
 
 exports.p = Scalar.fromString(

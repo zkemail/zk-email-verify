@@ -1,12 +1,4 @@
-var isNode = false;
-if (typeof process === 'object') {
-  if (typeof process.versions === 'object') {
-    if (typeof process.versions.node !== 'undefined') {
-      isNode = true;
-    }
-  }
-}
-const LOCAL = isNode;
+const IS_BROWSER = typeof window !== "undefined";
 
 // @ts-ignore
 import addressparser from "addressparser";
@@ -212,7 +204,7 @@ export class DkimVerifier extends MessageParser {
 
             try {
               let ver_result = false;
-              if (LOCAL) {
+              if (!IS_BROWSER) {
                 ver_result = crypto.verify(
                   signatureHeader.signAlgo === "rsa" ? signatureHeader.algorithm : null,
                   canonicalizedHeader,

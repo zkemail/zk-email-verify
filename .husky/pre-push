@@ -1,4 +1,0 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
-echo " * Please remember to run 'yarn run test:e2e-zkp' before opening a PR. *\n * note: The dev server should be running on port 3000 for the e2e tests to pass. *\n"

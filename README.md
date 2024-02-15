@@ -9,6 +9,15 @@ DKIM = RSA_verify(sha_hash(header | sha_hash(body)), pk)
 ```
 
 Visit our [docs](/docs/README.md) to learn more about the project and how to build on top of zkEmail.
+
+## Demo
+
+[Proof of Twitter](https://github.com/zkemail/proof-of-twitter/) is a demo application built using ZK-Email where you can prove ownership of a Twitter account (and mint an NFT) using an email from Twitter.
+
+Try here: [https://twitter.prove.email/](https://twitter.prove.email/)
+
+You can fork the project as a starting point for your own ZK-Email application.
+
 ## Installation
 To get started with the ZK Email Verifier, follow these steps:
 1. Install the `@zk-email/helpers` package:
