@@ -67,7 +67,7 @@ packages/
 ## Contributors 💡
 For each pull request that successfully merges and addresses an [open issue](https://github.com/zkemail/zk-email-verify/issues), we offer a $50 reward. Should we overlook issuing your reward, kindly send us a direct message as a reminder. To learn more about how you can contribute to this project, please consult our [Contributing Guide](Contributing.md).
 
-A heartfelt thank you to goes to all our contributors!
+A heartfelt thank you goes to all of our contributors!
 
 
 ## Projects 🛠
