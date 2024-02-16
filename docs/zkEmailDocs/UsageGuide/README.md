@@ -3,7 +3,7 @@
 This guide provides a step-by-step walkthrough on how to use the ZK Email Verifier. It covers the process from converting your email to regex to creating your zero-knowledge proof for email verification. The guide assumes you have already installed the necessary packages as outlined in the [Installation Guide](../Installation/README.md). If you haven't done so, please refer to the Installation Guide first.
 
 
-For an easy setup, we suggest utilizing [Zkrepl](https://github.com/zkemail/zk-regex), a playground for compiling and testing your circuits in the early stages of development.
+For an easy setup, we suggest utilizing [Zkrepl](https://github.com/zkemail/zk-regex), a playground for compiling and testing your circuits in the early stages of development. Additionally, explore our [Proof of Twitter guide](https://prove.email/blog/twitter) for a practical demonstration on how to leverage our SDKs to construct your own circuits.
 
 ## Step 1: Create the Regex File
 Transform your target email string into a regex format and compile it into a regex.circom file. For guidance, visit our [zk-regex repository](https://github.com/zkemail/zk-regex).
