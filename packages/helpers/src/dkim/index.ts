@@ -31,7 +31,7 @@ export async function verifyDKIMSignature(
 
   if (dkimResult.status.result !== "pass") {
     throw new Error(
-      `DKIM signature verification failed for domain ${dkimResult.signingDomain}`
+      `DKIM signature verification failed for domain ${dkimResult.signingDomain}. Reason: ${dkimResult.status.comment}`
     );
   }
 
