@@ -1,6 +1,12 @@
 import { pki } from "node-forge";
 import { DkimVerifier } from "./dkim-verifier";
-import { getSigningHeaderLines, parseDkimHeaders, parseHeaders, writeToStream } from "./tools";
+import {
+  getSigningHeaderLines,
+  parseDkimHeaders,
+  parseHeaders,
+  writeToStream,
+} from "./tools";
+import { revertCommonARCModifications } from "./arc";
 
 export interface DKIMVerificationResult {
   publicKey: bigint;
@@ -22,20 +28,28 @@ export async function verifyDKIMSignature(
 ): Promise<DKIMVerificationResult> {
   let dkimResult = await tryVerifyDKIM(email, domain);
 
-  if (dkimResult.status.result !== "pass" && tryRevertARCChanges) {
-    console.info("DKIM verification failed. Trying to verify after reverting forwarder changes...");
-
-    const modified = await revertForwarderChanges(email.toString());
+  // If DKIM verification fails, revert common modifications made by ARC and try again.
+  if (dkimResult.status.comment === "bad signature" && tryRevertARCChanges) {
+    const modified = await revertCommonARCModifications(email.toString());
     dkimResult = await tryVerifyDKIM(modified, domain);
   }
 
-  if (dkimResult.status.result !== "pass") {
+  const {
+    status: { result, comment },
+    signingDomain,
+    publicKey,
+    signature,
+    status,
+    body,
+    bodyHash,
+  } = dkimResult;
+
+  if (result !== "pass") {
     throw new Error(
-      `DKIM signature verification failed for domain ${dkimResult.signingDomain}. Reason: ${dkimResult.status.comment}`
+      `DKIM signature verification failed for domain ${signingDomain}. Reason: ${comment}`
     );
   }
 
-  const { publicKey, signature, status, body, bodyHash } = dkimResult;
   const pubKeyData = pki.publicKeyFromPem(publicKey.toString());
 
   return {
@@ -72,7 +86,9 @@ async function tryVerifyDKIM(email: Buffer | string, domain: string = "") {
   );
 
   if (!dkimResult) {
-    throw new Error(`DKIM signature not found for domain ${domainToVerifyDKIM}`);
+    throw new Error(
+      `DKIM signature not found for domain ${domainToVerifyDKIM}`
+    );
   }
 
   if (dkimVerifier.headers) {
@@ -87,39 +103,15 @@ async function tryVerifyDKIM(email: Buffer | string, domain: string = "") {
   return dkimResult;
 }
 
-function getHeaderValue(email: string, header: string) {
-  const headerStartIndex = email.indexOf(`${header}: `) + header.length + 2;
-  const headerEndIndex = email.indexOf('\n', headerStartIndex);
-  const headerValue = email.substring(headerStartIndex, headerEndIndex);
-
-  return headerValue;
-}
-
-function setHeaderValue(email: string, header: string, value: string) {
-  return email.replace(getHeaderValue(email, header), value);
-}
-
-async function revertForwarderChanges(email: string) {
-  // Google sets their own Message-ID and put the original one in X-Google-Original-Message-ID when forwarding
-  const googleReplacedMessageId = getHeaderValue(email, "X-Google-Original-Message-ID");
-  if (googleReplacedMessageId) {
-    console.info("Setting X-Google-Original-Message-ID to Message-ID header...");
-    email = setHeaderValue(email, "Message-ID", googleReplacedMessageId);
-  }
-
-  return email;
-}
-
-
-export type SignatureType = 'DKIM' | 'ARC' | 'AS';
+export type SignatureType = "DKIM" | "ARC" | "AS";
 
 export type ParsedHeaders = ReturnType<typeof parseHeaders>;
 
-export type Parsed = ParsedHeaders['parsed'][0];
+export type Parsed = ParsedHeaders["parsed"][0];
 
-export type ParseDkimHeaders = ReturnType<typeof parseDkimHeaders>
+export type ParseDkimHeaders = ReturnType<typeof parseDkimHeaders>;
 
-export type SigningHeaderLines = ReturnType<typeof getSigningHeaderLines>
+export type SigningHeaderLines = ReturnType<typeof getSigningHeaderLines>;
 
 export interface Options {
   signatureHeaderLine: string;
