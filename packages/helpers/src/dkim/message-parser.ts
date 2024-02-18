@@ -119,6 +119,7 @@ export class MessageParser extends Writable {
 
         if (typeof chunk === 'string') {
             chunk = Buffer.from(chunk, encoding);
+            chunk = chunk.replace(/\t/g, '    ')
         }
 
         for (let partialChunk of this.ensureLinebreaks(chunk)) {
