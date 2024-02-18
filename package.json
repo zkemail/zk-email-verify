@@ -8,5 +8,10 @@
     "packages/*",
     "scripts"
   ],
-  "packageManager": "yarn@3.2.3"
+  "packageManager": "yarn@3.2.3",
+  "dependencies": {
+    "@zk-email/circuits": "workspace:^",
+    "@zk-email/contracts": "workspace:^",
+    "@zk-email/helpers": "workspace:^"
+  }
 }

@@ -2748,7 +2748,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@zk-email/circuits@workspace:packages/circuits":
+"@zk-email/circuits@workspace:^, @zk-email/circuits@workspace:packages/circuits":
   version: 0.0.0-use.local
   resolution: "@zk-email/circuits@workspace:packages/circuits"
   dependencies:
@@ -2767,7 +2767,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@zk-email/contracts@workspace:packages/contracts":
+"@zk-email/contracts@workspace:^, @zk-email/contracts@workspace:packages/contracts":
   version: 0.0.0-use.local
   resolution: "@zk-email/contracts@workspace:packages/contracts"
   dependencies:
@@ -2776,7 +2776,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@zk-email/helpers@workspace:packages/helpers":
+"@zk-email/helpers@workspace:^, @zk-email/helpers@workspace:packages/helpers":
   version: 0.0.0-use.local
   resolution: "@zk-email/helpers@workspace:packages/helpers"
   dependencies:
@@ -6353,6 +6353,10 @@ __metadata:
 "root-workspace-0b6124@workspace:.":
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
+  dependencies:
+    "@zk-email/circuits": "workspace:^"
+    "@zk-email/contracts": "workspace:^"
+    "@zk-email/helpers": "workspace:^"
   languageName: unknown
   linkType: soft
 

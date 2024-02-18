@@ -3,6 +3,10 @@ import { RelaxedHash } from './relaxed';
 
 export const dkimBody = (canonicalization: any, ...options: [string, number]) => {
     canonicalization = (canonicalization ?? 'simple/simple').toString().split('/').pop()?.toLowerCase().trim();
+
+    let spacesPattern = canonicalization;
+    spacesPattern = spacesPattern.replace(/\t/g, '    ');
+    
     switch (canonicalization) {
         case 'simple':
             return new SimpleHash(...options);
