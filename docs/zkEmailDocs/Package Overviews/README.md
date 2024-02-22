@@ -2,14 +2,57 @@
 This document provides an overview of the three main packages that make up ZK Email Verifier. Each package serves a specific purpose in the process of verifying DKIM signatures in emails using zero-knowledge proofs.
 
 
-
 ## zk-email/helpers
-The @zk-email/helpers package offers a set of utility functions designed to assist in the creation of inputs for zk circuits. 
+The `@zk-email/helpers` package provides a comprehensive suite of utility functions aimed at facilitating the creation of inputs for zk circuits.
 
-Key considerations:
-- This package is essential for generating the necessary inputs for the verification circuits.
-- It includes functions for handling RSA signatures, public keys, email bodies, and hashes.
-- Developers should familiarize themselves with the generateCircuitInputs function in the `input.helpers.ts` file, which is central to the operation of the SDK.
+**Key Considerations:**
+- **Essential for Verification Circuits:** Vital in generating the inputs required for the verification circuits.
+- **Functionality:** Includes functions for handling RSA signatures, public keys, email bodies, and hashes.
+- **Core Function:** Developers are encouraged to become acquainted with the `generateCircuitInputs` function located in the `input.helpers.ts` file, a cornerstone of the SDK's operation.
+
+#### Helper Files Overview
+
+**binaryFormat.ts**
+- **Purpose:** Contains utility functions for binary data manipulation, facilitating conversions between various data types and formats such as Uint8Array, BigInt, and character arrays.
+- **Key Functions:**
+  - `bigIntToBin`: Converts a BigInt to a binary string.
+  - `binToBigInt`: Converts a binary string to a BigInt.
+  - `bigIntToUint8Array`: Converts a BigInt to a Uint8Array.
+  - `uint8ArrayToBigInt`: Converts a Uint8Array to a BigInt.
+
+**constants.ts**
+- **Purpose:** Defines constants utilized across the helper functions, specifying the maximum allowed lengths for the email header and body when padded.
+- **Constants:**
+  - `MAX_HEADER_LENGTH`: Maximum length for the email header when padded.
+  - `MAX_BODY_LENGTH`: Maximum length for the email body when padded.
+
+**dkim.ts**
+- **Purpose:** Offers functions for parsing and verifying DKIM signatures within emails.
+- **Key Functions:**
+  - `parseDKIMSignature`: Parses a DKIM signature from an email header.
+  - `verifyDKIMSignature`: Verifies a DKIM signature, extracting necessary information for the verification process.
+
+**input-helpers.ts**
+- **Purpose:** Houses the `generateCircuitInputs` function, pivotal to the SDK's functionality. This function is responsible for generating the necessary inputs for the zk circuits, including the RSA signature, public key, email body, and body hash.
+
+**shaHash.ts**
+- **Purpose:** Provides functions for SHA-256 hash management.
+- **Key Functions:**
+  - `padSHA256Data`: Pads data to align with SHA-256 block requirements.
+  - `computePartialSHA256Hash`: Computes a partial SHA-256 hash for a specified input and initial hash value.
+  - `computeFullSHA256Hash`: Computes a full SHA-256 hash for a specified input.
+
+**dkim/index.ts**
+
+- **Purpose:** Provides functionality for verifying DKIM signatures within emails, crucial for authenticating the sender's domain and ensuring the email content's integrity.
+- **Key Functions:**
+
+ **`verifyDKIMSignature`:** Attempts to verify the DKIM signature of an email to authenticate its sender and content. It can optionally revert common changes made by email forwarders that might cause the original DKIM signature to fail.
+  - **Parameters:**
+    - `email`: The email content to be verified, provided as a `Buffer` or a `string`
+    - `domain`: An optional domain name for verification, useful if the DKIM signature is signed by a different domain than the one in the email's From address.
+    - `tryRevertARCChanges`: A flag indicating whether to attempt reverting changes made by email forwarders, defaulting to true.
+  - **Returns:** A `Promise` resolving to a `DKIMVerificationResult` object, which includes details such as the public key, signature, message, body, and other relevant verification outcomes.
 
 ## zk-email/contracts
 
