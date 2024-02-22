@@ -135,6 +135,12 @@ Firstly, you need to determine the constraint size of your circuit. You can do t
 ```bash
 snarkjs r1cs info myCircuit.r1cs
 ```
+### Memory Allocation for snarkjs
+To avoid out-of-memory errors in `snarkjs` for large circuits, increase Node.js memory with `node --max-old-space-size=<size>`, where `<size>` is in kilobytes.
+```
+node --max-old-space-size=614400 ./../node_modules/.bin/snarkjs
+```
+
 
 ### Powers of Tau
 After obtaining the constraint size, find the next highest power of 2 and replace the '12' in the following command with that number. This command initiates the Powers of tau ceremony.

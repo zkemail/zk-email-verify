@@ -1,5 +1,10 @@
 ## **Installation**
 
+**Prerequisites:**
+
+- **Node.js**: Version 14.0.0 or higher.
+- **Yarn**: Latest version recommended.
+
 To get started with zk-email, install these three npm packages:
 ## **1.  @zk-email/helpers**
 This package provides utility functions for email verification and cryptographic operations.

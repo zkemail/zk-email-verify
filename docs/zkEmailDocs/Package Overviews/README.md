@@ -54,8 +54,6 @@ The `@zk-email/helpers` package provides a comprehensive suite of utility functi
     - `tryRevertARCChanges`: A flag indicating whether to attempt reverting changes made by email forwarders, defaulting to true.
   - **Returns:** A `Promise` resolving to a `DKIMVerificationResult` object, which includes details such as the public key, signature, message, body, and other relevant verification outcomes.
 
-
-
 ## zk-email/contracts
 
 The @zk-email/contracts package contains the main contract of the SDK, `DKIMRegistry.sol`. This Solidity contract serves as a registry for storing the hash of the DomainKeys Identified Mail (DKIM) public key for each domain.
