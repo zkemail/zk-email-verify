@@ -22,8 +22,7 @@ Next, create an `inputs.ts` file. In this file, you will use the `generateCircui
 Here is a sample code snippet to guide you:
 
 ```javascript
-import { generateCircuitInputs } from "@zk-email/helpers/dist/input-helpers";
-import { verifyDKIMSignature } from "@zk-email/helpers/dist/dkim"
+import { generateCircuitInputs, verifyDKIMSignature } from "@zk-email/helpers";
 import fs from "fs";
 import path from "path";
 
