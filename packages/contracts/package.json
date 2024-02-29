@@ -6,7 +6,7 @@
     "publish": "yarn npm publish --access=public"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.9.3",
+    "@openzeppelin/contracts": "^4.9.6",
     "dotenv": "^16.3.1"
   }
 }
