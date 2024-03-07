@@ -81,7 +81,7 @@ Key considerations:
 The `circuits` directory includes a `helpers` folder, which houses a variety of Circom helper templates. These templates are instrumental in constructing your primary circuit file.
 
 ### **base64.circom**: 
-The base64.circom file is a part of the zk-email/circuits package and provides functionality for decoding base64 encoded data within arithimetic circuits. 
+The base64.circom file is a part of the zk-email/circuits package and provides functionality for decoding base64 encoded data within arithmetic circuits. 
 
 **Overview**
 
