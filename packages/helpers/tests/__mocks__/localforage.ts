@@ -2,7 +2,6 @@ import fs from 'fs';
 import path from 'path';
 
 const getUncompressedTestFile = (): ArrayBuffer => {
-  console.log("__dirname", __dirname)
   const buffer = fs.readFileSync(path.join(__dirname, `../test-data/compressed-files/uncompressed-value.txt`));
   return buffer;
 }
