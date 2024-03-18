@@ -83,7 +83,7 @@ Check out the rest of our proof of identity applications on our website [prove.e
 ## FAQ/Possible Errors
 ### Can you provide an example header for me to understand what exactly is signed?
 
-We are hijacking DKIM signatures in order to verify parts of emails, which can be verified on chain via succinct zero knowledge proofs. Here is an example of the final, canoncalized actual header string that is signed by google.com's public key:
+We are hijacking DKIM signatures in order to verify parts of emails, which can be verified on chain via succinct zero knowledge proofs. Here is an example of the final, canonicalized actual header string that is signed by google.com's public key:
 
 `to:"zkemailverify@gmail.com" <zkemailverify@gmail.com>\r\nsubject:test email\r\nmessage-id:<CAOmXgjU78_L7d-H7Wqf2qph=-uED3Kw6NEU2PzSP6jiUH0Bb+Q@mail.gmail.com>\r\ndate:Fri, 24 Mar 2023 13:02:10 +0700\r\nfrom:ZK Email <zkemailverify2@gmail.com>\r\nmime-version:1.0\r\ndkim-signature:v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112; t=1679637743; h=to:subject:message-id:date:from:mime-version:from:to:cc:subject :date:message-id:reply-to; bh=gCRK/FdzAYnMHic55yb00uF8AHZ/3HvyLVQJbWQ2T8o=; b=`
 
@@ -116,7 +116,7 @@ const = result.results[0].publicKey.toString();
 TypeError: Cannot read properties of undefined (reading 'toString')
 ```
 
-You need to have internet connection while running dkim verification locally, in order to fetch the public key. If you have internet connection, make sure you downloaded the email with the headers: you should see a DKIM section in the file. DKIM verifiction may also fail after the public keys rotate, though this has not been confirmed.
+You need to have an internet connection while running dkim verification locally, in order to fetch the public key. If you have internet connection, make sure you downloaded the email with the headers: you should see a DKIM section in the file. DKIM verification may also fail after the public keys rotate, though this has not been confirmed.
 
 ### How do I lookup the RSA pubkey for a domain?
 
@@ -170,7 +170,7 @@ Apologies, this part is some messy legacy code from previous projects. You use v
 
 zkp.ts is the key file that calls the important proving functions. You should be able to just call the exported functions from there, along with setting up your own s3 bucket and setting the constants at the top.
 
-### What is the licensing on this technology?
+### What is the licensing of this technology?
 
 Everything we write is MIT licensed. Note that circom and circomlib is GPL. Broadly we are pro permissive open source usage, and really appreciate attribution! We hope that those who derive profit from this, contribute a significant portion of that money altruistically back to help advance and maintain this technology and open source public good.
 
