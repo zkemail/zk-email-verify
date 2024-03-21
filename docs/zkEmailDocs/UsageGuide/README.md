@@ -143,15 +143,11 @@ node --max-old-space-size=614400 ./../node_modules/.bin/snarkjs
 
 
 ### Powers of Tau
-After obtaining the constraint size, find the next highest power of 2 and replace the '12' in the following command with that number. This command initiates the Powers of tau ceremony.
+
+You can download the ptau file directly from Google Cloud Platform using the following command:
 
 ```
-snarkjs powersoftau new bn128 12 pot12_0000.ptau -v
-```
-
-Then contribute to the ceremony by running:
-```bash
-snarkjs powersoftau contribute pot12_0000.ptau pot12_0001.ptau --name="First contribution" -v
+wget https://storage.googleapis.com/zkevm/ptau/powersOfTau28_hez_final_22.ptau
 ```
 ### Phase 2
 
