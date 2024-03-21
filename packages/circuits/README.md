@@ -43,6 +43,10 @@ This template provides a partial implementation of the SHA-256 cryptographic has
 
 This template provides functionality for performing arithmetic operations in finite fields, fundamental for many cryptographic protocols.
 
+### utils.circom
+
+The `utils.circom` file includes a collection of utility templates and functions that are used across multiple circuits. These utilities cover a wide range of functionalities, including bit manipulation, comparison, conversion, and arithmetic operations in finite fields. It serves as a foundational component for building complex arithmetic circuits.
+
 ## Utility templates
 
 ### bytes2ints.circom
@@ -61,9 +65,6 @@ The `Digit2Int` template converts an array of digit characters (0-9) into their 
 
 This template provides functionality for converting hexadecimal strings into their integer representation. It supports conversion of both lowercase (a-f) and uppercase (A-F) hexadecimal characters. This is essential for processing hexadecimal data within arithmetic circuits.
 
-### utils.circom
-
-The `utils.circom` file includes a collection of utility templates and functions that are used across multiple circuits. These utilities cover a wide range of functionalities, including bit manipulation, comparison, conversion, and arithmetic operations in finite fields. It serves as a foundational component for building complex arithmetic circuits.
 
 
 ## Overview of email-verifier.circom
