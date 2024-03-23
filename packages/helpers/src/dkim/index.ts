@@ -26,7 +26,6 @@ export async function verifyDKIMSignature(
   const pgpMarkers = [
     "BEGIN PGP MESSAGE",
     "BEGIN PGP SIGNED MESSAGE",
-    "X-Pm-Content-Encryption: end-to-end",
   ];
 
   const isPGPEncoded = pgpMarkers.some(marker => emailStr.includes(marker));
