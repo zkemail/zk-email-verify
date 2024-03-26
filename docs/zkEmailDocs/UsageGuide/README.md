@@ -157,6 +157,8 @@ wget https://storage.googleapis.com/zkevm/ptau/powersOfTau28_hez_final_22.ptau
 
 // For projects with up to 8 million constraints:
 wget https://storage.googleapis.com/zkevm/ptau/powersOfTau28_hez_final_23.ptau
+
+Refer to this link for more details: https://github.com/iden3/snarkjs?tab=readme-ov-file#7-prepare-phase-2
 ```
 ### Phase 2
 
