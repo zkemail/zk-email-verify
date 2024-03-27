@@ -106,11 +106,13 @@ To compile the circuit locally, you need to have Rust and Circom installed first
 
 
 ```bash
-circom MyCircuit.circom -o --r1cs --wasm --sym --c 
+circom -l node_modules MyCircuit.circom -o --r1cs --wasm --sym --c 
 ```
-*Note: You can add -l to specify the directory where the directive `include` should look for the circuits indicated. For our repo use circom -l node_modules instead of circom.
+
+*Note: You can add `-l` to specify the directory where the directive `include` should look for the circuits indicated. For our repo, use `circom -l node_modules` instead of `circom`. Additionally, we generally recommend using the `--O0` flag for optimization during compilation for beginners. However, if you're more experienced with Circom, feel free to use the `--O1` flag instead. It's important to avoid using the `--O2` flag as that is the default setting and it may lead to the deletion of additional constraints.*
 
 After running this command, the circuit will be compiled into a `.r1cs` file, a `.wasm` file, and a `.sym` file. These files are used in the next steps to generate the proving and verifying keys, and to compute the witness.
+
 
 ## Step 5: Compute the Witness
 
@@ -143,16 +145,22 @@ node --max-old-space-size=614400 ./../node_modules/.bin/snarkjs
 
 
 ### Powers of Tau
-After obtaining the constraint size, find the next highest power of 2 and replace the '12' in the following command with that number. This command initiates the Powers of tau ceremony.
+Based on the amount of constraints you have, there are different ptau files that you are able to download. You can download the ptau file directly from Google Cloud Platform using the following command:
 
 ```
-snarkjs powersoftau new bn128 12 pot12_0000.ptau -v
+// For projects with up to 2 million constraints:
+wget https://storage.googleapis.com/zkevm/ptau/powersOfTau28_hez_final_21.ptau
+
+// 4 million constraints:
+wget https://storage.googleapis.com/zkevm/ptau/powersOfTau28_hez_final_22.ptau
+
+// 8 million constraints:
+wget https://storage.googleapis.com/zkevm/ptau/powersOfTau28_hez_final_23.ptau
+
 ```
 
-Then contribute to the ceremony by running:
-```bash
-snarkjs powersoftau contribute pot12_0000.ptau pot12_0001.ptau --name="First contribution" -v
-```
+Refer to this link for more details: https://github.com/iden3/snarkjs?tab=readme-ov-file#7-prepare-phase-2
+
 ### Phase 2
 
 For Phase 2 of the trusted setup you can either use https://docs.circom.io/getting-started/proving-circuits/#phase-2 or [P0tion](https://github.com/privacy-scaling-explorations/p0tion)

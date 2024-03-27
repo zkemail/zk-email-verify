@@ -47,6 +47,23 @@ This template provides functionality for performing arithmetic operations in fin
 
 This template includes a collection of utility functions used across multiple circuits, such as bit manipulation functions, comparison functions, or conversion functions.
 
+## Utility templates
+
+### bytes2ints.circom
+
+This template converts an array of bytes into an array of integers. It is designed to handle inputs of any byte size and outputs integers based on the number of bytes specified. This is particularly useful for processing large binary data within arithmetic circuits. Specifically, the template is configured to transform 31 bytes into one integer, aligning with circoms maximum field value which is a 31-byte number. It uses little endian order for representation. 
+### constants.circom
+
+This file defines a set of constants used across various templates within the `circuits` package. These constants include maximum sizes for emails, domains, and timestamps, as well as specifications for packing bytes into field elements.
+
+### digit2int.circom
+
+The `Digit2Int` template converts an array of digit characters (0-9) into their corresponding integer representation. This is useful for processing numeric data that is input as a sequence of characters.
+
+### hex2int.circom
+
+This template provides functionality for converting hexadecimal strings into their integer representation. It supports conversion of both lowercase (a-f) and uppercase (A-F) hexadecimal characters. This is essential for processing hexadecimal data within arithmetic circuits.
+
 ## Overview of email-verifier.circom
 
 The `email-verifier.circom` file is a comprehensive template designed for email verification. It is engineered to process DKIM headers and utilizes Regex for pattern matching within emails.
