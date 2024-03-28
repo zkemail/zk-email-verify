@@ -19,7 +19,7 @@ describe("EmailVerifier", () => {
   let circuit: any;
 
   beforeAll(async () => {
-    const rawEmail = fs.readFileSync(path.join(__dirname, "./test.eml"));
+    const rawEmail = fs.readFileSync(path.join(__dirname, "./test-emails/test.eml"));
     dkimResult = await verifyDKIMSignature(rawEmail);
 
     circuit = await wasm_tester(
