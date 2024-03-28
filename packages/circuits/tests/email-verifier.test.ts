@@ -145,7 +145,7 @@ describe("EmailVerifier", () => {
       maxMessageLength: 640,
       maxBodyLength: 768,
     });
-    emailVerifierInputs.in_padded[640 - 1] = "1";
+    emailVerifierInputs.emailHeader[640 - 1] = "1";
 
     expect.assertions(1);
     try {
@@ -191,7 +191,7 @@ describe("EmailVerifier", () => {
       maxMessageLength: 640,
       maxBodyLength: 768,
     });
-    emailVerifierInputs.in_body_padded[768 - 1] = "1";
+    emailVerifierInputs.emailBody![768 - 1] = "1";
 
     expect.assertions(1);
     try {
