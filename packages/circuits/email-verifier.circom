@@ -11,23 +11,23 @@ include "./helpers/utils.circom";
 
 
 /// @title EmailVerifier
-/// @notice Circuit to verify email signature as per DKIM standard
-/// @notice Verifies the signature is valid for the given header and pubkey, and the hash of the body matches the hash in the header
-/// @dev This cicuit only verifies signature as per `rsa-sha256` algorithm
-/// @param maxHeaderLength Maximum length for the email header
-/// @param maxBodyLength Maximum length for the email body
-/// @param n Number of bits per chunk the RSA key is split into
-/// @param k Number of chunks the RSA key is split into
-/// @param ignoreBodyHashCheck Flag to skip body hash check - when data to prove/extract is only in the headers
-/// @input emailHeader Email headers that are signed (ones in `DKIM-Signature` header) as ASCII int[], padded as per SHA-256 block size
-/// @input emailHeaderLength Length of the email header including the SHA-256 padding
-/// @input pubkey RSA public key split into k chunks of n bits each
-/// @input signature RSA signature split into k chunks of n bits each
-/// @input emailBody Email body after the precomputed SHA as ASCII int[], padded as per SHA-256 block size
-/// @input emailBodyLength Length of the email body including the SHA-256 padding
-/// @input bodyHashIndex Index of the body hash `bh` in the emailHeader
-/// @input precomputedSHA Precomputed SHA-256 hash of the email body till the bodyHashIndex
-/// @output pubkeyHash Poseidon hash of the pubkey - Poseidon(n/2)(n/2 chunks of pubkey with k*2 bits per chunk)
+/// @notice Circuit to verify email signature as per DKIM standard.
+/// @notice Verifies the signature is valid for the given header and pubkey, and the hash of the body matches the hash in the header.
+/// @dev This cicuit only verifies signature as per `rsa-sha256` algorithm.
+/// @param maxHeaderLength Maximum length for the email header.
+/// @param maxBodyLength Maximum length for the email body.
+/// @param n Number of bits per chunk the RSA key is split into. Recommended to be 121.
+/// @param k Number of chunks the RSA key is split into. Recommended to be 17.
+/// @param ignoreBodyHashCheck Set 1 to skip body hash check in case data to prove/extract is only in the headers.
+/// @input emailHeader Email headers that are signed (ones in `DKIM-Signature` header) as ASCII int[], padded as per SHA-256 block size.
+/// @input emailHeaderLength Length of the email header including the SHA-256 padding.
+/// @input pubkey RSA public key split into k chunks of n bits each.
+/// @input signature RSA signature split into k chunks of n bits each.
+/// @input emailBody Email body after the precomputed SHA as ASCII int[], padded as per SHA-256 block size.
+/// @input emailBodyLength Length of the email body including the SHA-256 padding.
+/// @input bodyHashIndex Index of the body hash `bh` in the emailHeader.
+/// @input precomputedSHA Precomputed SHA-256 hash of the email body till the bodyHashIndex.
+/// @output pubkeyHash Poseidon hash of the pubkey - Poseidon(n/2)(n/2 chunks of pubkey with k*2 bits per chunk).
 template EmailVerifier(maxHeaderLength, maxBodyLength, n, k, ignoreBodyHashCheck) {
     assert(maxHeaderLength % 64 == 0);
     assert(maxBodyLength % 64 == 0);
