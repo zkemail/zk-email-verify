@@ -15,14 +15,11 @@ describe("SHA256 for email header", () => {
 
   beforeAll(async () => {
     circuit = await wasm_tester(
-      path.join(__dirname, "./sha256-test.circom"),
+      path.join(__dirname, "./test-circuits/sha256-test.circom"),
       {
-        // @dev During development recompile can be set to false if you are only making changes in the tests.
-        // This will save time by not recompiling the circuit every time.
-        // Compile: circom "./tests/email-verifier-test.circom" --r1cs --wasm --sym --c --wat --output "./tests/compiled-test-circuit"
         recompile: true,
-        output: path.join(__dirname, "./compiled-test-circuit"),
         include: path.join(__dirname, "../../../node_modules"),
+        // output: path.join(__dirname, "./compiled-test-circuit"),
       }
     );
   });

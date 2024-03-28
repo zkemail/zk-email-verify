@@ -26,11 +26,11 @@ describe("EmailVerifier : Without body check", () => {
     dkimResult = await verifyDKIMSignature(rawEmail);
 
     circuit = await wasm_tester(
-      path.join(__dirname, "./no-body-hash.test.circom"),
+      path.join(__dirname, "./test-circuits/no-body-hash.test.circom"),
       {
         recompile: true,
-        output: path.join(__dirname, "./compiled-test-circuit"),
         include: path.join(__dirname, "../../../node_modules"),
+        output: path.join(__dirname, "./compiled-test-circuit"),
       }
     );
   });
