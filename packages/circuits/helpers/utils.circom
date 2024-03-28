@@ -3,7 +3,6 @@ pragma circom 2.1.5;
 include "circomlib/circuits/bitify.circom";
 include "circomlib/circuits/comparators.circom";
 include "circomlib/circuits/mimcsponge.circom";
-include "./fp.circom";
 
 // From https://github.com/iden3/circomlib/blob/master/circuits/multiplexer.circom
 function log2(a) {
@@ -19,16 +18,6 @@ function log2(a) {
     return r;
 }
 
-// returns ceil(log2(a+1))
-function log2_ceil(a) {
-    var n = a+1;
-    var r = 0;
-    while (n>0) {
-        r++;
-        n \= 2;
-    }
-    return r;
-}
 
 // returns ceil(log2(a+1))
 function count_packed(n, chunks) {

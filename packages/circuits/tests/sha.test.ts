@@ -15,7 +15,7 @@ describe("SHA256 for email header", () => {
 
   beforeAll(async () => {
     circuit = await wasm_tester(
-      path.join(__dirname, "./test-circuits/sha256-test.circom"),
+      path.join(__dirname, "./test-circuits/sha-test.circom"),
       {
         recompile: true,
         include: path.join(__dirname, "../../../node_modules"),
@@ -37,8 +37,8 @@ describe("SHA256 for email header", () => {
       )
 
       const witness = await circuit.calculateWitness({
-        in_len_padded_bytes: messageLen,
-        in_padded: Uint8ArrayToCharArray(paddedMsg)
+        paddedIn: Uint8ArrayToCharArray(paddedMsg),
+        paddedInLength: messageLen,
       });
 
       await circuit.checkConstraints(witness);
