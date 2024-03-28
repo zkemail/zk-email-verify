@@ -250,3 +250,45 @@ describe("EmailVerifier", () => {
     });
   });
 });
+
+
+describe("EmailVerifier : Without body check", () => {
+  jest.setTimeout(10 * 60 * 1000); // 10 minutes
+
+  let dkimResult: DKIMVerificationResult;
+  let circuit: any;
+
+  beforeAll(async () => {
+    const rawEmail = fs.readFileSync(
+      path.join(__dirname, "./test.eml"),
+      "utf8"
+    );
+    dkimResult = await verifyDKIMSignature(rawEmail);
+
+    circuit = await wasm_tester(
+      path.join(__dirname, "./test-circuits/no-body-hash.test.circom"),
+      {
+        recompile: true,
+        include: path.join(__dirname, "../../../node_modules"),
+        output: path.join(__dirname, "./compiled-test-circuits"),
+      }
+    );
+  });
+
+  it("should verify email when ignore_body_hash_check is true", async function () {
+    // The result wont have shaPrecomputeSelector, maxMessageLength, maxBodyLength, ignoreBodyHashCheck
+    const emailVerifierInputs = generateCircuitInputs({
+      rsaSignature: dkimResult.signature,
+      rsaPublicKey: dkimResult.publicKey,
+      body: dkimResult.body,
+      bodyHash: dkimResult.bodyHash,
+      message: dkimResult.message,
+      maxMessageLength: 640,
+      maxBodyLength: 768,
+      ignoreBodyHashCheck: true,
+    });
+
+    const witness = await circuit.calculateWitness(emailVerifierInputs);
+    await circuit.checkConstraints(witness);
+  });
+});
