@@ -3,9 +3,9 @@ pragma circom 2.1.5;
 include "circomlib/circuits/bitify.circom";
 include "circomlib/circuits/poseidon.circom";
 include "@zk-email/zk-regex-circom/circuits/common/body_hash_regex.circom";
+include "./lib/base64.circom";
 include "./helpers/sha.circom";
 include "./helpers/rsa.circom";
-include "./helpers/base64.circom";
 include "./helpers/extract.circom";
 include "./helpers/utils.circom";
 
@@ -92,8 +92,8 @@ template EmailVerifier(maxHeaderLength, maxBodyLength, n, k, ignoreBodyHashCheck
         signal (bhRegexMatch, bhReveal[maxHeaderLength]) <== BodyHashRegex(maxHeaderLength)(emailHeader);
         bhRegexMatch === 1;
 
-        var LEN_SHA_B64 = 44;   // ceil(32 / 3) * 4, due to base64 encoding.
-        signal bhBase64[LEN_SHA_B64] <== VarShiftMaskedStr(maxHeaderLength, LEN_SHA_B64)(bhReveal, bodyHashIndex);
+        var shaB64Length = 44; // Length of SHA-256 hash when base64 encoded - ceil(32 / 3) * 4
+        signal bhBase64[shaB64Length] <== VarShiftMaskedStr(maxHeaderLength, shaB64Length)(bhReveal, bodyHashIndex);
         signal headerBodyHash[32] <== Base64Decode(32)(bhBase64);
 
 
