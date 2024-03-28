@@ -2,132 +2,133 @@ pragma circom 2.1.5;
 
 include "circomlib/circuits/bitify.circom";
 include "circomlib/circuits/poseidon.circom";
+include "@zk-email/zk-regex-circom/circuits/common/body_hash_regex.circom";
 include "./helpers/sha.circom";
 include "./helpers/rsa.circom";
 include "./helpers/base64.circom";
 include "./helpers/extract.circom";
 include "./helpers/utils.circom";
-// include "./regexes/body_hash_regex.circom";
-include "@zk-email/zk-regex-circom/circuits/common/body_hash_regex.circom";
-
-// Here, n and k are the biginteger parameters for RSA
-// This is because the number is chunked into k pack_size of n bits each
-// Max header bytes shouldn't need to be changed much per email,
-// but the max mody bytes may need to be changed to be larger if the email has a lot of i.e. HTML formatting
-// ignore_body_hash_check is a flag that allows us to skip the body hash check, for projects that dont care about the body contents
-// TODO: split into header and body
-template EmailVerifier(max_header_bytes, max_body_bytes, n, k, ignore_body_hash_check) {
-    assert(max_header_bytes % 64 == 0);
-    assert(max_body_bytes % 64 == 0);
-    assert(n * k > 2048); // constraints for 2048 bit RSA
-    assert(n < (255 \ 2)); // we want a multiplication to fit into a circom signal
-
-    signal input in_padded[max_header_bytes]; // prehashed email data, includes up to 512 + 64? bytes of padding pre SHA256, and padded with lots of 0s at end after the length
-    signal input pubkey[k]; // rsa pubkey, verified with smart contract + DNSSEC proof. split up into k parts of n bits each.
-    signal input signature[k]; // rsa signature. split up into k parts of n bits each.
-    signal input in_len_padded_bytes; // length of in email data including the padding, which will inform the sha256 block length
 
 
-    // Base 64 body hash variables
-    var LEN_SHA_B64 = 44;     // ceil(32 / 3) * 4, due to base64 encoding.
+/// @title EmailVerifier
+/// @notice Circuit to verify email signature as per DKIM standard
+/// @notice Verifies the signature is valid for the given header and pubkey, and the hash of the body matches the hash in the header
+/// @dev This cicuit only verifies signature as per `rsa-sha256` algorithm
+/// @param maxHeaderLength Maximum length for the email header
+/// @param maxBodyLength Maximum length for the email body
+/// @param n Number of bits per chunk the RSA key is split into
+/// @param k Number of chunks the RSA key is split into
+/// @param ignoreBodyHashCheck Flag to skip body hash check - when data to prove/extract is only in the headers
+/// @input emailHeader Email headers that are signed (ones in `DKIM-Signature` header) as ASCII int[], padded as per SHA-256 block size
+/// @input emailHeaderLength Length of the email header including the SHA-256 padding
+/// @input pubkey RSA public key split into k chunks of n bits each
+/// @input signature RSA signature split into k chunks of n bits each
+/// @input emailBody Email body after the precomputed SHA as ASCII int[], padded as per SHA-256 block size
+/// @input emailBodyLength Length of the email body including the SHA-256 padding
+/// @input bodyHashIndex Index of the body hash `bh` in the emailHeader
+/// @input precomputedSHA Precomputed SHA-256 hash of the email body till the bodyHashIndex
+/// @output pubkeyHash Poseidon hash of the pubkey - Poseidon(n/2)(n/2 chunks of pubkey with k*2 bits per chunk)
+template EmailVerifier(maxHeaderLength, maxBodyLength, n, k, ignoreBodyHashCheck) {
+    assert(maxHeaderLength % 64 == 0);
+    assert(maxBodyLength % 64 == 0);
+    assert(n * k > 2048); // to support 2048 bit RSA
+    assert(n < (255 \ 2)); // for multiplication to fit in the field (255 bits)
 
-    // Assert padding is all zeroes
-    AssertZeroes(max_header_bytes)(in_padded, in_len_padded_bytes + 1);
+
+    signal input emailHeader[maxHeaderLength];
+    signal input emailHeaderLength;
+    signal input pubkey[k];
+    signal input signature[k];
+
+    signal output pubkeyHash;
+
+
+    // Assert emailHeader only contain data till given emailHeaderLength - i.e any bytes are 0
+    // This is to prevent attack by adding fake headers in the remaining (unsigned) area and use that for extraction
+    AssertZeroes(maxHeaderLength)(emailHeader, emailHeaderLength + 1);
     
-    // SHA HEADER: 506,670 constraints
-    // This calculates the SHA256 hash of the header, which is the "base_msg" that is RSA signed.
-    // The header signs the fields in the "h=Date:From:To:Subject:MIME-Version:Content-Type:Message-ID;"
-    // section of the "DKIM-Signature:"" line, along with the body hash.
-    // Note that nothing above the "DKIM-Signature:" line is signed.
-    signal output sha[256] <== Sha256Bytes(max_header_bytes)(in_padded, in_len_padded_bytes);
-    signal output pubkey_hash;
 
-    var msg_len = (256 + n) \ n;
+    // Calculate SHA256 hash of the `emailHeader` - 506,670 constraints
+    signal output sha[256] <== Sha256Bytes(maxHeaderLength)(emailHeader, emailHeaderLength);
 
-    component base_msg[msg_len];
-    for (var i = 0; i < msg_len; i++) {
-        base_msg[i] = Bits2Num(n);
+
+    // Pack SHA output bytes to int[] for RSA input message
+    var rsaMessageSize = (256 + n) \ n;
+    component rsaMessage[rsaMessageSize];
+    for (var i = 0; i < rsaMessageSize; i++) {
+        rsaMessage[i] = Bits2Num(n);
     }
     for (var i = 0; i < 256; i++) {
-        base_msg[i \ n].in[i % n] <== sha[255 - i];
+        rsaMessage[i \ n].in[i % n] <== sha[255 - i];
     }
-    for (var i = 256; i < n * msg_len; i++) {
-        base_msg[i \ n].in[i % n] <== 0;
+    for (var i = 256; i < n * rsaMessageSize; i++) {
+        rsaMessage[i \ n].in[i % n] <== 0;
     }
 
-    // VERIFY RSA SIGNATURE: 149,251 constraints
-    // The fields that this signature actually signs are defined as the body and the values in the header
-    component rsa = RSAVerify65537(n, k);
-    for (var i = 0; i < msg_len; i++) {
-        rsa.base_message[i] <== base_msg[i].out;
+    // Verify RSA signature - 149,251 constraints
+    component rsaVerifier = RSAVerify65537(n, k);
+    for (var i = 0; i < rsaMessageSize; i++) {
+        rsaVerifier.base_message[i] <== rsaMessage[i].out;
     }
-    for (var i = msg_len; i < k; i++) {
-        rsa.base_message[i] <== 0;
+    for (var i = rsaMessageSize; i < k; i++) {
+        rsaVerifier.base_message[i] <== 0;
     }
-    rsa.modulus <== pubkey;
-    rsa.signature <== signature;
+    rsaVerifier.modulus <== pubkey;
+    rsaVerifier.signature <== signature;
 
 
-    if (ignore_body_hash_check != 1) {
-        signal input body_hash_idx;
+    // Calculate the SHA256 hash of the body and verify it matches the hash in the header
+    if (ignoreBodyHashCheck != 1) {
+        signal input bodyHashIndex;
+        signal input precomputedSHA[32];
+        signal input emailBody[maxBodyLength];
+        signal input emailBodyLength;
 
-        // BODY HASH REGEX: 617,597 constraints
-        // This extracts the body hash from the header (i.e. the part after bh= within the DKIM-signature section)
-        // which is used to verify the body text matches this signed hash + the signature verifies this hash is legit
-        signal (bh_regex_out, bh_reveal[max_header_bytes]) <== BodyHashRegex(max_header_bytes)(in_padded);
-        bh_regex_out === 1;
-        signal shifted_bh_out[LEN_SHA_B64] <== VarShiftMaskedStr(max_header_bytes, LEN_SHA_B64)(bh_reveal, body_hash_idx);
-        // log(body_hash_regex.out);
+        // Assert data after the body (maxBodyLength - emailBody.length) is all zeroes
+        AssertZeroes(maxBodyLength)(emailBody, emailBodyLength + 1);
+
+        // Body hash regex - 617,597 constraints
+        // Extract the body hash from the header (i.e. the part after bh= within the DKIM-signature section)
+        signal (bhRegexMatch, bhReveal[maxHeaderLength]) <== BodyHashRegex(maxHeaderLength)(emailHeader);
+        bhRegexMatch === 1;
+
+        var LEN_SHA_B64 = 44;   // ceil(32 / 3) * 4, due to base64 encoding.
+        signal bhBase64[LEN_SHA_B64] <== VarShiftMaskedStr(maxHeaderLength, LEN_SHA_B64)(bhReveal, bodyHashIndex);
+        signal headerBodyHash[32] <== Base64Decode(32)(bhBase64);
 
 
-        // SHA BODY: 760,142 constraints
-
-        // Precomputed sha vars for big body hashing
-        // Next 3 signals are for decreasing SHA constraints for parsing out information from the in-body text
-        // The precomputed_sha value is the Merkle-Damgard state of our SHA hash uptil our first regex match
-        // This allows us to save a ton of SHA constraints by only hashing the relevant part of the body
+        // Compute SHA256 of email body : 760,142 constraints
+        // We are using a technique to save constraints by precomputing the SHA hash of the body till the area we want to extract
         // It doesn't have an impact on security since a user must have known the pre-image of a signed message to be able to fake it
-        // The lower two body signals describe the suffix of the body that we care about
-        // The part before these signals, a significant prefix of the body, has been pre-hashed into precomputed_sha.
-        signal input precomputed_sha[32];
-        signal input in_body_padded[max_body_bytes];
-        signal input in_body_len_padded_bytes;
+        signal calculatedBodyHash[256] <== Sha256BytesPartial(maxBodyLength)(emailBody, emailBodyLength, precomputedSHA);
 
-        // Assert padding is all zeroes
-        AssertZeroes(max_body_bytes)(in_body_padded, in_body_len_padded_bytes + 1);
-        
-        // This verifies that the hash of the body, when calculated from the precomputed part forwards,
-        // actually matches the hash in the header
-        signal sha_body_out[256] <== Sha256BytesPartial(max_body_bytes)(in_body_padded, in_body_len_padded_bytes, precomputed_sha);
-        signal sha_b64_out[32] <== Base64Decode(32)(shifted_bh_out);
-
-        // When we convert the manually hashed email sha_body into bytes, it matches the
-        // base64 decoding of the final hash state that the signature signs (sha_b64)
-        component sha_body_bytes[32];
+        // Ensure the bodyHash from the header matches the calculated body hash
+        component calculatedBodyHashNum[32];
         for (var i = 0; i < 32; i++) {
-            sha_body_bytes[i] = Bits2Num(8);
+            calculatedBodyHashNum[i] = Bits2Num(8);
             for (var j = 0; j < 8; j++) {
-                sha_body_bytes[i].in[7 - j] <== sha_body_out[i * 8 + j];
+                calculatedBodyHashNum[i].in[7 - j] <== calculatedBodyHash[i * 8 + j];
             }
-            sha_body_bytes[i].out === sha_b64_out[i];
+            calculatedBodyHashNum[i].out === headerBodyHash[i];
         }
     }
+
 
     // Calculate the Poseidon hash of DKIM public key and produce as an output
-    // This can be used to verify the public key is correct in contract without requiring the actual key
-    // We are converting pub_key (modulus) in to 9 chunks of 242 bits, assuming original n, k are 121 and 17.
-    // This is because Posiedon circuit only support array of 16 elements.
-    var k2_chunked_size = k >> 1;
+    // This can be used to check (by verifier/contract) the pubkey used in the proof without needing the full key
+    // We are converting pubkey (modulus) in to k/2 chunks of n*2 bits each
+    // This is because Posiedon circuit only support array of 16 elements. We are assuming k > 16 and k/2 is <= 16
+    var chunkSize = k >> 1;
     if(k % 2 == 1) {
-        k2_chunked_size += 1;
+        chunkSize += 1;
     }
-    signal pubkey_hash_input[k2_chunked_size];
-    for(var i = 0; i < k2_chunked_size; i++) {
-        if(i==k2_chunked_size-1 && k2_chunked_size % 2 == 1) {
-            pubkey_hash_input[i] <== pubkey[2*i];
+    signal pubkeyChunks[chunkSize];
+    for(var i = 0; i < chunkSize; i++) {
+        if(i==chunkSize-1 && chunkSize % 2 == 1) {
+            pubkeyChunks[i] <== pubkey[2*i];
         } else {
-            pubkey_hash_input[i] <== pubkey[2*i] + (1<<n) * pubkey[2*i+1];
+            pubkeyChunks[i] <== pubkey[2*i] + (1<<n) * pubkey[2*i+1];
         }
     }
-    pubkey_hash <== Poseidon(k2_chunked_size)(pubkey_hash_input);
+    pubkeyHash <== Poseidon(chunkSize)(pubkeyChunks);
 }
