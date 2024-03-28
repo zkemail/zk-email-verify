@@ -16,21 +16,23 @@ Visit our [docs](/docs/README.md) to learn more about the project and how to bui
 
 Try here: [https://twitter.prove.email/](https://twitter.prove.email/)
 
-You can fork the project as a starting point for your own ZK-Email application.
+You can fork the project as a starting point for your own ZK-Email application. 
+
+Moreover, for those interested in creating the Twitter circuit from scratch, our [Proof of Twitter guide](https://prove.email/blog/twitter) offers a step-by-step tutorial on utilizing our SDKs for circuit construction.
 
 ## Installation
 To get started with the ZK Email Verifier, follow these steps:
 1. Install the `@zk-email/helpers` package:
 ```shell
-npm install @zk-email/helpers
+yarn add @zk-email/helpers
 ```
 2. Install the `@zk-email/contracts` package:
 ```shell
-npm install @zk-email/contracts
+yarn add @zk-email/contracts
 ```
 3. Install the `@zk-email/circuits` package:
 ```shell
-npm install @zk-email/circuits
+yarn add @zk-email/circuits
 ```
 ## Package Overviews
 
@@ -63,18 +65,9 @@ packages/
   helpers # Helper files for DKIM verification, input generation, etc.
 ```
 ## Contributors 💡
-We will award $50 for every successfully merged PR that resolves any [open issue](https://github.com/zkemail/zk-email-verify/issues). If we forget, please dm us a reminder!
+For each pull request that successfully merges and addresses an [open issue](https://github.com/zkemail/zk-email-verify/issues), we offer a $50 reward. Should we overlook issuing your reward, kindly send us a direct message as a reminder. To learn more about how you can contribute to this project, please consult our [Contributing Guide](Contributing.md).
 
-We want to say thanks to these amazing contributors!!
-
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
-
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
-
-<!-- ALL-CONTRIBUTORS-LIST:END -->
+A heartfelt thank you goes to all of our contributors!
 
 
 ## Projects 🛠

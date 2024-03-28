@@ -3,7 +3,7 @@
 This guide provides a step-by-step walkthrough on how to use the ZK Email Verifier. It covers the process from converting your email to regex to creating your zero-knowledge proof for email verification. The guide assumes you have already installed the necessary packages as outlined in the [Installation Guide](../Installation/README.md). If you haven't done so, please refer to the Installation Guide first.
 
 
-For an easy setup, we suggest utilizing [Zkrepl](https://github.com/zkemail/zk-regex), a playground for compiling and testing your circuits in the early stages of development.
+For an easy setup, we suggest utilizing [Zkrepl](https://github.com/zkemail/zk-regex), a playground for compiling and testing your circuits in the early stages of development. Additionally, explore our [Proof of Twitter guide](https://prove.email/blog/twitter) for a practical demonstration on how to leverage our SDKs to construct your own circuits.
 
 ## Step 1: Create the Regex File
 Transform your target email string into a regex format and compile it into a regex.circom file. For guidance, visit our [zk-regex repository](https://github.com/zkemail/zk-regex).
@@ -73,6 +73,14 @@ To set up your own circuit for the email-verifier, you can follow these steps:
 5. Define the output signal, which will be public.
 6. Instantiate the `emailVerifier` component within your `MyCircuit` template.
 
+NOTE: For teams using the email verifier circuit with the `ignoreBodyHashCheck` option disabled, please be aware of an important consideration. If you are conducting a body hash check within your own circuit configurations, it is essential to implement AssertZeroes for all characters beyond the specified limit.
+```
+AssertZeroes(max_body_bytes)(in_body_padded, in_body_len_padded_bytes + 1);
+```
+- max_body_bytes: maximum number of bytes that the email body can occupy.
+- in_body_padded: email body content that has been padded to meet the required size for processing.
+- length of the email body including the padding.
+
 Here's an example of how you can set up your own circuit:
 
 ```javascript
@@ -100,9 +108,11 @@ To compile the circuit locally, you need to have Rust and Circom installed first
 ```bash
 circom MyCircuit.circom -o --r1cs --wasm --sym --c 
 ```
-*Note: You can add -l to specify the directory where the directive `include` should look for the circuits indicated. For our repo use circom -l node_modules instead of circom.
+*Note: You can add `-l` to specify the directory where the directive `include` should look for the circuits indicated. For our repo, use `circom -l node_modules` instead of `circom`. Additionally, we generally recommend using the `--O0` flag for optimization during compilation for beginners. However, if you're more experienced with Circom, feel free to use the `--O1` flag instead. It's important to avoid using the `--O2` flag as that is the default setting and it may lead to the deletion of additional constraints.*
 
 After running this command, the circuit will be compiled into a `.r1cs` file, a `.wasm` file, and a `.sym` file. These files are used in the next steps to generate the proving and verifying keys, and to compute the witness.
+
+
 
 ## Step 5: Compute the Witness
 
@@ -127,17 +137,19 @@ Firstly, you need to determine the constraint size of your circuit. You can do t
 ```bash
 snarkjs r1cs info myCircuit.r1cs
 ```
+### Memory Allocation for snarkjs
+To avoid out-of-memory errors in `snarkjs` for large circuits, increase Node.js memory with `node --max-old-space-size=<size>`, where `<size>` is in kilobytes.
+```
+node --max-old-space-size=614400 ./../node_modules/.bin/snarkjs
+```
+
 
 ### Powers of Tau
-After obtaining the constraint size, find the next highest power of 2 and replace the '12' in the following command with that number. This command initiates the Powers of tau ceremony.
+
+You can download the ptau file directly from Google Cloud Platform using the following command:
 
 ```
-snarkjs powersoftau new bn128 12 pot12_0000.ptau -v
-```
-
-Then contribute to the ceremony by running:
-```bash
-snarkjs powersoftau contribute pot12_0000.ptau pot12_0001.ptau --name="First contribution" -v
+wget https://storage.googleapis.com/zkevm/ptau/powersOfTau28_hez_final_22.ptau
 ```
 ### Phase 2
 
