@@ -27,10 +27,10 @@ describe("EmailVerifier", () => {
       {
         // @dev During development recompile can be set to false if you are only making changes in the tests.
         // This will save time by not recompiling the circuit every time.
-        // Compile: circom "./tests/email-verifier-test.circom" --r1cs --wasm --sym --c --wat --output "./tests/compiled-test-circuit"
+        // Compile: circom "./tests/email-verifier-test.circom" --r1cs --wasm --sym --c --wat --output "./tests/compiled-test-circuits"
         recompile: true,
         include: path.join(__dirname, "../../../node_modules"),
-        output: path.join(__dirname, "./compiled-test-circuit"),
+        output: path.join(__dirname, "./compiled-test-circuits"),
       }
     );
   });

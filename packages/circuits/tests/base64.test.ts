@@ -22,7 +22,7 @@ describe("Base64 Lookup", () => {
       {
         recompile: true,
         include: path.join(__dirname, "../../../node_modules"),
-        output: path.join(__dirname, "./compiled-test-circuit"),
+        output: path.join(__dirname, "./compiled-test-circuits"),
       }
     );
   });

@@ -19,7 +19,7 @@ describe("SHA256 for email header", () => {
       {
         recompile: true,
         include: path.join(__dirname, "../../../node_modules"),
-        // output: path.join(__dirname, "./compiled-test-circuit"),
+        // output: path.join(__dirname, "./compiled-test-circuits"),
       }
     );
   });

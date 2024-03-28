@@ -24,7 +24,7 @@ describe("RSA", () => {
       {
         recompile: true,
         include: path.join(__dirname, "../../../node_modules"),
-        // output: path.join(__dirname, "./compiled-test-circuit"),
+        // output: path.join(__dirname, "./compiled-test-circuits"),
       }
     );
     const rawEmail = fs.readFileSync(path.join(__dirname, "./test.eml"));
