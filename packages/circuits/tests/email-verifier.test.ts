@@ -19,18 +19,18 @@ describe("EmailVerifier", () => {
   let circuit: any;
 
   beforeAll(async () => {
-    const rawEmail = fs.readFileSync(path.join(__dirname, "./test.eml"));
+    const rawEmail = fs.readFileSync(path.join(__dirname, "./test-emails/test.eml"));
     dkimResult = await verifyDKIMSignature(rawEmail);
 
     circuit = await wasm_tester(
-      path.join(__dirname, "./email-verifier-test.circom"),
+      path.join(__dirname, "./test-circuits/email-verifier-test.circom"),
       {
         // @dev During development recompile can be set to false if you are only making changes in the tests.
         // This will save time by not recompiling the circuit every time.
-        // Compile: circom "./tests/email-verifier-test.circom" --r1cs --wasm --sym --c --wat --output "./tests/compiled-test-circuit"
+        // Compile: circom "./tests/email-verifier-test.circom" --r1cs --wasm --sym --c --wat --output "./tests/compiled-test-circuits"
         recompile: true,
-        output: path.join(__dirname, "./compiled-test-circuit"),
         include: path.join(__dirname, "../../../node_modules"),
+        output: path.join(__dirname, "./compiled-test-circuits"),
       }
     );
   });
@@ -145,7 +145,7 @@ describe("EmailVerifier", () => {
       maxMessageLength: 640,
       maxBodyLength: 768,
     });
-    emailVerifierInputs.in_padded[640 - 1] = "1";
+    emailVerifierInputs.emailHeader[640 - 1] = "1";
 
     expect.assertions(1);
     try {
@@ -191,7 +191,7 @@ describe("EmailVerifier", () => {
       maxMessageLength: 640,
       maxBodyLength: 768,
     });
-    emailVerifierInputs.in_body_padded[768 - 1] = "1";
+    emailVerifierInputs.emailBody![768 - 1] = "1";
 
     expect.assertions(1);
     try {
@@ -248,5 +248,47 @@ describe("EmailVerifier", () => {
     await circuit.assertOut(witness, {
       pubkey_hash: poseidon.F.toObject(hash),
     });
+  });
+});
+
+
+describe("EmailVerifier : Without body check", () => {
+  jest.setTimeout(10 * 60 * 1000); // 10 minutes
+
+  let dkimResult: DKIMVerificationResult;
+  let circuit: any;
+
+  beforeAll(async () => {
+    const rawEmail = fs.readFileSync(
+      path.join(__dirname, "./test.eml"),
+      "utf8"
+    );
+    dkimResult = await verifyDKIMSignature(rawEmail);
+
+    circuit = await wasm_tester(
+      path.join(__dirname, "./test-circuits/no-body-hash.test.circom"),
+      {
+        recompile: true,
+        include: path.join(__dirname, "../../../node_modules"),
+        output: path.join(__dirname, "./compiled-test-circuits"),
+      }
+    );
+  });
+
+  it("should verify email when ignore_body_hash_check is true", async function () {
+    // The result wont have shaPrecomputeSelector, maxMessageLength, maxBodyLength, ignoreBodyHashCheck
+    const emailVerifierInputs = generateCircuitInputs({
+      rsaSignature: dkimResult.signature,
+      rsaPublicKey: dkimResult.publicKey,
+      body: dkimResult.body,
+      bodyHash: dkimResult.bodyHash,
+      message: dkimResult.message,
+      maxMessageLength: 640,
+      maxBodyLength: 768,
+      ignoreBodyHashCheck: true,
+    });
+
+    const witness = await circuit.calculateWitness(emailVerifierInputs);
+    await circuit.checkConstraints(witness);
   });
 });

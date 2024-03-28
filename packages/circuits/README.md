@@ -45,7 +45,27 @@ This template provides functionality for performing arithmetic operations in fin
 
 ### utils.circom
 
-This template includes a collection of utility functions used across multiple circuits, such as bit manipulation functions, comparison functions, or conversion functions.
+The `utils.circom` file includes a collection of utility templates and functions that are used across multiple circuits. These utilities cover a wide range of functionalities, including bit manipulation, comparison, conversion, and arithmetic operations in finite fields. It serves as a foundational component for building complex arithmetic circuits.
+
+## Utility templates
+
+### bytes2ints.circom
+
+This template converts an array of bytes into an array of integers. It is designed to handle inputs of any byte size and outputs integers based on the number of bytes specified. This is particularly useful for processing large binary data within arithmetic circuits.
+
+### constants.circom
+
+This file defines a set of constants used across various templates within the `circuits` package. These constants include maximum sizes for emails, domains, invitation codes, and timestamps, as well as specifications for packing bytes into field elements.
+
+### digit2int.circom
+
+The `Digit2Int` template converts an array of digit characters (0-9) into their corresponding integer representation. This is useful for processing numeric data that is input as a sequence of characters.
+
+### hex2int.circom
+
+This template provides functionality for converting hexadecimal strings into their integer representation. It supports conversion of both lowercase (a-f) and uppercase (A-F) hexadecimal characters. This is essential for processing hexadecimal data within arithmetic circuits.
+
+
 
 ## Overview of email-verifier.circom
 
@@ -82,3 +102,4 @@ The template performs several operations:
 
 
 For a more in-depth understanding, please visit our zk Email Verify repository at https://github.com/zkemail/zk-email-verify.
+

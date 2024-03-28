@@ -104,14 +104,14 @@ export function generatePartialSHA({
 }
 
 type CircuitInput = {
-  in_padded: string[];
+  emailHeader: string[];
+  emailHeaderLength: string;
   pubkey: string[];
   signature: string[];
-  in_len_padded_bytes: string;
-  precomputed_sha?: string[];
-  in_body_padded?: string[];
-  in_body_len_padded_bytes?: string;
-  body_hash_idx?: string;
+  emailBody?: string[];
+  emailBodyLength?: string;
+  precomputedSHA?: string[];
+  bodyHashIndex?: string;
 }
 
 export function generateCircuitInputs(params: {
@@ -161,19 +161,19 @@ export function generateCircuitInputs(params: {
 
 
   const circuitInputs : CircuitInput = {
-    in_padded: Uint8ArrayToCharArray(messagePadded), // Packed into 1 byte signals
+    emailHeader: Uint8ArrayToCharArray(messagePadded), // Packed into 1 byte signals
+    emailHeaderLength: messagePaddedLen.toString(),
     pubkey: toCircomBigIntBytes(rsaPublicKey),
     signature: toCircomBigIntBytes(rsaSignature),
-    in_len_padded_bytes: messagePaddedLen.toString(),
   };
 
   if (!ignoreBodyHashCheck)  {
     const bodyHashIndex = message.toString().indexOf(bodyHash);
 
-    circuitInputs.precomputed_sha = Uint8ArrayToCharArray(precomputedSha);
-    circuitInputs.body_hash_idx = bodyHashIndex.toString();
-    circuitInputs.in_body_padded = Uint8ArrayToCharArray(bodyRemaining);
-    circuitInputs.in_body_len_padded_bytes = bodyRemainingLength.toString();
+    circuitInputs.emailBodyLength = bodyRemainingLength.toString();
+    circuitInputs.precomputedSHA = Uint8ArrayToCharArray(precomputedSha);
+    circuitInputs.bodyHashIndex = bodyHashIndex.toString();
+    circuitInputs.emailBody = Uint8ArrayToCharArray(bodyRemaining);
   }
 
   return circuitInputs;
