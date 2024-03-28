@@ -4,8 +4,8 @@ include "circomlib/circuits/bitify.circom";
 include "circomlib/circuits/poseidon.circom";
 include "@zk-email/zk-regex-circom/circuits/common/body_hash_regex.circom";
 include "./lib/base64.circom";
+include "./lib/rsa.circom";
 include "./helpers/sha.circom";
-include "./helpers/rsa.circom";
 include "./helpers/extract.circom";
 include "./helpers/utils.circom";
 
@@ -66,12 +66,12 @@ template EmailVerifier(maxHeaderLength, maxBodyLength, n, k, ignoreBodyHashCheck
     }
 
     // Verify RSA signature - 149,251 constraints
-    component rsaVerifier = RSAVerify65537(n, k);
+    component rsaVerifier = RSAVerifier65537(n, k);
     for (var i = 0; i < rsaMessageSize; i++) {
-        rsaVerifier.base_message[i] <== rsaMessage[i].out;
+        rsaVerifier.message[i] <== rsaMessage[i].out;
     }
     for (var i = rsaMessageSize; i < k; i++) {
-        rsaVerifier.base_message[i] <== 0;
+        rsaVerifier.message[i] <== 0;
     }
     rsaVerifier.modulus <== pubkey;
     rsaVerifier.signature <== signature;

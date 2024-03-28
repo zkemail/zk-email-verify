@@ -1,5 +1,5 @@
 pragma circom 2.1.5;
 
-include "../helpers/rsa.circom";
+include "../../lib/rsa.circom";
 
-component main { public [modulus] } = RSAVerify65537(121, 17);
+component main { public [modulus] } = RSAVerifier65537(121, 17);

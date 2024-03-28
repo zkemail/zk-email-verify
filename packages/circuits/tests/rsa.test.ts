@@ -27,7 +27,7 @@ describe("RSA", () => {
         // output: path.join(__dirname, "./compiled-test-circuits"),
       }
     );
-    const rawEmail = fs.readFileSync(path.join(__dirname, "./test.eml"));
+    const rawEmail = fs.readFileSync(path.join(__dirname, "./test-emails/test.eml"));
     dkimResult = await verifyDKIMSignature(rawEmail);
   });
 
@@ -47,7 +47,7 @@ describe("RSA", () => {
       signature: emailVerifierInputs.signature,
       modulus: emailVerifierInputs.pubkey,
       // TODO: generate this from the input
-      base_message: ["1156466847851242602709362303526378170", "191372789510123109308037416804949834", "7204", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+      message: ["1156466847851242602709362303526378170", "191372789510123109308037416804949834", "7204", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
     });
     await circuit.checkConstraints(witness);
     await circuit.assertOut(witness, {})
@@ -70,7 +70,7 @@ describe("RSA", () => {
       signature: signature,
       modulus: pubkey,
       // TODO: generate this from the input
-      base_message: ["1156466847851242602709362303526378170", "191372789510123109308037416804949834", "7204", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+      message: ["1156466847851242602709362303526378170", "191372789510123109308037416804949834", "7204", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
     });
     await circuit.checkConstraints(witness);
     await circuit.assertOut(witness, {});
@@ -93,7 +93,7 @@ describe("RSA", () => {
       const witness = await circuit.calculateWitness({
         signature: emailVerifierInputs.signature,
         modulus: emailVerifierInputs.pubkey,
-        base_message: ["1156466847851242602709362303526378171", "191372789510123109308037416804949834", "7204", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+        message: ["1156466847851242602709362303526378171", "191372789510123109308037416804949834", "7204", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
       });
       await circuit.checkConstraints(witness);
       await circuit.assertOut(witness, {})

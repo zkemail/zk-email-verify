@@ -3,8 +3,8 @@ pragma circom 2.1.5;
 include "circomlib/circuits/comparators.circom";
 include "circomlib/circuits/bitify.circom";
 include "circomlib/circuits/gates.circom";
+include "./bigint-func.circom";
 
-include "bigint_func.circom";
 
 // addition mod 2**n with carry bit
 template ModSum(n) {

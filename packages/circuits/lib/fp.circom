@@ -4,7 +4,7 @@ include "circomlib/circuits/bitify.circom";
 include "circomlib/circuits/comparators.circom";
 include "circomlib/circuits/sign.circom";
 include "./bigint.circom";
-include "./bigint_func.circom";
+include "./bigint-func.circom";
 
 // These functions operate over values in Z/Zp for some integer p (typically,
 // but not necessarily prime). Values are stored as standard bignums with k
