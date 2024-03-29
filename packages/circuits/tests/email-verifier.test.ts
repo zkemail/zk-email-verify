@@ -260,17 +260,17 @@ describe("EmailVerifier : Without body check", () => {
 
   beforeAll(async () => {
     const rawEmail = fs.readFileSync(
-      path.join(__dirname, "./test.eml"),
+      path.join(__dirname, "./test-emails/test.eml"),
       "utf8"
     );
     dkimResult = await verifyDKIMSignature(rawEmail);
 
     circuit = await wasm_tester(
-      path.join(__dirname, "./test-circuits/no-body-hash.test.circom"),
+      path.join(__dirname, "./test-circuits/email-verifier-no-body-test.circom"),
       {
         recompile: true,
         include: path.join(__dirname, "../../../node_modules"),
-        output: path.join(__dirname, "./compiled-test-circuits"),
+        // output: path.join(__dirname, "./compiled-test-circuits"),
       }
     );
   });

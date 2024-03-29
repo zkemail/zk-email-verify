@@ -5,7 +5,7 @@ include "circomlib/circuits/poseidon.circom";
 include "@zk-email/zk-regex-circom/circuits/common/body_hash_regex.circom";
 include "./lib/base64.circom";
 include "./lib/rsa.circom";
-include "./helpers/sha.circom";
+include "./lib/sha.circom";
 include "./helpers/extract.circom";
 include "./helpers/utils.circom";
 
