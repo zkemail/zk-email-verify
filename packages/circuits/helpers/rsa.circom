@@ -47,6 +47,8 @@ template RSAPad(n, k) {
     signal input base_message[k];
     signal output padded_message[k];
 
+    // The extra 152 bits comes from 0x3031300d060960864801650304020105000420
+    // This is due to padding from the RSASSA-PKCS1-v1_5 standard
     var base_len = 408;
     var msg_len = 256;
 
