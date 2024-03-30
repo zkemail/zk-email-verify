@@ -5,7 +5,7 @@ include "circomlib/circuits/bitify.circom";
 include "./bytes.circom";
 
 /// @title ExtractRegexReveal
-/// @dev Extracts reveal part from a regex match
+/// @notice Extracts reveal part from a regex match
 /// @param maxArrayLen Maximum length of the input array
 /// @param maxRevealLen Maximum length of the reveal part
 /// @input in Input array
@@ -50,7 +50,7 @@ template ExtractRegexReveal(maxArrayLen, maxRevealLen) {
 
 
 /// @title PackRegexReveal
-/// @dev Packs reveal data from a regex match into int[]
+/// @notice Packs reveal data from a regex match into int[]
 /// @param maxArrayLen Maximum length of the input array
 /// @param maxRevealLen Maximum length of the reveal part
 /// @input in Input array

@@ -116,6 +116,7 @@ template EmailVerifier(maxHeaderLength, maxBodyLength, n, k, ignoreBodyHashCheck
 
     // Calculate the Poseidon hash of DKIM public key as output
     // This can be used to verify (by verifier/contract) the pubkey used in the proof without needing the full key
+    // Since PoseidonLarge concatenates nearby values its important to use same n/k (recommended 121*17) to produce uniform hashes
     // https://zkrepl.dev/?gist=43ce7dce2466c63812f6efec5b13aa73 - This can be used to calculate the pubkey hash separately
     pubkeyHash <== PoseidonLarge(n, k)(pubkey);
 }
