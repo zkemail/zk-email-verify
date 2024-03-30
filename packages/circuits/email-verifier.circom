@@ -6,8 +6,7 @@ include "@zk-email/zk-regex-circom/circuits/common/body_hash_regex.circom";
 include "./lib/base64.circom";
 include "./lib/rsa.circom";
 include "./lib/sha.circom";
-include "./helpers/extract.circom";
-include "./helpers/utils.circom";
+include "./utils/extract.circom";
 
 
 /// @title EmailVerifier
@@ -93,7 +92,7 @@ template EmailVerifier(maxHeaderLength, maxBodyLength, n, k, ignoreBodyHashCheck
         bhRegexMatch === 1;
 
         var shaB64Length = 44; // Length of SHA-256 hash when base64 encoded - ceil(32 / 3) * 4
-        signal bhBase64[shaB64Length] <== VarShiftMaskedStr(maxHeaderLength, shaB64Length)(bhReveal, bodyHashIndex);
+        signal bhBase64[shaB64Length] <== ExtractRegexReveal(maxHeaderLength, shaB64Length)(bhReveal, bodyHashIndex);
         signal headerBodyHash[32] <== Base64Decode(32)(bhBase64);
 
 
