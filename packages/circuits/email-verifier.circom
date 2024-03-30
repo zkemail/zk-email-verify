@@ -100,16 +100,16 @@ template EmailVerifier(maxHeaderLength, maxBodyLength, n, k, ignoreBodyHashCheck
         // Compute SHA256 of email body : 760,142 constraints
         // We are using a technique to save constraints by precomputing the SHA hash of the body till the area we want to extract
         // It doesn't have an impact on security since a user must have known the pre-image of a signed message to be able to fake it
-        signal calculatedBodyHash[256] <== Sha256BytesPartial(maxBodyLength)(emailBody, emailBodyLength, precomputedSHA);
+        signal computedBodyHash[256] <== Sha256BytesPartial(maxBodyLength)(emailBody, emailBodyLength, precomputedSHA);
 
         // Ensure the bodyHash from the header matches the calculated body hash
-        component calculatedBodyHashNum[32];
+        component computedBodyHashInts[32];
         for (var i = 0; i < 32; i++) {
-            calculatedBodyHashNum[i] = Bits2Num(8);
+            computedBodyHashInts[i] = Bits2Num(8);
             for (var j = 0; j < 8; j++) {
-                calculatedBodyHashNum[i].in[7 - j] <== calculatedBodyHash[i * 8 + j];
+                computedBodyHashInts[i].in[7 - j] <== computedBodyHash[i * 8 + j];
             }
-            calculatedBodyHashNum[i].out === headerBodyHash[i];
+            computedBodyHashInts[i].out === headerBodyHash[i];
         }
     }
 
