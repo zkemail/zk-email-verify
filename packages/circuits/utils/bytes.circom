@@ -60,6 +60,7 @@ template BytesToInts(maxBytes) {
 
 /// @title ByteSubArrayToInts
 /// @notice Select sub array from a byte array and pack to a 31-byte integer array
+/// @notice This is not used in the main circuits
 /// @param maxBytes: the maximum number of bytes in the input array
 /// @input in: the input byte array
 /// @output out: the output integer array

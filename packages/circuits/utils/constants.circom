@@ -1,5 +1,6 @@
 pragma circom 2.1.5;
 
+
 function EMAIL_ADDR_MAX_BYTES() {
     return 256;
 }

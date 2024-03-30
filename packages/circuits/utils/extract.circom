@@ -4,10 +4,18 @@ include "circomlib/circuits/comparators.circom";
 include "circomlib/circuits/bitify.circom";
 include "./bytes.circom";
 
-
+/// @title ExtractRegexReveal
+/// @dev Extracts reveal part from a regex match
+/// @param maxArrayLen Maximum length of the input array
+/// @param maxRevealLen Maximum length of the reveal part
+/// @input in Input array
+/// @input startIndex Index of the start of the reveal part
+/// @output out Revealed data array
 template ExtractRegexReveal(maxArrayLen, maxRevealLen) {
     signal input in[maxArrayLen];
     signal input startIndex;
+
+    signal output out[maxRevealLen];
     
     signal isStartIndex[in_array_len];
     signal isZero[in_array_len];
@@ -35,11 +43,17 @@ template ExtractRegexReveal(maxArrayLen, maxRevealLen) {
         }
     }
 
-
-    signal output out[maxRevealLen] <== ArrayShiftLeft(maxArrayLen, maxRevealLen)(in, startIndex);
+    out <== ArrayShiftLeft(maxArrayLen, maxRevealLen)(in, startIndex);
 }
 
 
+/// @title PackRegexReveal
+/// @dev Packs reveal data from a regex match into int[]
+/// @param maxArrayLen Maximum length of the input array
+/// @param maxRevealLen Maximum length of the reveal part
+/// @input in Input array
+/// @input startIndex Index of the start of the reveal part
+/// @output out Packed int array
 template PackRegexReveal(maxArrayLen, maxRevealLen) {
     var chunkSize = computeIntChunkLength(maxRevealLen);
 
