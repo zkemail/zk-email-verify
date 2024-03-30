@@ -3,18 +3,16 @@ pragma circom 2.1.6;
 include "circomlib/circuits/comparators.circom";
 include "circomlib/circuits/bitify.circom";
 
-function log2(a) {
-    if (a == 0) {
-        return 0;
-    }
-    var n = 1;
-    var r = 1;
-    while (n<a) {
+function log2Ceil(a) {
+    var n = a+1;
+    var r = 0;
+    while (n>0) {
         r++;
-        n *= 2;
+        n \= 2;
     }
     return r;
 }
+
 
 
 /// @title SubarraySelector
@@ -28,8 +26,9 @@ function log2(a) {
 /// @input length The length of the subarray
 /// @output out The selected subarray, zero padded
 template SubarraySelector(maxArrayLen, maxSubArrayLen) {
-    var bitLength = log2(maxArrayLen);
+    var bitLength = log2Ceil(maxArrayLen);
     assert(maxArrayLen <= (1 << bitLength));
+
     signal input in[maxArrayLen];
     signal input startIndex;
     signal input length;
@@ -67,17 +66,18 @@ template SubarraySelector(maxArrayLen, maxSubArrayLen) {
 /// @notice Select an element from an array based on index
 /// @notice This is QuinSelector from MACI https://github.com/privacy-scaling-explorations/maci/blob/dev/circuits/circom/trees/incrementalQuinTree.circom
 /// @param maxLength The number of elements in the array
-/// @param bits The number of bits required to represent the number of elements - ceil(log2 maxLength)
 /// @input in The input array
 /// @input index The index of the element to select
 /// @output out The selected element
-template ArraySelector(maxLength, bits) {
+template ArraySelector(maxLength) {
+    var bitLength = log2Ceil(maxArrayLen);
+
     signal input in[maxLength];
     signal input index;
     signal output out;
 
     // Ensure that index < maxLength
-    component lessThan = LessThan(bits);
+    component lessThan = LessThan(bitLength);
     lessThan.in[0] <== index;
     lessThan.in[1] <== maxLength;
     lessThan.out === 1;

@@ -3,23 +3,30 @@ pragma circom 2.1.5;
 include "circomlib/circuits/bitify.circom";
 include "circomlib/circuits/comparators.circom";
 include "circomlib/circuits/poseidon.circom";
+include "./array.circom";
 include "./constants.circom";
 
+function computeIntChunkLength(byteLength) {
+    var packSize = MAX_BYTES_IN_FIELD();
 
-/// @title PackBytesToInts
+    var remain = byteLength % packSize;
+    var numChunks = (byteLength - remain) / packSize;
+    if (remain > 0) {
+        numChunks += 1;
+    }
+
+    return numChunks;
+}
+
+
+/// @title BytesToInts
 /// @notice Converts a byte array into a 31-byte integer array (packing)
 /// @param maxBytes: the maximum number of bytes in the input array
 /// @input in: the input byte array
 /// @output out: the output integer array
-template PackBytesToInts(maxBytes) {
+template BytesToInts(maxBytes) {
     var packSize = MAX_BYTES_IN_FIELD();
-
-    // Calculate number of int chunks based in maxBytes
-    var remain = maxBytes % packSize;
-    var maxInts = (maxBytes - remain) / packSize;
-    if (remain > 0) {
-        maxInts += 1;
-    }
+    var maxInts = computeIntChunkLength(maxBytes);
 
     signal input in[maxBytes];
     signal output out[maxInts];
@@ -49,4 +56,30 @@ template PackBytesToInts(maxBytes) {
     for (var i = 0; i < maxInts; i++) {
         ints[i] <== intSums[i][packSize-1];
     }
+}
+
+
+
+/// @title ByteSubArrayToInts
+/// @notice Select sub array from a byte array and pack to a 31-byte integer array
+/// @param maxBytes: the maximum number of bytes in the input array
+/// @input in: the input byte array
+/// @output out: the output integer array
+template ByteSubArrayToInts(maxArrayLen, maxSubArrayLen) {
+    var maxInts = computeIntChunkLength(maxSubArrayLen);
+    
+    signal input in[maxArrayLen, maxSubArrayLen];
+    signal input startIndex;
+    signal input length;
+
+    signal output out[maxSubArrayLen];
+
+    component slicer = SubarraySelector(maxArrayLen, maxSubArrayLen);
+    slicer.in <== in;
+    slicer.startIndex <== startIndex;
+    slicer.length <== length;
+
+    component packer = BytesToInts(maxSubArrayLen);
+    packer.in <== slicer.out;
+    packer.out <== out;
 }
