@@ -246,7 +246,7 @@ describe("EmailVerifier", () => {
     const witness = await circuit.calculateWitness(emailVerifierInputs);
 
     await circuit.assertOut(witness, {
-      pubkey_hash: poseidon.F.toObject(hash),
+      pubkeyHash: poseidon.F.toObject(hash),
     });
   });
 });
