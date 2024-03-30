@@ -14,29 +14,27 @@ function log2Ceil(a) {
 }
 
 
-
-/// @title SubarraySelector
-/// @notice Select a subarray from `startIndex` index and size of `length`
-/// @notice Output array will have same length with remaining elements set to 0
+/// @title ArrayShiftLeft
+/// @notice Shift input array by shift indices to the left
+/// @notice Can optionally get a sub-array by setting `maxSubArrayLen` 
 /// @notice Based on https://demo.hedgedoc.org/s/Le0R3xUhB
 /// @param maxArrayLen The maximum length of the input array
 /// @param maxSubArrayLen The maximum length of the output array
 /// @input in The input array
-/// @input startIndex The index of the first element of the subarray
-/// @input length The length of the subarray
-/// @output out The selected subarray, zero padded
-template SubarraySelector(maxArrayLen, maxSubArrayLen) {
+/// @input shift The number of indices to shift the array to the left
+/// @output out hifted subarray
+template ArrayShiftLeft(maxArrayLen, maxSubArrayLen) {
     var bitLength = log2Ceil(maxArrayLen);
     assert(maxArrayLen <= (1 << bitLength));
+    assert(maxSubArrayLen <= maxArrayLen);
 
     signal input in[maxArrayLen];
-    signal input startIndex;
-    signal input length;
+    signal input shift;
 
     signal output out[maxSubArrayLen];
 
     component n2b = Num2Bits(bitLength);
-    n2b.in <== startIndex;
+    n2b.in <== shift;
 
     signal tmp[bitLength][maxArrayLen];
     for (var j = 0; j < bitLength; j++) {
@@ -51,13 +49,9 @@ template SubarraySelector(maxArrayLen, maxSubArrayLen) {
         }
     }
 
-    // Return last row value or 0 depending on index
-    component gtLengths[maxSubArrayLen];
+    // Return last row
     for (var i = 0; i < maxSubArrayLen; i++) {
-        gtLengths[i] = GreaterThan(bitLength);
-        gtLengths[i].in[0] <== length;
-        gtLengths[i].in[1] <== i;
-        out[i] <==  gtLengths[i].out * tmp[bitLength - 1][i];
+        out[i] <== tmp[bitLength - 1][i];
     }
 }
 
@@ -99,6 +93,7 @@ template ArraySelector(maxLength) {
     // Returns 0 + 0 + ... + item
     out <== calcTotal.sum;
 }
+
 
 /// @title CalculateTotal
 /// @notice Calculate the sum of an array
