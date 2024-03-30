@@ -49,7 +49,7 @@ template ArrayShiftLeft(maxArrayLen, maxSubArrayLen) {
 /// @title ArraySelector
 /// @notice Select an element from an array based on index
 /// @notice This is QuinSelector from MACI https://github.com/privacy-scaling-explorations/maci/blob/dev/circuits/circom/trees/incrementalQuinTree.circom
-/// @param maxLength The number of elements in the array
+/// @param maxArrayLen The number of elements in the array
 /// @input in The input array
 /// @input index The index of the element to select
 /// @output out The selected element
@@ -57,21 +57,21 @@ template ArraySelector(maxArrayLen) {
     var bitLength = log2Ceil(maxArrayLen);
     assert(2 ** bitLength > maxArrayLen);
 
-    signal input in[maxLength];
+    signal input in[maxArrayLen];
     signal input index;
     signal output out;
 
-    // Ensure that index < maxLength
+    // Ensure that index < maxArrayLen
     component lessThan = LessThan(bitLength);
     lessThan.in[0] <== index;
-    lessThan.in[1] <== maxLength;
+    lessThan.in[1] <== maxArrayLen;
     lessThan.out === 1;
 
-    component calcTotal = CalculateTotal(maxLength);
-    component eqs[maxLength];
+    component calcTotal = CalculateTotal(maxArrayLen);
+    component eqs[maxArrayLen];
 
     // For each item, check whether its index equals the input index.
-    for (var i = 0; i < maxLength; i ++) {
+    for (var i = 0; i < maxArrayLen; i ++) {
         eqs[i] = IsEqual();
         eqs[i].in[0] <== i;
         eqs[i].in[1] <== index;

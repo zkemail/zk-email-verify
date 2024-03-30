@@ -4,6 +4,8 @@ include "circomlib/circuits/bitify.circom";
 include "circomlib/circuits/comparators.circom";
 include "./array.circom";
 include "./constants.circom";
+include "./functions.circom";
+
 
 function computeIntChunkLength(byteLength) {
     var packSize = MAX_BYTES_IN_FIELD();

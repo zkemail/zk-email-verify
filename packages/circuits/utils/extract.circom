@@ -12,22 +12,26 @@ include "./bytes.circom";
 /// @input startIndex Index of the start of the reveal part
 /// @output out Revealed data array
 template ExtractRegexReveal(maxArrayLen, maxRevealLen) {
+    var bitLength = log2Ceil(maxArrayLen);
+
     signal input in[maxArrayLen];
     signal input startIndex;
 
     signal output out[maxRevealLen];
     
-    signal isStartIndex[in_array_len];
-    signal isZero[in_array_len];
-    signal isPreviousZero[in_array_len];
+    signal isStartIndex[maxArrayLen];
+    signal isZero[maxArrayLen];
+    signal isPreviousZero[maxArrayLen];
+    signal isAboveMaxRevealLen[maxArrayLen];
 
     isPreviousZero[0] <== 1;
     for(var i = 0; i < maxArrayLen; i++) {
-        isStartIndex[i] <== IsEqual()([i, shift]);
+        isStartIndex[i] <== IsEqual()([i, startIndex]);
         isZero[i] <== IsZero()(in[i]);
         if(i > 0) {
-            IsPreviousZero[i] <== IsZero()(in[i-1]);
+            isPreviousZero[i] <== IsZero()(in[i - 1]);
         }
+        isAboveMaxRevealLen[i] <== GreaterThan(bitLength)([i, startIndex + maxRevealLen - 1]);
 
         // Assert startIndex is not zero
         isStartIndex[i] * isZero[i] === 0;
@@ -35,12 +39,10 @@ template ExtractRegexReveal(maxArrayLen, maxRevealLen) {
         // Assert value before startIndex is zero
         // ZK-Regex circuit contstrains that every byte before the reveal part is zero
         // This is assuming matched data doesn't contain 0 (null) byte
-        isStartIndex[i] * (1 - IsPreviousZero[i]) === 0;
+        isStartIndex[i] * (1 - isPreviousZero[i]) === 0;
 
-        // Assert all values after maxRevealLen are zero (for extra safety)
-        if (i > maxRevealLen) {
-            isZero[i] === 1;
-        }
+        // Assert all values after startIndex + maxRevealLen are zero (for extra safety)
+        isAboveMaxRevealLen[i] * (1 - isZero[i]) === 0;
     }
 
     out <== ArrayShiftLeft(maxArrayLen, maxRevealLen)(in, startIndex);
