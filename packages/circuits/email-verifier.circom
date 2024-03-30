@@ -8,12 +8,13 @@ include "./lib/rsa.circom";
 include "./lib/sha.circom";
 include "./utils/array.circom";
 include "./utils/extract.circom";
+include "./utils/hash.circom";
 
 
 /// @title EmailVerifier
 /// @notice Circuit to verify email signature as per DKIM standard.
 /// @notice Verifies the signature is valid for the given header and pubkey, and the hash of the body matches the hash in the header.
-/// @dev This cicuit only verifies signature as per `rsa-sha256` algorithm.
+/// @notice This cicuit only verifies signature as per `rsa-sha256` algorithm.
 /// @param maxHeaderLength Maximum length for the email header.
 /// @param maxBodyLength Maximum length for the email body.
 /// @param n Number of bits per chunk the RSA key is split into. Recommended to be 121.
@@ -113,21 +114,8 @@ template EmailVerifier(maxHeaderLength, maxBodyLength, n, k, ignoreBodyHashCheck
     }
 
 
-    // Calculate the Poseidon hash of DKIM public key and produce as an output
-    // This can be used to check (by verifier/contract) the pubkey used in the proof without needing the full key
-    // We are converting pubkey (modulus) in to k/2 chunks of n*2 bits each
-    // This is because Posiedon circuit only support array of 16 elements. We are assuming k > 16 and k/2 is <= 16
-    var chunkSize = k >> 1;
-    if(k % 2 == 1) {
-        chunkSize += 1;
-    }
-    signal pubkeyChunks[chunkSize];
-    for(var i = 0; i < chunkSize; i++) {
-        if(i==chunkSize-1 && chunkSize % 2 == 1) {
-            pubkeyChunks[i] <== pubkey[2*i];
-        } else {
-            pubkeyChunks[i] <== pubkey[2*i] + (1<<n) * pubkey[2*i+1];
-        }
-    }
-    pubkeyHash <== Poseidon(chunkSize)(pubkeyChunks);
+    // Calculate the Poseidon hash of DKIM public key as output
+    // This can be used to verify (by verifier/contract) the pubkey used in the proof without needing the full key
+    // https://zkrepl.dev/?gist=43ce7dce2466c63812f6efec5b13aa73 - This can be used to calculate the pubkey hash separately
+    pubkeyHash <== PoseidonLarge(n, k)(pubkey);
 }
