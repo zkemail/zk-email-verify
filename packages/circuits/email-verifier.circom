@@ -6,6 +6,7 @@ include "@zk-email/zk-regex-circom/circuits/common/body_hash_regex.circom";
 include "./lib/base64.circom";
 include "./lib/rsa.circom";
 include "./lib/sha.circom";
+include "./utils/array.circom";
 include "./utils/extract.circom";
 
 
@@ -42,9 +43,8 @@ template EmailVerifier(maxHeaderLength, maxBodyLength, n, k, ignoreBodyHashCheck
     signal output pubkeyHash;
 
 
-    // Assert emailHeader only contain data till given emailHeaderLength - i.e any bytes are 0
-    // This is to prevent attack by adding fake headers in the remaining (unsigned) area and use that for extraction
-    AssertZeroes(maxHeaderLength)(emailHeader, emailHeaderLength + 1);
+    // Assert emailHeader data after emailHeaderLength are zeros
+    AssertZeroPadding(maxHeaderLength)(emailHeader, emailHeaderLength + 1);
     
 
     // Calculate SHA256 hash of the `emailHeader` - 506,670 constraints
@@ -84,7 +84,7 @@ template EmailVerifier(maxHeaderLength, maxBodyLength, n, k, ignoreBodyHashCheck
         signal input emailBodyLength;
 
         // Assert data after the body (maxBodyLength - emailBody.length) is all zeroes
-        AssertZeroes(maxBodyLength)(emailBody, emailBodyLength + 1);
+        AssertZeroPadding(maxBodyLength)(emailBody, emailBodyLength + 1);
 
         // Body hash regex - 617,597 constraints
         // Extract the body hash from the header (i.e. the part after bh= within the DKIM-signature section)

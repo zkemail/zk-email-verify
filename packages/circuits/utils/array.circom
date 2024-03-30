@@ -113,3 +113,30 @@ template CalculateTotal(n) {
 
     sum <== sums[n - 1];
 }
+
+
+/// @title AssertZeroPadding
+/// @notice Assert that the input array is zero-padded from the start index
+/// @param maxArrayLen The maximum number of elements in the input array
+/// @input in The input array
+/// @input startIndex The index from which the array should be zero-padded
+template AssertZeroPadding(maxArrayLen) {
+    var bitLength = log2(maxArrayLen);
+    assert(maxArrayLen <= (1 << bitLength));
+    
+    signal input in[maxArrayLen];
+    signal input startIndex;
+
+    // TODO: Should we check padding_startIndex < maxArrayLen AND/OR
+    // log2(padding_startIndex) <= bitLength
+    
+    component lessThans[maxArrayLen];
+
+    for (var i = 0; i < maxArrayLen; i++) {
+        lessThans[i] = LessThan(bitLength);
+        lessThans[i].in[0] <== startIndex - 1;
+        lessThans[i].in[1] <== i;
+
+        lessThans[i].out * in[i] === 0;
+    }
+}
