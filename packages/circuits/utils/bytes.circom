@@ -94,3 +94,27 @@ template ByteSubArrayToInts(maxArrayLen, maxSubArrayLen) {
 
     out <== packer.out;
 }
+
+
+/// @title DigitBytesToInt
+/// @notice Converts a byte array representing digits to an integer
+/// @notice Assumes the input fit in the field
+/// @param n: the number of bytes in the input array
+/// @input in: the input byte array - big-endtian digit string of `out`
+/// @output out: the output integer
+template DigitBytesToInt(n) {
+    signal input in[n];
+
+    signal output out;
+
+    signal sums[n+1];
+    sums[0] <== 0;
+
+    // TODO: Should we constrain the input ASCII to be between 48 and 57?
+
+    for(var i = 0; i < n; i++) {
+        sums[i + 1] <== 10 * sums[i] + (in[i] - 48);
+    }
+
+    out <== sums[n];
+}

@@ -189,7 +189,7 @@ template Sha256General(maxBitLength) {
     // Select the correct compression output for the given length, instead of just the last one.
     component arraySelectors[256];
     for (k=0; k<256; k++) {
-        arraySelectors[k] = QuinSelector(maxBlocks, maxBlocksBits);
+        arraySelectors[k] = ArraySelector(maxBlocks, maxBlocksBits);
         for (j=0; j<maxBlocks; j++) {
             arraySelectors[k].in[j] <== sha256compression[j].out[k];
         }
@@ -288,7 +288,7 @@ template Sha256Partial(maxBitLength) {
     // Select the correct compression output for the given length, instead of just the last one.
     component arraySelectors[256];
     for (k=0; k<256; k++) {
-        arraySelectors[k] = QuinSelector(maxBlocks, maxBlocksBits);
+        arraySelectors[k] = ArraySelector(maxBlocks);
         for (j=0; j<maxBlocks; j++) {
             arraySelectors[k].in[j] <== sha256compression[j].out[k];
         }
