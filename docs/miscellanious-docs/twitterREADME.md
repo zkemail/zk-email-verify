@@ -52,9 +52,7 @@ If you encounter any issues while using the Twitter Email Verifier. Feel free to
 
 
 
-<!-- ### Regex to Circom
-
-See regex_to_circom/README.md for usage instructions.
+<!--
 
 ### Email Circuit Build Steps
 
