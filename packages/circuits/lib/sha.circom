@@ -5,7 +5,7 @@ include "circomlib/circuits/sha256/constants.circom";
 include "circomlib/circuits/sha256/sha256compression.circom";
 include "circomlib/circuits/comparators.circom";
 include "./fp.circom";
-include "../helpers/utils.circom";
+include "../utils/array.circom";
 
 
 /// @title Sha256Bytes
@@ -299,15 +299,4 @@ template Sha256Partial(maxBitLength) {
     // for (k=0; k<256; k++) {
     //     out[k] <== sha256compression[maxBlocks-1].out[k];
     // }
-}
-
-
-function log2Ceil(a) {
-    var n = a+1;
-    var r = 0;
-    while (n>0) {
-        r++;
-        n \= 2;
-    }
-    return r;
 }
