@@ -2,17 +2,7 @@ pragma circom 2.1.6;
 
 include "circomlib/circuits/comparators.circom";
 include "circomlib/circuits/bitify.circom";
-
-function log2Ceil(a) {
-    var n = a+1;
-    var r = 0;
-    while (n>0) {
-        r++;
-        n \= 2;
-    }
-    return r;
-}
-
+include "./functions.circom";
 
 /// @title ArrayShiftLeft
 /// @notice Shift input array by shift indices to the left
@@ -25,7 +15,7 @@ function log2Ceil(a) {
 /// @output out hifted subarray
 template ArrayShiftLeft(maxArrayLen, maxSubArrayLen) {
     var bitLength = log2Ceil(maxArrayLen);
-    assert(maxArrayLen <= (1 << bitLength));
+    assert(2 ** bitLength > maxArrayLen);
     assert(maxSubArrayLen <= maxArrayLen);
 
     signal input in[maxArrayLen];
@@ -63,8 +53,9 @@ template ArrayShiftLeft(maxArrayLen, maxSubArrayLen) {
 /// @input in The input array
 /// @input index The index of the element to select
 /// @output out The selected element
-template ArraySelector(maxLength) {
+template ArraySelector(maxArrayLen) {
     var bitLength = log2Ceil(maxArrayLen);
+    assert(2 ** bitLength > maxArrayLen);
 
     signal input in[maxLength];
     signal input index;
@@ -121,7 +112,7 @@ template CalculateTotal(n) {
 /// @input in The input array
 /// @input startIndex The index from which the array should be zero-padded
 template AssertZeroPadding(maxArrayLen) {
-    var bitLength = log2(maxArrayLen);
+    var bitLength = log2Ceil(maxArrayLen);
     assert(maxArrayLen <= (1 << bitLength));
     
     signal input in[maxArrayLen];

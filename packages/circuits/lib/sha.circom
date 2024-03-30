@@ -6,6 +6,8 @@ include "circomlib/circuits/sha256/sha256compression.circom";
 include "circomlib/circuits/comparators.circom";
 include "./fp.circom";
 include "../utils/array.circom";
+include "../utils/functions.circom";
+
 
 
 /// @title Sha256Bytes
@@ -105,8 +107,6 @@ template Sha256General(maxBitLength) {
     var maxBlocks;
     var bitsLastBlock;
     maxBlocks = (maxBitLength\512);
-    var maxBlocksBits = log2Ceil(maxBlocks);
-    assert(2 ** maxBlocksBits > maxBlocks);
 
     inBlockIndex <-- (paddedInLength >> 9);
     paddedInLength === inBlockIndex * 512;
@@ -189,7 +189,7 @@ template Sha256General(maxBitLength) {
     // Select the correct compression output for the given length, instead of just the last one.
     component arraySelectors[256];
     for (k=0; k<256; k++) {
-        arraySelectors[k] = ArraySelector(maxBlocks, maxBlocksBits);
+        arraySelectors[k] = ArraySelector(maxBlocks);
         for (j=0; j<maxBlocks; j++) {
             arraySelectors[k].in[j] <== sha256compression[j].out[k];
         }
@@ -230,8 +230,6 @@ template Sha256Partial(maxBitLength) {
     var maxBlocks;
     var bitsLastBlock;
     maxBlocks = (maxBitLength\512);
-    var maxBlocksBits = log2Ceil(maxBlocks);
-    assert(2 ** maxBlocksBits > maxBlocks);
 
     inBlockIndex <-- (paddedInLength >> 9);
     paddedInLength === inBlockIndex * 512;
