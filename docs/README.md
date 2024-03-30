@@ -37,8 +37,8 @@ Here you can find example projects that implement our SDKs:
 2. **Email wallet**: Send money to anyone anonymously using email. [Email wallet Github](https://github.com/zkemail/email-wallet)
 3. **ZKP2P**: ZKP2P is a trustless and privacy-preserving fiat-to-crypto onramp powered by ZK proofs [ZKP2P Github](https://github.com/zkp2p/zk-p2p)
 4. **zkEmail Safe**: Operate Safe multisigs through email verified using ZK proofs [ zkEmail Safe Github](https://github.com/javiersuweijie/zkemail-safe)
-<!-- ### Regex To Circom
-The Regex to Circom section provides a detailed guide on how to convert regular expressions to Circom. This is a crucial step in creating your own ZK circuits. For a step-by-step guide, please refer to the [Regex to Circom README](./regex_to_circom/README.md). -->
+
+
 ## Terminology
 
 

@@ -51,11 +51,10 @@ The `utils.circom` file includes a collection of utility templates and functions
 
 ### bytes2ints.circom
 
-This template converts an array of bytes into an array of integers. It is designed to handle inputs of any byte size and outputs integers based on the number of bytes specified. This is particularly useful for processing large binary data within arithmetic circuits.
-
+This template converts an array of bytes into an array of integers. It is designed to handle inputs of any byte size and outputs integers based on the number of bytes specified. This is particularly useful for processing large binary data within arithmetic circuits. Specifically, the template is configured to transform 31 bytes into one integer, aligning with circoms maximum field value which is a 31-byte number. It uses little endian order for representation. 
 ### constants.circom
 
-This file defines a set of constants used across various templates within the `circuits` package. These constants include maximum sizes for emails, domains, invitation codes, and timestamps, as well as specifications for packing bytes into field elements.
+This file defines a set of constants used across various templates within the `circuits` package. These constants include maximum sizes for emails, domains, and timestamps, as well as specifications for packing bytes into field elements.
 
 ### digit2int.circom
 

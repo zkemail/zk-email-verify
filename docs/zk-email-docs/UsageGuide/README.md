@@ -146,10 +146,19 @@ node --max-old-space-size=614400 ./../node_modules/.bin/snarkjs
 
 ### Powers of Tau
 
-You can download the ptau file directly from Google Cloud Platform using the following command:
+Based on the amount of constraints you have, there are different ptau files that you are able to download. You can download the ptau file directly from Google Cloud Platform using the following command:
 
 ```
-wget https://storage.googleapis.com/zkevm/ptau/powersOfTau28_hez_final_22.ptau
+// For projects with up to 2 million constraints:
+wget https://storage.googleapis.com/zkevm/ptau/powersOfTau28_hez_final_21.ptau
+
+// For projects with up to 4 million constraints:
+wget https://storage.googleapis.com/zkevm/ptau/powersOfTau28_hez_final_22.ptau 
+
+// For projects with up to 8 million constraints:
+wget https://storage.googleapis.com/zkevm/ptau/powersOfTau28_hez_final_23.ptau
+
+Refer to this link for more details: https://github.com/iden3/snarkjs?tab=readme-ov-file#7-prepare-phase-2
 ```
 ### Phase 2
 
