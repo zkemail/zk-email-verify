@@ -7,6 +7,7 @@ include "circomlib/circuits/poseidon.circom";
 /// @title EmailNullifier
 /// @notice An opinionated way of calculating the email nullifier
 /// @notice nullifier = poseidon(poseidon(signature))
+/// @notice Not used in core circuits now, but can be used by projects building on ZKEmail
 /// @param bitPerChunk The number of bits per chunk the signature is split into
 /// @param chunkSize The number of chunks the signature is split into
 /// @input signature The signature of the email

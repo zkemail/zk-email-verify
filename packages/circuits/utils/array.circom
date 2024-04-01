@@ -5,23 +5,23 @@ include "circomlib/circuits/bitify.circom";
 include "./functions.circom";
 
 /// @title ArrayShiftLeft
-/// @notice Shift input array by shift indices to the left
-/// @notice Can optionally get a sub-array by setting `maxSubArrayLen` 
+/// @notice Shift input array by `shift` indices to the left
+/// @notice Output array length can be reduced by setting `maxOutArrayLen` 
 /// @notice Based on https://demo.hedgedoc.org/s/Le0R3xUhB
 /// @param maxArrayLen The maximum length of the input array
-/// @param maxSubArrayLen The maximum length of the output array
+/// @param maxOutArrayLen The maximum length of the output array
 /// @input in The input array
 /// @input shift The number of indices to shift the array to the left
 /// @output out hifted subarray
-template ArrayShiftLeft(maxArrayLen, maxSubArrayLen) {
+template ArrayShiftLeft(maxArrayLen, maxOutArrayLen) {
     var bitLength = log2Ceil(maxArrayLen);
     assert(2 ** bitLength > maxArrayLen);
-    assert(maxSubArrayLen <= maxArrayLen);
+    assert(maxOutArrayLen <= maxArrayLen);
 
     signal input in[maxArrayLen];
     signal input shift;
 
-    signal output out[maxSubArrayLen];
+    signal output out[maxOutArrayLen];
 
     component n2b = Num2Bits(bitLength);
     n2b.in <== shift;
@@ -40,7 +40,7 @@ template ArrayShiftLeft(maxArrayLen, maxSubArrayLen) {
     }
 
     // Return last row
-    for (var i = 0; i < maxSubArrayLen; i++) {
+    for (var i = 0; i < maxOutArrayLen; i++) {
         out[i] <== tmp[bitLength - 1][i];
     }
 }
@@ -107,7 +107,8 @@ template CalculateTotal(n) {
 
 
 /// @title SubArraySelector
-/// @notice Select sub array from an array given a start index and length
+/// @notice Select sub array from an array given a `startIndex` and `length`
+/// @notice This is same as `ArrayShiftLeft` but with elements after `length` set to zero
 /// @notice This is not used in ZK-Email circuits anywhere
 /// @param maxArrayLen: the maximum number of bytes in the input array
 /// @param maxSubArrayLen: the maximum number of integers in the output array
@@ -143,7 +144,7 @@ template SubArraySelector(maxArrayLen, maxSubArrayLen) {
 
 
 /// @title AssertZeroPadding
-/// @notice Assert that the input array is zero-padded from the start index
+/// @notice Assert that the input array is zero-padded from the given `startIndex`
 /// @param maxArrayLen The maximum number of elements in the input array
 /// @input in The input array
 /// @input startIndex The index from which the array should be zero-padded
