@@ -106,13 +106,15 @@ To compile the circuit locally, you need to have Rust and Circom installed first
 
 
 ```bash
-circom MyCircuit.circom -o --r1cs --wasm --sym --c 
+circom -l node_modules MyCircuit.circom -o --r1cs --wasm --sym --c --O0
 ```
-*Note: You can add `-l` to specify the directory where the directive `include` should look for the circuits indicated. For our repo, use `circom -l node_modules` instead of `circom`. Additionally, we generally recommend using the `--O0` flag for optimization during compilation for beginners. However, if you're more experienced with Circom, feel free to use the `--O1` flag instead. It's important to avoid using the `--O2` flag as that is the default setting and it may lead to the deletion of additional constraints.*
+*Note: You can add `-l` to specify the directory where the directive `include` should look for the circuits indicated. For our repo, if you are having errors, we recommend to use `circom -l node_modules` instead of `circom`.*
+
+We generally recommend using the --O0 flag for ensuring there are no unintended underconstraints, but if you need to optimize constraints and understand what is being changed in circom, feel free to use --O1 instead. It's important to avoid using the `--O2` flag as that is the default setting and it may lead to the deletion of addition constraints.
+
+Refer to these discussions on StackOverflow ([1](https://stackoverflow.com/questions/78136647/circom-does-not-create-a-constraint-for-addition/78177349#78177349), [2](https://stackoverflow.com/questions/77688466/circom-compiler-removes-crucial-constraint-after-simplication/78177354?noredirect=1#comment137833229_78177354)) for more information on constraint deletion.
 
 After running this command, the circuit will be compiled into a `.r1cs` file, a `.wasm` file, and a `.sym` file. These files are used in the next steps to generate the proving and verifying keys, and to compute the witness.
-
-
 
 ## Step 5: Compute the Witness
 
