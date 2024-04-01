@@ -5,20 +5,20 @@
     "publish": "yarn npm publish --access=public",
     "test": "NODE_OPTIONS=--max_old_space_size=8192 jest tests"
   },
+  "dependencies": {
+    "@zk-email/zk-regex-circom": "^1.1.1",
+    "circomlib": "^2.0.5"
+  },
   "devDependencies": {
     "@babel/core": "^7.22.5",
     "@babel/preset-env": "^7.22.2",
     "@babel/preset-typescript": "^7.21.5",
     "babel-jest": "^29.5.0",
     "babel-preset-jest": "^29.5.0",
-    "circom_tester": "^0.0.19",
-    "circomlib": "^2.0.5",
-    "circomlibjs": "^0.1.2",
+    "circom_tester": "^0.0.20",
+    "circomlibjs": "^0.1.7",
     "ffjavascript": "^0.2.59",
     "jest": "^29.5.0",
     "typescript": "^5.2.2"
-  },
-  "dependencies": {
-    "@zk-email/zk-regex-circom": "^1.1.1"
   }
 }

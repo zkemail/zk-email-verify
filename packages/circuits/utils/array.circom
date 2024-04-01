@@ -4,7 +4,7 @@ include "circomlib/circuits/comparators.circom";
 include "circomlib/circuits/bitify.circom";
 include "./functions.circom";
 
-/// @title ArrayShiftLeft
+/// @title VarShiftLeft
 /// @notice Shift input array by `shift` indices to the left
 /// @notice Output array length can be reduced by setting `maxOutArrayLen` 
 /// @notice Based on https://demo.hedgedoc.org/s/Le0R3xUhB
@@ -13,7 +13,7 @@ include "./functions.circom";
 /// @input in The input array
 /// @input shift The number of indices to shift the array to the left
 /// @output out hifted subarray
-template ArrayShiftLeft(maxArrayLen, maxOutArrayLen) {
+template VarShiftLeft(maxArrayLen, maxOutArrayLen) {
     var bitLength = log2Ceil(maxArrayLen);
     assert(2 ** bitLength > maxArrayLen);
     assert(maxOutArrayLen <= maxArrayLen);
@@ -108,7 +108,7 @@ template CalculateTotal(n) {
 
 /// @title SubArraySelector
 /// @notice Select sub array from an array given a `startIndex` and `length`
-/// @notice This is same as `ArrayShiftLeft` but with elements after `length` set to zero
+/// @notice This is same as `VarShiftLeft` but with elements after `length` set to zero
 /// @notice This is not used in ZK-Email circuits anywhere
 /// @param maxArrayLen: the maximum number of bytes in the input array
 /// @param maxSubArrayLen: the maximum number of integers in the output array
@@ -127,7 +127,7 @@ template SubArraySelector(maxArrayLen, maxSubArrayLen) {
 
     assert(length <= maxSubArrayLen);
 
-    component shifter = ArrayShiftLeft(maxArrayLen, maxSubArrayLen);
+    component shifter = VarShiftLeft(maxArrayLen, maxSubArrayLen);
     shifter.in <== in;
     shifter.shift <== startIndex;
 

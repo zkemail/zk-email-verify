@@ -46,7 +46,7 @@ template SelectRegexReveal(maxArrayLen, maxRevealLen) {
         isAboveMaxRevealLen[i] * (1 - isZero[i]) === 0;
     }
 
-    out <== ArrayShiftLeft(maxArrayLen, maxRevealLen)(in, startIndex);
+    out <== VarShiftLeft(maxArrayLen, maxRevealLen)(in, startIndex);
 }
 
 

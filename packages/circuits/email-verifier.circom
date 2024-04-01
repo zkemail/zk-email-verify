@@ -7,7 +7,7 @@ include "./lib/base64.circom";
 include "./lib/rsa.circom";
 include "./lib/sha.circom";
 include "./utils/array.circom";
-include "./utils/extract.circom";
+include "./utils/regex.circom";
 include "./utils/hash.circom";
 
 

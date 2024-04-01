@@ -2758,9 +2758,9 @@ __metadata:
     "@zk-email/zk-regex-circom": ^1.1.1
     babel-jest: ^29.5.0
     babel-preset-jest: ^29.5.0
-    circom_tester: ^0.0.19
+    circom_tester: ^0.0.20
     circomlib: ^2.0.5
-    circomlibjs: ^0.1.2
+    circomlibjs: ^0.1.7
     ffjavascript: ^0.2.59
     jest: ^29.5.0
     typescript: ^5.2.2
@@ -3485,13 +3485,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"child_process@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "child_process@npm:1.0.2"
-  checksum: bd814d82bc8c6e85ed6fb157878978121cd03b5296c09f6135fa3d081fd9a6a617a6d509c50397711df713af403331241a9c0397a7fad30672051485e156c2a1
-  languageName: node
-  linkType: hard
-
 "chokidar@npm:^3.4.2":
   version: 3.5.3
   resolution: "chokidar@npm:3.5.3"
@@ -3547,19 +3540,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"circom_tester@npm:^0.0.19":
-  version: 0.0.19
-  resolution: "circom_tester@npm:0.0.19"
+"circom_tester@npm:^0.0.20":
+  version: 0.0.20
+  resolution: "circom_tester@npm:0.0.20"
   dependencies:
     chai: ^4.3.6
-    child_process: ^1.0.2
-    ffjavascript: ^0.2.56
+    ffjavascript: ^0.2.60
     fnv-plus: ^1.3.1
-    r1csfile: ^0.0.41
-    snarkjs: 0.5.0
+    r1csfile: ^0.0.47
+    snarkjs: ^0.7.0
     tmp-promise: ^3.0.3
-    util: ^0.12.4
-  checksum: 703d7317493ddafb33462b5b0caf9b8a95bde938429e030d024fa7ac41ccb45a9ddbe8ebb93f91138dbee94bb2e0d504570c0aca070802d79ee532ba1ae5db0e
+    util: ^0.12.5
+  checksum: ee9f9a4ac69ee2acb2ce46c903a817ac687b621a90a7f5b8a8bd1d8f3e42076ed694f5e3e46e0d9775febf350c73837007284a33117ac66a7b233b76cbd21ea6
   languageName: node
   linkType: hard
 
@@ -3570,7 +3562,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"circomlibjs@npm:^0.1.2, circomlibjs@npm:^0.1.7":
+"circomlibjs@npm:^0.1.7":
   version: 0.1.7
   resolution: "circomlibjs@npm:0.1.7"
   dependencies:
@@ -4131,7 +4123,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ffjavascript@npm:^0.2.45, ffjavascript@npm:^0.2.48, ffjavascript@npm:^0.2.56, ffjavascript@npm:^0.2.59":
+"ffjavascript@npm:^0.2.45, ffjavascript@npm:^0.2.48, ffjavascript@npm:^0.2.59":
   version: 0.2.59
   resolution: "ffjavascript@npm:0.2.59"
   dependencies:
@@ -4139,6 +4131,17 @@ __metadata:
     wasmcurves: 0.2.1
     web-worker: ^1.2.0
   checksum: a2e77936b3b189b4728c625d04c2740ff7e2216970c7ba19ef0d480447ab770d08a01c036dbd906a3f587c297b697318e8cdaaaf2ec5d503003703e72dc82f30
+  languageName: node
+  linkType: hard
+
+"ffjavascript@npm:^0.2.60":
+  version: 0.2.63
+  resolution: "ffjavascript@npm:0.2.63"
+  dependencies:
+    wasmbuilder: 0.0.16
+    wasmcurves: 0.2.2
+    web-worker: 1.2.0
+  checksum: d4c549228b31692bb8a44f7eb46720b0504a9ff5bc00e8a9c44ad104622cb83613542b4c321f83cb3027c9dcd1b0834da2b1ea679c3277642f754e9e5ea1c06f
   languageName: node
   linkType: hard
 
@@ -6132,7 +6135,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"r1csfile@npm:0.0.41, r1csfile@npm:^0.0.41":
+"r1csfile@npm:0.0.41":
   version: 0.0.41
   resolution: "r1csfile@npm:0.0.41"
   dependencies:
@@ -6144,7 +6147,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"r1csfile@npm:0.0.47":
+"r1csfile@npm:0.0.47, r1csfile@npm:^0.0.47":
   version: 0.0.47
   resolution: "r1csfile@npm:0.0.47"
   dependencies:
@@ -6498,26 +6501,6 @@ __metadata:
   bin:
     snarkjs: build/cli.cjs
   checksum: f2050f0135d50d459ea0edddf3e394e833a2d28c6648e5889b2f896814865e5c60606e978a8a106bd5bfe7e27501c315f249db5b71895d5e7e6e9a87bfcd55ab
-  languageName: node
-  linkType: hard
-
-"snarkjs@npm:0.5.0":
-  version: 0.5.0
-  resolution: "snarkjs@npm:0.5.0"
-  dependencies:
-    "@iden3/binfileutils": 0.0.11
-    bfj: ^7.0.2
-    blake2b-wasm: ^2.4.0
-    circom_runtime: 0.1.21
-    ejs: ^3.1.6
-    fastfile: 0.0.20
-    ffjavascript: 0.2.56
-    js-sha3: ^0.8.0
-    logplease: ^1.2.15
-    r1csfile: 0.0.41
-  bin:
-    snarkjs: build/cli.cjs
-  checksum: f0233103548bcd0f75b2ff8998ba02437e5131486d126c4a6a31355cd3558c7ce4311e21d5f24ea9ca198d0556e91e63e2ec6aef8da44014c16b29b6a7086ca2
   languageName: node
   linkType: hard
 
@@ -6987,7 +6970,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"util@npm:^0.12.3, util@npm:^0.12.4":
+"util@npm:^0.12.3, util@npm:^0.12.5":
   version: 0.12.5
   resolution: "util@npm:0.12.5"
   dependencies:
@@ -7083,7 +7066,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"web-worker@npm:^1.2.0":
+"web-worker@npm:1.2.0, web-worker@npm:^1.2.0":
   version: 1.2.0
   resolution: "web-worker@npm:1.2.0"
   checksum: 1bb28348ddcf9b2e7c62c5fd02e49a84098795856cd905456de957271bba288e9618941cf69d8960f0a7ae81f5dfb74b427c0634be47ec69e3e955c4ec5213be
