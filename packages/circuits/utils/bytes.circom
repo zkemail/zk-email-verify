@@ -62,9 +62,12 @@ template BytesToInts(maxBytes) {
 
 /// @title ByteSubArrayToInts
 /// @notice Select sub array from a byte array and pack to a 31-byte integer array
-/// @notice This is not used in the main circuits
-/// @param maxBytes: the maximum number of bytes in the input array
+/// @notice This is not used in ZK-Email circuits anywhere
+/// @param maxArrayLen: the maximum number of elements in the input array
+/// @param maxSubArrayLen: the maximum number of elements in the sub array
 /// @input in: the input byte array
+/// @input startIndex: the start index of the sub array
+/// @input length: the length of the sub array
 /// @output out: the output integer array
 template ByteSubArrayToInts(maxArrayLen, maxSubArrayLen) {
     assert(maxSubArrayLen < maxArrayLen);
@@ -76,24 +79,15 @@ template ByteSubArrayToInts(maxArrayLen, maxSubArrayLen) {
 
     signal output out[chunkLength];
 
-    assert(length < maxSubArrayLen);
+    assert(length <= maxSubArrayLen);
 
-    component shifter = ArrayShiftLeft(maxArrayLen, maxSubArrayLen);
-    shifter.in <== in;
-    shifter.shift <== startIndex;
+    component subarraySelector = SubArraySelector(maxArrayLen, maxSubArrayLen);
+    subarraySelector.in <== in;
+    subarraySelector.startIndex <== startIndex;
+    subarraySelector.length <== length;
 
     component packer = BytesToInts(maxSubArrayLen);
-
-    // Set value after length to zero
-    component gts[maxSubArrayLen];
-    for (var i = 0; i < maxSubArrayLen; i++) {
-        gts[i] = GreaterThan(log2Ceil(maxSubArrayLen));
-        gts[i].in[0] <== length;
-        gts[i].in[1] <== i;
-
-        packer.in[i] <== gts[i].out * shifter.out[i];
-    }
-
+    packer.in <== subarraySelector.out;
 
     out <== packer.out;
 }

@@ -6,19 +6,20 @@ include "./bytes.circom";
 
 /// @title ExtractRegexReveal
 /// @notice Extracts reveal part from a regex match
+/// @notice Verifies data before and after (maxRevealLen) reveal part is zero
 /// @param maxArrayLen Maximum length of the input array
 /// @param maxRevealLen Maximum length of the reveal part
 /// @input in Input array
 /// @input startIndex Index of the start of the reveal part
 /// @output out Revealed data array
 template ExtractRegexReveal(maxArrayLen, maxRevealLen) {
-    var bitLength = log2Ceil(maxArrayLen);
-
     signal input in[maxArrayLen];
     signal input startIndex;
 
     signal output out[maxRevealLen];
-    
+
+    var bitLength = log2Ceil(maxArrayLen);
+
     signal isStartIndex[maxArrayLen];
     signal isZero[maxArrayLen];
     signal isPreviousZero[maxArrayLen];
@@ -68,6 +69,8 @@ template PackRegexReveal(maxArrayLen, maxRevealLen) {
     extractor.in <== in;
     extractor.startIndex <== startIndex;
 
+    // Items after reveal part and before maxRevealLen are already asserted to zero
+    // So we can safely pack without an additional `length` input
     component packer = BytesToInts(maxRevealLen);
     packer.in <== extractor.out;
     out <== packer.out;
