@@ -115,14 +115,14 @@ type CircuitInput = {
 };
 
 export function generateCircuitInputs(params: {
-  body: Buffer;
   message: Buffer;
-  bodyHash: string;
   rsaSignature: BigInt;
   rsaPublicKey: BigInt;
+  body?: Buffer;
+  bodyHash?: string;
   shaPrecomputeSelector?: string;
-  maxMessageLength: number;
-  maxBodyLength: number;
+  maxMessageLength?: number;
+  maxBodyLength?: number;
   ignoreBodyHashCheck?: boolean;
 }): CircuitInput {
   const {
@@ -151,6 +151,12 @@ export function generateCircuitInputs(params: {
   };
 
   if (!ignoreBodyHashCheck) {
+    if (!body || !bodyHash) {
+      throw new Error(
+        `body and bodyHash are required when ignoreBodyHashCheck is false`
+      );
+    }
+
     const bodyHashIndex = message.toString().indexOf(bodyHash);
 
     // 65 comes from the 64 at the end and the 1 bit in the start, then 63 comes from the formula to round it up to the nearest 64.
