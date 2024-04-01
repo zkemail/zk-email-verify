@@ -17,7 +17,6 @@
     "babel-preset-jest": "^29.5.0",
     "circom_tester": "^0.0.20",
     "circomlibjs": "^0.1.7",
-    "ffjavascript": "^0.2.59",
     "jest": "^29.5.0",
     "typescript": "^5.2.2"
   }

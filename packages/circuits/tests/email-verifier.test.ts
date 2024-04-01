@@ -1,16 +1,12 @@
 import fs from "fs";
 import { buildPoseidon } from "circomlibjs";
 import { wasm as wasm_tester } from "circom_tester";
-import { Scalar } from "ffjavascript";
 import path from "path";
 import { DKIMVerificationResult } from "@zk-email/helpers/src/dkim";
 import { generateCircuitInputs } from "@zk-email/helpers/src/input-helpers";
 import { verifyDKIMSignature } from "@zk-email/helpers/src/dkim";
 import { bigIntToChunkedBytes } from "@zk-email/helpers/src/binaryFormat";
 
-exports.p = Scalar.fromString(
-  "21888242871839275222246405745257275088548364400416034343698204186575808495617"
-);
 
 describe("EmailVerifier", () => {
   jest.setTimeout(10 * 60 * 1000); // 10 minutes
