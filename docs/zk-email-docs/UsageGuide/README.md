@@ -108,13 +108,11 @@ To compile the circuit locally, you need to have Rust and Circom installed first
 ```bash
 circom MyCircuit.circom -o --r1cs --wasm --sym --c --O0
 ```
-*Note: You can add `-l` to specify the directory where the directive `include` should look for the circuits indicated. For our repo, use `circom -l node_modules` instead of `circom`. Additionally, we generally recommend using the `--O0` flag for optimization during compilation for beginners. However, if you're more experienced with Circom, feel free to use the `--O1` flag instead. It's important to avoid using the `--O2` flag as that is the default setting and it may lead to the deletion of additional constraints.*
+*Note: You can add `-l` to specify the directory where the directive `include` should look for the circuits indicated. For our repo, if you are having errors, we recommend to use `circom -l node_modules` instead of `circom`.*
 
-We generally recommend using the --O0 flag, but if you're more experienced with circom feel free to use --O1 instead. 
+We generally recommend using the --O0 flag for ensuring there are no unintended underconstraints, but if you need to optimize constraints and understand what is being changed in circom, feel free to use --O1 instead. It's important to avoid using the `--O2` flag as that is the default setting and it may lead to the deletion of addition constraints.
 
 After running this command, the circuit will be compiled into a `.r1cs` file, a `.wasm` file, and a `.sym` file. These files are used in the next steps to generate the proving and verifying keys, and to compute the witness.
-
-
 
 ## Step 5: Compute the Witness
 
