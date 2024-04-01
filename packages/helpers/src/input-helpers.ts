@@ -112,19 +112,19 @@ type CircuitInput = {
   in_body_padded?: string[];
   in_body_len_padded_bytes?: string;
   body_hash_idx?: string;
-}
+};
 
 export function generateCircuitInputs(params: {
-  body: Buffer;
   message: Buffer;
-  bodyHash: string;
   rsaSignature: BigInt;
   rsaPublicKey: BigInt;
+  body?: Buffer;
+  bodyHash?: string;
   shaPrecomputeSelector?: string;
-  maxMessageLength: number;
-  maxBodyLength: number;
+  maxMessageLength?: number;
+  maxBodyLength?: number;
   ignoreBodyHashCheck?: boolean;
-}) : CircuitInput {
+}): CircuitInput {
   const {
     rsaSignature,
     rsaPublicKey,
@@ -143,32 +143,37 @@ export function generateCircuitInputs(params: {
     maxMessageLength
   );
 
-  // 65 comes from the 64 at the end and the 1 bit in the start, then 63 comes from the formula to round it up to the nearest 64.
-  // see sha256algorithm.com for a more full explanation of padding length
-  const bodySHALength = Math.floor((body.length + 63 + 65) / 64) * 64;
-  const [bodyPadded, bodyPaddedLen] = sha256Pad(
-    body,
-    Math.max(maxBodyLength, bodySHALength)
-  );
-
-  const { precomputedSha, bodyRemaining, bodyRemainingLength } =
-    generatePartialSHA({
-      body: bodyPadded,
-      bodyLength: bodyPaddedLen,
-      selectorString: shaPrecomputeSelector,
-      maxRemainingBodyLength: maxBodyLength,
-    });
-
-
-  const circuitInputs : CircuitInput = {
+  const circuitInputs: CircuitInput = {
     in_padded: Uint8ArrayToCharArray(messagePadded), // Packed into 1 byte signals
     pubkey: toCircomBigIntBytes(rsaPublicKey),
     signature: toCircomBigIntBytes(rsaSignature),
     in_len_padded_bytes: messagePaddedLen.toString(),
   };
 
-  if (!ignoreBodyHashCheck)  {
+  if (!ignoreBodyHashCheck) {
+    if (!body || !bodyHash) {
+      throw new Error(
+        `body and bodyHash are required when ignoreBodyHashCheck is false`
+      );
+    }
+
     const bodyHashIndex = message.toString().indexOf(bodyHash);
+
+    // 65 comes from the 64 at the end and the 1 bit in the start, then 63 comes from the formula to round it up to the nearest 64.
+    // see sha256algorithm.com for a more full explanation of padding length
+    const bodySHALength = Math.floor((body.length + 63 + 65) / 64) * 64;
+    const [bodyPadded, bodyPaddedLen] = sha256Pad(
+      body,
+      Math.max(maxBodyLength, bodySHALength)
+    );
+
+    const { precomputedSha, bodyRemaining, bodyRemainingLength } =
+      generatePartialSHA({
+        body: bodyPadded,
+        bodyLength: bodyPaddedLen,
+        selectorString: shaPrecomputeSelector,
+        maxRemainingBodyLength: maxBodyLength,
+      });
 
     circuitInputs.precomputed_sha = Uint8ArrayToCharArray(precomputedSha);
     circuitInputs.body_hash_idx = bodyHashIndex.toString();
