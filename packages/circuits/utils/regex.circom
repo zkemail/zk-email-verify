@@ -4,15 +4,15 @@ include "circomlib/circuits/comparators.circom";
 include "circomlib/circuits/bitify.circom";
 include "./bytes.circom";
 
-/// @title ExtractRegexReveal
-/// @notice Extracts reveal part from a regex match
+/// @title SelectRegexReveal
+/// @notice Returns reveal bytes of a regex match from the input
 /// @notice Verifies data before and after (maxRevealLen) reveal part is zero
 /// @param maxArrayLen Maximum length of the input array
 /// @param maxRevealLen Maximum length of the reveal part
 /// @input in Input array
 /// @input startIndex Index of the start of the reveal part
 /// @output out Revealed data array
-template ExtractRegexReveal(maxArrayLen, maxRevealLen) {
+template SelectRegexReveal(maxArrayLen, maxRevealLen) {
     signal input in[maxArrayLen];
     signal input startIndex;
 
@@ -65,7 +65,7 @@ template PackRegexReveal(maxArrayLen, maxRevealLen) {
     
     signal output out[chunkSize];
 
-    component extractor = ExtractRegexReveal(maxArrayLen, maxRevealLen);
+    component extractor = SelectRegexReveal(maxArrayLen, maxRevealLen);
     extractor.in <== in;
     extractor.startIndex <== startIndex;
 

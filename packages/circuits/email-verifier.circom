@@ -93,7 +93,7 @@ template EmailVerifier(maxHeaderLength, maxBodyLength, n, k, ignoreBodyHashCheck
         bhRegexMatch === 1;
 
         var shaB64Length = 44; // Length of SHA-256 hash when base64 encoded - ceil(32 / 3) * 4
-        signal bhBase64[shaB64Length] <== ExtractRegexReveal(maxHeaderLength, shaB64Length)(bhReveal, bodyHashIndex);
+        signal bhBase64[shaB64Length] <== SelectRegexReveal(maxHeaderLength, shaB64Length)(bhReveal, bodyHashIndex);
         signal headerBodyHash[32] <== Base64Decode(32)(bhBase64);
 
 
