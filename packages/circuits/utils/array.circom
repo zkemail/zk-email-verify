@@ -48,7 +48,7 @@ template ArrayShiftLeft(maxArrayLen, maxSubArrayLen) {
 
 /// @title ArraySelector
 /// @notice Select an element from an array based on index
-/// @notice This is QuinSelector from MACI https://github.com/privacy-scaling-explorations/maci/blob/dev/circuits/circom/trees/incrementalQuinTree.circom
+/// @notice This is QuinSelector from MACI https://github.com/privacy-scaling-explorations/maci/
 /// @param maxArrayLen The number of elements in the array
 /// @input in The input array
 /// @input index The index of the element to select
@@ -106,6 +106,42 @@ template CalculateTotal(n) {
 }
 
 
+/// @title SubArraySelector
+/// @notice Select sub array from an array given a start index and length
+/// @notice This is not used in ZK-Email circuits anywhere
+/// @param maxArrayLen: the maximum number of bytes in the input array
+/// @param maxSubArrayLen: the maximum number of integers in the output array
+/// @input in: the input byte array
+/// @input startIndex: the start index of the sub array
+/// @input length: the length of the sub array
+/// @output out: array of `maxSubArrayLen` size, items starting from `startIndex`, and items after `length` set to zero
+template SubArraySelector(maxArrayLen, maxSubArrayLen) {
+    assert(maxSubArrayLen < maxArrayLen);
+
+    signal input in[maxArrayLen];
+    signal input startIndex;
+    signal input length;
+
+    signal output out[maxSubArrayLen];
+
+    assert(length <= maxSubArrayLen);
+
+    component shifter = ArrayShiftLeft(maxArrayLen, maxSubArrayLen);
+    shifter.in <== in;
+    shifter.shift <== startIndex;
+
+    // Set value after length to zero
+    component gts[maxSubArrayLen];
+    for (var i = 0; i < maxSubArrayLen; i++) {
+        gts[i] = GreaterThan(log2Ceil(maxSubArrayLen));
+        gts[i].in[0] <== length;
+        gts[i].in[1] <== i;
+
+        out[i] <== gts[i].out * shifter.out[i];
+    }
+}
+
+
 /// @title AssertZeroPadding
 /// @notice Assert that the input array is zero-padded from the start index
 /// @param maxArrayLen The maximum number of elements in the input array
@@ -118,8 +154,7 @@ template AssertZeroPadding(maxArrayLen) {
     signal input in[maxArrayLen];
     signal input startIndex;
 
-    // TODO: Should we check padding_startIndex < maxArrayLen AND/OR
-    // log2(padding_startIndex) <= bitLength
+    assert(startIndex < maxArrayLen);
     
     component lessThans[maxArrayLen];
 
