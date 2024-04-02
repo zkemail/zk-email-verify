@@ -20,12 +20,12 @@ function computeIntChunkLength(byteLength) {
 }
 
 
-/// @title BytesToInts
-/// @notice Converts a byte array into a 31-byte integer array (packing)
+/// @title PackBytes
+/// @notice Pack an array of bytes to numbers that fit in the field
 /// @param maxBytes: the maximum number of bytes in the input array
 /// @input in: the input byte array
 /// @output out: the output integer array
-template BytesToInts(maxBytes) {
+template PackBytes(maxBytes) {
     var packSize = MAX_BYTES_IN_FIELD();
     var maxInts = computeIntChunkLength(maxBytes);
 
@@ -60,8 +60,8 @@ template BytesToInts(maxBytes) {
 }
 
 
-/// @title ByteSubArrayToInts
-/// @notice Select sub array from a byte array and pack to a 31-byte integer array
+/// @title PackByteSubArray
+/// @notice Select sub array from the input array and pack it to numbers that fit in the field
 /// @notice This is not used in ZK-Email circuits anywhere
 /// @param maxArrayLen: the maximum number of elements in the input array
 /// @param maxSubArrayLen: the maximum number of elements in the sub array
@@ -69,7 +69,7 @@ template BytesToInts(maxBytes) {
 /// @input startIndex: the start index of the sub array
 /// @input length: the length of the sub array
 /// @output out: the output integer array
-template ByteSubArrayToInts(maxArrayLen, maxSubArrayLen) {
+template PackByteSubArray(maxArrayLen, maxSubArrayLen) {
     assert(maxSubArrayLen < maxArrayLen);
     var chunkLength = computeIntChunkLength(maxSubArrayLen);
 
@@ -86,7 +86,7 @@ template ByteSubArrayToInts(maxArrayLen, maxSubArrayLen) {
     subarraySelector.startIndex <== startIndex;
     subarraySelector.length <== length;
 
-    component packer = BytesToInts(maxSubArrayLen);
+    component packer = PackBytes(maxSubArrayLen);
     packer.in <== subarraySelector.out;
 
     out <== packer.out;
@@ -95,7 +95,7 @@ template ByteSubArrayToInts(maxArrayLen, maxSubArrayLen) {
 
 /// @title DigitBytesToInt
 /// @notice Converts a byte array representing digits to an integer
-/// @notice Assumes the input fit in the field
+/// @notice Assumes the output number fits in the field
 /// @param n: the number of bytes in the input array
 /// @input in: the input byte array - big-endtian digit string of `out`
 /// @output out: the output integer

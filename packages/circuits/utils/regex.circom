@@ -71,7 +71,7 @@ template PackRegexReveal(maxArrayLen, maxRevealLen) {
 
     // Items after reveal part and before maxRevealLen are already asserted to zero
     // So we can safely pack without an additional `length` input
-    component packer = BytesToInts(maxRevealLen);
+    component packer = PackBytes(maxRevealLen);
     packer.in <== extractor.out;
     out <== packer.out;
 }
