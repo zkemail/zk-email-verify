@@ -7,7 +7,7 @@ import { MessageParser } from "./message-parser";
 import { dkimBody } from "./body";
 import { generateCanonicalizedHeader } from "./header";
 import * as crypto from "crypto";
-import { ParseDkimHeaders, ParsedHeaders } from "./index";
+import { ParseDkimHeaders, ParsedHeaders } from "../index";
 
 export class DkimVerifier extends MessageParser {
   envelopeFrom: string | boolean;

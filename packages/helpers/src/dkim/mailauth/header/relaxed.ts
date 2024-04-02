@@ -1,4 +1,4 @@
-import { Options, SignatureType, SigningHeaderLines } from '../index';
+import { Options, SignatureType, SigningHeaderLines } from '../../index';
 import { formatSignatureHeaderLine, formatRelaxedLine } from '../tools';
 
 // generate headers for signing

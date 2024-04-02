@@ -7,7 +7,7 @@ import { pki } from "node-forge";
 import punycode from "punycode";
 import crypto, { KeyObject } from "crypto";
 import parseDkimHeaders from "./parse-dkim-headers";
-import { Parsed, SignatureType } from "./index";
+import { Parsed, SignatureType } from "../index";
 import { DkimVerifier } from "./dkim-verifier";
 
 const IS_BROWSER = typeof window !== "undefined";
