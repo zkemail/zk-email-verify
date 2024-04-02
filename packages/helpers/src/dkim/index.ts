@@ -1,12 +1,12 @@
 import { pki } from "node-forge";
-import { DkimVerifier } from "./dkim-verifier";
+import { DkimVerifier } from "./mailauth/dkim-verifier";
 import {
   getSigningHeaderLines,
   parseDkimHeaders,
   parseHeaders,
   writeToStream,
-} from "./tools";
-import { revertCommonARCModifications } from "./arc";
+} from "./mailauth/tools";
+import sanitizers from "./sanitizers";
 
 export interface DKIMVerificationResult {
   publicKey: bigint;
@@ -24,28 +24,36 @@ export interface DKIMVerificationResult {
 export async function verifyDKIMSignature(
   email: Buffer | string,
   domain: string = "",
-  tryRevertARCChanges: boolean = true
+  enableSanitization: boolean = true
 ): Promise<DKIMVerificationResult> {
-
   const emailStr = email.toString();
 
-  const pgpMarkers = [
-    "BEGIN PGP MESSAGE",
-    "BEGIN PGP SIGNED MESSAGE",
-  ];
+  const pgpMarkers = ["BEGIN PGP MESSAGE", "BEGIN PGP SIGNED MESSAGE"];
 
-  const isPGPEncoded = pgpMarkers.some(marker => emailStr.includes(marker));
-
+  const isPGPEncoded = pgpMarkers.some((marker) => emailStr.includes(marker));
   if (isPGPEncoded) {
     throw new Error("PGP encoded emails are not supported.");
   }
 
   let dkimResult = await tryVerifyDKIM(email, domain);
 
-  // If DKIM verification fails, revert common modifications made by ARC and try again.
-  if (dkimResult.status.comment === "bad signature" && tryRevertARCChanges) {
-    const modified = await revertCommonARCModifications(email.toString());
-    dkimResult = await tryVerifyDKIM(modified, domain);
+  // If DKIM verification fails, try again after sanitizing email
+  if (dkimResult.status.comment === "bad signature" && enableSanitization) {
+    const results = await Promise.all(
+      sanitizers.map((sanitize) =>
+        tryVerifyDKIM(sanitize(emailStr), domain).then((result) => ({
+          result,
+          sanitizer: sanitize.name,
+        }))
+      )
+    );
+
+    const passed = results.find((r) => r.result.status.result === "pass");
+
+    if (passed) {
+      console.log(`DKIM: Verification passed after applying sanitization "${passed.sanitizer}"`);
+      dkimResult = passed.result;
+    }
   }
 
   const {
@@ -141,7 +149,7 @@ export interface Options {
 }
 
 // export dkim functions
-export * from "./dkim-verifier";
-export * from "./message-parser";
-export * from "./parse-dkim-headers";
-export * from "./tools";
+export * from "./mailauth/dkim-verifier";
+export * from "./mailauth/message-parser";
+export * from "./mailauth/parse-dkim-headers";
+export * from "./mailauth/tools";
