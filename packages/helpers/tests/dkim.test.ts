@@ -13,6 +13,7 @@ describe("DKIM signature verification", () => {
     const result = await verifyDKIMSignature(email);
 
     expect(result.signingDomain).toBe("icloud.com");
+    expect(result.appliedSanitization).toBeFalsy();
   });
 
   it("should fail for invalid selector", async () => {
@@ -84,5 +85,20 @@ describe("DKIM signature verification", () => {
         "DKIM signature not found for domain domain.com"
       );
     }
+  });
+});
+
+describe("DKIM with sanitization", () => {
+  it("should pass after removing label from Subject", async () => {
+    const email = fs.readFileSync(
+      path.join(__dirname, `test-data/email-good.eml`)
+    );
+
+    // Add a label to the subject
+    const tamperedEmail = email.toString().replace("Subject: ", "Subject: [EmailListABC]");
+
+    const result = await verifyDKIMSignature(tamperedEmail);
+
+    expect(result.appliedSanitization).toBe("removeLabels");
   });
 });

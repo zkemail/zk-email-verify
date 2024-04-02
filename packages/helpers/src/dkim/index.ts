@@ -19,6 +19,7 @@ export interface DKIMVerificationResult {
   algo: string;
   format: string;
   modulusLength: number;
+  appliedSanitization?: string;
 }
 
 export async function verifyDKIMSignature(
@@ -38,6 +39,7 @@ export async function verifyDKIMSignature(
   let dkimResult = await tryVerifyDKIM(email, domain);
 
   // If DKIM verification fails, try again after sanitizing email
+  let appliedSanitization;
   if (dkimResult.status.comment === "bad signature" && enableSanitization) {
     const results = await Promise.all(
       sanitizers.map((sanitize) =>
@@ -53,6 +55,7 @@ export async function verifyDKIMSignature(
     if (passed) {
       console.log(`DKIM: Verification passed after applying sanitization "${passed.sanitizer}"`);
       dkimResult = passed.result;
+      appliedSanitization = passed.sanitizer;
     }
   }
 
@@ -85,6 +88,7 @@ export async function verifyDKIMSignature(
     algo: dkimResult.algo,
     format: dkimResult.format,
     modulusLength: dkimResult.modulusLength,
+    appliedSanitization,
   };
 }
 
