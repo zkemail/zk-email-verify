@@ -9,7 +9,6 @@ include "../utils/array.circom";
 include "../utils/functions.circom";
 
 
-
 /// @title Sha256Bytes
 /// @notice Computes the SHA256 hash of input bytes
 /// @input paddedIn: Message to hash padded as per the SHA256 specification
@@ -189,7 +188,7 @@ template Sha256General(maxBitLength) {
     // Select the correct compression output for the given length, instead of just the last one.
     component arraySelectors[256];
     for (k=0; k<256; k++) {
-        arraySelectors[k] = ArraySelector(maxBlocks);
+        arraySelectors[k] = ItemAtIndex(maxBlocks);
         for (j=0; j<maxBlocks; j++) {
             arraySelectors[k].in[j] <== sha256compression[j].out[k];
         }
@@ -286,7 +285,7 @@ template Sha256Partial(maxBitLength) {
     // Select the correct compression output for the given length, instead of just the last one.
     component arraySelectors[256];
     for (k=0; k<256; k++) {
-        arraySelectors[k] = ArraySelector(maxBlocks);
+        arraySelectors[k] = ItemAtIndex(maxBlocks);
         for (j=0; j<maxBlocks; j++) {
             arraySelectors[k].in[j] <== sha256compression[j].out[k];
         }

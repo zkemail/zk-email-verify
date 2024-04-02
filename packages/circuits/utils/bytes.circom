@@ -81,13 +81,13 @@ template PackByteSubArray(maxArrayLen, maxSubArrayLen) {
 
     assert(length <= maxSubArrayLen);
 
-    component subarraySelector = SubArraySelector(maxArrayLen, maxSubArrayLen);
-    subarraySelector.in <== in;
-    subarraySelector.startIndex <== startIndex;
-    subarraySelector.length <== length;
+    component SelectSubArray = SelectSubArray(maxArrayLen, maxSubArrayLen);
+    SelectSubArray.in <== in;
+    SelectSubArray.startIndex <== startIndex;
+    SelectSubArray.length <== length;
 
     component packer = PackBytes(maxSubArrayLen);
-    packer.in <== subarraySelector.out;
+    packer.in <== SelectSubArray.out;
 
     out <== packer.out;
 }
