@@ -1,3 +1,7 @@
+// This is modified version of https://github.com/dchest/fast-sha256-js/blob/master/src/sha256.ts
+// One modification is to add `cacheState` to Hash class
+// TODO: Fork the repo and make the changes; consider upstream to original repo
+
 // SHA-256 (+ HMAC and PBKDF2) for JavaScript.
 //
 // Written in 2014-2016 by Dmitry Chestnykh.
