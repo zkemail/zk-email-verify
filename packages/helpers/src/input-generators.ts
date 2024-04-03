@@ -17,7 +17,7 @@ type CircuitInput = {
 type InputGenerationArgs = {
   ignoreBodyHashCheck?: boolean;
   shaPrecomputeSelector?: string;
-  maxHeaderLength?: number; // Max length of the email header including padding
+  maxHeadersLength?: number; // Max length of the email header including padding
   maxBodyLength?: number; // Max length of the email body after shaPrecomputeSelector including padding
 };
 
@@ -58,7 +58,7 @@ export function generateEmailVerifierInputsFromDKIMResult(
   // SHA add padding
   const [messagePadded, messagePaddedLen] = sha256Pad(
     headers,
-    params.maxHeaderLength || MAX_HEADER_PADDED_BYTES
+    params.maxHeadersLength || MAX_HEADER_PADDED_BYTES
   );
 
   const circuitInputs: CircuitInput = {

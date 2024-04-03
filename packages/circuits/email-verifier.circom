@@ -15,7 +15,7 @@ include "./utils/hash.circom";
 /// @notice Circuit to verify email signature as per DKIM standard.
 /// @notice Verifies the signature is valid for the given header and pubkey, and the hash of the body matches the hash in the header.
 /// @notice This cicuit only verifies signature as per `rsa-sha256` algorithm.
-/// @param maxHeaderLength Maximum length for the email header.
+/// @param maxHeadersLength Maximum length for the email header.
 /// @param maxBodyLength Maximum length for the email body.
 /// @param n Number of bits per chunk the RSA key is split into. Recommended to be 121.
 /// @param k Number of chunks the RSA key is split into. Recommended to be 17.
@@ -29,14 +29,14 @@ include "./utils/hash.circom";
 /// @input bodyHashIndex Index of the body hash `bh` in the emailHeader.
 /// @input precomputedSHA Precomputed SHA-256 hash of the email body till the bodyHashIndex.
 /// @output pubkeyHash Poseidon hash of the pubkey - Poseidon(n/2)(n/2 chunks of pubkey with k*2 bits per chunk).
-template EmailVerifier(maxHeaderLength, maxBodyLength, n, k, ignoreBodyHashCheck) {
-    assert(maxHeaderLength % 64 == 0);
+template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashCheck) {
+    assert(maxHeadersLength % 64 == 0);
     assert(maxBodyLength % 64 == 0);
     assert(n * k > 2048); // to support 2048 bit RSA
     assert(n < (255 \ 2)); // for multiplication to fit in the field (255 bits)
 
 
-    signal input emailHeader[maxHeaderLength];
+    signal input emailHeader[maxHeadersLength];
     signal input emailHeaderLength;
     signal input pubkey[k];
     signal input signature[k];
@@ -45,11 +45,11 @@ template EmailVerifier(maxHeaderLength, maxBodyLength, n, k, ignoreBodyHashCheck
 
 
     // Assert emailHeader data after emailHeaderLength are zeros
-    AssertZeroPadding(maxHeaderLength)(emailHeader, emailHeaderLength + 1);
+    AssertZeroPadding(maxHeadersLength)(emailHeader, emailHeaderLength + 1);
     
 
     // Calculate SHA256 hash of the `emailHeader` - 506,670 constraints
-    signal output sha[256] <== Sha256Bytes(maxHeaderLength)(emailHeader, emailHeaderLength);
+    signal output sha[256] <== Sha256Bytes(maxHeadersLength)(emailHeader, emailHeaderLength);
 
 
     // Pack SHA output bytes to int[] for RSA input message
@@ -89,11 +89,11 @@ template EmailVerifier(maxHeaderLength, maxBodyLength, n, k, ignoreBodyHashCheck
 
         // Body hash regex - 617,597 constraints
         // Extract the body hash from the header (i.e. the part after bh= within the DKIM-signature section)
-        signal (bhRegexMatch, bhReveal[maxHeaderLength]) <== BodyHashRegex(maxHeaderLength)(emailHeader);
+        signal (bhRegexMatch, bhReveal[maxHeadersLength]) <== BodyHashRegex(maxHeadersLength)(emailHeader);
         bhRegexMatch === 1;
 
         var shaB64Length = 44; // Length of SHA-256 hash when base64 encoded - ceil(32 / 3) * 4
-        signal bhBase64[shaB64Length] <== SelectRegexReveal(maxHeaderLength, shaB64Length)(bhReveal, bodyHashIndex);
+        signal bhBase64[shaB64Length] <== SelectRegexReveal(maxHeadersLength, shaB64Length)(bhReveal, bodyHashIndex);
         signal headerBodyHash[32] <== Base64Decode(32)(bhBase64);
 
 
