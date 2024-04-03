@@ -3,6 +3,10 @@ import { DkimVerifier } from "./mailauth/dkim-verifier";
 import { writeToStream } from "./mailauth/tools";
 import sanitizers from "./sanitizers";
 
+// `./mailauth` is modified version of https://github.com/postalsys/mailauth
+// Main modification are including emailHeaders in the DKIM result, making it work in the browser 
+// TODO: Fork the repo and make the changes; consider upstream to original repo
+
 export interface DKIMVerificationResult {
   publicKey: bigint;
   signature: bigint;
@@ -83,7 +87,7 @@ export async function verifyDKIMSignature(
 
   return {
     signature: BigInt("0x" + Buffer.from(signature, "base64").toString("hex")),
-    headers: status.signature_header,
+    headers: status.signedHeaders,
     body: body,
     bodyHash: bodyHash,
     signingDomain: dkimResult.signingDomain,
@@ -121,14 +125,7 @@ async function tryVerifyDKIM(email: Buffer | string, domain: string = "") {
     );
   }
 
-  if (dkimVerifier.headers) {
-    Object.defineProperty(dkimResult, "headers", {
-      enumerable: false,
-      configurable: false,
-      writable: false,
-      value: dkimVerifier.headers,
-    });
-  }
+  dkimResult.headers = dkimVerifier.headers;
 
   return dkimResult;
 }
