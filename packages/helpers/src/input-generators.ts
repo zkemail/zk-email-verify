@@ -1,10 +1,7 @@
-import {
-  Uint8ArrayToCharArray,
-  toCircomBigIntBytes,
-} from "./binaryFormat";
+import { Uint8ArrayToCharArray, toCircomBigIntBytes } from "./binaryFormat";
 import { MAX_BODY_PADDED_BYTES, MAX_HEADER_PADDED_BYTES } from "./constants";
+import { DKIMVerificationResult, verifyDKIMSignature } from "./dkim";
 import { generatePartialSHA, sha256Pad } from "./shaHash";
-
 
 type CircuitInput = {
   emailHeader: string[];
@@ -17,43 +14,61 @@ type CircuitInput = {
   bodyHashIndex?: string;
 };
 
-export function generateCircuitInputs(params: {
-  headers: Buffer;
-  rsaSignature: BigInt;
-  rsaPublicKey: BigInt;
-  body?: Buffer;
-  bodyHash?: string;
-  shaPrecomputeSelector?: string;
-  maxMessageLength?: number;
-  maxBodyLength?: number;
+type InputGenerationArgs = {
   ignoreBodyHashCheck?: boolean;
-}): CircuitInput {
-  const {
-    rsaSignature,
-    rsaPublicKey,
-    body,
-    bodyHash,
-    headers,
-    shaPrecomputeSelector, // String to split the body for SHA pre computation
-    maxMessageLength = MAX_HEADER_PADDED_BYTES, // Maximum allowed length of the message in circuit
-    maxBodyLength = MAX_BODY_PADDED_BYTES, // Maximum allowed length of the body in circuit
-    ignoreBodyHashCheck = false, // To be used when ignore_body_hash_check is true in circuit
-  } = params;
+  shaPrecomputeSelector?: string;
+  maxHeaderLength?: number; // Max length of the email header including padding
+  maxBodyLength?: number; // Max length of the email body after shaPrecomputeSelector including padding
+};
+
+
+/**
+ * 
+ * @description Generate circuit inputs for the EmailVerifier circuit from raw email content
+ * @param rawEmail Full email content as a buffer or string
+ * @param params Arguments to control the input generation
+ * @returns Circuit inputs for the EmailVerifier circuit
+ */
+export async function generateEmailVerifierInputs(
+  rawEmail: Buffer | string,
+  params: InputGenerationArgs
+) {
+  const dkimResult = await verifyDKIMSignature(rawEmail);
+
+  return generateEmailVerifierInputsFromDKIMResult(
+    dkimResult,
+    params
+  );
+}
+
+
+/**
+ * 
+ * @description Generate circuit inputs for the EmailVerifier circuit from DKIMVerification result
+ * @param dkimResult DKIMVerificationResult containing email data and verification result
+ * @param params Arguments to control the input generation
+ * @returns Circuit inputs for the EmailVerifier circuit
+ */
+export function generateEmailVerifierInputsFromDKIMResult(
+  dkimResult: DKIMVerificationResult,
+  params: InputGenerationArgs
+): CircuitInput {
+  const { headers, body, bodyHash, publicKey, signature } = dkimResult;
 
   // SHA add padding
   const [messagePadded, messagePaddedLen] = sha256Pad(
     headers,
-    maxMessageLength
+    params.maxHeaderLength || MAX_HEADER_PADDED_BYTES
   );
 
   const circuitInputs: CircuitInput = {
     emailHeader: Uint8ArrayToCharArray(messagePadded), // Packed into 1 byte signals
     emailHeaderLength: messagePaddedLen.toString(),
-    pubkey: toCircomBigIntBytes(rsaPublicKey),
-    signature: toCircomBigIntBytes(rsaSignature),
+    pubkey: toCircomBigIntBytes(publicKey),
+    signature: toCircomBigIntBytes(signature),
   };
 
-  if (!ignoreBodyHashCheck) {
+  if (!params.ignoreBodyHashCheck) {
     if (!body || !bodyHash) {
       throw new Error(
         `body and bodyHash are required when ignoreBodyHashCheck is false`
@@ -61,6 +76,7 @@ export function generateCircuitInputs(params: {
     }
 
     const bodyHashIndex = headers.toString().indexOf(bodyHash);
+    const maxBodyLength = params.maxBodyLength || MAX_BODY_PADDED_BYTES;
 
     // 65 comes from the 64 at the end and the 1 bit in the start, then 63 comes from the formula to round it up to the nearest 64.
     // see sha256algorithm.com for a more full explanation of padding length
@@ -74,7 +90,7 @@ export function generateCircuitInputs(params: {
       generatePartialSHA({
         body: bodyPadded,
         bodyLength: bodyPaddedLen,
-        selectorString: shaPrecomputeSelector,
+        selectorString: params.shaPrecomputeSelector,
         maxRemainingBodyLength: maxBodyLength,
       });
 
