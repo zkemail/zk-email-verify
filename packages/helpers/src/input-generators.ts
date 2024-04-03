@@ -31,7 +31,7 @@ type InputGenerationArgs = {
  */
 export async function generateEmailVerifierInputs(
   rawEmail: Buffer | string,
-  params: InputGenerationArgs
+  params: InputGenerationArgs = {}
 ) {
   const dkimResult = await verifyDKIMSignature(rawEmail);
 
@@ -51,7 +51,7 @@ export async function generateEmailVerifierInputs(
  */
 export function generateEmailVerifierInputsFromDKIMResult(
   dkimResult: DKIMVerificationResult,
-  params: InputGenerationArgs
+  params: InputGenerationArgs = {}
 ): CircuitInput {
   const { headers, body, bodyHash, publicKey, signature } = dkimResult;
 

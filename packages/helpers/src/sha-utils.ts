@@ -46,6 +46,10 @@ export function generatePartialSHA({
   if (selectorString) {
     const selector = new TextEncoder().encode(selectorString);
     selectorIndex = findIndexInUint8Array(body, selector);
+
+    if (selectorIndex === -1) {
+      throw new Error(`Provider SHA precompute selector not found in the body`);
+    }
   }
 
   const shaCutoffIndex = Math.floor(selectorIndex / 64) * 64;

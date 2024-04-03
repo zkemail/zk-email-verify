@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { StringDecoder } from "string_decoder";
 import _localforage from "localforage";
-import { downloadFromFilename, downloadProofFiles, uncompressGz as uncompress } from "../src/chunked-zkey.js";
+import { downloadFromFilename, downloadProofFiles, uncompressGz as uncompress } from "../src/chunked-zkey";
 import { server } from './mocks/server.js'
 import { MOCK_BASE_URL } from "./mocks/handlers.js";
 

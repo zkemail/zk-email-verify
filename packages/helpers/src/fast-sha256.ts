@@ -1,5 +1,5 @@
 // This is modified version of https://github.com/dchest/fast-sha256-js/blob/master/src/sha256.ts
-// One modification is to add `cacheState` to Hash class
+// One modification is adding `cacheState` to Hash class (for partial SHA)
 // TODO: Fork the repo and make the changes; consider upstream to original repo
 
 // SHA-256 (+ HMAC and PBKDF2) for JavaScript.
