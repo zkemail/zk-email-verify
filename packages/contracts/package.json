@@ -8,5 +8,8 @@
   "dependencies": {
     "@openzeppelin/contracts": "^5.0.0",
     "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "forge-std": "https://github.com/foundry-rs/forge-std"
   }
 }

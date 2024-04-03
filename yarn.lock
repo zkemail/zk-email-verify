@@ -2773,6 +2773,7 @@ __metadata:
   dependencies:
     "@openzeppelin/contracts": ^5.0.0
     dotenv: ^16.3.1
+    forge-std: "https://github.com/foundry-rs/forge-std"
   languageName: unknown
   linkType: soft
 
@@ -4192,6 +4193,13 @@ __metadata:
   dependencies:
     is-callable: ^1.1.3
   checksum: 6c48ff2bc63362319c65e2edca4a8e1e3483a2fabc72fbe7feaf8c73db94fc7861bd53bc02c8a66a0c1dd709da6b04eec42e0abdd6b40ce47305ae92a25e5d28
+  languageName: node
+  linkType: hard
+
+"forge-std@https://github.com/foundry-rs/forge-std":
+  version: 1.7.6
+  resolution: "forge-std@https://github.com/foundry-rs/forge-std.git#commit=e4aef94c1768803a16fe19f7ce8b65defd027cfd"
+  checksum: 6fab51b92a24c97384f55dcb1b9eba29ce5043b67930b4179a9f9f4f8da85e8315163db60bec2ffbe7334135755630ba549b246db9e503e59ec93ba2f11931cc
   languageName: node
   linkType: hard
 
