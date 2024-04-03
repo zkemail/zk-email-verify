@@ -1,7 +1,7 @@
-import { Uint8ArrayToCharArray, toCircomBigIntBytes } from "./binaryFormat";
+import { Uint8ArrayToCharArray, toCircomBigIntBytes } from "./binary-format";
 import { MAX_BODY_PADDED_BYTES, MAX_HEADER_PADDED_BYTES } from "./constants";
 import { DKIMVerificationResult, verifyDKIMSignature } from "./dkim";
-import { generatePartialSHA, sha256Pad } from "./shaHash";
+import { generatePartialSHA, sha256Pad } from "./sha-utils";
 
 type CircuitInput = {
   emailHeader: string[];
