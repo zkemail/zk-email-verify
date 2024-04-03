@@ -1,11 +1,6 @@
 import { pki } from "node-forge";
 import { DkimVerifier } from "./mailauth/dkim-verifier";
-import {
-  getSigningHeaderLines,
-  parseDkimHeaders,
-  parseHeaders,
-  writeToStream,
-} from "./mailauth/tools";
+import { writeToStream } from "./mailauth/tools";
 import sanitizers from "./sanitizers";
 
 export interface DKIMVerificationResult {
@@ -53,7 +48,9 @@ export async function verifyDKIMSignature(
     const passed = results.find((r) => r.result.status.result === "pass");
 
     if (passed) {
-      console.log(`DKIM: Verification passed after applying sanitization "${passed.sanitizer}"`);
+      console.log(
+        `DKIM: Verification passed after applying sanitization "${passed.sanitizer}"`
+      );
       dkimResult = passed.result;
       appliedSanitization = passed.sanitizer;
     }
@@ -128,32 +125,3 @@ async function tryVerifyDKIM(email: Buffer | string, domain: string = "") {
 
   return dkimResult;
 }
-
-export type SignatureType = "DKIM" | "ARC" | "AS";
-
-export type ParsedHeaders = ReturnType<typeof parseHeaders>;
-
-export type Parsed = ParsedHeaders["parsed"][0];
-
-export type ParseDkimHeaders = ReturnType<typeof parseDkimHeaders>;
-
-export type SigningHeaderLines = ReturnType<typeof getSigningHeaderLines>;
-
-export interface Options {
-  signatureHeaderLine: string;
-  signingDomain?: string;
-  selector?: string;
-  algorithm?: string;
-  canonicalization: string;
-  bodyHash?: string;
-  signTime?: string | number | Date;
-  signature?: string;
-  instance: string | boolean;
-  bodyHashedBytes?: string;
-}
-
-// export dkim functions
-export * from "./mailauth/dkim-verifier";
-export * from "./mailauth/message-parser";
-export * from "./mailauth/parse-dkim-headers";
-export * from "./mailauth/tools";
