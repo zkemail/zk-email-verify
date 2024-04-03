@@ -19,5 +19,27 @@
     "circomlibjs": "^0.1.7",
     "jest": "^29.5.0",
     "typescript": "^5.2.2"
+  },
+  "files": [
+    "/helpers",
+    "/lib",
+    "/utils",
+    "./email-verifier.circom"
+  ],
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "node": "current"
+          }
+        }
+      ],
+      "@babel/preset-typescript",
+      [
+        "jest"
+      ]
+    ]
   }
 }
