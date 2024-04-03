@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "forge-std/src/Test.sol";
@@ -17,7 +19,9 @@ contract TestDKIMRegistry is Test {
   }
 
   function test_setDKIM() public {
+    vm.prank(signer);
     dkimRegistry.setDKIMPublicKeyHash("test.com", "a81273981273bce922");
+    vm.stopPrank();
   }
 }
 
