@@ -59,6 +59,18 @@ function insert13Before10(email: string): string {
   return Buffer.from(ret.slice(0, j).buffer).toString();
 }
 
-const sanitizers = [revertGoogleMessageId, removeLabels, insert13Before10];
+// Replace `=09` with `\t` in email
+// TODO: Add test for this
+function sanitizeTabs(email: string): string {
+  return email.replace(`=09`, `\t`);
+}
+
+
+const sanitizers = [
+  revertGoogleMessageId,
+  removeLabels,
+  insert13Before10,
+  sanitizeTabs,
+];
 
 export default sanitizers;
