@@ -1,6 +1,6 @@
 {
   "name": "@zk-email/circuits",
-  "version": "3.2.4",
+  "version": "4.0.0",
   "scripts": {
     "publish": "yarn npm publish --access=public",
     "test": "NODE_OPTIONS=--max_old_space_size=8192 jest tests"
