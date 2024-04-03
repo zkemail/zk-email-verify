@@ -1,44 +1,4 @@
-Delivered-To: zkewtest@gmail.com
-Received: by 2002:a05:6358:a16:b0:17f:783c:f0aa with SMTP id 22csp4286030rwa;
-        Wed, 3 Apr 2024 03:54:05 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGmRURImygOH4f9VqzPmRe9AUmKNfQTHgpnvsfn3zt5dtOy1sXyktb+GAdRquRhEddZGr+d
-X-Received: by 2002:a17:902:f612:b0:1e2:9ae0:2165 with SMTP id n18-20020a170902f61200b001e29ae02165mr580119plg.0.1712141645481;
-        Wed, 03 Apr 2024 03:54:05 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1712141645; cv=none;
-        d=google.com; s=arc-20160816;
-        b=ayDjXuFlNYGRpSTmS7LRwY0taBw2d3jgmRonLAk2zjj5FQaxdkTE9VIsqf70GLVIkV
-         jSOtbp3fxhqGS4G+skUL2/mfW3Z6cItiIx9i6SEukBwdYfLghh1uLZcS+IUZePeAvzB/
-         3MsCu0oKoRJo2YS4sqbOYpsYvSH4vxrjMete5iA7txSsVPhLa2RZqGiAbzusouIHUXA4
-         qMmEIcbZN3PD918cB/WpjN2/0roQAnMF2r4zAYtFSDJ9vL+IqFqIF+v3ti00QWTJpQqg
-         Yg25KqIXyV9XouiUNhG1T7QArZT3wQCdvVToa5F9p2akSOmKyRrYUZ9aNgO2YksrSqum
-         XnSQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
-        h=to:date:message-id:subject:mime-version:content-transfer-encoding
-         :from:dkim-signature;
-        bh=2JsdK4BMzzt9w4Zlz2TdyVCFc+l7vNyT5aAgGDYf7fM=;
-        fh=pY1mLRy3Ij9Q2g+iSj0cDBFssb6ix/XdcltTP/vwMGg=;
-        b=RCLt30e366sNP/g5xR1KXDXfkEFsnY0w2VvbDBXLYZcX16CVyNTpXCbM6yQFD7D2i3
-         vwB7U4xBirBfX9ikRK+CWozS6ES+xPe/NyjInjC6Fe3ptbb2vFZc6sSQDPJp2AdsTUGI
-         oY577rydz9/XvVSEeBYtMG5iSZpi+K16ejMViRVi0e+YfXjogylED70xFBYNsvyD+Fb+
-         0KsdhPxg4oXWyRJdgESQ1XncDFpuV8ezyqJiUTcIuWqBtYpbzd+ENBwNMSTsPAPkOcl8
-         jbxMZTkhkrHHKxuPg9cezlvcWXnB65PMBTs7g2djhZR4/wreeoRIt9yPwRk6vzirOdFq
-         er1g==;
-        dara=google.com
-ARC-Authentication-Results: i=1; mx.google.com;
-       dkim=pass header.i=@icloud.com header.s=1a1hai header.b=ufWPnpZp;
-       spf=pass (google.com: domain of runnier.leagues.0j@icloud.com designates 17.58.6.45 as permitted sender) smtp.mailfrom=runnier.leagues.0j@icloud.com;
-       dmarc=pass (p=QUARANTINE sp=QUARANTINE dis=NONE) header.from=icloud.com
-Return-Path: <runnier.leagues.0j@icloud.com>
-Received: from pv50p00im-ztdg10021201.me.com (pv50p00im-ztdg10021201.me.com. [17.58.6.45])
-        by mx.google.com with ESMTPS id jx10-20020a170903138a00b001e2791673a6si2728483plb.372.2024.04.03.03.54.05
-        for <zkewtest@gmail.com>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Apr 2024 03:54:05 -0700 (PDT)
-Received-SPF: pass (google.com: domain of runnier.leagues.0j@icloud.com designates 17.58.6.45 as permitted sender) client-ip=17.58.6.45;
-Authentication-Results: mx.google.com;
-       dkim=pass header.i=@icloud.com header.s=1a1hai header.b=ufWPnpZp;
-       spf=pass (google.com: domain of runnier.leagues.0j@icloud.com designates 17.58.6.45 as permitted sender) smtp.mailfrom=runnier.leagues.0j@icloud.com;
-       dmarc=pass (p=QUARANTINE sp=QUARANTINE dis=NONE) header.from=icloud.com
+X-Test-Content-From: https://tatianarevoredo.medium.com/bitcoin-genesis-day-63df91ec3ef3
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=icloud.com;
 	s=1a1hai; t=1712141644;
 	bh=2JsdK4BMzzt9w4Zlz2TdyVCFc+l7vNyT5aAgGDYf7fM=;
@@ -49,9 +9,6 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=icloud.com;
 	 +onsUWJ7TFu0gdX5lrSIXNgEQh+zvmSFWnPuoMzHKEca6eu67N/Q5WWVUPm32mlp6q
 	 MCswRkPn9hF72T4566YoL6l4vqCgh5Jwnto1ae59pJ/2z3wuECS2EWWVDJ/GTwzALf
 	 JkC4yhhw40NLQ==
-Received: from smtpclient.apple (pv50p00im-dlb-asmtp-mailmevip.me.com [17.56.9.10])
-	by pv50p00im-ztdg10021201.me.com (Postfix) with ESMTPSA id 264B86801D8
-	for <zkewtest_at_gmail_com_c874b4m1s97d6c_99j41366@icloud.com>; Wed,  3 Apr 2024 10:54:02 +0000 (UTC)
 from: runnier.leagues.0j@icloud.com
 Content-Type: text/plain;
 	charset=utf-8
@@ -61,31 +18,6 @@ Subject: Bitcoin
 Message-Id: <12800A90-4ECC-4513-9298-A33546122920@me.com>
 Date: Wed, 3 Apr 2024 16:23:48 +0530
 to: zkewtest@gmail.com
-X-Mailer: Apple Mail (2.3731.500.231)
-X-CLX-Shades: Junk
-X-CLX-UShades: None
-X-CLX-Score: -186
-X-CLX-UnSpecialScore: None
-X-CLX-Spam: true
-X-MANTSH: 1TFkXBxsSHBEKWUQXa3xDUFkaX1wbQUURCllNF2BfREERCllJFwcZGnEbBgccGnc
- GBxsaEgYaBhoGGgYHHhJxGhAYdwYaBhoGGgYaBhoGGnEaEBp3BhoRClleF2NjeREKQ04XUER5Z
- 0QdZUJDGXxvfURnGW9EQV1TQEZCU2dpQUUfGk4RClhcFxkEGgQfGgUbGhoEHRoEGxMSBBsfEBs
- eGh8aEQpeWRdOe15ERxEKTFoXTX5rb2sRCkVZF29raxEKTU4XaREKQ1oXGxoZBBgYHQQfGAQcH
- REKQl4XGxEKXk4XGxEKQkUXYE1beBtQX38YcGcRCkJOF2xwYHlAHWJSaRpiEQpCTBdgTVt4G1B
- ffxhwZxEKQm4XbWVwG0JrYh5eZlwRCkJsF2BNW3gbUF9/GHBnEQpCQBdgcwEaYllCS0F/UBEKQ
- lgXbUxpZ2xhUmBBbm0RCkVDFxsRCnBoF2MSBR1nbWdwYhJhEAcZGhEKcGgXbXhdHxpjS1B5bnA
- QBxkaEQpwaBdhZRJJQ1pjS29nHxAHGRoRCnBoF2diRFlzG0gTXUAFEAcZGhEKcGgXbGB+c3hJW
- XJMQRoQBxkaEQpwaBdmT2VecGRbTh1pThAHGRoRCnBoF2xfb39OGhxJRUlAEAcZGhEKcGgXa09
- EBXgbZBN8ZEwQBxkaEQpwTBdrchpQWkQeZFtScBAHGRoRCm1+FxoRClhNF0sR
-X-Proofpoint-GUID: znSMn7Ohi3VEWnM3EnkwyjlhyMCko50d
-X-Proofpoint-ORIG-GUID: znSMn7Ohi3VEWnM3EnkwyjlhyMCko50d
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-04-03_10,2024-04-01_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 bulkscore=0
- malwarescore=0 adultscore=0 mlxscore=0 phishscore=0 clxscore=-186
- spamscore=0 mlxlogscore=495 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2308100000 definitions=main-2404030075
 
 The Times 03/Jan/2009 Chancellor on brink of second bailout for banks
 
