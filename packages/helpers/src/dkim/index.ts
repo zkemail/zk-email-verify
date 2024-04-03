@@ -6,7 +6,7 @@ import sanitizers from "./sanitizers";
 export interface DKIMVerificationResult {
   publicKey: bigint;
   signature: bigint;
-  message: Buffer;
+  headers: Buffer;
   body: Buffer;
   bodyHash: string;
   signingDomain: string;
@@ -17,6 +17,13 @@ export interface DKIMVerificationResult {
   appliedSanitization?: string;
 }
 
+/**
+ * 
+ * @param email Entire email data as a string or buffer
+ * @param domain Domain to verify DKIM signature for. If not provided, the domain is extracted from the `From` header
+ * @param enableSanitization If true, email will be applied with various sanitization to try and pass DKIM verification
+ * @returns 
+ */
 export async function verifyDKIMSignature(
   email: Buffer | string,
   domain: string = "",
@@ -76,7 +83,7 @@ export async function verifyDKIMSignature(
 
   return {
     signature: BigInt("0x" + Buffer.from(signature, "base64").toString("hex")),
-    message: status.signature_header,
+    headers: status.signature_header,
     body: body,
     bodyHash: bodyHash,
     signingDomain: dkimResult.signingDomain,

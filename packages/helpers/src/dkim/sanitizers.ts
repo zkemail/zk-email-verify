@@ -40,7 +40,7 @@ function removeLabels(email: string): string {
 
 // Sometimes, newline encodings re-encode \r\n as just \n, so re-insert the \r
 // TODO: Add test for this
-export function insert13Before10(email: string): string {
+function insert13Before10(email: string): string {
   const byteArray = new TextEncoder().encode(email);
 
   const ret = new Uint8Array(byteArray.length + 1000);
