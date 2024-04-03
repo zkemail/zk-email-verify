@@ -1,7 +1,7 @@
 // Calculates relaxed body hash for a message body stream
-import { ParsedHeaders } from '../index';
-import { parseHeaders } from './tools';
 import { Writable, WritableOptions } from 'stream';
+import { parseHeaders } from './tools';
+import type { ParsedHeaders } from "./dkim-verifier";
 
 /**
  * Class for separating header from body

@@ -1,4 +1,4 @@
-import { Options, SignatureType, SigningHeaderLines } from '../../index';
+import type { Options, SignatureType, SigningHeaderLines } from '../dkim-verifier';
 import { formatSignatureHeaderLine } from '../tools';
 
 const formatSimpleLine = (line: Buffer | string, suffix?: string) => Buffer.from(line.toString('binary') + (suffix ? suffix : ''), 'binary');

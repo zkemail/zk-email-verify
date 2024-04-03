@@ -4,7 +4,7 @@ import { writeToStream } from "./mailauth/tools";
 import sanitizers from "./sanitizers";
 
 // `./mailauth` is modified version of https://github.com/postalsys/mailauth
-// Main modification are including emailHeaders in the DKIM result, making it work in the browser 
+// Main modification are including emailHeaders in the DKIM result, making it work in the browser, add types 
 // TODO: Fork the repo and make the changes; consider upstream to original repo
 
 export interface DKIMVerificationResult {
