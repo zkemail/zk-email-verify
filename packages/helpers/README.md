@@ -1,5 +1,5 @@
-## Overview
-The `helpers` package is a comprehensive SDK, written in TypeScript, that provides utility functions to facilitate various tasks within the application. Here's a brief overview of each module:
+## @zk-email/helpers Package Overview
+The `helpers` package is a comprehensive SDK, written in TypeScript, that provides functions to help you genera. Here's a brief overview of each module:
 
 **binaryFormat.ts**: This module offers utility functions for converting between different binary formats, including string-to-byte, byte-to-string conversions, and packing bytes into N bytes.
 
