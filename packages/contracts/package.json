@@ -1,12 +1,15 @@
 {
   "name": "@zk-email/contracts",
-  "version": "5.0.2",
+  "version": "6.0.0",
   "scripts": {
     "build": "forge build",
     "publish": "yarn npm publish --access=public"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.9.3",
+    "@openzeppelin/contracts": "^5.0.0",
     "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "forge-std": "https://github.com/foundry-rs/forge-std"
   }
 }

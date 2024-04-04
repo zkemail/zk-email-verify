@@ -2,4 +2,5 @@
 src = './'
 out = 'out'
 allow_paths = ['../../node_modules']
+libs = ['../../node_modules']
 solc_version = '0.8.21'

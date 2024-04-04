@@ -13,6 +13,8 @@ import "./interfaces/IDKIMRegistry.sol";
   Input is DKIM pub key split into 17 chunks of 121 bits. You can use `helpers` package to fetch/split DKIM keys
  */
 contract DKIMRegistry is IDKIMRegistry, Ownable {
+    constructor(address _signer) Ownable(_signer) { }
+
     event DKIMPublicKeyHashRegistered(string domainName, bytes32 publicKeyHash);
     event DKIMPublicKeyHashRevoked(bytes32 publicKeyHash);
 
