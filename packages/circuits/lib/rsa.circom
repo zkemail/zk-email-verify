@@ -103,76 +103,76 @@ template RSAPad(n, k) {
 
     // The extra 152 bits comes from 0x3031300d060960864801650304020105000420
     // This is due to padding from the RSASSA-PKCS1-v1_5 standard
-    var base_len = 408;
-    var msg_len = 256;
+    var baseLen = 408;
+    var msgLen = 256;
 
-    signal padded_message_bits[n*k];
+    signal paddedMessageBits[n*k];
 
-    component modulus_n2b[k];
-    component message_n2b[k];
-    signal modulus_bits[n*k];
-    signal message_bits[n*k];
+    component modulusN2B[k];
+    component messageN2B[k];
+    signal modulusBits[n*k];
+    signal messageBits[n*k];
     for (var i = 0; i < k; i++) {
-        message_n2b[i] = Num2Bits(n);
-        message_n2b[i].in <== message[i];
+        messageN2B[i] = Num2Bits(n);
+        messageN2B[i].in <== message[i];
         for (var j = 0; j < n; j++) {
-            message_bits[i*n+j] <== message_n2b[i].out[j];
+            messageBits[i*n+j] <== messageN2B[i].out[j];
         }
-        modulus_n2b[i] = Num2Bits(n);
-        modulus_n2b[i].in <== modulus[i];
+        modulusN2B[i] = Num2Bits(n);
+        modulusN2B[i].in <== modulus[i];
         for (var j = 0; j < n; j++) {
-            modulus_bits[i*n+j] <== modulus_n2b[i].out[j];
+            modulusBits[i*n+j] <== modulusN2B[i].out[j];
         }
     }
 
-    for (var i = msg_len; i < n*k; i++) {
-        message_bits[i] === 0;
+    for (var i = msgLen; i < n*k; i++) {
+        messageBits[i] === 0;
     }
 
-    for (var i = 0; i < msg_len; i++) {
-        padded_message_bits[i] <== message_bits[i];
+    for (var i = 0; i < msgLen; i++) {
+        paddedMessageBits[i] <== messageBits[i];
     }
 
-    for (var i = base_len; i < base_len + 8; i++) {
-        padded_message_bits[i] <== 0;
+    for (var i = baseLen; i < baseLen + 8; i++) {
+        paddedMessageBits[i] <== 0;
     }
 
-    for (var i = msg_len; i < base_len; i++) {
-        padded_message_bits[i] <== (0x3031300d060960864801650304020105000420 >> (i - msg_len)) & 1;
+    for (var i = msgLen; i < baseLen; i++) {
+        paddedMessageBits[i] <== (0x3031300d060960864801650304020105000420 >> (i - msgLen)) & 1;
     }
 
-    component modulus_zero[(n*k + 7 - (base_len + 8))\8];
+    component modulusZero[(n*k + 7 - (baseLen + 8))\8];
     {
-        var modulus_prefix = 0;
-        for (var i = n*k - 1; i >= base_len + 8; i--) {
+        var modulusPrefix = 0;
+        for (var i = n*k - 1; i >= baseLen + 8; i--) {
             if (i+8 < n*k) {
-                modulus_prefix += modulus_bits[i+8];
+                modulusPrefix += modulusBits[i+8];
                 if (i % 8 == 0) {
-                    var idx = (i - (base_len + 8)) \ 8;
-                    modulus_zero[idx] = IsZero();
-                    modulus_zero[idx].in <== modulus_prefix;
-                    padded_message_bits[i] <== 1-modulus_zero[idx].out;
+                    var idx = (i - (baseLen + 8)) \ 8;
+                    modulusZero[idx] = IsZero();
+                    modulusZero[idx].in <== modulusPrefix;
+                    paddedMessageBits[i] <== 1-modulusZero[idx].out;
                 } else {
-                    padded_message_bits[i] <== padded_message_bits[i+1];
+                    paddedMessageBits[i] <== paddedMessageBits[i+1];
                 }
             } else {
-                padded_message_bits[i] <== 0;
+                paddedMessageBits[i] <== 0;
             }
         }
     }
 
     // The RFC guarantees at least 8 octets of 0xff padding.
-    assert(base_len + 8 + 65 <= n*k);
-    for (var i = base_len + 8; i < base_len + 8 + 65; i++) {
-        padded_message_bits[i] === 1;
+    assert(baseLen + 8 + 65 <= n*k);
+    for (var i = baseLen + 8; i < baseLen + 8 + 65; i++) {
+        paddedMessageBits[i] === 1;
     }
 
-    component padded_message_b2n[k];
+    component passedMessageB2N[k];
     for (var i = 0; i < k; i++) {
-        padded_message_b2n[i] = Bits2Num(n);
+        passedMessageB2N[i] = Bits2Num(n);
         for (var j = 0; j < n; j++) {
-            padded_message_b2n[i].in[j] <== padded_message_bits[i*n+j];
+            passedMessageB2N[i].in[j] <== paddedMessageBits[i*n+j];
         }
-        out[i] <== padded_message_b2n[i].out;
+        out[i] <== passedMessageB2N[i].out;
     }
 }
