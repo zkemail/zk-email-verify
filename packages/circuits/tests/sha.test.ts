@@ -1,7 +1,7 @@
 import { wasm as wasm_tester } from "circom_tester";
 import path from "path";
-import { sha256Pad, shaHash } from "@zk-email/helpers/src/shaHash";
-import { Uint8ArrayToCharArray, uint8ToBits } from "@zk-email/helpers/src/binaryFormat";
+import { sha256Pad, shaHash } from "@zk-email/helpers/src/sha-utils";
+import { Uint8ArrayToCharArray, uint8ToBits } from "@zk-email/helpers/src/binary-format";
 
 
 describe("SHA256 for email header", () => {

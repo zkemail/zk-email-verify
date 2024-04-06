@@ -1,4 +1,4 @@
-import { Options, SignatureType, SigningHeaderLines } from '../index';
+import type { Options, SignatureType, SigningHeaderLines } from '../dkim-verifier';
 import { formatSignatureHeaderLine, formatRelaxedLine } from '../tools';
 
 // generate headers for signing

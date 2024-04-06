@@ -2,12 +2,36 @@ const IS_BROWSER = typeof window !== "undefined";
 
 // @ts-ignore
 import addressparser from "addressparser";
-import { getSigningHeaderLines, getPublicKey, parseDkimHeaders, formatAuthHeaderRow, getAlignment } from "./tools";
+import * as crypto from "crypto";
+import { getSigningHeaderLines, getPublicKey, parseDkimHeaders, formatAuthHeaderRow, getAlignment, parseHeaders } from "./tools";
 import { MessageParser } from "./message-parser";
 import { dkimBody } from "./body";
 import { generateCanonicalizedHeader } from "./header";
-import * as crypto from "crypto";
-import { ParseDkimHeaders, ParsedHeaders } from "./index";
+
+
+export type SignatureType = "DKIM" | "ARC" | "AS";
+
+export type ParsedHeaders = ReturnType<typeof parseHeaders>;
+
+export type Parsed = ParsedHeaders["parsed"][0];
+
+export type ParseDkimHeaders = ReturnType<typeof parseDkimHeaders>;
+
+export type SigningHeaderLines = ReturnType<typeof getSigningHeaderLines>;
+
+export interface Options {
+  signatureHeaderLine: string;
+  signingDomain?: string;
+  selector?: string;
+  algorithm?: string;
+  canonicalization: string;
+  bodyHash?: string;
+  signTime?: string | number | Date;
+  signature?: string;
+  instance: string | boolean;
+  bodyHashedBytes?: string;
+}
+
 
 export class DkimVerifier extends MessageParser {
   envelopeFrom: string | boolean;
@@ -217,8 +241,7 @@ export class DkimVerifier extends MessageParser {
                 ver_result = ver.verify({ key: publicKey.toString(), format: "pem" }, Buffer.from(signatureHeader.parsed?.b?.value, "base64"));
               }
 
-              status.signature_header = canonicalizedHeader;
-              status.signature_value = signatureHeader.parsed?.b?.value;
+              status.signedHeaders = canonicalizedHeader;
               status.result = ver_result ? "pass" : "fail";
 
               if (status?.result === "fail") {

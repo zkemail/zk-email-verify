@@ -1,17 +1,15 @@
 import fs from "fs";
 import path from "path";
 import { wasm as wasm_tester } from "circom_tester";
-import { DKIMVerificationResult } from "@zk-email/helpers/src/dkim";
-import { generateCircuitInputs } from "@zk-email/helpers/src/input-helpers";
-import { verifyDKIMSignature } from "@zk-email/helpers/src/dkim";
-import { toCircomBigIntBytes } from "@zk-email/helpers/src/binaryFormat";
+import { generateEmailVerifierInputs } from "@zk-email/helpers/src/input-generators";
+import { toCircomBigIntBytes } from "@zk-email/helpers/src/binary-format";
 
 
 describe("RSA", () => {
   jest.setTimeout(10 * 60 * 1000); // 10 minutes
 
   let circuit: any;
-  let dkimResult: DKIMVerificationResult;
+  let rawEmail: Buffer;
 
   beforeAll(async () => {
     circuit = await wasm_tester(
@@ -22,18 +20,12 @@ describe("RSA", () => {
         // output: path.join(__dirname, "./compiled-test-circuits"),
       }
     );
-    const rawEmail = fs.readFileSync(path.join(__dirname, "./test-emails/test.eml"));
-    dkimResult = await verifyDKIMSignature(rawEmail);
+     rawEmail = fs.readFileSync(path.join(__dirname, "./test-emails/test.eml"));
   });
 
   it("should verify 2048 bit rsa signature correctly", async function () {
-    const emailVerifierInputs = generateCircuitInputs({
-      rsaSignature: dkimResult.signature,
-      rsaPublicKey: dkimResult.publicKey,
-      body: dkimResult.body,
-      bodyHash: dkimResult.bodyHash,
-      message: dkimResult.message,
-      maxMessageLength: 640,
+    const emailVerifierInputs = await generateEmailVerifierInputs(rawEmail, {
+      maxHeadersLength: 640,
       maxBodyLength: 768,
     });
 
@@ -72,13 +64,8 @@ describe("RSA", () => {
   });
 
   it("should fail when verifying with an incorrect signature", async function () {
-    const emailVerifierInputs = generateCircuitInputs({
-      rsaSignature: dkimResult.signature,
-      rsaPublicKey: dkimResult.publicKey,
-      body: dkimResult.body,
-      bodyHash: dkimResult.bodyHash,
-      message: dkimResult.message,
-      maxMessageLength: 640,
+    const emailVerifierInputs = await generateEmailVerifierInputs(rawEmail, {
+      maxHeadersLength: 640,
       maxBodyLength: 768,
     });
 
