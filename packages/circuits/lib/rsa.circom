@@ -1,14 +1,61 @@
-pragma circom 2.1.5;
+pragma circom 2.1.6;
 
 include "./fp.circom";
 
-// Computes base^65537 mod modulus
-// Does not necessarily reduce fully mod modulus (the answer could be
-// too big by a multiple of modulus)
+
+/// @title RSAVerifier65537 
+/// @notice Verifies an RSA signature with exponent 65537.
+/// @param n Number of bits per chunk the modulus is split into. Recommended to be 121.
+/// @param k Number of chunks the modulus is split into. Recommended to be 17.
+/// @input message The message that was signed.
+/// @input signature The signature to verify.
+/// @input modulus The modulus of the RSA key (pubkey).
+template RSAVerifier65537(n, k) {
+    signal input message[k];
+    signal input signature[k];
+    signal input modulus[k];
+
+    component padder = RSAPad(n, k);
+    for (var i = 0; i < k; i++) {
+        padder.modulus[i] <== modulus[i];
+        padder.message[i] <== message[i];
+    }
+
+    // Check that the signature is in proper form and reduced mod modulus.
+    component signatureRangeCheck[k];
+    component bigLessThan = BigLessThan(n, k);
+    for (var i = 0; i < k; i++) {
+        signatureRangeCheck[i] = Num2Bits(n);
+        signatureRangeCheck[i].in <== signature[i];
+        bigLessThan.a[i] <== signature[i];
+        bigLessThan.b[i] <== modulus[i];
+    }
+    bigLessThan.out === 1;
+
+    component bigPow = FpPow65537Mod(n, k);
+    for (var i = 0; i < k; i++) {
+        bigPow.base[i] <== signature[i];
+        bigPow.modulus[i] <== modulus[i];
+    }
+
+    // By construction of the padding, the padded message is necessarily
+    // smaller than the modulus. Thus, we don't have to check that bigPow is fully reduced.
+    for (var i = 0; i < k; i++) {
+        bigPow.out[i] === padder.out[i];
+    }
+}
+
+
+/// @title FpPow65537Mod
+/// @notice Computes base^65537 mod modulus
+/// @dev Does not necessarily reduce fully mod modulus (the answer could be too big by a multiple of modulus)
+/// @param n Number of bits per chunk the modulus is split into.
+/// @param k Number of chunks the modulus is split into.
+/// @input base The base to exponentiate.
 template FpPow65537Mod(n, k) {
     signal input base[k];
-    // Exponent is hardcoded at 65537
     signal input modulus[k];
+
     signal output out[k];
 
     component doublers[16];
@@ -42,10 +89,17 @@ template FpPow65537Mod(n, k) {
     }
 }
 
+/// @title RSAPad
+/// @notice Pads a message for RSA signing.
+/// @param n Number of bits per chunk the modulus is split into.
+/// @param k Number of chunks the modulus is split into.
+/// @input modulus The modulus of the RSA key (pubkey).
+/// @input message The message to pad.
+/// @output out The padded message.
 template RSAPad(n, k) {
     signal input modulus[k];
-    signal input base_message[k];
-    signal output padded_message[k];
+    signal input message[k];
+    signal output out[k];
 
     // The extra 152 bits comes from 0x3031300d060960864801650304020105000420
     // This is due to padding from the RSASSA-PKCS1-v1_5 standard
@@ -55,14 +109,14 @@ template RSAPad(n, k) {
     signal padded_message_bits[n*k];
 
     component modulus_n2b[k];
-    component base_message_n2b[k];
+    component message_n2b[k];
     signal modulus_bits[n*k];
-    signal base_message_bits[n*k];
+    signal message_bits[n*k];
     for (var i = 0; i < k; i++) {
-        base_message_n2b[i] = Num2Bits(n);
-        base_message_n2b[i].in <== base_message[i];
+        message_n2b[i] = Num2Bits(n);
+        message_n2b[i].in <== message[i];
         for (var j = 0; j < n; j++) {
-            base_message_bits[i*n+j] <== base_message_n2b[i].out[j];
+            message_bits[i*n+j] <== message_n2b[i].out[j];
         }
         modulus_n2b[i] = Num2Bits(n);
         modulus_n2b[i].in <== modulus[i];
@@ -72,11 +126,11 @@ template RSAPad(n, k) {
     }
 
     for (var i = msg_len; i < n*k; i++) {
-        base_message_bits[i] === 0;
+        message_bits[i] === 0;
     }
 
     for (var i = 0; i < msg_len; i++) {
-        padded_message_bits[i] <== base_message_bits[i];
+        padded_message_bits[i] <== message_bits[i];
     }
 
     for (var i = base_len; i < base_len + 8; i++) {
@@ -119,40 +173,6 @@ template RSAPad(n, k) {
         for (var j = 0; j < n; j++) {
             padded_message_b2n[i].in[j] <== padded_message_bits[i*n+j];
         }
-        padded_message[i] <== padded_message_b2n[i].out;
-    }
-}
-
-template RSAVerify65537(n, k) {
-    signal input signature[k];
-    signal input modulus[k];
-    signal input base_message[k];
-
-    component padder = RSAPad(n, k);
-    for (var i = 0; i < k; i++) {
-        padder.modulus[i] <== modulus[i];
-        padder.base_message[i] <== base_message[i];
-    }
-
-    // Check that the signature is in proper form and reduced mod modulus.
-    component signatureRangeCheck[k];
-    component bigLessThan = BigLessThan(n, k);
-    for (var i = 0; i < k; i++) {
-        signatureRangeCheck[i] = Num2Bits(n);
-        signatureRangeCheck[i].in <== signature[i];
-        bigLessThan.a[i] <== signature[i];
-        bigLessThan.b[i] <== modulus[i];
-    }
-    bigLessThan.out === 1;
-
-    component bigPow = FpPow65537Mod(n, k);
-    for (var i = 0; i < k; i++) {
-        bigPow.base[i] <== signature[i];
-        bigPow.modulus[i] <== modulus[i];
-    }
-    // By construction of the padding, the padded message is necessarily
-    // smaller than the modulus. Thus, we don't have to check that bigPow is fully reduced.
-    for (var i = 0; i < k; i++) {
-        bigPow.out[i] === padder.padded_message[i];
+        out[i] <== padded_message_b2n[i].out;
     }
 }

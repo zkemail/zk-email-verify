@@ -1,12 +1,8 @@
 import { wasm as wasm_tester } from "circom_tester";
-import { Scalar } from "ffjavascript";
 import path from "path";
 import { sha256Pad, shaHash } from "@zk-email/helpers/src/shaHash";
 import { Uint8ArrayToCharArray, uint8ToBits } from "@zk-email/helpers/src/binaryFormat";
 
-exports.p = Scalar.fromString(
-  "21888242871839275222246405745257275088548364400416034343698204186575808495617"
-);
 
 describe("SHA256 for email header", () => {
   jest.setTimeout(10 * 60 * 1000); // 10 minutes
@@ -15,14 +11,11 @@ describe("SHA256 for email header", () => {
 
   beforeAll(async () => {
     circuit = await wasm_tester(
-      path.join(__dirname, "./sha256-test.circom"),
+      path.join(__dirname, "./test-circuits/sha-test.circom"),
       {
-        // @dev During development recompile can be set to false if you are only making changes in the tests.
-        // This will save time by not recompiling the circuit every time.
-        // Compile: circom "./tests/email-verifier-test.circom" --r1cs --wasm --sym --c --wat --output "./tests/compiled-test-circuit"
         recompile: true,
-        output: path.join(__dirname, "./compiled-test-circuit"),
         include: path.join(__dirname, "../../../node_modules"),
+        // output: path.join(__dirname, "./compiled-test-circuits"),
       }
     );
   });
@@ -40,8 +33,8 @@ describe("SHA256 for email header", () => {
       )
 
       const witness = await circuit.calculateWitness({
-        in_len_padded_bytes: messageLen,
-        in_padded: Uint8ArrayToCharArray(paddedMsg)
+        paddedIn: Uint8ArrayToCharArray(paddedMsg),
+        paddedInLength: messageLen,
       });
 
       await circuit.checkConstraints(witness);

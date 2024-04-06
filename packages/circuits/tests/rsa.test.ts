@@ -1,16 +1,11 @@
 import fs from "fs";
-import { buildMimcSponge } from "circomlibjs";
-import { wasm as wasm_tester } from "circom_tester";
-import { Scalar } from "ffjavascript";
 import path from "path";
+import { wasm as wasm_tester } from "circom_tester";
 import { DKIMVerificationResult } from "@zk-email/helpers/src/dkim";
 import { generateCircuitInputs } from "@zk-email/helpers/src/input-helpers";
 import { verifyDKIMSignature } from "@zk-email/helpers/src/dkim";
 import { toCircomBigIntBytes } from "@zk-email/helpers/src/binaryFormat";
 
-exports.p = Scalar.fromString(
-  "21888242871839275222246405745257275088548364400416034343698204186575808495617"
-);
 
 describe("RSA", () => {
   jest.setTimeout(10 * 60 * 1000); // 10 minutes
@@ -20,17 +15,14 @@ describe("RSA", () => {
 
   beforeAll(async () => {
     circuit = await wasm_tester(
-      path.join(__dirname, "./rsa-test.circom"),
+      path.join(__dirname, "./test-circuits/rsa-test.circom"),
       {
-        // @dev During development recompile can be set to false if you are only making changes in the tests.
-        // This will save time by not recompiling the circuit every time.
-        // Compile: circom "./tests/email-verifier-test.circom" --r1cs --wasm --sym --c --wat --output "./tests/compiled-test-circuit"
         recompile: true,
-        output: path.join(__dirname, "./compiled-test-circuit"),
         include: path.join(__dirname, "../../../node_modules"),
+        // output: path.join(__dirname, "./compiled-test-circuits"),
       }
     );
-    const rawEmail = fs.readFileSync(path.join(__dirname, "./test.eml"));
+    const rawEmail = fs.readFileSync(path.join(__dirname, "./test-emails/test.eml"));
     dkimResult = await verifyDKIMSignature(rawEmail);
   });
 
@@ -50,7 +42,7 @@ describe("RSA", () => {
       signature: emailVerifierInputs.signature,
       modulus: emailVerifierInputs.pubkey,
       // TODO: generate this from the input
-      base_message: ["1156466847851242602709362303526378170", "191372789510123109308037416804949834", "7204", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+      message: ["1156466847851242602709362303526378170", "191372789510123109308037416804949834", "7204", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
     });
     await circuit.checkConstraints(witness);
     await circuit.assertOut(witness, {})
@@ -73,7 +65,7 @@ describe("RSA", () => {
       signature: signature,
       modulus: pubkey,
       // TODO: generate this from the input
-      base_message: ["1156466847851242602709362303526378170", "191372789510123109308037416804949834", "7204", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+      message: ["1156466847851242602709362303526378170", "191372789510123109308037416804949834", "7204", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
     });
     await circuit.checkConstraints(witness);
     await circuit.assertOut(witness, {});
@@ -96,7 +88,7 @@ describe("RSA", () => {
       const witness = await circuit.calculateWitness({
         signature: emailVerifierInputs.signature,
         modulus: emailVerifierInputs.pubkey,
-        base_message: ["1156466847851242602709362303526378171", "191372789510123109308037416804949834", "7204", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+        message: ["1156466847851242602709362303526378171", "191372789510123109308037416804949834", "7204", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
       });
       await circuit.checkConstraints(witness);
       await circuit.assertOut(witness, {})

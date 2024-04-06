@@ -186,7 +186,7 @@ Everything we write is MIT licensed. Note that circom and circomlib is GPL. Broa
   - warning[CA02]: In template "Base64Decode(32)": Subcomponent input/output signal bits_out[10][2].out does not appear in any constraint of the father component
   - warning[CA01]: In template "TwitterResetRegex(1536)": Local signal states[1536][0] does not appear in any constraint
   - warning[CA02]: In template "EmailVerify(1024,1536,121,17,7)": Subcomponent input/output signal dkim_header_regex.reveal[0] does not appear in any constraint of the father component
-  - warning[CA02]: In template "RSAVerify65537(121,17)": Array of subcomponent input/output signals signatureRangeCheck[13].out contains a total of 121 signals that do not appear in any constraint of the father component
+  - warning[CA02]: In template "RSAVerifier65537(121,17)": Array of subcomponent input/output signals signatureRangeCheck[13].out contains a total of 121 signals that do not appear in any constraint of the father component
     = For example: signatureRangeCheck[13].out[0], signatureRangeCheck[13].out[100].
   - warning[CA02]: In template "LessThan(8)": Array of subcomponent input/output signals n2b.out contains a total of 8 signals that do not appear in any constraint of the father component
     = For example: n2b.out[0], n2b.out[1].

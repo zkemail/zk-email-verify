@@ -27,7 +27,7 @@ This template implements the SHA (Secure Hash Algorithm) family of cryptographic
 
 This template provides functionality for performing arithmetic operations on big integers, such as addition and subtraction modulo 2^n.
 
-### bigint_func.circom
+### bigint-func.circom
 
 This template offers utility functions for handling big integers within arithmetic circuits, performing various mathematical operations on large numbers represented across multiple registers.
 
