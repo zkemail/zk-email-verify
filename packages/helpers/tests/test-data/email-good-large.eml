@@ -1,0 +1,36 @@
+X-Test-Content-From: https://tatianarevoredo.medium.com/bitcoin-genesis-day-63df91ec3ef3
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=icloud.com;
+	s=1a1hai; t=1712141644;
+	bh=2JsdK4BMzzt9w4Zlz2TdyVCFc+l7vNyT5aAgGDYf7fM=;
+	h=from:Content-Type:Mime-Version:Subject:Message-Id:Date:to;
+	b=ufWPnpZp4PTzCGzOEYf9RPBb8uW2JmwKyI38czxBT6sJA+SFY+X0pTZaxcvYiGw6x
+	 jEMCEoLEm/NUiXCCKKVBN1QTxRCPyzmWyrDiGk8xexXhCK+5I6r45D8N7QaFk6ue6F
+	 gLq7FtaOf5iaLKO2gqsB2Jc+rMrYK8ehw0kk/uDtKHXI1Dl3pJgg12HSPEdzJhXAMP
+	 +onsUWJ7TFu0gdX5lrSIXNgEQh+zvmSFWnPuoMzHKEca6eu67N/Q5WWVUPm32mlp6q
+	 MCswRkPn9hF72T4566YoL6l4vqCgh5Jwnto1ae59pJ/2z3wuECS2EWWVDJ/GTwzALf
+	 JkC4yhhw40NLQ==
+from: runnier.leagues.0j@icloud.com
+Content-Type: text/plain;
+	charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3731.500.231\))
+Subject: Bitcoin
+Message-Id: <12800A90-4ECC-4513-9298-A33546122920@me.com>
+Date: Wed, 3 Apr 2024 16:23:48 +0530
+to: zkewtest@gmail.com
+
+The Times 03/Jan/2009 Chancellor on brink of second bailout for banks
+
+15 years ago, Satoshi mined the first block of the Bitcoin blockchain =
+After the Bitcoin white paper appeared on October 31, 2008, on a =
+cryptography mailing list, the Genesis Block =E2=80=94 the first bitcoin =
+block and the basis of the entire Bitcoin trading system in place to =
+this day =E2=80=94 was mined on January 3, 2009.=20
+
+The Genesis Block is also known as Block 0 or Block 1, and is still in =
+the Bitcoin network, where it will remain as long as there is a computer =
+running the Bitcoin software.=20
+
+All nodes in the Bitcoin network can consult it, even if it is at the =
+other end of the network with hundreds of thousands of blocks.
+

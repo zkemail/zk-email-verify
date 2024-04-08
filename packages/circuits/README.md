@@ -1,7 +1,7 @@
-# @zk-email/circuits Package Overview
+# @zk-email/circuits 
 The `circuits` package provides circom helper templates, featuring `email-verifier.circom` for primary circuit construction, alongside a range of helper circuits within `@zk-email/circuits/helpers` for circuit creation.
 
-## Installation 
+## **Installation** 
 ```
 yarn add @zk-email/circuits
 ```
@@ -13,206 +13,244 @@ To use the Core Email Verifier in your project, include it with the following li
 include "@zk-email/circuits/email-verifier.circom";
 ```
 
-### EmailVerifier
-The `EmailVerifier` is the primary circuit template in the `@zk-email/circuits` package designed for generating zero-knowledge proofs of email data. It leverages helper templates from the same package and external libraries to facilitate the verification process.
+## **EmailVerifier**
+[`EmailVerifier`](./email-verifier.circom "Email Verifier Circuit") is the primary circuit template in the `@zk-email/circuits` package designed for generating zero-knowledge proofs of email data. It leverages helper templates from the same package and external libraries to facilitate the verification process.
 
 #### How to use:
-The `email-verifier.circom` template accepts several parameters and input signals for its operation:
+The [`email-verifier.circom`](./email-verifier.circom "Email Verifier Circuit") template accepts several parameters and input signals for its operation:
 
 - **Parameters**:
-  - `max_header_bytes`: Maximum size of the email header. Should be a multiple of 64. The size of does not change much.
-  - `max_body_bytes`: Maximum size of the email body. Adjust as needed for emails with extensive content.
-  - `n` and `k`: Big integer parameters for RSA, where the number is divided into `k` chunks, each of size `n` bits.
-  - `ignore_body_hash_check`: A flag to skip the body hash check if `true`, useful for projects not requiring verification of the body contents.
+  - `maxHeadersLength`: Specifies the maximum length of the email header, which should be a multiple of 64 to ensure consistency.
+  - `maxBodyLength`: Defines the maximum length of the email body, which can be adjusted based on the anticipated content size.
+  - `n` and `k`: Parameters for RSA encryption, where the RSA key is divided into `k` chunks, each consisting of `n` bits.
+  - `ignoreBodyHashCheck`: A boolean flag (set as 1 to ignore) to skip the verification of the email body's hash, useful for applications that only need header verification.
 
 - **Input Signals**:
-  - `in_padded`: Prehashed email data, including padding.
-  - `pubkey`: The RSA public key, split into `k` parts of `n` bits each.
-  - `signature`: The RSA signature, also divided into `k` parts.
-  - `in_len_padded_bytes`: Length of the input email data including padding.
+  - `emailHeader[maxHeadersLength]`: An array representing the email header, constrained by `maxHeadersLength`.
+  - `emailHeaderLength`: The actual length of the email header, including padding to meet SHA-256 block size requirements.
+  - `pubkey[k]`: The RSA public key, segmented into `k` parts, each comprising `n` bits.
+  - `signature[k]`: The RSA signature, similarly divided into `k` segments.
+  - `emailBody[maxBodyLength]`: An array representing the email body, constrained by `maxBodyLength`.
+  - `emailBodyLength`: The actual length of the email body, including padding for SHA-256 hashing.
+  - `bodyHashIndex`: The index within the email header where the body hash (`bh`) is located.
+  - `precomputedSHA[32]`: A precomputed SHA-256 hash of the email body up to the `bodyHashIndex`, used for efficient verification.
+
+  **Output Signal** 
+  - `pubkeyHash`: Poseidon hash of the public key.
 
 
-### Libraries
-The Core Email Verifier incorporates a variety of helper circom templates from the zk-email circuits package, including:
+## **Library**
+The Core Email Verifier incorporates a variety of helper circom templates from the zk-email circuits library, including:
 
-#### `rsa.circom`
-This component is responsible for verifying RSA signatures as part of the email verification process.
+### rsa.circom
 
+**[`RSAVerifier65537`](https://github.com/zkemail/zk-email-verify/blob/v4/packages/circuits/lib/rsa.circom#L13-L39  "RSA Verifier")**: Verifies RSA signatures with exponent 65537 to ensure email data integrity and authenticity.
+- **Inputs**: 
+  - `message[k]`: Signed message, typically the email header hash.
+  - `signature[k]`: RSA signature.
+  - `modulus[k]`: RSA key modulus.
+- **Outputs**: 
+  - Boolean signal indicating signature validity.
+- **Usage**: 
+  Include with specified inputs to output verification result of the signature.
+
+
+### sha.circom
+
+The `sha.circom` file enables SHA-256 hashing in arithmetic circuits, featuring two templates: `Sha256Bytes` for hashing entire byte arrays and `Sha256BytesPartial` for hashing with a pre-existing hash state. Both templates convert byte arrays to bit arrays, execute SHA-256 hashing, and produce a 256-bit hash output.
+
+**[`Sha256Bytes`](https://github.com/zkemail/zk-email-verify/blob/v4/packages/circuits/lib/sha.circom#L17-L38 "SHA Hashing")**: Utilized for SHA-256 hashing of byte arrays. This is suitable for processing various types of data, such as email headers and bodies, within the constraints of the circuit.
 - **Inputs**:
-  - `base_message`: The message (usually the hash of the email header) to verify the signature against.
-  - `modulus`: The RSA modulus, part of the public key.
-  - `signature`: The RSA signature to verify.
+    - `in_padded`: The byte array to be hashed, padded according to SHA-256 requirements.
+    - `in_len_padded_bytes`: The byte length of the padded input.
+- **Output**:
+    - A 256-bit array representing the SHA-256 hash of the input.
+- **Usage**:
+    - To hash data using `Sha256Bytes`, include this template in your circuit and provide the necessary inputs to receive the SHA-256 hash output.
 
+ **[`Sha256BytesPartial`](https://github.com/zkemail/zk-email-verify/blob/v4/packages/circuits/lib/sha.circom#L47-L79  "SHA Partial Hashing")**: Facilitates SHA-256 hashing with an optimization for known partial pre-hash states.
+- **Inputs**:
+    - `in_padded`: The byte array for hashing, with appropriate padding.
+    - `in_len_padded_bytes`: The byte length of the padded input.
+    - `pre_hash`: A 32-byte array representing the partial pre-hash state.
+- **Output**:
+    - A 256-bit array representing the SHA-256 hash of the input, taking into account the pre-hash state.
+- **Usage**:
+    - For optimized SHA-256 hashing with a known pre-hash state, use `Sha256BytesPartial` by specifying the inputs, including the pre-hash state.
+
+### base64.circom
+This component decodes base64 encoded data within arithmetic circuits, focusing on the conversion of base64 encoded strings into binary data.
+
+**[`Base64Decode`](https://github.com/zkemail/zk-email-verify/blob/v4/packages/circuits/lib/base64.circom#L11-L61)**: Decodes a base64 encoded string into binary data.
+- **Inputs**:
+    - `in`: The base64 encoded string to decode.
+    - `N`: The expected length of the output binary data.
 - **Outputs**:
-  - Verification result: Indicates whether the signature is valid for the given message and public key.
+    - `out`: The decoded binary data.
 
-- **How to Use**:
-  To use the RSAVerifier, include it in your circuit and provide the necessary inputs as described. The verifier will output whether the signature is valid.
-
-#### `sha.circom`
-
-The `sha.circom` template enables SHA-256 hashing in arithmetic circuits. It comprises `Sha256Bytes` for hashing byte arrays and `Sha256BytesPartial` for hashing with a known partial pre-hash state, converting byte arrays to bit arrays, executing SHA-256 hashing, and producing a 256-bit hash array.
-
-- **Templates**:
-    - ` Sha256Bytes`: This template performs SHA-256 hashing on byte arrays, ideal for email headers, bodies, or any data within circuit limits.
-        - **Inputs**:
-            - `in_padded`: Byte array for hashing, padded per SHA-256 standards.
-            - `in_len_padded_bytes`: Length of the padded input in bytes.
-        - **Output**:
-            - SHA-256 hash of the input as a 256-bit array.
-        - **How to use**:
-            - Include `Sha256Bytes` in your circuit with the required inputs to obtain the SHA-256 hash.
-
-    - `Sha256BytesPartial`:Enables hashing with a known partial pre-hash state for optimization.
-        - **Inputs**:
-            - `in_padded`: Byte array for hashing, appropriately padded.
-            - `in_len_padded_bytes`: Length of the padded input in bytes.
-            - `pre_hash`: 32-byte array of the partial pre-hash state.
-        - **Output**:
-            - SHA-256 hash of the input, considering the pre-hash state, as a 256-bit array.
-
-        - **How to use**:
-            - Use `Sha256BytesPartial` with the specified inputs, including the pre-hash state, for the optimized SHA-256 hash.
-
-#### `base64.circom`
-
-This component decodes base64 encoded data within arithmetic circuits. It provides two main templates: `Base64Lookup` for converting a base64 character into its 6-bit binary representation, and `Base64Decode` for decoding a base64 encoded string into binary data.
-
-- **Templates**:
-  - `Base64Lookup`: Converts a single base64 character into its corresponding 6-bit binary representation.
-    - **Inputs**:
-      - `in`: The base64 character to convert.
-    - **Outputs**:
-      - `out`: The 6-bit binary representation of the input character.
-  - `Base64Decode`: Decodes a base64 encoded string into binary data.
-    - **Inputs**:
-      - `in`: The base64 encoded string to decode.
-      - `N`: The expected length of the output binary data.
-    - **Outputs**:
-      - `out`: The decoded binary data.
-
-- **How to Use**:
+- **Usage**:
   - To decode base64 encoded data, include the `Base64Decode` template in your circuit and provide the encoded string as input. The template will output the decoded binary data.
-  - For converting individual base64 characters to their binary representation, use the `Base64Lookup` template with the character as input.
 
-#### `extract.circom`
 
-This file provides a set of utilities for manipulating signal arrays within arithmetic circuits. It includes several templates for packing and shifting signals, such as `PackBytes`, `VarShiftLeft`, `VarShiftMaskedStr`, `ClearSubarrayAfterEndIndex`, `ShiftAndPack`, and `ShiftAndPackMaskedStr`.
 
-- **Templates**:
-    - `PackBytes`: Packs an array of signals into a smaller array based on a specified pack size.
-        - **Inputs**:
-            - `max_in_signals`: The maximum number of input signals.
-            - `max_out_signals`: The maximum number of output signals.
-            - `pack_size`: The number of signals to pack into one output signal.
-        - **Output**:
-            - Packed array of signals.
-
-    - `VarShiftLeft`: Shifts an array of signals to the left by a variable number of positions.
-        - **Inputs**:
-            - `in_array_len`: Length of the input array.
-            - `out_array_len`: Length of the output array.
-            - `shift`: Number of positions to shift.
-        - **Output**:
-            - Shifted array of signals.
-
-    - `VarShiftMaskedStr`: Similar to `VarShiftLeft`, but designed for shifting masked strings.
-        - **Inputs**:
-            - Same as `VarShiftLeft`.
-        - **Output**:
-            - Shifted array of signals, considering masked positions.
-
-    - `ClearSubarrayAfterEndIndex`: Clears a subarray of signals after a specified end index.
-        - **Inputs**:
-            - `n`: Length of the input array.
-            - `nBits`: Bit length of the index.
-            - `end`: The end index after which signals will be cleared.
-        - **Output**:
-            - Array of signals with the subarray cleared.
-
-    - `ShiftAndPack`: Combines shifting and packing operations.
-        - **Inputs**:
-            - `in_array_len`: Length of the input array.
-            - `max_substr_len`: Maximum length of the substring to be shifted and packed.
-            - `pack_size`: The number of signals to pack into one output signal.
-        - **Output**:
-            - Shifted and packed array of signals.
-
-    - `ShiftAndPackMaskedStr`: Similar to `ShiftAndPack`, but designed for masked strings.
-        - **Inputs**:
-            - Same as `ShiftAndPack`.
-        - **Output**:
-            - Shifted and packed array of signals, considering masked positions.
-
-- **How to Use**:
-    - To manipulate signal arrays within your circuits, include the desired template from `extract.circom` with the necessary inputs. Each template serves a specific manipulation purpose, such as shifting or packing signals, which can be utilized according to your circuit's requirements.
-
-#### `utils.circom`
-
-The `utils.circom` file encompasses a variety of utility templates and functions crucial for arithmetic and logical operations within circom circuits. These utilities support operations ranging from basic arithmetic to complex signal manipulations.
-
-- **Templates and Functions**:
-    - **`log2(a)` and `log2_ceil(a)`**: Compute the base-2 logarithm and its ceiling of a given number `a`, facilitating operations that require power-of-two calculations.
-        - **Usage**: Determine the size of arrays or circuits dynamically based on input sizes.
-    - **`count_packed(n, chunks)`**: Calculates the minimum number of chunks needed to pack `n` items, given a chunk size, optimizing data storage and manipulation.
-        - **Usage**: Useful in packing and unpacking operations where efficiency in signal representation is crucial.
-    - **`Packed2Bytes(n)` and `Bytes2Packed(n)`**: Facilitate the packing and unpacking of signals into bytes, with `n` specifying the number of bytes per signal.
-        - **Usage**: Critical for bit-level data manipulation and optimizing signal storage within circuits.
-    - **`QuinSelector(choices, bits)`**: Selects one out of several choices based on an input index, using a specified number of bits for the selection process.
-        - **Usage**: Enhances decision-making capabilities within circuits by enabling dynamic selection based on circuit inputs.
-    - **`AssertZeroes(in_array_len)`**: Asserts that all elements in an array are zeroes from a specified start index onwards, ensuring data integrity and correctness.
-        - **Usage**: Important for validating the correctness of circuit operations and ensuring that padding or unused signals do not affect circuit outcomes.
-    - **`MakeAnonEmailSalt(email_len, blinder_len)`**: Generates an anonymous salt for email addresses using a blinder, providing privacy and security.
-        - **Usage**: Utilized in circuits requiring anonymization of sensitive data, such as email addresses, to protect user privacy.
-
-### Utilities
+## **Utilities**
 These utility templates in circom are used to support the creation of zk proofs, extending beyond the confines of our predefined code.
 
-#### `bytes2ints.circom`
+### array.circom
 
-This component converts an array of bytes into an array of integers, considering a specified packing size.
-- **Template**:
-  - `Bytes2Ints`: Converts an array of bytes into an array of integers.
-    - **Inputs**:
-      - `bytes_size`: The size of the input byte array.
-    - **Outputs**:
-      - `ints`: The resulting array of integers after conversion.
+**[` ItemAtIndex`](https://github.com/zkemail/zk-email-verify/blob/v4/packages/circuits/utils/array.circom#L15-L46 "ItemAtIndex")**: This template selects an item at a given index from the input array. It is based on the QuinSelector from MACI.
 
-- **How to Use**:
-  - To convert byte data to integer format, include the `Bytes2Ints` template in your circuit and provide the byte array as input. The template will output the corresponding array of integers, packed according to the specified packing size.
+- **Parameters**:
+  - `maxArrayLen`: The number of elements in the array.
+- **Inputs**:
+  - `in`: The input array.
+  - `index`: The index of the element to select.
+- **Output**:
+  - `out`: The selected element.
+- **Usage**:
+  - To select an item from an array at a specific index, use the `ItemAtIndex` template by specifying the array and the index.
 
-#### `constants.circom`
+**[`CalculateTotal`](https://github.com/zkemail/zk-email-verify/blob/v4/packages/circuits/utils/array.circom#L54-L67 "CalculateTotal")**: This template calculates the sum of an array.
+
+- **Inputs**:
+  - `nums`: The input array.
+- **Output**:
+  - `sum`: The sum of the input array.
+- **Usage**:
+  - To calculate the total sum of an array, include the `CalculateTotal` template in your circuit and provide the array as input.
+
+**[`SelectSubArray`](https://github.com/zkemail/zk-email-verify/blob/v4/packages/circuits/utils/array.circom#L80-L104)**: Extracts a segment from an array using a starting index (`startIndex`) and segment length (`length`), zeroing elements outside this range.
+
+- **Parameters**:
+  - `maxArrayLen`: The upper limit on the byte count within the input array.
+  - `maxSubArrayLen`: The maximum count of integers allowed within the resultant sub-array.
+- **Inputs**:
+  - `in`: The byte array from which a segment is to be extracted.
+  - `startIndex`: The array index at which the desired segment begins.
+  - `length`: The extent of the segment, defined by the number of elements it encompasses.
+- **Output**:
+  - `out`: A `maxSubArrayLen`-sized array, populated starting from `startIndex` for the defined `length`, with subsequent elements reset to zero.
+- **Usage**:
+  - To isolate a segment from an array, the `SelectSubArray` template should be employed, specifying the original array, the commencement index, and the segment length.
+
+**[`VarShiftLeft`](https://github.com/zkemail/zk-email-verify/blob/v4/packages/circuits/utils/array.circom#L116-L146)**:This template shifts an input array by `shift` indices to the left. The output array length can be reduced by setting `maxOutArrayLen`.
+
+- **Parameters**:
+  - `maxArrayLen`: The maximum length of the input array.
+  - `maxOutArrayLen`: The maximum length of the output array.
+- **Inputs**:
+  - `in`: The input array.
+  - `shift`: The number of indices to shift the array to the left.
+- **Output**:
+  - `out`: Shifted subarray.
+- **Usage**:
+  - To shift an array to the left by a specific number of indices, include the `VarShiftLeft` template in your circuit and specify the array and shift amount.
+
+**[`AssertZeroPadding`](https://github.com/zkemail/zk-email-verify/blob/v4/packages/circuits/utils/array.circom#L154-L172)**: This template asserts that the input array is zero-padded from the given `startIndex`.
+
+- **Parameters**:
+  - `maxArrayLen`: The maximum number of elements in the input array.
+- **Inputs**:
+  - `in`: The input array.
+  - `startIndex`: The index from which the array should be zero-padded.
+- **Usage**:
+  - To ensure an array is zero-padded from a specific index, use the `AssertZeroPadding` template by specifying the array and start index.
+
+
+
+### bytes.circom
+
+These templates are for converting byte arrays into integer arrays, considering specified packing sizes, and for packing byte arrays to numbers that fit in a field.
+
+**[`PackBytes`](https://github.com/zkemail/zk-email-verify/blob/v4/packages/circuits/utils/bytes.circom#L28-L60 "PackBytes")**: Packs an array of bytes to numbers that fit in the field.
+- **Inputs**:
+  - `in`: The input byte array.
+  - `maxBytes`: The maximum number of bytes in the input array.
+- **Outputs**:
+  - `out`: The output integer array after packing.
+- **Usage**:
+  - To pack byte data to integers, include the `PackBytes` template in your circuit and provide the byte array as input. The template will output the packed integer array.
+
+**[`PackByteSubArray`](https://github.com/zkemail/zk-email-verify/blob/v4/packages/circuits/utils/bytes.circom#L72-L93 "PackByteSubArray")**: Selects a sub-array from the input array and packs it to numbers that fit in the field.
+- **Inputs**:
+  - `in`: The input byte array.
+  - `startIndex`: The start index of the sub-array.
+  - `length`: The length of the sub-array.
+  - `maxArrayLen`: The maximum number of elements in the input array.
+  - `maxSubArrayLen`: The maximum number of elements in the sub-array.
+- **Outputs**:
+  - `out`: The output integer array after packing the sub-array.
+- **Usage**:
+  - To pack a specific sub-array of byte data to integers, use the `PackByteSubArray` template by specifying the inputs, including the start index and length of the sub-array.
+
+**[`DigitBytesToInt`](https://github.com/zkemail/zk-email-verify/blob/v4/packages/circuits/utils/bytes.circom#L102-L117 "DigitBytesToInt")**: Converts a byte array representing digits to an integer.
+- **Inputs**:
+  - `in`: The input byte array - big-endian digit string of `out`.
+  - `n`: The number of bytes in the input array.
+- **Outputs**:
+  - `out`: The output integer after conversion.
+- **Usage**:
+  - To convert a byte array of digit characters into an integer, include the `DigitBytesToInt` template in your circuit and provide the byte array as input. The template will output the corresponding integer.
+
+### constants.circom
 
 This file defines a set of constants used across various circom circuits for standardizing sizes and lengths of different data types.
-- **Constants**:
-  - `email_max_bytes_const()`: Defines the maximum byte size for an email.
-  - `domain_len_const()`: Specifies the length for a domain.
-  - `invitation_code_len_const()`: Sets the length for an invitation code.
-  - `field_pack_bits_const()`: Determines the number of bits for packing fields.
-  - `pack_bytes_const()`: Specifies the number of bytes for packing.
-  - `timestamp_len_const()`: Defines the length of a timestamp.
 
-#### `digit2int.circom`
+- **[Constants](./utils/constants.circom)**:
+  - `EMAIL_ADDR_MAX_BYTES()`: Returns the maximum byte size for an email, defined as 256.
+  - `DOMAIN_MAX_BYTES()`: Returns the maximum byte size for a domain, defined as 255.
+  - `MAX_BYTES_IN_FIELD()`: Returns the maximum number of bytes that can fit in a field, defined as 31.
 
-Converts a big-endian digit string into an integer.
-- **Template**:
-  - `Digit2Int(n)`: Converts a digit string of length `n` into an integer.
-    - **Inputs**:
-      - `in[n]`: The input digit string.
-    - **Outputs**:
-      - `out`: The resulting integer.
+### functions.circom
 
-#### `hex2int.circom`
+This file contains utility functions that are used across various circom circuits for performing common mathematical and logical operations.
 
-Converts a big-endian hexadecimal string into an integer or field element.
-- **Templates**:
-  - `Hex2Field()`: Converts a 64-character hex string into a field element.
-    - **Inputs**:
-      - `in[64]`: The input hex string.
-    - **Outputs**:
-      - `out`: The resulting field element.
-  - `Hex2Ints(n)`: Converts a hex string of length `n` into an array of integers.
-    - **Inputs**:
-      - `in[n]`: The input hex string.
-    - **Outputs**:
-      - `out[bytes]`: The resulting array of integers.
+- **[`log2Ceil`](https://github.com/zkemail/zk-email-verify/blob/v4/packages/circuits/utils/functions.circom#L2-L10 "log2Ceil")**: Calculates the ceiling of the base 2 logarithm of a given number.
+  - **Inputs**:
+    - `a`: The input number for which the base 2 logarithm ceiling is to be calculated.
+  - **Outputs**:
+    - Returns the smallest integer greater than or equal to the base 2 logarithm of the input number.
+  - **Usage**:
+    - To calculate the ceiling of the base 2 logarithm of a number, include the `log2Ceil` function in your circuit and provide the number as input. The function will return the calculated value.
+
+
+### hash.circom
+
+**[`PoseidonLarge`](https://github.com/zkemail/zk-email-verify/blob/v4/packages/circuits/utils/hash.circom#L13-L37 "PoseidonLarge")**: Circuit to calculate Poseidon hash of inputs more than 16.
+- **Inputs**:
+  - `in[chunkSize]`: The input array of chunkSize elements.
+  - `bytesPerChunk`: Number of bits in each chunk.
+  - `chunkSize`: Number of chunks in input.
+- **Outputs**:
+  - `out`: Poseidon hash of input where consecutive elements are merged.
+- **Usage**:
+  - To calculate a Poseidon hash for large inputs, include the `PoseidonLarge` template in your circuit and provide the necessary inputs. The template will output the Poseidon hash of the input.
+
+
+### regex.circom
+
+This file contains templates for performing operations related to regular expressions on byte arrays. These templates allow for selecting and packing parts of byte arrays that match specific patterns defined by regular expressions.
+
+**[`SelectRegexReveal`](https://github.com/zkemail/zk-email-verify/blob/v4/packages/circuits/utils/regex.circom#L15-L50 "SelectRegexReveal")**: Selects the reveal part of a byte array that matches a regular expression.
+- **Inputs**:
+  - `in`: The input byte array.
+  - `startIndex`: The index of the start of the reveal part in the input array.
+  - `maxArrayLen`: The maximum length of the input array.
+  - `maxRevealLen`: The maximum length of the reveal part.
+- **Outputs**:
+  - `out`: The revealed data array that matches the regular expression.
+- **Usage**:
+  - To extract a specific part of a byte array that matches a regular expression, use the `SelectRegexReveal` template by specifying the inputs, including the start index of the reveal part.
+
+**[`PackRegexReveal`](https://github.com/zkemail/zk-email-verify/blob/v4/packages/circuits/utils/regex.circom#L60-L77 "PackRegexReveal")**: Packs the reveal data from a regex match into an integer array.
+- **Inputs**:
+  - `in`: The input byte array.
+  - `startIndex`: The index of the start of the reveal part in the input array.
+  - `maxArrayLen`: The maximum length of the input array.
+  - `maxRevealLen`: The maximum length of the reveal part.
+- **Outputs**:
+  - `out`: The packed integer array after processing the reveal data.
+- **Usage**:
+  - To pack the reveal data from a regular expression match into integers, use the `PackRegexReveal` template by specifying the inputs, including the start index of the reveal part.
+
+

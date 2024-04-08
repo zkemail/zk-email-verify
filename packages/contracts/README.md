@@ -1,4 +1,4 @@
-# @zk-email/contracts Package Overview
+# @zk-email/contracts
 
 ## Installation
 
