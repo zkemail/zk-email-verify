@@ -1,6 +1,6 @@
 function getHeaderValue(email: string, header: string) {
   const headerStartIndex = email.indexOf(`${header}: `) + header.length + 2;
-  const headerEndIndex = email.indexOf("\n", headerStartIndex);
+  const headerEndIndex = email.indexOf('\n', headerStartIndex);
   const headerValue = email.substring(headerStartIndex, headerEndIndex);
 
   return headerValue;
@@ -15,17 +15,17 @@ function setHeaderValue(email: string, header: string, value: string) {
 // TODO: Add test for this
 function revertGoogleMessageId(email: string): string {
   // (Optional check) This only happens when google does ARC
-  if (!email.includes("ARC-Authentication-Results")) {
+  if (!email.includes('ARC-Authentication-Results')) {
     return email;
   }
 
   const googleReplacedMessageId = getHeaderValue(
     email,
-    "X-Google-Original-Message-ID"
+    'X-Google-Original-Message-ID',
   );
 
   if (googleReplacedMessageId) {
-    return setHeaderValue(email, "Message-ID", googleReplacedMessageId);
+    return setHeaderValue(email, 'Message-ID', googleReplacedMessageId);
   }
 
   return email;
@@ -34,7 +34,7 @@ function revertGoogleMessageId(email: string): string {
 // Remove labels inserted to Subject - `[ListName] Newsletter 2024` to `Newsletter 2024`
 function removeLabels(email: string): string {
   // Replace Subject: [label] with Subject:
-  const sanitized = email.replace(/Subject: \[.*\]/, "Subject:");
+  const sanitized = email.replace(/Subject: \[.*\]/, 'Subject:');
   return sanitized;
 }
 
@@ -62,9 +62,8 @@ function insert13Before10(email: string): string {
 // Replace `=09` with `\t` in email
 // TODO: Add test for this
 function sanitizeTabs(email: string): string {
-  return email.replace(`=09`, `\t`);
+  return email.replace('=09', '\t');
 }
-
 
 const sanitizers = [
   revertGoogleMessageId,

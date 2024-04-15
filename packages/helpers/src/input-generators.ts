@@ -1,7 +1,7 @@
-import { Uint8ArrayToCharArray, toCircomBigIntBytes } from "./binary-format";
-import { MAX_BODY_PADDED_BYTES, MAX_HEADER_PADDED_BYTES } from "./constants";
-import { DKIMVerificationResult, verifyDKIMSignature } from "./dkim";
-import { generatePartialSHA, sha256Pad } from "./sha-utils";
+import { Uint8ArrayToCharArray, toCircomBigIntBytes } from './binary-format';
+import { MAX_BODY_PADDED_BYTES, MAX_HEADER_PADDED_BYTES } from './constants';
+import { DKIMVerificationResult, verifyDKIMSignature } from './dkim';
+import { generatePartialSHA, sha256Pad } from './sha-utils';
 
 type CircuitInput = {
   emailHeader: string[];
@@ -21,9 +21,8 @@ type InputGenerationArgs = {
   maxBodyLength?: number; // Max length of the email body after shaPrecomputeSelector including padding
 };
 
-
 /**
- * 
+ *
  * @description Generate circuit inputs for the EmailVerifier circuit from raw email content
  * @param rawEmail Full email content as a buffer or string
  * @param params Arguments to control the input generation
@@ -31,19 +30,18 @@ type InputGenerationArgs = {
  */
 export async function generateEmailVerifierInputs(
   rawEmail: Buffer | string,
-  params: InputGenerationArgs = {}
+  params: InputGenerationArgs = {},
 ) {
   const dkimResult = await verifyDKIMSignature(rawEmail);
 
   return generateEmailVerifierInputsFromDKIMResult(
     dkimResult,
-    params
+    params,
   );
 }
 
-
 /**
- * 
+ *
  * @description Generate circuit inputs for the EmailVerifier circuit from DKIMVerification result
  * @param dkimResult DKIMVerificationResult containing email data and verification result
  * @param params Arguments to control the input generation
@@ -51,14 +49,16 @@ export async function generateEmailVerifierInputs(
  */
 export function generateEmailVerifierInputsFromDKIMResult(
   dkimResult: DKIMVerificationResult,
-  params: InputGenerationArgs = {}
+  params: InputGenerationArgs = {},
 ): CircuitInput {
-  const { headers, body, bodyHash, publicKey, signature } = dkimResult;
+  const {
+    headers, body, bodyHash, publicKey, signature,
+  } = dkimResult;
 
   // SHA add padding
   const [messagePadded, messagePaddedLen] = sha256Pad(
     headers,
-    params.maxHeadersLength || MAX_HEADER_PADDED_BYTES
+    params.maxHeadersLength || MAX_HEADER_PADDED_BYTES,
   );
 
   const circuitInputs: CircuitInput = {
@@ -71,7 +71,7 @@ export function generateEmailVerifierInputsFromDKIMResult(
   if (!params.ignoreBodyHashCheck) {
     if (!body || !bodyHash) {
       throw new Error(
-        `body and bodyHash are required when ignoreBodyHashCheck is false`
+        'body and bodyHash are required when ignoreBodyHashCheck is false',
       );
     }
 
@@ -83,16 +83,15 @@ export function generateEmailVerifierInputsFromDKIMResult(
     const bodySHALength = Math.floor((body.length + 63 + 65) / 64) * 64;
     const [bodyPadded, bodyPaddedLen] = sha256Pad(
       body,
-      Math.max(maxBodyLength, bodySHALength)
+      Math.max(maxBodyLength, bodySHALength),
     );
 
-    const { precomputedSha, bodyRemaining, bodyRemainingLength } =
-      generatePartialSHA({
-        body: bodyPadded,
-        bodyLength: bodyPaddedLen,
-        selectorString: params.shaPrecomputeSelector,
-        maxRemainingBodyLength: maxBodyLength,
-      });
+    const { precomputedSha, bodyRemaining, bodyRemainingLength } = generatePartialSHA({
+      body: bodyPadded,
+      bodyLength: bodyPaddedLen,
+      selectorString: params.shaPrecomputeSelector,
+      maxRemainingBodyLength: maxBodyLength,
+    });
 
     circuitInputs.emailBodyLength = bodyRemainingLength.toString();
     circuitInputs.precomputedSHA = Uint8ArrayToCharArray(precomputedSha);

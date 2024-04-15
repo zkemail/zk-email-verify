@@ -14,46 +14,46 @@ template Base64Decode(byteLength) {
     signal input in[charLength];
     signal output out[byteLength];
 
-    component bits_in[charLength\4][4];
-    component bits_out[charLength\4][3];
+    component bitsIn[charLength\4][4];
+    component bitsOut[charLength\4][3];
     component translate[charLength\4][4];
 
     var idx = 0;
     for (var i = 0; i < charLength; i += 4) {
         for (var j = 0; j < 3; j++) {
-            bits_out[i\4][j] = Bits2Num(8);
+            bitsOut[i\4][j] = Bits2Num(8);
         }
 
         for (var j = 0; j < 4; j++) {
-            bits_in[i\4][j] = Num2Bits(6);
+            bitsIn[i\4][j] = Num2Bits(6);
             translate[i\4][j] = Base64Lookup();
             translate[i\4][j].in <== in[i+j];
-            translate[i\4][j].out ==> bits_in[i\4][j].in;
+            translate[i\4][j].out ==> bitsIn[i\4][j].in;
         }
 
         // Do the re-packing from four 6-bit words to three 8-bit words.
         for (var j = 0; j < 6; j++) {
-            bits_out[i\4][0].in[j+2] <== bits_in[i\4][0].out[j];
+            bitsOut[i\4][0].in[j+2] <== bitsIn[i\4][0].out[j];
         }
-        bits_out[i\4][0].in[0] <== bits_in[i\4][1].out[4];
-        bits_out[i\4][0].in[1] <== bits_in[i\4][1].out[5];
+        bitsOut[i\4][0].in[0] <== bitsIn[i\4][1].out[4];
+        bitsOut[i\4][0].in[1] <== bitsIn[i\4][1].out[5];
 
         for (var j = 0; j < 4; j++) {
-            bits_out[i\4][1].in[j+4] <== bits_in[i\4][1].out[j];
+            bitsOut[i\4][1].in[j+4] <== bitsIn[i\4][1].out[j];
         }
         for (var j = 0; j < 4; j++) {
-            bits_out[i\4][1].in[j] <== bits_in[i\4][2].out[j+2];
+            bitsOut[i\4][1].in[j] <== bitsIn[i\4][2].out[j+2];
         }
 
-        bits_out[i\4][2].in[6] <== bits_in[i\4][2].out[0];
-        bits_out[i\4][2].in[7] <== bits_in[i\4][2].out[1];
+        bitsOut[i\4][2].in[6] <== bitsIn[i\4][2].out[0];
+        bitsOut[i\4][2].in[7] <== bitsIn[i\4][2].out[1];
         for (var j = 0; j < 6; j++) {
-            bits_out[i\4][2].in[j] <== bits_in[i\4][3].out[j];
+            bitsOut[i\4][2].in[j] <== bitsIn[i\4][3].out[j];
         }
 
         for (var j = 0; j < 3; j++) {
             if (idx+j < byteLength) {
-                out[idx+j] <== bits_out[i\4][j].out;
+                out[idx+j] <== bitsOut[i\4][j].out;
             }
         }
         idx += 3;

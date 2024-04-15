@@ -1,3 +1,4 @@
-@openzeppelin=../../node_modules/@openzeppelin/contracts
 @openzeppelin/contracts=../../node_modules/@openzeppelin/contracts
-@openzeppelin/contracts-upgradeable=../../node_modules/@openzeppelin/contracts-upgradeable
+@openzeppelin=../../node_modules/@openzeppelin/contracts
+forge-std=../../node_modules/forge-std
+
