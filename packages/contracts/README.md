@@ -1,3 +1,9 @@
+## Set up
+
+```bash
+yarn install
+```
+
 ## DKIMRegistry.sol
 
 The `DKIMRegistry.sol` is a Solidity contract that serves as a registry for storing the hash of the DomainKeys Identified Mail (DKIM) public key for each domain. This contract is part of the `@zk-email/contracts` package.

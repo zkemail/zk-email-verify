@@ -1,12 +1,13 @@
 {
   "name": "@zk-email/helpers",
   "version": "4.0.0",
+  "license": "MIT",
   "main": "dist",
   "scripts": {
     "build": "tsc",
     "test": "jest tests/**/*.test.ts",
-    "lint": "eslint src/**/*.ts tests/**/*.ts|js",
-    "prepublish": "yarn build",
+    "lint": "eslint src/**/*.ts",
+    "prepublish": "yarn lint && yarn build",
     "publish": "yarn npm publish --access=public"
   },
   "files": [
@@ -40,7 +41,7 @@
     "@typescript-eslint/parser": "^7.0.0",
     "babel-jest": "^29.5.0",
     "babel-preset-jest": "^29.5.0",
-    "eslint": "^7.32.0",
+    "eslint": "^8.0.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-airbnb-typescript": "^18.0.0",
     "eslint-plugin-import": "^2.29.1",
