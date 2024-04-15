@@ -1,63 +1,78 @@
-# @zk-email/circuits 
-The `circuits` package provides circom helper templates, featuring `email-verifier.circom` for primary circuit construction, alongside a range of helper circuits within `@zk-email/circuits/helpers` for circuit creation.
+# @zk-email/circuits Package Overview
+The `circuits` package exports the circom circuits needed for building on ZK Email. 
 
-## **Installation** 
+All circuits in this package are libraries that can be imported to your circom project (i.e this package does not contain a `main` circuit).
+
+<br />
+
+## Installation 
 ```
 yarn add @zk-email/circuits
 ```
-## Core Email Verifier
 
-#### How to Import:
-To use the Core Email Verifier in your project, include it with the following line in your circom file:
+<br />
+
+
+## EmailVerifier Circuit
+
+[`EmailVerifier`](./email-verifier.circom "Email Verifier Circuit") is the primary circuit exported from `@zk-email/circuits` which is used for proving the signature of the input email is valid. 
+
+### Usage:
+
+Import to your circuit file like below. 
 ```
 include "@zk-email/circuits/email-verifier.circom";
 ```
 
-## **EmailVerifier**
-[`EmailVerifier`](./email-verifier.circom "Email Verifier Circuit") is the primary circuit template in the `@zk-email/circuits` package designed for generating zero-knowledge proofs of email data. It leverages helper templates from the same package and external libraries to facilitate the verification process.
-
-#### How to use:
-The [`email-verifier.circom`](./email-verifier.circom "Email Verifier Circuit") template accepts several parameters and input signals for its operation:
-
 - **Parameters**:
-  - `maxHeadersLength`: Specifies the maximum length of the email header, which should be a multiple of 64 to ensure consistency.
-  - `maxBodyLength`: Defines the maximum length of the email body, which can be adjusted based on the anticipated content size.
-  - `n` and `k`: Parameters for RSA encryption, where the RSA key is divided into `k` chunks, each consisting of `n` bits.
-  - `ignoreBodyHashCheck`: A boolean flag (set as 1 to ignore) to skip the verification of the email body's hash, useful for applications that only need header verification.
+  - `maxHeadersLength`: Maximum length for the email header.
+  - `maxBodyLength`: Maximum length for the email body.
+  - `n`: Number of bits per chunk the RSA key is split into. Recommended to be 121.
+  - `k`: Number of chunks the RSA key is split into. Recommended to be 17.
+  - `ignoreBodyHashCheck`: Set 1 to skip body hash check in case data to prove/extract is only in the headers.
 
 - **Input Signals**:
-  - `emailHeader[maxHeadersLength]`: An array representing the email header, constrained by `maxHeadersLength`.
-  - `emailHeaderLength`: The actual length of the email header, including padding to meet SHA-256 block size requirements.
-  - `pubkey[k]`: The RSA public key, segmented into `k` parts, each comprising `n` bits.
-  - `signature[k]`: The RSA signature, similarly divided into `k` segments.
-  - `emailBody[maxBodyLength]`: An array representing the email body, constrained by `maxBodyLength`.
-  - `emailBodyLength`: The actual length of the email body, including padding for SHA-256 hashing.
-  - `bodyHashIndex`: The index within the email header where the body hash (`bh`) is located.
-  - `precomputedSHA[32]`: A precomputed SHA-256 hash of the email body up to the `bodyHashIndex`, used for efficient verification.
+  - `emailHeader[maxHeadersLength]`: Email headers that are signed (ones in `DKIM-Signature` header) as ASCII int[], padded as per SHA-256 block size.
+  - `emailHeaderLength`: Length of the email header including the SHA-256 padding.
+  - `pubkey[k]`: RSA public key split into k chunks of n bits each.
+  - `signature[k]`: RSA signature split into k chunks of n bits each.
+  - `emailBody[maxBodyLength]`: Email body after the precomputed SHA as ASCII int[], padded as per SHA-256 block size.
+  - `emailBodyLength`: Length of the email body including the SHA-256 padding.
+  - `bodyHashIndex`: Index of the body hash `bh` in the `emailHeader`.
+  - `precomputedSHA[32]`: Precomputed SHA-256 hash of the email body till the bodyHashIndex.
 
   **Output Signal** 
-  - `pubkeyHash`: Poseidon hash of the public key.
+  - `pubkeyHash`: Poseidon hash of the pubkey - Poseidon(n/2)(n/2 chunks of pubkey with k*2 bits per chunk).
 
+<br/>
 
-## **Library**
-The Core Email Verifier incorporates a variety of helper circom templates from the zk-email circuits library, including:
+## **Libraries**
+The package also exports circuits for some popular cryptographic protocols. 
 
-### rsa.circom
+They are used in `EmailVerifier` circuit for signature verification, but can also be used independently in other ZK projects (even when not using ZK Email).
 
-**[`RSAVerifier65537`](https://github.com/zkemail/zk-email-verify/blob/v4/packages/circuits/lib/rsa.circom#L13-L39  "RSA Verifier")**: Verifies RSA signatures with exponent 65537 to ensure email data integrity and authenticity.
+### `@zk-email/circuits/lib/rsa.circom`
+
+<details>
+<summary>
+RSAVerifier65537: Verifies RSA signatures with exponent 65537.
+</summary>
+
+- **[Source](https://github.com/zkemail/zk-email-verify/blob/v4/packages/circuits/lib/rsa.circom#L13-L39)**
+- **Parameters**
+  - `n`: Number of bits per chunk the modulus is split into. Recommended to be 121.
+  - `k`: Number of chunks the modulus is split into. Recommended to be 17.
 - **Inputs**: 
-  - `message[k]`: Signed message, typically the email header hash.
-  - `signature[k]`: RSA signature.
-  - `modulus[k]`: RSA key modulus.
-- **Outputs**: 
-  - Boolean signal indicating signature validity.
-- **Usage**: 
-  Include with specified inputs to output verification result of the signature.
+  - `message[k]`: The message that was signed.
+  - `signature[k]`: The signature to verify.
+  - `modulus[k]`: The modulus of the RSA key (pubkey).
 
+</details>
 
 ### sha.circom
 
-The `sha.circom` file enables SHA-256 hashing in arithmetic circuits, featuring two templates: `Sha256Bytes` for hashing entire byte arrays and `Sha256BytesPartial` for hashing with a pre-existing hash state. Both templates convert byte arrays to bit arrays, execute SHA-256 hashing, and produce a 256-bit hash output.
+<details>
+<summary>Sha256Bytes
 
 **[`Sha256Bytes`](https://github.com/zkemail/zk-email-verify/blob/v4/packages/circuits/lib/sha.circom#L17-L38 "SHA Hashing")**: Utilized for SHA-256 hashing of byte arrays. This is suitable for processing various types of data, such as email headers and bodies, within the constraints of the circuit.
 - **Inputs**:
