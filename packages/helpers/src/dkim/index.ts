@@ -35,14 +35,6 @@ export async function verifyDKIMSignature(
 ): Promise<DKIMVerificationResult> {
   const emailStr = email.toString();
 
-// Check if email is PGPEncoded
-  const pgpMarkers = ["BEGIN PGP MESSAGE", "BEGIN PGP SIGNED MESSAGE"];
-
-  const isPGPEncoded = pgpMarkers.some((marker) => emailStr.includes(marker));
-  if (isPGPEncoded) {
-    throw new Error("PGP encoded emails are not supported.");
-  }
-
   let dkimResult = await tryVerifyDKIM(email, domain);
 
   // If DKIM verification fails, try again after sanitizing email
