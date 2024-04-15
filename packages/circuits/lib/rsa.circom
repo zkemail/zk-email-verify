@@ -8,8 +8,8 @@ include "./fp.circom";
 /// @param n Number of bits per chunk the modulus is split into. Recommended to be 121.
 /// @param k Number of chunks the modulus is split into. Recommended to be 17.
 /// @input message The message that was signed.
-/// @input signature The signature to verify.
-/// @input modulus The modulus of the RSA key (pubkey).
+/// @input signature[k] The signature to verify.
+/// @input modulus[k] The modulus of the RSA key (pubkey).
 template RSAVerifier65537(n, k) {
     signal input message[k];
     signal input signature[k];
