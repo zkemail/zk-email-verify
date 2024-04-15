@@ -58,7 +58,7 @@ They are used in `EmailVerifier` circuit for signature verification, but can als
 RSAVerifier65537: Verifies RSA signatures with exponent 65537.
 </summary>
 
-- **[Source](https://github.com/zkemail/zk-email-verify/blob/v4/packages/circuits/lib/rsa.circom#L13-L39)**
+- **[Source](lib/rsa.circom#L13-L39)**
 - **Parameters**
   - `n`: Number of bits per chunk the modulus is split into. Recommended to be 121.
   - `k`: Number of chunks the modulus is split into. Recommended to be 17.
@@ -69,29 +69,82 @@ RSAVerifier65537: Verifies RSA signatures with exponent 65537.
 
 </details>
 
-### sha.circom
+
+### `@zk-email/circuits/lib/sha.circom`
 
 <details>
-<summary>Sha256Bytes
+<summary>
+Sha256Bytes: Computes the SHA256 hash of input bytes.
+</summary>
 
-**[`Sha256Bytes`](https://github.com/zkemail/zk-email-verify/blob/v4/packages/circuits/lib/sha.circom#L17-L38 "SHA Hashing")**: Utilized for SHA-256 hashing of byte arrays. This is suitable for processing various types of data, such as email headers and bodies, within the constraints of the circuit.
+- **[Source](lib/sha.circom#L17-L38)**
+- **Parameters**
+  - `maxByteLength`: Maximum length of the input bytes.
 - **Inputs**:
-    - `in_padded`: The byte array to be hashed, padded according to SHA-256 requirements.
-    - `in_len_padded_bytes`: The byte length of the padded input.
+  - `paddedIn[maxByteLength]`: Message to hash padded as per the SHA256 specification.
+  - `paddedInLength`: Length of the message in bytes including padding.
 - **Output**:
-    - A 256-bit array representing the SHA-256 hash of the input.
-- **Usage**:
-    - To hash data using `Sha256Bytes`, include this template in your circuit and provide the necessary inputs to receive the SHA-256 hash output.
+  - `out[256]`: The 256-bit hash of the input message.
 
- **[`Sha256BytesPartial`](https://github.com/zkemail/zk-email-verify/blob/v4/packages/circuits/lib/sha.circom#L47-L79  "SHA Partial Hashing")**: Facilitates SHA-256 hashing with an optimization for known partial pre-hash states.
+</details>
+
+
+<details>
+<summary>
+Sha256BytesPartial: Computes the SHA256 hash of input bytes with a precomputed state.
+</summary>
+
+- **[Source](lib/sha.circom#L41-L79)**
+- **Parameters**
+  - `maxByteLength`: Maximum length of the input bytes.
 - **Inputs**:
-    - `in_padded`: The byte array for hashing, with appropriate padding.
-    - `in_len_padded_bytes`: The byte length of the padded input.
-    - `pre_hash`: A 32-byte array representing the partial pre-hash state.
+  - `paddedIn[maxByteLength]`: Message to hash padded as per the SHA256 specification.
+  - `paddedInLength`: Length of the message in bytes including padding.
+  - `preHash[32]`: The precomputed state of the hash.
 - **Output**:
-    - A 256-bit array representing the SHA-256 hash of the input, taking into account the pre-hash state.
-- **Usage**:
-    - For optimized SHA-256 hashing with a known pre-hash state, use `Sha256BytesPartial` by specifying the inputs, including the pre-hash state.
+  - `out[256]`: The 256-bit hash of the input message.
+
+</details>
+
+
+<details>
+<summary>
+Sha256General: A modified version of the SHA256 circuit that allows specified length messages up to a max to all work via array indexing on the SHA256 compression circuit.
+</summary>
+
+- **[Source](lib/sha.circom#L82-L202)**
+- **Parameters**
+  - `maxBitLength`: Maximum length of the input bits.
+- **Inputs**:
+  - `paddedIn[maxBitLength]`: Message to hash padded as per the SHA256 specification.
+  - `paddedInLength`: Length of the message in bits including padding.
+- **Output**:
+  - `out[256]`: The 256-bit hash of the input message.
+
+</details>
+
+
+<details>
+<summary>
+Sha256Partial: Calculates the SHA256 hash of a message with a precomputed state.
+</summary>
+
+- **[Source](lib/sha.circom#L211-L299)**
+- **Parameters**
+  - `maxBitLength`: Maximum length of the input bits.
+- **Inputs**:
+  - `paddedIn[maxBitLength]`: Message to hash padded as per the SHA256 specification.
+  - `paddedInLength`: Length of the message in bits including padding.
+  - `preHash[256]`: The precomputed state of the hash.
+- **Output**:
+  - `out[256]`: The 256-bit hash of the input message.
+
+</details>
+
+
+---
+
+
 
 ### base64.circom
 This component decodes base64 encoded data within arithmetic circuits, focusing on the conversion of base64 encoded strings into binary data.
