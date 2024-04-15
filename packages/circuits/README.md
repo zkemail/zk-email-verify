@@ -278,7 +278,7 @@ This section contains helper circom templates in` @zk-email/circuits/helpers` th
 EmailNullifier: Calculates the email nullifier using Poseidon hash.
 </summary>
 
-- **[Source](helpers/email-nullifier.circom#L1-L18)**
+- **[Source](helpers/email-nullifier.circom#L15-L23)**
 - **Parameters**:
   - `bitPerChunk`: The number of bits per chunk the signature is split into.
   - `chunkSize`: The number of chunks the signature is split into.
