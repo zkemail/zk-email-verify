@@ -179,7 +179,7 @@ export function assert(cond: boolean, errorMessage: string) {
   }
 }
 
-export function packedNBytesToString(packedBytes: bigint[], n: number = 7): string {
+export function packedNBytesToString(packedBytes: bigint[], n: number = 31): string {
   const chars: number[] = [];
   for (let i = 0; i < packedBytes.length; i++) {
     for (let k = 0n; k < n; k++) {

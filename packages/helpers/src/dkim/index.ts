@@ -35,7 +35,6 @@ export async function verifyDKIMSignature(
 ): Promise<DKIMVerificationResult> {
   const emailStr = email.toString();
 
-
   let dkimResult = await tryVerifyDKIM(email, domain);
 
   // If DKIM verification fails, try again after sanitizing email
