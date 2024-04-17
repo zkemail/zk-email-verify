@@ -1,15 +1,6 @@
-import fs from "fs";
-import { buildMimcSponge } from "circomlibjs";
-import { wasm as wasm_tester } from "circom_tester";
-import { Scalar } from "ffjavascript";
+import { wasm } from "circom_tester";
 import path from "path";
-import { DKIMVerificationResult } from "@zk-email/helpers/src/dkim";
-import { generateCircuitInputs } from "@zk-email/helpers/src/input-helpers";
-import { verifyDKIMSignature } from "@zk-email/helpers/src/dkim";
 
-exports.p = Scalar.fromString(
-  "21888242871839275222246405745257275088548364400416034343698204186575808495617"
-);
 
 describe("Base64 Lookup", () => {
   jest.setTimeout(10 * 60 * 1000); // 10 minutes
@@ -17,15 +8,12 @@ describe("Base64 Lookup", () => {
   let circuit: any;
 
   beforeAll(async () => {
-    circuit = await wasm_tester(
-      path.join(__dirname, "./base64-test.circom"),
+    circuit = await wasm(
+      path.join(__dirname, "./test-circuits/base64-test.circom"),
       {
-        // @dev During development recompile can be set to false if you are only making changes in the tests.
-        // This will save time by not recompiling the circuit every time.
-        // Compile: circom "./tests/email-verifier-test.circom" --r1cs --wasm --sym --c --wat --output "./tests/compiled-test-circuit"
         recompile: true,
-        output: path.join(__dirname, "./compiled-test-circuit"),
         include: path.join(__dirname, "../../../node_modules"),
+        // output: path.join(__dirname, "./compiled-test-circuits"),
       }
     );
   });

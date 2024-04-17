@@ -1,16 +1,12 @@
 import fs from "fs";
 import { buildPoseidon } from "circomlibjs";
 import { wasm as wasm_tester } from "circom_tester";
-import { Scalar } from "ffjavascript";
 import path from "path";
 import { DKIMVerificationResult } from "@zk-email/helpers/src/dkim";
-import { generateCircuitInputs } from "@zk-email/helpers/src/input-helpers";
+import { generateEmailVerifierInputsFromDKIMResult } from "@zk-email/helpers/src/input-generators";
 import { verifyDKIMSignature } from "@zk-email/helpers/src/dkim";
-import { bigIntToChunkedBytes } from "@zk-email/helpers/src/binaryFormat";
+import { bigIntToChunkedBytes } from "@zk-email/helpers/src/binary-format";
 
-exports.p = Scalar.fromString(
-  "21888242871839275222246405745257275088548364400416034343698204186575808495617"
-);
 
 describe("EmailVerifier", () => {
   jest.setTimeout(10 * 60 * 1000); // 10 minutes
@@ -19,30 +15,25 @@ describe("EmailVerifier", () => {
   let circuit: any;
 
   beforeAll(async () => {
-    const rawEmail = fs.readFileSync(path.join(__dirname, "./test.eml"));
+    const rawEmail = fs.readFileSync(path.join(__dirname, "./test-emails/test.eml"));
     dkimResult = await verifyDKIMSignature(rawEmail);
 
     circuit = await wasm_tester(
-      path.join(__dirname, "./email-verifier-test.circom"),
+      path.join(__dirname, "./test-circuits/email-verifier-test.circom"),
       {
         // @dev During development recompile can be set to false if you are only making changes in the tests.
         // This will save time by not recompiling the circuit every time.
-        // Compile: circom "./tests/email-verifier-test.circom" --r1cs --wasm --sym --c --wat --output "./tests/compiled-test-circuit"
+        // Compile: circom "./tests/email-verifier-test.circom" --r1cs --wasm --sym --c --wat --output "./tests/compiled-test-circuits"
         recompile: true,
-        output: path.join(__dirname, "./compiled-test-circuit"),
         include: path.join(__dirname, "../../../node_modules"),
+        output: path.join(__dirname, "./compiled-test-circuits"),
       }
     );
   });
 
   it("should verify email without any SHA precompute selector", async function () {
-    const emailVerifierInputs = generateCircuitInputs({
-      rsaSignature: dkimResult.signature,
-      rsaPublicKey: dkimResult.publicKey,
-      body: dkimResult.body,
-      bodyHash: dkimResult.bodyHash,
-      message: dkimResult.message,
-      maxMessageLength: 640,
+    const emailVerifierInputs = generateEmailVerifierInputsFromDKIMResult(dkimResult, {
+      maxHeadersLength: 640,
       maxBodyLength: 768,
     });
 
@@ -51,14 +42,9 @@ describe("EmailVerifier", () => {
   });
 
   it("should verify email with a SHA precompute selector", async function () {
-    const emailVerifierInputs = generateCircuitInputs({
-      rsaSignature: dkimResult.signature,
-      rsaPublicKey: dkimResult.publicKey,
-      body: dkimResult.body,
-      bodyHash: dkimResult.bodyHash,
-      message: dkimResult.message,
+    const emailVerifierInputs = generateEmailVerifierInputsFromDKIMResult(dkimResult, {
       shaPrecomputeSelector: "How are",
-      maxMessageLength: 640,
+      maxHeadersLength: 640,
       maxBodyLength: 768,
     });
 
@@ -68,36 +54,10 @@ describe("EmailVerifier", () => {
 
   it("should fail if the rsa signature is wrong", async function () {
     const invalidRSASignature = dkimResult.signature + 1n;
+    const dkim = { ...dkimResult, signature: invalidRSASignature }
 
-    const emailVerifierInputs = generateCircuitInputs({
-      rsaSignature: invalidRSASignature,
-      rsaPublicKey: dkimResult.publicKey,
-      body: dkimResult.body,
-      bodyHash: dkimResult.bodyHash,
-      message: dkimResult.message,
-      shaPrecomputeSelector: "How are",
-      maxMessageLength: 640,
-      maxBodyLength: 768,
-    });
-
-    expect.assertions(1);
-    try {
-      const witness = await circuit.calculateWitness(emailVerifierInputs);
-      await circuit.checkConstraints(witness);
-    } catch (error) {
-      expect((error as Error).message).toMatch("Assert Failed");
-    }
-  });
-
-  it("should fail if precompute string is not found in body", async function () {
-    const emailVerifierInputs = generateCircuitInputs({
-      rsaSignature: dkimResult.signature,
-      rsaPublicKey: dkimResult.publicKey,
-      body: dkimResult.body,
-      bodyHash: dkimResult.bodyHash,
-      message: dkimResult.message,
-      shaPrecomputeSelector: "invalid",
-      maxMessageLength: 640,
+    const emailVerifierInputs = generateEmailVerifierInputsFromDKIMResult(dkim, {
+      maxHeadersLength: 640,
       maxBodyLength: 768,
     });
 
@@ -111,17 +71,13 @@ describe("EmailVerifier", () => {
   });
 
   it("should fail if message is tampered", async function () {
-    const invalidMessage = Buffer.from(dkimResult.message);
-    invalidMessage[0] = 1;
+    const invalidHeader = Buffer.from(dkimResult.headers);
+    invalidHeader[0] = 1;
 
-    const emailVerifierInputs = generateCircuitInputs({
-      rsaSignature: dkimResult.signature,
-      rsaPublicKey: dkimResult.publicKey,
-      body: dkimResult.body,
-      bodyHash: dkimResult.bodyHash,
-      message: invalidMessage,
-      shaPrecomputeSelector: "How are",
-      maxMessageLength: 640,
+    const dkim = { ...dkimResult, headers: invalidHeader }
+
+    const emailVerifierInputs = generateEmailVerifierInputsFromDKIMResult(dkim, {
+      maxHeadersLength: 640,
       maxBodyLength: 768,
     });
 
@@ -135,17 +91,11 @@ describe("EmailVerifier", () => {
   });
 
   it("should fail if message padding is tampered", async function () {
-    const emailVerifierInputs = generateCircuitInputs({
-      rsaSignature: dkimResult.signature,
-      rsaPublicKey: dkimResult.publicKey,
-      body: dkimResult.body,
-      bodyHash: dkimResult.bodyHash,
-      message: dkimResult.message,
-      shaPrecomputeSelector: "How are",
-      maxMessageLength: 640,
+    const emailVerifierInputs = generateEmailVerifierInputsFromDKIMResult(dkimResult, {
+      maxHeadersLength: 640,
       maxBodyLength: 768,
     });
-    emailVerifierInputs.in_padded[640 - 1] = "1";
+    emailVerifierInputs.emailHeader[640 - 1] = "1";
 
     expect.assertions(1);
     try {
@@ -160,14 +110,10 @@ describe("EmailVerifier", () => {
     const invalidBody = Buffer.from(dkimResult.body);
     invalidBody[invalidBody.length - 1] = 1;
 
-    const emailVerifierInputs = generateCircuitInputs({
-      rsaSignature: dkimResult.signature,
-      rsaPublicKey: dkimResult.publicKey,
-      body: invalidBody,
-      bodyHash: dkimResult.bodyHash,
-      message: dkimResult.message,
-      shaPrecomputeSelector: "How are",
-      maxMessageLength: 640,
+    const dkim = { ...dkimResult, body: invalidBody }
+
+    const emailVerifierInputs = generateEmailVerifierInputsFromDKIMResult(dkim, {
+      maxHeadersLength: 640,
       maxBodyLength: 768,
     });
 
@@ -181,17 +127,11 @@ describe("EmailVerifier", () => {
   });
 
   it("should fail if body padding is tampered", async function () {
-    const emailVerifierInputs = generateCircuitInputs({
-      rsaSignature: dkimResult.signature,
-      rsaPublicKey: dkimResult.publicKey,
-      body: dkimResult.body,
-      bodyHash: dkimResult.bodyHash,
-      message: dkimResult.message,
-      shaPrecomputeSelector: "How are",
-      maxMessageLength: 640,
+    const emailVerifierInputs = generateEmailVerifierInputsFromDKIMResult(dkimResult, {
+      maxHeadersLength: 640,
       maxBodyLength: 768,
     });
-    emailVerifierInputs.in_body_padded[768 - 1] = "1";
+    emailVerifierInputs.emailBody![768 - 1] = "1";
 
     expect.assertions(1);
     try {
@@ -205,14 +145,10 @@ describe("EmailVerifier", () => {
   it("should fail if body hash is tampered", async function () {
     const invalidBodyHash = dkimResult.bodyHash + "a";
 
-    const emailVerifierInputs = generateCircuitInputs({
-      rsaSignature: dkimResult.signature,
-      rsaPublicKey: dkimResult.publicKey,
-      body: dkimResult.body,
-      bodyHash: invalidBodyHash,
-      message: dkimResult.message,
-      shaPrecomputeSelector: "How are",
-      maxMessageLength: 640,
+    const dkim = { ...dkimResult, bodyHash: invalidBodyHash }
+
+    const emailVerifierInputs = generateEmailVerifierInputsFromDKIMResult(dkim, {
+      maxHeadersLength: 640,
       maxBodyLength: 768,
     });
 
@@ -226,14 +162,9 @@ describe("EmailVerifier", () => {
   });
 
   it("should produce dkim pubkey hash correctly", async function () {
-    const emailVerifierInputs = generateCircuitInputs({
-      rsaSignature: dkimResult.signature,
-      rsaPublicKey: dkimResult.publicKey,
-      body: dkimResult.body,
-      bodyHash: dkimResult.bodyHash,
-      message: dkimResult.message,
+    const emailVerifierInputs = generateEmailVerifierInputsFromDKIMResult(dkimResult, {
       shaPrecomputeSelector: "How are",
-      maxMessageLength: 640,
+      maxHeadersLength: 640,
       maxBodyLength: 768,
     });
 
@@ -246,7 +177,44 @@ describe("EmailVerifier", () => {
     const witness = await circuit.calculateWitness(emailVerifierInputs);
 
     await circuit.assertOut(witness, {
-      pubkey_hash: poseidon.F.toObject(hash),
+      pubkeyHash: poseidon.F.toObject(hash),
     });
+  });
+});
+
+
+describe("EmailVerifier : Without body check", () => {
+  jest.setTimeout(10 * 60 * 1000); // 10 minutes
+
+  let dkimResult: DKIMVerificationResult;
+  let circuit: any;
+
+  beforeAll(async () => {
+    const rawEmail = fs.readFileSync(
+      path.join(__dirname, "./test-emails/test.eml"),
+      "utf8"
+    );
+    dkimResult = await verifyDKIMSignature(rawEmail);
+
+    circuit = await wasm_tester(
+      path.join(__dirname, "./test-circuits/email-verifier-no-body-test.circom"),
+      {
+        recompile: true,
+        include: path.join(__dirname, "../../../node_modules"),
+        // output: path.join(__dirname, "./compiled-test-circuits"),
+      }
+    );
+  });
+
+  it("should verify email when ignore_body_hash_check is true", async function () {
+    // The result wont have shaPrecomputeSelector, maxHeadersLength, maxBodyLength, ignoreBodyHashCheck
+    const emailVerifierInputs = generateEmailVerifierInputsFromDKIMResult(dkimResult, {
+      maxHeadersLength: 640,
+      maxBodyLength: 768,
+      ignoreBodyHashCheck: true,
+    });
+
+    const witness = await circuit.calculateWitness(emailVerifierInputs);
+    await circuit.checkConstraints(witness);
   });
 });

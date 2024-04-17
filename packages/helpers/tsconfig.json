@@ -1,5 +1,5 @@
 {
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "lib/mailauth", "lib/fast-sha256.ts"],
   "compilerOptions": {
     "target": "es2020",
     "module": "commonjs",

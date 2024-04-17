@@ -1,104 +1,291 @@
-## Overview
-The `circuits` package is a collection of helper templates located in the `helpers` folder. These templates are essential for building your primary circuit file.
+# @zk-email/circuits
+The `circuits` package exports the circom circuits needed for building on ZK Email. 
 
-Additionally, the package includes an `email-verifier.circom` file. This file is a standard template designed for email verification, and it can be tailored to meet specific application requirements.
+All circuits in this package are libraries that can be imported to your circom project (i.e this package does not contain a `main` circuit).
 
-## Circuit Helpers Overview
-The `circuits` package includes 10 helper templates that are instrumental in constructing the `email-verifier.circom` file. Here's a brief overview of each:
+<br />
 
-### base64.circom
+## Installation 
+```
+yarn add @zk-email/circuits
+```
 
-This template decodes base64 encoded data within arithmetic circuits. It comprises two templates: `Base64Lookup` (converts a base64 character into its 6-bit binary representation) and `Base64Decode` (decodes a base64 encoded string into binary data).
+<br />
 
-### extract.circom
+## EmailVerifier Circuit
 
-This file provides a set of utilities for manipulating signal arrays within arithmetic circuits.
+[`EmailVerifier`](./email-verifier.circom "Email Verifier Circuit") is the primary circuit exported from `@zk-email/circuits` which is used for proving the signature of the input email is valid. 
 
- It includes several templates for packing and shifting signals, such as `PackBytes`, `VarShiftLeft`, `VarShiftMaskedStr`, `ClearSubarrayAfterEndIndex`, `ShiftAndPack`, and `ShiftAndPackMaskedStr`.
+### Usage:
 
-### rsa.circom
+Import to your circuit file like below. 
+```
+include "@zk-email/circuits/email-verifier.circom";
+```
 
-This template implements the RSA (Rivest–Shamir–Adleman) algorithm, a cornerstone of public key cryptography. It includes templates for key generation, encryption, and decryption.
+- **Parameters**:
+  - `maxHeadersLength`: Maximum length for the email header.
+  - `maxBodyLength`: Maximum length for the email body.
+  - `n`: Number of bits per chunk the RSA key is split into. Recommended to be 121.
+  - `k`: Number of chunks the RSA key is split into. Recommended to be 17.
+  - `ignoreBodyHashCheck`: Set 1 to skip body hash check in case data to prove/extract is only in the headers.
 
-### sha.circom
-This template implements the SHA (Secure Hash Algorithm) family of cryptographic hash functions, which take an input and return a fixed-size string of bytes, typically a message digest.
+- **Input Signals**:
+  - `emailHeader[maxHeadersLength]`: Email headers that are signed (ones in `DKIM-Signature` header) as ASCII int[], padded as per SHA-256 block size.
+  - `emailHeaderLength`: Length of the email header including the SHA-256 padding.
+  - `pubkey[k]`: RSA public key split into k chunks of n bits each.
+  - `signature[k]`: RSA signature split into k chunks of n bits each.
+  - `emailBody[maxBodyLength]`: Email body after the precomputed SHA as ASCII int[], padded as per SHA-256 block size.
+  - `emailBodyLength`: Length of the email body including the SHA-256 padding.
+  - `bodyHashIndex`: Index of the body hash `bh` in the `emailHeader`.
+  - `precomputedSHA[32]`: Precomputed SHA-256 hash of the email body till the bodyHashIndex.
 
-### bigint.circom
+  **Output Signal** 
+  - `pubkeyHash`: Poseidon hash of the pubkey - Poseidon(n/2)(n/2 chunks of pubkey with k*2 bits per chunk).
 
-This template provides functionality for performing arithmetic operations on big integers, such as addition and subtraction modulo 2^n.
+<br/>
 
-### bigint_func.circom
+## **Libraries**
+This section contains a template library located in the `@zk-email/circuits/lib` directory. These templates are important for building your main circuit (EmailVerifier).
 
-This template offers utility functions for handling big integers within arithmetic circuits, performing various mathematical operations on large numbers represented across multiple registers.
+These templates are used in the `EmailVerifier` circuit, and can also be used in a wide range of ZK projects, even those not directly related to ZK Email.
 
-### sha256general.circom
+### `lib/rsa.circom`
 
-This template implements the SHA-256 cryptographic hash function, taking an input signal array representing the message to be hashed and producing an output signal array representing the message digest.
+<details>
+<summary>
+RSAVerifier65537: Verifies RSA signatures with exponent 65537.
+</summary>
 
-### sha256partial.circom
+- **[Source](lib/rsa.circom#L13-L39)**
+- **Parameters**
+  - `n`: Number of bits per chunk the modulus is split into. Recommended to be 121.
+  - `k`: Number of chunks the modulus is split into. Recommended to be 17.
+- **Inputs**: 
+  - `message[k]`: The message that was signed.
+  - `signature[k]`: The signature to verify.
+  - `modulus[k]`: The modulus of the RSA key (pubkey).
 
-This template provides a partial implementation of the SHA-256 cryptographic hash function, useful when the initial part of the message to be hashed is known in advance.
-
-### fp.circom
-
-This template provides functionality for performing arithmetic operations in finite fields, fundamental for many cryptographic protocols.
-
-### utils.circom
-
-The `utils.circom` file includes a collection of utility templates and functions that are used across multiple circuits. These utilities cover a wide range of functionalities, including bit manipulation, comparison, conversion, and arithmetic operations in finite fields. It serves as a foundational component for building complex arithmetic circuits.
-
-## Utility templates
-
-### bytes2ints.circom
-
-This template converts an array of bytes into an array of integers. It is designed to handle inputs of any byte size and outputs integers based on the number of bytes specified. This is particularly useful for processing large binary data within arithmetic circuits. Specifically, the template is configured to transform 31 bytes into one integer, aligning with circoms maximum field value which is a 31-byte number. It uses little endian order for representation. 
-### constants.circom
-
-This file defines a set of constants used across various templates within the `circuits` package. These constants include maximum sizes for emails, domains, and timestamps, as well as specifications for packing bytes into field elements.
-
-### digit2int.circom
-
-The `Digit2Int` template converts an array of digit characters (0-9) into their corresponding integer representation. This is useful for processing numeric data that is input as a sequence of characters.
-
-### hex2int.circom
-
-This template provides functionality for converting hexadecimal strings into their integer representation. It supports conversion of both lowercase (a-f) and uppercase (A-F) hexadecimal characters. This is essential for processing hexadecimal data within arithmetic circuits.
-
-
-
-## Overview of email-verifier.circom
-
-The `email-verifier.circom` file is a comprehensive template designed for email verification. It is engineered to process DKIM headers and utilizes Regex for pattern matching within emails.
-
-It imports the `base64.circom`, `rsa.circom`, `sha.circom`, and `extract.circom` files.
-
-### Parameters
-
-The `EmailVerifier` template accepts several parameters:
-
-- `max_header_bytes` and `max_body_bytes`: Define the maximum size of the email header and body, respectively. These values should be multiples of 64.
-- `n` and `k`: Represent the big integer parameters for RSA. The number is divided into `k` chunks, each of size `n` bits.
-- `ignore_body_hash_check`: A flag that, when set, allows the body hash check to be skipped. This is useful for projects that do not require verification of the body contents.
-
-### Input Signals
-
-The template also accepts several input signals:
-
-- `in_padded`: Represents the prehashed email data, which includes up to 512 + 64 bytes of padding pre SHA256, and is padded with 0s at the end after the length.
-- `pubkey`: The RSA public key, verified with a smart contract + DNSSEC proof. It's divided into `k` parts, each of `n` bits.
-- `signature`: The RSA signature, divided into `k` parts, each of `n` bits.
-- `in_len_padded_bytes`: The length of the input email data including the padding, which will inform the SHA256 block length.
-
-### Operations
-
-The template performs several operations:
-
-- Calculates the SHA256 hash of the header, which is the "base message" that is RSA signed.
-- Verifies the RSA signature.
-- If `ignore_body_hash_check` is not set to 1, it extracts the body hash from the header and verifies that the hash of the body matches the hash in the header.
-- Calculates the Poseidon hash of the DKIM public key and produces it as an output. This can be used to verify the public key is correct in a contract without requiring the actual key.
+</details>
 
 
+### `lib/sha.circom`
 
-For a more in-depth understanding, please visit our zk Email Verify repository at https://github.com/zkemail/zk-email-verify.
+<details>
+<summary>
+Sha256Bytes: Computes the SHA256 hash of input bytes.
+</summary>
+
+- **[Source](lib/sha.circom#L17-L38)**
+- **Parameters**
+  - `maxByteLength`: Maximum length of the input bytes.
+- **Inputs**:
+  - `paddedIn[maxByteLength]`: Message to hash padded as per the SHA256 specification.
+  - `paddedInLength`: Length of the message in bytes including padding.
+- **Output**:
+  - `out[256]`: The 256-bit hash of the input message.
+
+</details>
+
+
+<details>
+<summary>
+Sha256BytesPartial: Computes the SHA256 hash of input bytes with a precomputed state.
+</summary>
+
+- **[Source](lib/sha.circom#L41-L79)**
+- **Parameters**
+  - `maxByteLength`: Maximum length of the input bytes.
+- **Inputs**:
+  - `paddedIn[maxByteLength]`: Message to hash padded as per the SHA256 specification.
+  - `paddedInLength`: Length of the message in bytes including padding.
+  - `preHash[32]`: The precomputed state of the hash.
+- **Output**:
+  - `out[256]`: The 256-bit hash of the input message.
+
+</details>
+
+
+### `lib/base64.circom`
+
+<details>
+<summary>
+Base64Decode: Decodes a base64 encoded string into binary data.
+</summary>
+
+- **[Source](lib/base64.circom#L11-L61)**
+- **Inputs**:
+  - `in`: The base64 encoded string to decode.
+  - `N`: The expected length of the output binary data.
+- **Outputs**:
+  - `out`: The decoded binary data.
+
+</details>
+
+## Utils
+This section provides an overview of utility circom templates available in the `@zk-email/circuits/utils` directory. These templates assist in the construction of zk circuits for various applications beyond the core ZK Email functionalities.
+
+### `utils/array.circom`
+
+<details>
+<summary>
+AssertZeroPadding: Asserts that the input array is zero-padded from the given `startIndex`.
+</summary>
+
+- **[Source](utils/array.circom#L154-L172)**
+- **Parameters**:
+  - `maxArrayLen`: The maximum number of elements in the input array.
+- **Inputs**:
+  - `in`: The input array.
+  - `startIndex`: The index from which the array should be zero-padded.
+</details>
+
+
+### `utils/bytes.circom`
+
+<details>
+<summary>
+PackBytes: Packs an array of bytes to numbers that fit in the field.
+</summary>
+
+- **[Source](utils/bytes.circom#L28-L60)**
+- **Inputs**:
+  - `in`: The input byte array.
+  - `maxBytes`: The maximum number of bytes in the input array.
+- **Outputs**:
+  - `out`: The output integer array after packing.
+
+</details>
+
+<details>
+<summary>
+PackByteSubArray: Selects a sub-array from the input array and packs it to numbers that fit in the field.
+</summary>
+
+- **[Source](utils/bytes.circom#L72-L93)**
+- **Inputs**:
+  - `in`: The input byte array.
+  - `startIndex`: The start index of the sub-array.
+  - `length`: The length of the sub-array.
+  - `maxArrayLen`: The maximum number of elements in the input array.
+  - `maxSubArrayLen`: The maximum number of elements in the sub-array.
+- **Outputs**:
+  - `out`: The output integer array after packing the sub-array.
+</details>
+
+<details>
+<summary>
+DigitBytesToInt: Converts a byte array representing digits to an integer.
+</summary>
+
+- **[Source](utils/bytes.circom#L102-L117)**
+- **Inputs**:
+  - `in`: The input byte array - big-endian digit string of `out`.
+  - `n`: The number of bytes in the input array.
+- **Outputs**:
+  - `out`: The output integer after conversion.
+</details>
+
+
+### `utils/constants.circom`
+
+<details>
+<summary>
+Constants: Defines a set of constants used across various circom circuits for standardizing sizes and lengths of different data types.
+</summary>
+
+- **[Source](utils/constants.circom)**
+- **Constants**:
+  - `EMAIL_ADDR_MAX_BYTES()`: Returns the maximum byte size for an email, defined as 256.
+  - `DOMAIN_MAX_BYTES()`: Returns the maximum byte size for a domain, defined as 255.
+  - `MAX_BYTES_IN_FIELD()`: Returns the maximum number of bytes that can fit in a field, defined as 31.
+
+</details>
+
+
+### `utils/functions.circom`
+
+<details>
+<summary>
+log2Ceil: Calculates the ceiling of the base 2 logarithm of a given number.
+</summary>
+
+- **[Source](utils/functions.circom#L2-L10)**
+- **Inputs**:
+  - `a`: The input number for which the base 2 logarithm ceiling is to be calculated.
+- **Outputs**:
+  - Returns the smallest integer greater than or equal to the base 2 logarithm of the input number.
+</details>
+
+
+### `utils/hash.circom`
+
+<details>
+<summary>
+PoseidonLarge: Circuit to calculate Poseidon hash of inputs more than 16.
+</summary>
+
+- **[Source](utils/hash.circom#L13-L37)**
+- **Inputs**:
+  - `in[chunkSize]`: The input array of chunkSize elements.
+  - `bytesPerChunk`: Number of bits in each chunk.
+  - `chunkSize`: Number of chunks in input.
+- **Outputs**:
+  - `out`: Poseidon hash of input where consecutive elements are merged.
+</details>
+
+
+### `utils/regex.circom`
+
+<details>
+<summary>
+SelectRegexReveal: Selects the reveal part of a byte array that matches a regular expression.
+</summary>
+
+- **[Source](utils/regex.circom#L15-L50)**
+- **Inputs**:
+  - `in`: The input byte array.
+  - `startIndex`: The index of the start of the reveal part in the input array.
+  - `maxArrayLen`: The maximum length of the input array.
+  - `maxRevealLen`: The maximum length of the reveal part.
+- **Outputs**:
+  - `out`: The revealed data array that matches the regular expression.
+</details>
+
+<details>
+<summary>
+PackRegexReveal: Packs the reveal data from a regex match into an integer array.
+</summary>
+
+- **[Source](utils/regex.circom#L60-L77)**
+- **Inputs**:
+  - `in`: The input byte array.
+  - `startIndex`: The index of the start of the reveal part in the input array.
+  - `maxArrayLen`: The maximum length of the input array.
+  - `maxRevealLen`: The maximum length of the reveal part.
+- **Outputs**:
+  - `out`: The packed integer array after processing the reveal data.
+</details>
+
+## Helpers
+This section contains helper circom templates in` @zk-email/circuits/helpers` that you can use to build on top of ZK Email.
+
+### `helpers/email-nullifier.circom`
+
+<details>
+
+<summary>
+EmailNullifier: Calculates the email nullifier using Poseidon hash.
+</summary>
+
+- **[Source](helpers/email-nullifier.circom#L15-L23)**
+- **Parameters**:
+  - `bitPerChunk`: The number of bits per chunk the signature is split into.
+  - `chunkSize`: The number of chunks the signature is split into.
+- **Inputs**:
+  - `signature[chunkSize]`: The signature of the email.
+- **Output**:
+  - `out`: The email nullifier.
+</details>
+
 

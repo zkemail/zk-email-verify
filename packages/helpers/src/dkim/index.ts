@@ -1,17 +1,16 @@
-import { pki } from "node-forge";
-import { DkimVerifier } from "./dkim-verifier";
-import {
-  getSigningHeaderLines,
-  parseDkimHeaders,
-  parseHeaders,
-  writeToStream,
-} from "./tools";
-import { revertCommonARCModifications } from "./arc";
+import { pki } from 'node-forge';
+import { DkimVerifier } from '../../lib/mailauth/dkim-verifier';
+import { writeToStream } from '../../lib/mailauth/tools';
+import sanitizers from './sanitizers';
+
+// `./mailauth` is modified version of https://github.com/postalsys/mailauth
+// Main modification are including emailHeaders in the DKIM result, making it work in the browser, add types
+// TODO: Fork the repo and make the changes; consider upstream to original repo
 
 export interface DKIMVerificationResult {
   publicKey: bigint;
   signature: bigint;
-  message: Buffer;
+  headers: Buffer;
   body: Buffer;
   bodyHash: string;
   signingDomain: string;
@@ -19,33 +18,45 @@ export interface DKIMVerificationResult {
   algo: string;
   format: string;
   modulusLength: number;
+  appliedSanitization?: string;
 }
 
+/**
+ *
+ * @param email Entire email data as a string or buffer
+ * @param domain Domain to verify DKIM signature for. If not provided, the domain is extracted from the `From` header
+ * @param enableSanitization If true, email will be applied with various sanitization to try and pass DKIM verification
+ * @returns
+ */
 export async function verifyDKIMSignature(
   email: Buffer | string,
-  domain: string = "",
-  tryRevertARCChanges: boolean = true
+  domain: string = '',
+  enableSanitization: boolean = true,
 ): Promise<DKIMVerificationResult> {
-
   const emailStr = email.toString();
 
-  const pgpMarkers = [
-    "BEGIN PGP MESSAGE",
-    "BEGIN PGP SIGNED MESSAGE",
-  ];
-
-  const isPGPEncoded = pgpMarkers.some(marker => emailStr.includes(marker));
-
-  if (isPGPEncoded) {
-    throw new Error("PGP encoded emails are not supported.");
-  }
 
   let dkimResult = await tryVerifyDKIM(email, domain);
 
-  // If DKIM verification fails, revert common modifications made by ARC and try again.
-  if (dkimResult.status.comment === "bad signature" && tryRevertARCChanges) {
-    const modified = await revertCommonARCModifications(email.toString());
-    dkimResult = await tryVerifyDKIM(modified, domain);
+  // If DKIM verification fails, try again after sanitizing email
+  let appliedSanitization;
+  if (dkimResult.status.comment === 'bad signature' && enableSanitization) {
+    const results = await Promise.all(
+      sanitizers.map((sanitize) => tryVerifyDKIM(sanitize(emailStr), domain).then((result) => ({
+        result,
+        sanitizer: sanitize.name,
+      }))),
+    );
+
+    const passed = results.find((r) => r.result.status.result === 'pass');
+
+    if (passed) {
+      console.log(
+        `DKIM: Verification passed after applying sanitization "${passed.sanitizer}"`,
+      );
+      dkimResult = passed.result;
+      appliedSanitization = passed.sanitizer;
+    }
   }
 
   const {
@@ -58,90 +69,55 @@ export async function verifyDKIMSignature(
     bodyHash,
   } = dkimResult;
 
-  if (result !== "pass") {
+  if (result !== 'pass') {
     throw new Error(
-      `DKIM signature verification failed for domain ${signingDomain}. Reason: ${comment}`
+      `DKIM signature verification failed for domain ${signingDomain}. Reason: ${comment}`,
     );
   }
 
   const pubKeyData = pki.publicKeyFromPem(publicKey.toString());
 
   return {
-    signature: BigInt("0x" + Buffer.from(signature, "base64").toString("hex")),
-    message: status.signature_header,
-    body: body,
-    bodyHash: bodyHash,
+    signature: BigInt(`0x${Buffer.from(signature, 'base64').toString('hex')}`),
+    headers: status.signedHeaders,
+    body,
+    bodyHash,
     signingDomain: dkimResult.signingDomain,
     publicKey: BigInt(pubKeyData.n.toString()),
     selector: dkimResult.selector,
     algo: dkimResult.algo,
     format: dkimResult.format,
     modulusLength: dkimResult.modulusLength,
+    appliedSanitization,
   };
 }
 
-async function tryVerifyDKIM(email: Buffer | string, domain: string = "") {
-  let dkimVerifier = new DkimVerifier({});
+async function tryVerifyDKIM(email: Buffer | string, domain: string = '') {
+  const dkimVerifier = new DkimVerifier({});
   await writeToStream(dkimVerifier, email as any);
 
   let domainToVerifyDKIM = domain;
   if (!domainToVerifyDKIM) {
     if (dkimVerifier.headerFrom.length > 1) {
       throw new Error(
-        "Multiple From header in email and domain for verification not specified"
+        'Multiple From header in email and domain for verification not specified',
       );
     }
 
-    domainToVerifyDKIM = dkimVerifier.headerFrom[0].split("@")[1];
+    domainToVerifyDKIM = dkimVerifier.headerFrom[0].split('@')[1];
   }
 
   const dkimResult = dkimVerifier.results.find(
-    (d: any) => d.signingDomain === domainToVerifyDKIM
+    (d: any) => d.signingDomain === domainToVerifyDKIM,
   );
 
   if (!dkimResult) {
     throw new Error(
-      `DKIM signature not found for domain ${domainToVerifyDKIM}`
+      `DKIM signature not found for domain ${domainToVerifyDKIM}`,
     );
   }
 
-  if (dkimVerifier.headers) {
-    Object.defineProperty(dkimResult, "headers", {
-      enumerable: false,
-      configurable: false,
-      writable: false,
-      value: dkimVerifier.headers,
-    });
-  }
+  dkimResult.headers = dkimVerifier.headers;
 
   return dkimResult;
 }
-
-export type SignatureType = "DKIM" | "ARC" | "AS";
-
-export type ParsedHeaders = ReturnType<typeof parseHeaders>;
-
-export type Parsed = ParsedHeaders["parsed"][0];
-
-export type ParseDkimHeaders = ReturnType<typeof parseDkimHeaders>;
-
-export type SigningHeaderLines = ReturnType<typeof getSigningHeaderLines>;
-
-export interface Options {
-  signatureHeaderLine: string;
-  signingDomain?: string;
-  selector?: string;
-  algorithm?: string;
-  canonicalization: string;
-  bodyHash?: string;
-  signTime?: string | number | Date;
-  signature?: string;
-  instance: string | boolean;
-  bodyHashedBytes?: string;
-}
-
-// export dkim functions
-export * from "./dkim-verifier";
-export * from "./message-parser";
-export * from "./parse-dkim-headers";
-export * from "./tools";

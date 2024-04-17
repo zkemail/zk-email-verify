@@ -61,7 +61,7 @@ Note: Increasing the `messageLength` or `BodyLength` sizes will increase the tim
 
 
 ## Step 3: Implementing the Circuits
-Next, use `email-veriifier.circom` from the zk-email/circuits package to create your zk circuit to verify the DKIM signature.
+Next, use `email-verifier.circom` from the zk-email/circuits package to create your zk circuit to verify the DKIM signature.
 
 
 To set up your own circuit for the email-verifier, you can follow these steps:
