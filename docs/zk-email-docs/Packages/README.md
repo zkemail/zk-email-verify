@@ -1,6 +1,12 @@
 # Packages
 
-This document provides an overview of the three main packages that make up ZK Email Verifier. The packages are zk-email/circuits, zk-email/helpers, and  zk-email/contracts. Each package serves a specific purpose in the process of verifying DKIM signatures in emails using zero-knowledge proofs.
+This document provides an overview of the three main packages that make up ZK Email Verifier. The packages are `zk-email/circuits`, `zk-email/helpers`, and `zk-email/contracts`. Each package serves a specific purpose in the process of verifying DKIM signatures in emails using zero-knowledge proofs.
+
+Check out the documentation for each package to learn more:
+
+- For circom circuit templates and proof generation: [@zk-email/circuits](/packages/circuits/README.md)
+- To access helper functions for generating inputs: [@zk-email/helpers](/packages/helpers/README.md)
+- Solidity contracts for blockchain interactions: [@zk-email/contracts](/packages/contracts/README.md)
 
 ### Recent updates: zk-email-verify audit fixes
 
