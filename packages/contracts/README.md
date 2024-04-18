@@ -1,3 +1,4 @@
+# @zk-email/contracts
 
 ## DKIMRegistry.sol
 

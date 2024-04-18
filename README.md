@@ -1,5 +1,8 @@
 # Welcome to ZK-Email
-![My Image](public/zkEmailLogo.jpg)
+
+<p align="center">
+  <img src="docs/logo.jpg" width="300">
+</p>
 
 ZK Email is an application that allows for anonymous verification of email signatures while masking specific data. It enables verification of emails to/from specific domains or subsets of domains, as well as verification based on specific text in the email body. Our core SDK comes with libraries to assist with circuit generation as well as utility templates for general zk applications.
 
