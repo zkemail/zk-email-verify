@@ -5,7 +5,7 @@ import {
   int8toBytes,
   mergeUInt8Arrays,
 } from './binary-format';
-import { Hash } from '../lib/fast-sha256';
+import { Hash } from './lib/fast-sha256';
 
 export function findIndexInUint8Array(
   array: Uint8Array,
