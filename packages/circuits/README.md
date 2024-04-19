@@ -29,6 +29,8 @@ include "@zk-email/circuits/email-verifier.circom";
   - `n`: Number of bits per chunk the RSA key is split into. Recommended to be 121.
   - `k`: Number of chunks the RSA key is split into. Recommended to be 17.
   - `ignoreBodyHashCheck`: Set 1 to skip body hash check in case data to prove/extract is only in the headers.
+  
+  `Note`: We use these values for n and k because their product (n * k) needs to be more than 2048 (RSA constraint) and n has to be less than half of 255 to fit in a circom signal.
 
 - **Input Signals**:
   - `emailHeader[maxHeadersLength]`: Email headers that are signed (ones in `DKIM-Signature` header) as ASCII int[], padded as per SHA-256 block size.
@@ -138,6 +140,73 @@ AssertZeroPadding: Asserts that the input array is zero-padded from the given `s
 - **Inputs**:
   - `in`: The input array.
   - `startIndex`: The index from which the array should be zero-padded.
+
+</details>
+
+<details>
+<summary>
+ItemAtIndex: Selects an item at a given index from the input array.
+</summary>
+
+- **[Source](utils/array.circom#L15-L42)**
+- **Parameters**:
+  - `maxArrayLen`: The number of elements in the array.
+- **Inputs**:
+  - `in`: The input array.
+  - `index`: The index of the element to select.
+- **Output**:
+  - `out`: The selected element.
+
+</details>
+
+<details>
+<summary>
+CalculateTotal: Calculates the sum of an array.
+</summary>
+
+- **[Source](utils/array.circom#L54-L67)**
+- **Parameters**:
+  - `n`: The number of elements in the array.
+- **Inputs**:
+  - `nums`: The input array.
+- **Output**:
+  - `sum`: The sum of the input array.
+
+</details>
+
+<details>
+<summary>
+SelectSubArray: Selects a subarray from an array given a `startIndex` and `length`.
+</summary>
+
+- **[Source](utils/array.circom#L80-L104)**
+- **Parameters**:
+  - `maxArrayLen`: The maximum number of bytes in the input array.
+  - `maxSubArrayLen`: The maximum number of integers in the output array.
+- **Inputs**:
+  - `in`: The input byte array.
+  - `startIndex`: The start index of the subarray.
+  - `length`: The length of the subarray.
+- **Output**:
+  - `out`: Array of `maxSubArrayLen` size, items starting from `startIndex`, and items after `length` set to zero.
+
+</details>
+
+<details>
+<summary>
+VarShiftLeft: Shifts input array by `shift` indices to the left.
+</summary>
+
+- **[Source](utils/array.circom#L116-L140)**
+- **Parameters**:
+  - `maxArrayLen`: The maximum length of the input array.
+  - `maxOutArrayLen`: The maximum length of the output array.
+- **Inputs**:
+  - `in`: The input array.
+  - `shift`: The number of indices to shift the array to the left.
+- **Output**:
+  - `out`: Shifted subarray.
+
 </details>
 
 

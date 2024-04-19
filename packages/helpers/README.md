@@ -65,7 +65,7 @@ To verify the DKIM signature of an email, import and call the `verifyDKIMSignatu
 
 ### binary-format.ts
 
-The `binary-format.ts` file provides functions for converting between strings, byte arrays, and other binary formats.This is particularly useful for handling data encoding and decoding within an application.
+The `binary-format.ts` file provides functions for converting between strings, byte arrays, and other binary formats. This is particularly useful for handling data encoding and decoding within an application.
 - [**stringToBytes**](https://github.com/zkemail/zk-email-verify/blob/main/packages/helpers/src/binary-format.ts#L8-L12): Converts a string into its byte representation.
 - [**bytesToString**](https://github.com/zkemail/zk-email-verify/blob/main/packages/helpers/src/binary-format.ts#L3-L5): Converts a byte array back into a string. Useful for decoding data received in binary format.
 
