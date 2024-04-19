@@ -1,6 +1,6 @@
 {
   "name": "@zk-email/circuits",
-  "version": "6.0.0",
+  "version": "6.0.2",
   "license": "MIT",
   "scripts": {
     "publish": "yarn npm publish --access=public",
