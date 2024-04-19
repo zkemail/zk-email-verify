@@ -8,59 +8,10 @@ For an easy setup, we suggest utilizing [Zkrepl](https://github.com/zkemail/zk-r
 ## Step 1: Create the Regex File
 Transform your target email string into a regex format and compile it into a regex.circom file. For guidance, visit our [zk-regex repository](https://github.com/zkemail/zk-regex).
 
-Use our dedicated tool to convert regex into circom code here: [zkregex.com](https://zkregex.com/)
+Use our tool to convert regex into circom code here: [zkregex.com](https://zkregex.com/)
 
 
-## Step 2: Generate Circuit Inputs
-
-The second step in the zkEmail verification process is to generate the necessary circuit inputs. This involves parsing the email headers to extract the required information. 
-
-The required information includes the RSA signature, the public key, the body of the email, and the hash of the email body. To do this, create a directory named 'emls' and place the raw email inside it.
-
-Next, create an `inputs.ts` file. In this file, you will use the `generateCircuitInputs` function from the `@zk-email/helpers` package and the `verifyDKIMSignature` function to specify all of your inputs and ensure they match the DKIM in your email header. 
-
-Here is a sample code snippet to guide you:
-
-```javascript
-import { generateCircuitInputs } from "@zk-email/helpers/dist/input-helpers";
-import { verifyDKIMSignature } from "@zk-email/helpers/dist/dkim"
-import fs from "fs";
-import path from "path";
-
-const rawEmail = fs.readFileSync(
-  path.join(__dirname, "./emls/rawEmail.eml"),
-  "utf8"
-);
-
-const dkimResult = await verifyDKIMSignature(Buffer.from(rawEmail));
-
-const circuitInputs = generateCircuitInputs({
-  rsaSignature: dkimResult.signature, // The RSA signature of the email
-  rsaPublicKey: dkimResult.rsaPublicKey, // The RSA public key used for verification
-  body: dkimResult.body, // body of the email 
-  bodyHash: dkimResult.bodyHash, // hash of the email body
-  message: dkimResult.message, // the message that was signed (header + bodyHash)
-  //Optional to verify regex in the body of email
- shaPrecomputeSelector: STRING_PRESELECTOR, // String to split the body for SHA pre computation 
-maxMessageLength: MAX_HEADER_PADDED_BYTES, // Maximum allowed length of the message in circuit
- maxBodyLength: MAX_BODY_PADDED_BYTES, // Maximum allowed length of the body in circuit
- ignoreBodyHashCheck = false, // To be used when ignore_body_hash_check is true in circuit
-});
-
-fs.writeFileSync("./input.json", JSON.stringify(circuitInputs));
-```
-
-To generate the `input.json` file, run the following command:
-
-```bash
-npx ts-node inputs.ts
-```
-
-Note: Increasing the `messageLength` or `BodyLength` sizes will increase the time required for compiling and creating proving keys.
-
-
-
-## Step 3: Implementing the Circuits
+## Step 2: Implementing the Circuits
 Next, use `email-verifier.circom` from the zk-email/circuits package to create your zk circuit to verify the DKIM signature.
 
 
@@ -71,15 +22,15 @@ To set up your own circuit for the email-verifier, you can follow these steps:
 3. Define the input signal for your circuit, which will come from your `input.ts` file.
 4. Add any necessary witnesses and constraints for regex (learn more about how to setup regex [here]( https://github.com/zkemail/zk-regex))
 5. Define the output signal, which will be public.
-6. Instantiate the `emailVerifier` component within your `MyCircuit` template.
+6. Instantiate the `EmailVerifier` component within your `MyCircuit` template.
 
 NOTE: For teams using the email verifier circuit with the `ignoreBodyHashCheck` option disabled, please be aware of an important consideration. If you are conducting a body hash check within your own circuit configurations, it is essential to implement AssertZeroes for all characters beyond the specified limit.
 ```
-AssertZeroes(max_body_bytes)(in_body_padded, in_body_len_padded_bytes + 1);
+AssertZeroPadding(maxBodyLength)(emailBody, emailBodyLength + 1);
 ```
-- max_body_bytes: maximum number of bytes that the email body can occupy.
-- in_body_padded: email body content that has been padded to meet the required size for processing.
-- length of the email body including the padding.
+- maxBodyLength: maximum number of bytes that the email body can occupy.
+- emailBody: email body content that has been padded to meet the required size for processing.
+- emailBodyLength: length of the email body including the padding.
 
 Here's an example of how you can set up your own circuit:
 
@@ -100,7 +51,7 @@ template MyCircuit() {
 }
 ```
 
-## Step 4: Compile your circuit
+## Step 3: Compile your circuit
 
 To compile the circuit locally, you need to have Rust and Circom installed first. You can visit this link to install both https://docs.circom.io/getting-started/installation/#installing-dependencies
 
@@ -115,6 +66,68 @@ We generally recommend using the --O0 flag for ensuring there are no unintended 
 Refer to these discussions on StackOverflow ([1](https://stackoverflow.com/questions/78136647/circom-does-not-create-a-constraint-for-addition/78177349#78177349), [2](https://stackoverflow.com/questions/77688466/circom-compiler-removes-crucial-constraint-after-simplication/78177354?noredirect=1#comment137833229_78177354)) for more information on constraint deletion.
 
 After running this command, the circuit will be compiled into a `.r1cs` file, a `.wasm` file, and a `.sym` file. These files are used in the next steps to generate the proving and verifying keys, and to compute the witness.
+
+## Step 4: Generate Circuit Inputs
+
+The second step in the zkEmail verification process is to generate the necessary circuit inputs. This involves parsing the email headers to extract the required information. 
+
+The required information includes the RSA signature, the public key, the body of the email, and the hash of the email body. To do this, create a directory named 'emls' and place the raw email inside it.
+
+Next, create an `inputs.ts` file. In this file, you will use the `generateEmailVerifierInputs` function from the `@zk-email/helpers` to specify all of your inputs and ensure they match the DKIM in your email header. 
+
+Here is a sample code snippet from our [proof-of-twitter](https://github.com/zkemail/proof-of-twitter/blob/main/packages/circuits/helpers/generate-inputs.ts) example to guide you:
+
+```typescript
+import { bytesToBigInt, fromHex } from "@zk-email/helpers/dist/binaryFormat";
+import { generateEmailVerifierInputs } from "@zk-email/helpers/dist/input-generators";
+
+export const STRING_PRESELECTOR = "email was meant for @";
+export type IExampleCircuitInputs = {
+  twitterUsernameIndex: string;
+  address: string;
+  emailHeader: string[];
+  emailHeaderLength: string;
+  pubkey: string[];
+  signature: string[];
+  emailBody?: string[] | undefined;
+  emailBodyLength?: string | undefined;
+  precomputedSHA?: string[] | undefined;
+  bodyHashIndex?: string | undefined;
+};
+
+export async function generateExampleVerifierCircuitInputs(
+  email: string | Buffer,
+  ethereumAddress: string
+): Promise<ITwitterCircuitInputs> {
+  const emailVerifierInputs = await generateEmailVerifierInputs(email, {
+    shaPrecomputeSelector: STRING_PRESELECTOR,
+  });
+
+  const bodyRemaining = emailVerifierInputs.emailBody!.map((c) => Number(c)); // Char array to Uint8Array
+  const selectorBuffer = Buffer.from(STRING_PRESELECTOR);
+  const usernameIndex =
+    Buffer.from(bodyRemaining).indexOf(selectorBuffer) + selectorBuffer.length;
+
+  const address = bytesToBigInt(fromHex(ethereumAddress)).toString();
+
+  return {
+    ...emailVerifierInputs,
+    twitterUsernameIndex: usernameIndex.toString(),
+    address,
+  };
+}
+```
+
+To generate the `input.json` file, run the following command:
+
+```bash
+npx ts-node inputs.ts
+```
+
+Note: Increasing the `emailHeaderLength` or `emailBodyLength` sizes will increase the time required for compiling and creating proving keys.
+
+
+
 
 ## Step 5: Compute the Witness
 
@@ -164,7 +177,7 @@ Refer to this link for more details: https://github.com/iden3/snarkjs?tab=readme
 ```
 ### Phase 2
 
-For Phase 2 of the trusted setup you can either use https://docs.circom.io/getting-started/proving-circuits/#phase-2 or [P0tion](https://github.com/privacy-scaling-explorations/p0tion)
+For Phase 2 of the trusted setup you can either use https://docs.circom.io/getting-started/To run Phase 2 of the trusted setup refer to this link: https://github.com/iden3/snarkjs
 
 ## Step 7: Verify your circuit
 
