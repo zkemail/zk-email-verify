@@ -26,7 +26,7 @@ template PoseidonLarge(bytesPerChunk, chunkSize) {
     signal poseidonInput[halfChunkSize];
 
     for(var i = 0; i < halfChunkSize; i++) {
-        if (i == halfChunkSize - 1 && halfChunkSize % 2 == 1) {
+        if (i == halfChunkSize - 1 && chunkSize % 2 == 1) {
             poseidonInput[i] <== in[2 * i];
         } else {
             poseidonInput[i] <== in[2 * i] + (1 << bytesPerChunk) * in[2 * i + 1];
