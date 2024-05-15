@@ -45,7 +45,7 @@ template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashChec
 
 
     // Assert emailHeader data after emailHeaderLength are zeros
-    AssertZeroPadding(maxHeadersLength)(emailHeader, emailHeaderLength + 1);
+    AssertZeroPadding(maxHeadersLength)(emailHeader, emailHeaderLength);
     
 
     // Calculate SHA256 hash of the `emailHeader` - 506,670 constraints
@@ -85,7 +85,7 @@ template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashChec
         signal input emailBodyLength;
 
         // Assert data after the body (maxBodyLength - emailBody.length) is all zeroes
-        AssertZeroPadding(maxBodyLength)(emailBody, emailBodyLength + 1);
+        AssertZeroPadding(maxBodyLength)(emailBody, emailBodyLength);
 
         // Body hash regex - 617,597 constraints
         // Extract the body hash from the header (i.e. the part after bh= within the DKIM-signature section)
