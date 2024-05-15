@@ -1,3 +1,5 @@
+pragma circom 2.1.6;
+
 
 function log2Ceil(a) {
     var n = a+1;
