@@ -7,28 +7,21 @@ include "./functions.circom";
 
 /// @title ItemAtIndex
 /// @notice Select item at given index from the input array
-/// @notice This is QuinSelector from MACI https://github.com/privacy-scaling-explorations/maci/
+/// @notice This template that the index is valid
+/// @notice This is a modified version of QuinSelector from MACI https://github.com/privacy-scaling-explorations/maci/
 /// @param maxArrayLen The number of elements in the array
 /// @input in The input array
 /// @input index The index of the element to select
 /// @output out The selected element
 template ItemAtIndex(maxArrayLen) {
-    var bitLength = log2Ceil(maxArrayLen);
-    assert(2 ** bitLength > maxArrayLen);
-
     signal input in[maxArrayLen];
     signal input index;
 
     signal output out;
 
-    // Ensure that index < maxArrayLen
-    component lessThan = LessThan(bitLength);
-    lessThan.in[0] <== index;
-    lessThan.in[1] <== maxArrayLen;
-    lessThan.out === 1;
-
     component calcTotal = CalculateTotal(maxArrayLen);
     component eqs[maxArrayLen];
+    component calcTotalIndex = CalculateTotal(maxArrayLen);
 
     // For each item, check whether its index equals the input index.
     for (var i = 0; i < maxArrayLen; i ++) {
@@ -36,12 +29,16 @@ template ItemAtIndex(maxArrayLen) {
         eqs[i].in[0] <== i;
         eqs[i].in[1] <== index;
 
-        // eqs[i].out is 1 if the index matches. As such, at most one input to
-        // calcTotal is not 0.
+        // eqs[i].out is 1 if the index matches - so calcTotal is sum of 0s + 1 * valueAtIndex
         calcTotal.nums[i] <== eqs[i].out * in[i];
+
+        // Take the sum of all eqs[i].out and assert that it is at most 1.
+        calcTotalIndex.nums[i] <== eqs[i].out;
     }
 
-    // Returns 0 + 0 + ... + item
+    // Assert that the sum of eqs[i].out is 1. This is to ensure the index passed is valid.
+    calcTotalIndex.sum === 1;
+
     out <== calcTotal.sum;
 }
 
