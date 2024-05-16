@@ -22,9 +22,9 @@ function computeIntChunkLength(byteLength) {
 
 /// @title PackBytes
 /// @notice Pack an array of bytes to numbers that fit in the field
-/// @param maxBytes: the maximum number of bytes in the input array
-/// @input in: the input byte array; assumes elements to be bytes
-/// @output out: the output integer array
+/// @param maxBytes the maximum number of bytes in the input array
+/// @input in the input byte array; assumes elements to be bytes
+/// @output out the output integer array
 template PackBytes(maxBytes) {
     var packSize = MAX_BYTES_IN_FIELD();
     var maxInts = computeIntChunkLength(maxBytes);
@@ -63,12 +63,12 @@ template PackBytes(maxBytes) {
 /// @title PackByteSubArray
 /// @notice Select sub array from the input array and pack it to numbers that fit in the field
 /// @notice This is not used in ZK-Email circuits anywhere
-/// @param maxArrayLen: the maximum number of elements in the input array
-/// @param maxSubArrayLen: the maximum number of elements in the sub array
-/// @input in: the input byte array; assumes elements to be bytes
-/// @input startIndex: the start index of the sub array; assumes to be a valid index
-/// @input length: the length of the sub array; assumes to fit in `ceil(log2(maxSubArrayLen))` bits
-/// @output out: the output integer array
+/// @param maxArrayLen the maximum number of elements in the input array
+/// @param maxSubArrayLen the maximum number of elements in the sub array
+/// @input in the input byte array; assumes elements to be bytes
+/// @input startIndex the start index of the sub array; assumes to be a valid index
+/// @input length the length of the sub array; assumes to fit in `ceil(log2(maxSubArrayLen))` bits
+/// @output out the output integer array
 template PackByteSubArray(maxArrayLen, maxSubArrayLen) {
     assert(maxSubArrayLen < maxArrayLen);
     var chunkLength = computeIntChunkLength(maxSubArrayLen);

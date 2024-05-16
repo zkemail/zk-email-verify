@@ -7,9 +7,9 @@ include "./fp.circom";
 /// @notice Verifies an RSA signature with exponent 65537.
 /// @param n Number of bits per chunk the modulus is split into. Recommended to be 121.
 /// @param k Number of chunks the modulus is split into. Recommended to be 17.
-/// @input message The message that was signed.
-/// @input signature[k] The signature to verify.
-/// @input modulus[k] The modulus of the RSA key (pubkey).
+/// @input message[k] The message that was signed; assumes to consist of `k` chunks that fit in `n` bits (also contrained implicitly).
+/// @input signature[k] The signature to verify; assumes to consist of `k` chunks that fit in `n` bits (also contrained implicitly).
+/// @input modulus[k] The modulus of the RSA key (pubkey); assumes to consist of `k` chunks that fit in `n` bits (also contrained implicitly).
 template RSAVerifier65537(n, k) {
     signal input message[k];
     signal input signature[k];

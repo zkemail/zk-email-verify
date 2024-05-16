@@ -108,7 +108,7 @@ template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashChec
         signal bhBase64[shaB64Length] <== SelectRegexReveal(maxHeadersLength, shaB64Length)(bhReveal, bodyHashIndex);
         signal headerBodyHash[32] <== Base64Decode(32)(bhBase64);
 
-        // Compute SHA256 of email body : 760,142 constraints
+        // Compute SHA256 of email body : 760,142 constraints (for maxBodyLength = 1536)
         // We are using a technique to save constraints by precomputing the SHA hash of the body till the area we want to extract
         // It doesn't have an impact on security since a user must have known the pre-image of a signed message to be able to fake it
         signal computedBodyHash[256] <== Sha256BytesPartial(maxBodyLength)(emailBody, emailBodyLength, precomputedSHA);
