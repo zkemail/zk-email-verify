@@ -67,12 +67,12 @@ template CalculateTotal(n) {
 /// @title SelectSubArray
 /// @notice Select sub array from an array given a `startIndex` and `length`
 /// @notice This is same as `VarShiftLeft` but with elements after `length` set to zero
-/// @notice This is not used in ZK-Email circuits anywhere
+/// @notice This is not used in core ZK-Email circuits at the moment
 /// @param maxArrayLen: the maximum number of bytes in the input array
 /// @param maxSubArrayLen: the maximum number of integers in the output array
-/// @input in: the input byte array
-/// @input startIndex: the start index of the sub array
-/// @input length: the length of the sub array
+/// @input in: the input array
+/// @input startIndex: the start index of the sub array; assumes a valid index
+/// @input length: the length of the sub array; assumes the value to be in [0, `maxSubArrayLen`]
 /// @output out: array of `maxSubArrayLen` size, items starting from `startIndex`, and items after `length` set to zero
 template SelectSubArray(maxArrayLen, maxSubArrayLen) {
     assert(maxSubArrayLen < maxArrayLen);
