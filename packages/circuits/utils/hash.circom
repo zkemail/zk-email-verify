@@ -3,7 +3,7 @@ pragma circom 2.1.6;
 
 /// @title PoseidonLarge
 /// @notice Circuit to calculate Poseidon hash of inputs more than 16
-/// @notice Merges two consecutive chunks to bring size < 16 assuming ints are chunks of a large number (a + bytesPerChunk * b)
+/// @notice Merges two consecutive chunks to bring size < 16 assuming ints are chunks of a large number (a + bitsPerChunk * b)
 /// @notice Assumes merging of two ints fit in field
 /// @notice Can be made more generic by taking hash with any size inputs with nesting
 /// @param bitsPerChunk Number of bits in each chunk
@@ -29,7 +29,7 @@ template PoseidonLarge(bitsPerChunk, chunkSize) {
         if (i == halfChunkSize - 1 && chunkSize % 2 == 1) {
             poseidonInput[i] <== in[2 * i];
         } else {
-            poseidonInput[i] <== in[2 * i] + (1 << bytesPerChunk) * in[2 * i + 1];
+            poseidonInput[i] <== in[2 * i] + (1 << bitsPerChunk) * in[2 * i + 1];
         }
     }
 
