@@ -44,7 +44,12 @@ template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashChec
     signal output pubkeyHash;
 
 
-    // Assert emailHeader data after emailHeaderLength are zeros
+    // Assert `emailHeaderLength` fits in `ceil(log2(maxHeadersLength))`
+    component n2b = Num2Bits(log2Ceil(maxHeadersLength));
+    n2b.in <== emailHeaderLength;
+
+
+    // Assert `emailHeader` data after `emailHeaderLength` are zeros
     AssertZeroPadding(maxHeadersLength)(emailHeader, emailHeaderLength);
     
 
@@ -84,8 +89,15 @@ template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashChec
         signal input emailBody[maxBodyLength];
         signal input emailBodyLength;
 
-        // Assert data after the body (maxBodyLength - emailBody.length) is all zeroes
+
+        // Assert `emailBodyLength` fits in `ceil(log2(maxBodyLength))`
+        component n2b = Num2Bits(log2Ceil(maxBodyLength));
+        n2b.in <== emailBodyLength;
+
+
+        // Assert data after the body (`maxBodyLength - emailBody.length`) is all zeroes
         AssertZeroPadding(maxBodyLength)(emailBody, emailBodyLength);
+
 
         // Body hash regex - 617,597 constraints
         // Extract the body hash from the header (i.e. the part after bh= within the DKIM-signature section)
@@ -95,7 +107,6 @@ template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashChec
         var shaB64Length = 44; // Length of SHA-256 hash when base64 encoded - ceil(32 / 3) * 4
         signal bhBase64[shaB64Length] <== SelectRegexReveal(maxHeadersLength, shaB64Length)(bhReveal, bodyHashIndex);
         signal headerBodyHash[32] <== Base64Decode(32)(bhBase64);
-
 
         // Compute SHA256 of email body : 760,142 constraints
         // We are using a technique to save constraints by precomputing the SHA hash of the body till the area we want to extract
