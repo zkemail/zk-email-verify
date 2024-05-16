@@ -6,23 +6,13 @@ include "circomlib/circuits/sign.circom";
 include "./bigint.circom";
 include "./bigint-func.circom";
 
-// These functions operate over values in Z/Zp for some integer p (typically,
-// but not necessarily prime). Values are stored as standard bignums with k
-// chunks of n bits, but intermediate values often have "overflow" bits inside
-// various chunks.
-//
-// These Fp functions will always correctly generate witnesses mod p, but they
-// do not *check* that values are normalized to < p; they only check that
-// values are correct mod p. This is to save the comparison circuit.
-// They *will* always check for intended results mod p (soundness), but it may
-// not have a unique intermediate signal.
-//
-// Conversely, some templates may not be satisfiable if the input witnesses are
-// not < p. This does not break completeness, as honest provers will always
-// generate witnesses which are canonical (between 0 and p).
 
-// a * b = r mod p
-// a * b - p * q - r for some q
+/// @title FpMul
+/// @notice Multiple two numbers in Fp
+/// @param a Input 1 to FpMul; assumes to consist of `k` limbs, each of which must fit in `n` bits
+/// @param b Input 2 to FpMul; assumes to consist of `k` limbs, each of which must fit in `n` bits
+/// @param p The modulus; assumes to consist of `k` limbs, each of which must fit in `n` bits
+/// @output out 
 template FpMul(n, k) {
     assert(n + n + log_ceil(k) + 2 <= 252);
     signal input a[k];
@@ -83,4 +73,3 @@ template FpMul(n, k) {
         out[i] <== r[i];
     }
 }
-
