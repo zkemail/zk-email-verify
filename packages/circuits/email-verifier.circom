@@ -45,8 +45,8 @@ template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashChec
 
 
     // Assert `emailHeaderLength` fits in `ceil(log2(maxHeadersLength))`
-    component n2b = Num2Bits(log2Ceil(maxHeadersLength));
-    n2b.in <== emailHeaderLength;
+    component n2bHeaderLength = Num2Bits(log2Ceil(maxHeadersLength));
+    n2bHeaderLength.in <== emailHeaderLength;
 
 
     // Assert `emailHeader` data after `emailHeaderLength` are zeros
@@ -91,8 +91,8 @@ template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashChec
 
 
         // Assert `emailBodyLength` fits in `ceil(log2(maxBodyLength))`
-        component n2b = Num2Bits(log2Ceil(maxBodyLength));
-        n2b.in <== emailBodyLength;
+        component n2bBodyLength = Num2Bits(log2Ceil(maxBodyLength));
+        n2bBodyLength.in <== emailBodyLength;
 
 
         // Assert data after the body (`maxBodyLength - emailBody.length`) is all zeroes

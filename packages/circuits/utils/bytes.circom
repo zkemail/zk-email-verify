@@ -105,8 +105,6 @@ template DigitBytesToInt(n) {
     signal sums[n+1];
     sums[0] <== 0;
 
-    // TODO: Should we constrain the input ASCII to be between 48 and 57?
-
     for(var i = 0; i < n; i++) {
         sums[i + 1] <== 10 * sums[i] + (in[i] - 48);
     }

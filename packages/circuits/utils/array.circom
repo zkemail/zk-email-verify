@@ -19,9 +19,9 @@ template ItemAtIndex(maxArrayLen) {
 
     signal output out;
 
-    component calcTotal = CalculateTotal(maxArrayLen);
-    component eqs[maxArrayLen];
+    component calcTotalValue = CalculateTotal(maxArrayLen);
     component calcTotalIndex = CalculateTotal(maxArrayLen);
+    component eqs[maxArrayLen];
 
     // For each item, check whether its index equals the input index.
     for (var i = 0; i < maxArrayLen; i ++) {
@@ -30,7 +30,7 @@ template ItemAtIndex(maxArrayLen) {
         eqs[i].in[1] <== index;
 
         // eqs[i].out is 1 if the index matches - so calcTotal is sum of 0s + 1 * valueAtIndex
-        calcTotal.nums[i] <== eqs[i].out * in[i];
+        calcTotalValue.nums[i] <== eqs[i].out * in[i];
 
         // Take the sum of all eqs[i].out and assert that it is at most 1.
         calcTotalIndex.nums[i] <== eqs[i].out;
@@ -39,7 +39,7 @@ template ItemAtIndex(maxArrayLen) {
     // Assert that the sum of eqs[i].out is 1. This is to ensure the index passed is valid.
     calcTotalIndex.sum === 1;
 
-    out <== calcTotal.sum;
+    out <== calcTotalValue.sum;
 }
 
 
