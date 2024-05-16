@@ -125,7 +125,9 @@ Base64Decode: Decodes a base64 encoded string into binary data.
 </details>
 
 ## Utils
-This section provides an overview of utility circom templates available in the `@zk-email/circuits/utils` directory. These templates assist in the construction of zk circuits for various applications beyond the core ZK Email functionalities.
+This section provides an overview of utility circom templates available in the `@zk-email/circuits/utils` directory. These templates assist in the construction of ZK circuits for various applications beyond the core ZK Email functionalities.
+
+> Important: When using these templates outside of zk-email, please ensure you read the assumptions on the input signals that are documented above each template source code. You would need to constrain the inputs accordingly before you pass them to these utility circuits.
 
 ### `utils/array.circom`
 

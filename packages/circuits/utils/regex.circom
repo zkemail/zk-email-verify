@@ -9,8 +9,8 @@ include "./bytes.circom";
 /// @notice Verifies data before and after (maxRevealLen) reveal part is zero
 /// @param maxArrayLen Maximum length of the input array
 /// @param maxRevealLen Maximum length of the reveal part
-/// @input in Input array
-/// @input startIndex Index of the start of the reveal part
+/// @input in Input array; assumes elements to be bytes
+/// @input startIndex The index of the start of the reveal part; assumes a valid index
 /// @output out Revealed data array
 template SelectRegexReveal(maxArrayLen, maxRevealLen) {
     signal input in[maxArrayLen];
@@ -54,8 +54,8 @@ template SelectRegexReveal(maxArrayLen, maxRevealLen) {
 /// @notice Packs reveal data from a regex match into int[]
 /// @param maxArrayLen Maximum length of the input array
 /// @param maxRevealLen Maximum length of the reveal part
-/// @input in Input array
-/// @input startIndex Index of the start of the reveal part
+/// @input in Input array; assumes elements to be bytes
+/// @input startIndex Index of the start of the reveal part; assumes a valid index
 /// @output out Packed int array
 template PackRegexReveal(maxArrayLen, maxRevealLen) {
     var chunkSize = computeIntChunkLength(maxRevealLen);

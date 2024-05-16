@@ -11,7 +11,7 @@ include "../utils/functions.circom";
 
 /// @title Sha256Bytes
 /// @notice Computes the SHA256 hash of input bytes
-/// @input paddedIn Message to hash, padded as per the SHA256 specification
+/// @input paddedIn Message to hash, padded as per the SHA256 specification; assumes to consist of bytes
 /// @input paddedInLength Length of the padded message; assumes to be in `ceil(log2(8 * maxByteLength))` bits
 /// @output out The 256-bit hash of the input message
 template Sha256Bytes(maxByteLength) {
@@ -40,7 +40,7 @@ template Sha256Bytes(maxByteLength) {
 
 /// @title Sha256BytesPartial
 /// @notice Computes the SHA256 hash of input bytes with a precomputed state
-/// @input paddedIn Message to hash padded as per the SHA256 specification
+/// @input paddedIn Message to hash padded as per the SHA256 specification; assumes to consist of bytes
 /// @input paddedInLength Length of the padded message; assumes to be in `ceil(log2(8 * maxByteLength))` bits
 /// @input preHash The precomputed state of the hash
 /// @output out SHA hash the input message with the precomputed state
@@ -82,7 +82,7 @@ template Sha256BytesPartial(maxByteLength) {
 /// @title Sha256General
 /// @notice A modified version of the SHA256 circuit that allows specified length messages up to a 
 ///         max to all work via array indexing on the SHA256 compression circuit.
-/// @input paddedIn Message to hash padded as per the SHA256 specification
+/// @input paddedIn Message to hash padded as per the SHA256 specification; assumes to consist of bits
 /// @input paddedInLength Length of the padded message; assumes to be in `ceil(log2(maxBitLength))` bits
 /// @output out The 256-bit hash of the input message
 template Sha256General(maxBitLength) {
@@ -204,9 +204,9 @@ template Sha256General(maxBitLength) {
 
 /// @title Sha256Partial
 /// @notice Calculates the SHA256 hash of a message with a precomputed state
-/// @input paddedIn Message to hash padded as per the SHA256 specification
+/// @input paddedIn Message to hash padded as per the SHA256 specification; assumes to consist of bits
 /// @input paddedInLength Length of the padded message; assumes to be in `ceil(log2(maxBitLength))` bits
-/// @input preHash The precomputed state of the hash
+/// @input preHash The precomputed state of the hash; assumes to consist of bits
 /// @output out The 256-bit hash of the input message
 template Sha256Partial(maxBitLength) {
     // maxBitLength must be a multiple of 512, and the bit circuits in this file are limited to 15 so must be raised if the message is longer.

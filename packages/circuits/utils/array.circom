@@ -46,7 +46,7 @@ template ItemAtIndex(maxArrayLen) {
 /// @title CalculateTotal
 /// @notice Calculate the sum of an array
 /// @param n The number of elements in the array
-/// @input nums The input array
+/// @input nums The input array; assumes elements are small enough that their sum does not overflow the field
 /// @output sum The sum of the input array
 template CalculateTotal(n) {
     signal input nums[n];
@@ -146,8 +146,8 @@ template VarShiftLeft(maxArrayLen, maxOutArrayLen) {
 /// @title AssertZeroPadding
 /// @notice Assert that the input array is zero-padded from the given `startIndex`
 /// @param maxArrayLen The maximum number of elements in the input array
-/// @input in The input array
-/// @input startIndex The index from which the array should be zero-padded
+/// @input in The input array;
+/// @input startIndex The index from which the elements should be 0; assumes `startIndex - 1` to fit in `ceil(log2(maxArrayLen))` bits
 template AssertZeroPadding(maxArrayLen) {
     var bitLength = log2Ceil(maxArrayLen);
     assert(maxArrayLen <= (1 << bitLength));
