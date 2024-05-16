@@ -15,6 +15,7 @@ include "./bigint-func.circom";
 /// @output out The result of the FpMul
 template FpMul(n, k) {
     assert(n + n + log_ceil(k) + 2 <= 252);
+
     signal input a[k];
     signal input b[k];
     signal input p[k];

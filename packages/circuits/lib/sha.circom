@@ -46,6 +46,7 @@ template Sha256Bytes(maxByteLength) {
 /// @output out SHA hash the input message with the precomputed state
 template Sha256BytesPartial(maxByteLength) {
     assert(maxByteLength % 32 == 0);
+
     signal input paddedIn[maxByteLength];
     signal input paddedInLength;
     signal input preHash[32];
@@ -86,11 +87,11 @@ template Sha256BytesPartial(maxByteLength) {
 /// @input paddedInLength Length of the padded message; assumes to be in `ceil(log2(maxBitLength))` bits
 /// @output out The 256-bit hash of the input message
 template Sha256General(maxBitLength) {
-    // maxBitLength must be a multiple of 512, and the bit circuits in this file are limited to 15 so must be raised if the message is longer.
+    // maxBitLength must be a multiple of 512
+    // the bit circuits in this file are limited to 15 so must be raised if the message is longer.
     assert(maxBitLength % 512 == 0);
-    var maxBitsPaddedBits = log2Ceil(maxBitLength);
-    assert(2 ** maxBitsPaddedBits > maxBitLength);
 
+    var maxBitsPaddedBits = log2Ceil(maxBitLength);
 
     // Note that maxBitLength = maxBits + 64
     signal input paddedIn[maxBitLength];
@@ -209,10 +210,11 @@ template Sha256General(maxBitLength) {
 /// @input preHash The precomputed state of the hash; assumes to consist of bits
 /// @output out The 256-bit hash of the input message
 template Sha256Partial(maxBitLength) {
-    // maxBitLength must be a multiple of 512, and the bit circuits in this file are limited to 15 so must be raised if the message is longer.
+    // maxBitLength must be a multiple of 512
+    // the bit circuits in this file are limited to 15 so must be raised if the message is longer.
     assert(maxBitLength % 512 == 0);
+
     var maxBitsPaddedBits = log2Ceil(maxBitLength);
-    assert(2 ** maxBitsPaddedBits > maxBitLength);
 
     // Note that maxBitLength = maxBits + 64
     signal input paddedIn[maxBitLength];

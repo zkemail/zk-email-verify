@@ -164,7 +164,8 @@ template RSAPad(n, k) {
     }
 
     // The RFC guarantees at least 8 octets of 0xff padding.
-    assert(baseLen + 8 + 65 <= n*k);
+    assert(baseLen + 8 + 65 <= n * k);
+
     for (var i = baseLen + 8; i < baseLen + 8 + 65; i++) {
         paddedMessageBits[i] === 1;
     }

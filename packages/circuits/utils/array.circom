@@ -72,7 +72,7 @@ template CalculateTotal(n) {
 /// @param maxSubArrayLen: the maximum number of integers in the output array
 /// @input in: the input array
 /// @input startIndex: the start index of the sub array; assumes a valid index
-/// @input length: the length of the sub array; assumes the value to be in [0, `maxSubArrayLen`]
+/// @input length: the length of the sub array; assumes to fit in `ceil(log2(maxArrayLen))` bits
 /// @output out: array of `maxSubArrayLen` size, items starting from `startIndex`, and items after `length` set to zero
 template SelectSubArray(maxArrayLen, maxSubArrayLen) {
     assert(maxSubArrayLen < maxArrayLen);
@@ -82,8 +82,6 @@ template SelectSubArray(maxArrayLen, maxSubArrayLen) {
     signal input length;
 
     signal output out[maxSubArrayLen];
-
-    assert(length <= maxSubArrayLen);
 
     component shifter = VarShiftLeft(maxArrayLen, maxSubArrayLen);
     shifter.in <== in;
@@ -111,9 +109,9 @@ template SelectSubArray(maxArrayLen, maxSubArrayLen) {
 /// @input shift The number of indices to shift the array to the left
 /// @output out hifted subarray
 template VarShiftLeft(maxArrayLen, maxOutArrayLen) {
-    var bitLength = log2Ceil(maxArrayLen);
-    assert(2 ** bitLength > maxArrayLen);
     assert(maxOutArrayLen <= maxArrayLen);
+
+    var bitLength = log2Ceil(maxArrayLen);
 
     signal input in[maxArrayLen];
     signal input shift;
@@ -150,13 +148,10 @@ template VarShiftLeft(maxArrayLen, maxOutArrayLen) {
 /// @input startIndex The index from which the elements should be 0; assumes `startIndex - 1` to fit in `ceil(log2(maxArrayLen))` bits
 template AssertZeroPadding(maxArrayLen) {
     var bitLength = log2Ceil(maxArrayLen);
-    assert(maxArrayLen <= (1 << bitLength));
     
     signal input in[maxArrayLen];
     signal input startIndex;
 
-    assert(startIndex < maxArrayLen);
-    
     component lessThans[maxArrayLen];
 
     for (var i = 0; i < maxArrayLen; i++) {

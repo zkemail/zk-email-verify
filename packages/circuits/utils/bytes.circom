@@ -79,8 +79,6 @@ template PackByteSubArray(maxArrayLen, maxSubArrayLen) {
 
     signal output out[chunkLength];
 
-    assert(length <= maxSubArrayLen);
-
     component SelectSubArray = SelectSubArray(maxArrayLen, maxSubArrayLen);
     SelectSubArray.in <== in;
     SelectSubArray.startIndex <== startIndex;

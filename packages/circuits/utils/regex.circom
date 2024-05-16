@@ -11,7 +11,7 @@ include "./bytes.circom";
 /// @param maxRevealLen Maximum length of the reveal part
 /// @input in Input array; assumes elements to be bytes
 /// @input startIndex The index from which reveal part starts; assumes a valid index, 
-///                   and `startIndex + maxRevealLen - 1` fits in `log2Ceil(maxArrayLen)` bits.
+///                   and `startIndex + maxRevealLen - 1` fits in `ceil(log2((maxArrayLen))` bits.
 /// @output out Revealed data array
 template SelectRegexReveal(maxArrayLen, maxRevealLen) {
     signal input in[maxArrayLen];
