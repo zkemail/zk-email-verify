@@ -176,7 +176,7 @@ function long_div(n, k, m, a, b){
     }
     m -= k;
 
-    var remainder[200];
+    var remainder[100];
     for (var i = 0; i < m + k; i++) {
         remainder[i] = a[i];
     }
@@ -250,9 +250,9 @@ function short_div(n, k, a, b) {
    var scale = (1 << n) \ (1 + b[k - 1]);
 
    // k + 2 registers now
-   var norm_a[200] = long_scalar_mult(n, k + 1, scale, a);
+   var norm_a[100] = long_scalar_mult(n, k + 1, scale, a);
    // k + 1 registers now
-   var norm_b[200] = long_scalar_mult(n, k, scale, b);
+   var norm_b[100] = long_scalar_mult(n, k, scale, b);
 
    var ret;
    if (norm_b[k] != 0) {
