@@ -9,10 +9,10 @@ include "./bigint-func.circom";
 
 /// @title FpMul
 /// @notice Multiple two numbers in Fp
-/// @param a Input 1 to FpMul; assumes to consist of `k` limbs, each of which must fit in `n` bits
-/// @param b Input 2 to FpMul; assumes to consist of `k` limbs, each of which must fit in `n` bits
-/// @param p The modulus; assumes to consist of `k` limbs, each of which must fit in `n` bits
-/// @output out 
+/// @param a Input 1 to FpMul; assumes to consist of `k` chunks, each of which must fit in `n` bits
+/// @param b Input 2 to FpMul; assumes to consist of `k` chunks, each of which must fit in `n` bits
+/// @param p The modulus; assumes to consist of `k` chunks, each of which must fit in `n` bits
+/// @output out The result of the FpMul
 template FpMul(n, k) {
     assert(n + n + log_ceil(k) + 2 <= 252);
     signal input a[k];

@@ -51,8 +51,8 @@ template RSAVerifier65537(n, k) {
 /// @dev Does not necessarily reduce fully mod modulus (the answer could be too big by a multiple of modulus)
 /// @param n Number of bits per chunk the modulus is split into.
 /// @param k Number of chunks the modulus is split into.
-/// @input base The base to exponentiate; assumes to consist of `k` limbs, each of which must fit in `n` bits
-/// @input modulus The modulus; assumes to consist of `k` limbs, each of which must fit in `n` bits
+/// @input base The base to exponentiate; assumes to consist of `k` chunks, each of which must fit in `n` bits
+/// @input modulus The modulus; assumes to consist of `k` chunks, each of which must fit in `n` bits
 /// @output out The result of the exponentiation.
 template FpPow65537Mod(n, k) {
     signal input base[k];

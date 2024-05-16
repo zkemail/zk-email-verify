@@ -6,6 +6,13 @@ include "circomlib/circuits/gates.circom";
 include "./bigint-func.circom";
 
 
+/// @template BigLessThan
+/// @notice Less than comparison for big integers
+/// @param n The number of bits in each chunk
+/// @param k The number of chunks
+/// @param a The first bigint; assumes to consist of `k` chunks, each of which must fit in `n` bits
+/// @param b The second bigint; assumes to consist of `k` chunks, each of which must fit in `n` bits
+/// @param out The output of the comparison
 template BigLessThan(n, k){
     signal input a[k];
     signal input b[k];
@@ -53,9 +60,12 @@ template BigLessThan(n, k){
 }
 
 
-// in[i] contains values in the range -2^(m-1) to 2^(m-1)
-// constrain that in[] as a big integer is zero
-// each limbs is n bits
+/// @template CheckCarryToZero
+/// @notice Check that in[] as a big integer is zero
+/// @param n The number of bits in each chunk
+/// @param m 
+/// @param k The number of chunks
+/// @input in The input big integer; assumes elements to be in the range -2^(m-1) to 2^(m-1)
 template CheckCarryToZero(n, m, k) {
     assert(k >= 2);
 
