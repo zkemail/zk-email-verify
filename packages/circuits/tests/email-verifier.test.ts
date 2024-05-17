@@ -5,7 +5,7 @@ import path from "path";
 import { DKIMVerificationResult } from "@zk-email/helpers/src/dkim";
 import { generateEmailVerifierInputsFromDKIMResult } from "@zk-email/helpers/src/input-generators";
 import { verifyDKIMSignature } from "@zk-email/helpers/src/dkim";
-import { bigIntToChunkedBytes } from "@zk-email/helpers/src/binary-format";
+import { poseidonLarge } from "@zk-email/helpers/src/hash";
 
 
 describe("EmailVerifier", () => {
@@ -169,15 +169,13 @@ describe("EmailVerifier", () => {
     });
 
     // Calculate the Poseidon hash with pubkey chunked to 9*242 like in circuit
-    const poseidon = await buildPoseidon();
-    const pubkeyChunked = bigIntToChunkedBytes(dkimResult.publicKey, 242, 9);
-    const hash = poseidon(pubkeyChunked);
+    const poseidonHash = await poseidonLarge(dkimResult.publicKey, 9, 242);
 
     // Calculate the hash using the circuit
     const witness = await circuit.calculateWitness(emailVerifierInputs);
 
     await circuit.assertOut(witness, {
-      pubkeyHash: poseidon.F.toObject(hash),
+      pubkeyHash: poseidonHash,
     });
   });
 });
