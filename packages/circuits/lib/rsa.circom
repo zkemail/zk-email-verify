@@ -7,9 +7,9 @@ include "./fp.circom";
 /// @notice Verifies an RSA signature with exponent 65537.
 /// @param n Number of bits per chunk the modulus is split into. Recommended to be 121.
 /// @param k Number of chunks the modulus is split into. Recommended to be 17.
-/// @input message The message that was signed.
-/// @input signature[k] The signature to verify.
-/// @input modulus[k] The modulus of the RSA key (pubkey).
+/// @input message[k] The message that was signed; assumes to consist of `k` chunks that fit in `n` bits (also constrained implicitly).
+/// @input signature[k] The signature to verify; assumes to consist of `k` chunks that fit in `n` bits (also constrained implicitly).
+/// @input modulus[k] The modulus of the RSA key (pubkey); assumes to consist of `k` chunks that fit in `n` bits (also constrained implicitly).
 template RSAVerifier65537(n, k) {
     signal input message[k];
     signal input signature[k];
@@ -51,7 +51,9 @@ template RSAVerifier65537(n, k) {
 /// @dev Does not necessarily reduce fully mod modulus (the answer could be too big by a multiple of modulus)
 /// @param n Number of bits per chunk the modulus is split into.
 /// @param k Number of chunks the modulus is split into.
-/// @input base The base to exponentiate.
+/// @input base The base to exponentiate; assumes to consist of `k` chunks, each of which must fit in `n` bits
+/// @input modulus The modulus; assumes to consist of `k` chunks, each of which must fit in `n` bits
+/// @output out The result of the exponentiation.
 template FpPow65537Mod(n, k) {
     signal input base[k];
     signal input modulus[k];
@@ -162,7 +164,8 @@ template RSAPad(n, k) {
     }
 
     // The RFC guarantees at least 8 octets of 0xff padding.
-    assert(baseLen + 8 + 65 <= n*k);
+    assert(baseLen + 8 + 65 <= n * k);
+
     for (var i = baseLen + 8; i < baseLen + 8 + 65; i++) {
         paddedMessageBits[i] === 1;
     }

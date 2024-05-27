@@ -44,8 +44,13 @@ template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashChec
     signal output pubkeyHash;
 
 
-    // Assert emailHeader data after emailHeaderLength are zeros
-    AssertZeroPadding(maxHeadersLength)(emailHeader, emailHeaderLength + 1);
+    // Assert `emailHeaderLength` fits in `ceil(log2(maxHeadersLength))`
+    component n2bHeaderLength = Num2Bits(log2Ceil(maxHeadersLength));
+    n2bHeaderLength.in <== emailHeaderLength;
+
+
+    // Assert `emailHeader` data after `emailHeaderLength` are zeros
+    AssertZeroPadding(maxHeadersLength)(emailHeader, emailHeaderLength);
     
 
     // Calculate SHA256 hash of the `emailHeader` - 506,670 constraints
@@ -84,8 +89,15 @@ template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashChec
         signal input emailBody[maxBodyLength];
         signal input emailBodyLength;
 
-        // Assert data after the body (maxBodyLength - emailBody.length) is all zeroes
-        AssertZeroPadding(maxBodyLength)(emailBody, emailBodyLength + 1);
+
+        // Assert `emailBodyLength` fits in `ceil(log2(maxBodyLength))`
+        component n2bBodyLength = Num2Bits(log2Ceil(maxBodyLength));
+        n2bBodyLength.in <== emailBodyLength;
+
+
+        // Assert data after the body (`maxBodyLength - emailBody.length`) is all zeroes
+        AssertZeroPadding(maxBodyLength)(emailBody, emailBodyLength);
+
 
         // Body hash regex - 617,597 constraints
         // Extract the body hash from the header (i.e. the part after bh= within the DKIM-signature section)
@@ -96,8 +108,7 @@ template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashChec
         signal bhBase64[shaB64Length] <== SelectRegexReveal(maxHeadersLength, shaB64Length)(bhReveal, bodyHashIndex);
         signal headerBodyHash[32] <== Base64Decode(32)(bhBase64);
 
-
-        // Compute SHA256 of email body : 760,142 constraints
+        // Compute SHA256 of email body : 760,142 constraints (for maxBodyLength = 1536)
         // We are using a technique to save constraints by precomputing the SHA hash of the body till the area we want to extract
         // It doesn't have an impact on security since a user must have known the pre-image of a signed message to be able to fake it
         signal computedBodyHash[256] <== Sha256BytesPartial(maxBodyLength)(emailBody, emailBodyLength, precomputedSHA);

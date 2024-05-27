@@ -125,7 +125,9 @@ Base64Decode: Decodes a base64 encoded string into binary data.
 </details>
 
 ## Utils
-This section provides an overview of utility circom templates available in the `@zk-email/circuits/utils` directory. These templates assist in the construction of zk circuits for various applications beyond the core ZK Email functionalities.
+This section provides an overview of utility circom templates available in the `@zk-email/circuits/utils` directory. These templates assist in the construction of ZK circuits for various applications beyond the core ZK Email functionalities.
+
+> Important: When using these templates outside of zk-email, please ensure you read the assumptions on the input signals that are documented above each template source code. You would need to constrain the inputs accordingly before you pass them to these utility circuits.
 
 ### `utils/array.circom`
 
@@ -276,14 +278,14 @@ Constants: Defines a set of constants used across various circom circuits for st
 
 <details>
 <summary>
-log2Ceil: Calculates the ceiling of the base 2 logarithm of a given number.
+log2Ceil: Calculate log2 of a number and round it up
 </summary>
 
 - **[Source](utils/functions.circom#L2-L10)**
 - **Inputs**:
-  - `a`: The input number for which the base 2 logarithm ceiling is to be calculated.
+  - `a`: The input number for which the `ceil(log2())` needs to be calculated.
 - **Outputs**:
-  - Returns the smallest integer greater than or equal to the base 2 logarithm of the input number.
+  - Returns `ceil(log2())` of the input number.
 </details>
 
 

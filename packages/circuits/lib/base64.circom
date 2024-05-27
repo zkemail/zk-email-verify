@@ -5,8 +5,11 @@ include "circomlib/circuits/comparators.circom";
 
 /// @title Base64Decode
 /// @notice Decodes a Base64 encoded string to array of bytes.
+/// @notice Only support inputs with length = `byteLength` (no 0 padding).
+/// @notice It is known that padding char '=' can be replaed with `A` to produce the same output
+///         as Base64Lookup returns `0` for both, but a pracical attack from this is unlikely.
 /// @param byteLength Byte length of the encoded value - length of the output array.
-/// @input in Base64 encoded string.
+/// @input in Base64 encoded string; assumes elements to be valid Base64 characters.
 /// @output out Decoded array of bytes.
 template Base64Decode(byteLength) {
     var charLength = 4 * ((byteLength + 2) \ 3); // 4 chars encode 3 bytes
@@ -63,7 +66,7 @@ template Base64Decode(byteLength) {
 
 /// @title Base64Lookup
 /// @notice http://0x80.pl/notesen/2016-01-17-sse-base64-decoding.html#vector-lookup-base
-/// @input in input character.
+/// @input in input character; assumes input to be valid Base64 character (though constrained implicitly).
 /// @output out output bit value.
 template Base64Lookup() {
     signal input in;

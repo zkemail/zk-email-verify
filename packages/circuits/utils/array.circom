@@ -7,27 +7,20 @@ include "./functions.circom";
 
 /// @title ItemAtIndex
 /// @notice Select item at given index from the input array
-/// @notice This is QuinSelector from MACI https://github.com/privacy-scaling-explorations/maci/
+/// @notice This template that the index is valid
+/// @notice This is a modified version of QuinSelector from MACI https://github.com/privacy-scaling-explorations/maci/
 /// @param maxArrayLen The number of elements in the array
 /// @input in The input array
 /// @input index The index of the element to select
 /// @output out The selected element
 template ItemAtIndex(maxArrayLen) {
-    var bitLength = log2Ceil(maxArrayLen);
-    assert(2 ** bitLength > maxArrayLen);
-
     signal input in[maxArrayLen];
     signal input index;
 
     signal output out;
 
-    // Ensure that index < maxArrayLen
-    component lessThan = LessThan(bitLength);
-    lessThan.in[0] <== index;
-    lessThan.in[1] <== maxArrayLen;
-    lessThan.out === 1;
-
-    component calcTotal = CalculateTotal(maxArrayLen);
+    component calcTotalValue = CalculateTotal(maxArrayLen);
+    component calcTotalIndex = CalculateTotal(maxArrayLen);
     component eqs[maxArrayLen];
 
     // For each item, check whether its index equals the input index.
@@ -36,20 +29,24 @@ template ItemAtIndex(maxArrayLen) {
         eqs[i].in[0] <== i;
         eqs[i].in[1] <== index;
 
-        // eqs[i].out is 1 if the index matches. As such, at most one input to
-        // calcTotal is not 0.
-        calcTotal.nums[i] <== eqs[i].out * in[i];
+        // eqs[i].out is 1 if the index matches - so calcTotal is sum of 0s + 1 * valueAtIndex
+        calcTotalValue.nums[i] <== eqs[i].out * in[i];
+
+        // Take the sum of all eqs[i].out and assert that it is at most 1.
+        calcTotalIndex.nums[i] <== eqs[i].out;
     }
 
-    // Returns 0 + 0 + ... + item
-    out <== calcTotal.sum;
+    // Assert that the sum of eqs[i].out is 1. This is to ensure the index passed is valid.
+    calcTotalIndex.sum === 1;
+
+    out <== calcTotalValue.sum;
 }
 
 
 /// @title CalculateTotal
 /// @notice Calculate the sum of an array
 /// @param n The number of elements in the array
-/// @input nums The input array
+/// @input nums The input array; assumes elements are small enough that their sum does not overflow the field
 /// @output sum The sum of the input array
 template CalculateTotal(n) {
     signal input nums[n];
@@ -70,12 +67,12 @@ template CalculateTotal(n) {
 /// @title SelectSubArray
 /// @notice Select sub array from an array given a `startIndex` and `length`
 /// @notice This is same as `VarShiftLeft` but with elements after `length` set to zero
-/// @notice This is not used in ZK-Email circuits anywhere
+/// @notice This is not used in core ZK-Email circuits at the moment
 /// @param maxArrayLen: the maximum number of bytes in the input array
 /// @param maxSubArrayLen: the maximum number of integers in the output array
-/// @input in: the input byte array
-/// @input startIndex: the start index of the sub array
-/// @input length: the length of the sub array
+/// @input in: the input array
+/// @input startIndex: the start index of the sub array; assumes a valid index
+/// @input length: the length of the sub array; assumes to fit in `ceil(log2(maxArrayLen))` bits
 /// @output out: array of `maxSubArrayLen` size, items starting from `startIndex`, and items after `length` set to zero
 template SelectSubArray(maxArrayLen, maxSubArrayLen) {
     assert(maxSubArrayLen < maxArrayLen);
@@ -85,8 +82,6 @@ template SelectSubArray(maxArrayLen, maxSubArrayLen) {
     signal input length;
 
     signal output out[maxSubArrayLen];
-
-    assert(length <= maxSubArrayLen);
 
     component shifter = VarShiftLeft(maxArrayLen, maxSubArrayLen);
     shifter.in <== in;
@@ -114,9 +109,9 @@ template SelectSubArray(maxArrayLen, maxSubArrayLen) {
 /// @input shift The number of indices to shift the array to the left
 /// @output out hifted subarray
 template VarShiftLeft(maxArrayLen, maxOutArrayLen) {
-    var bitLength = log2Ceil(maxArrayLen);
-    assert(2 ** bitLength > maxArrayLen);
     assert(maxOutArrayLen <= maxArrayLen);
+
+    var bitLength = log2Ceil(maxArrayLen);
 
     signal input in[maxArrayLen];
     signal input shift;
@@ -149,17 +144,14 @@ template VarShiftLeft(maxArrayLen, maxOutArrayLen) {
 /// @title AssertZeroPadding
 /// @notice Assert that the input array is zero-padded from the given `startIndex`
 /// @param maxArrayLen The maximum number of elements in the input array
-/// @input in The input array
-/// @input startIndex The index from which the array should be zero-padded
+/// @input in The input array;
+/// @input startIndex The index from which the elements should be 0; assumes `startIndex - 1` to fit in `ceil(log2(maxArrayLen))` bits
 template AssertZeroPadding(maxArrayLen) {
     var bitLength = log2Ceil(maxArrayLen);
-    assert(maxArrayLen <= (1 << bitLength));
     
     signal input in[maxArrayLen];
     signal input startIndex;
 
-    assert(startIndex < maxArrayLen);
-    
     component lessThans[maxArrayLen];
 
     for (var i = 0; i < maxArrayLen; i++) {
