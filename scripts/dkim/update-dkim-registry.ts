@@ -6,6 +6,7 @@ import forge from "node-forge";
 import { bigIntToChunkedBytes } from "@zk-email/helpers/src/binaryFormat";
 const fs = require("fs");
 import { abi } from "../abis/DKIMRegistry.json";
+import { poseidonLarge } from "@zk-email/helpers/src/hash";
 require("dotenv").config();
 
 async function updateContract(domain: string, pubkeyHashes: string[]) {
@@ -252,16 +253,15 @@ async function updateDKIMRegistry({
 
   // Generate pub key hash using 242 * 9 chunks (Poseidon lib don't take more than 16 inputs)
   const domainHashedPubKeyMap: { [key: string]: string[] } = {};
-  const poseidon = await buildPoseidon();
+
   for (let domain of Object.keys(domainPubKeyMap)) {
     for (let { publicKey } of domainPubKeyMap[domain]) {
-      const pubkeyChunked = bigIntToChunkedBytes(BigInt(publicKey), 242, 9);
-      const hash = poseidon(pubkeyChunked);
+      const poseidonHash = await poseidonLarge(BigInt(publicKey), 9, 242);
 
       if (!domainHashedPubKeyMap[domain]) {
         domainHashedPubKeyMap[domain] = [];
       }
-      domainHashedPubKeyMap[domain].push(poseidon.F.toObject(hash).toString());
+      domainHashedPubKeyMap[domain].push(poseidonHash.toString());
     }
   }
   _writeToFile("dkim-keys-hashed.json", domainHashedPubKeyMap);
