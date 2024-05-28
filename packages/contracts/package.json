@@ -12,6 +12,7 @@
   },
   "files": [
     "DKIMRegistry.sol",
+    "UserOverrideableDKIMRegistry.sol",
     "/utils",
     "/interfaces"
   ],
