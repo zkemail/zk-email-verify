@@ -30,6 +30,12 @@ You can fork the project as a starting point for your own ZK-Email application.
 
 Moreover, for those interested in creating the Twitter circuit from scratch, our [Proof of Twitter guide](https://prove.email/blog/twitter) offers a step-by-step tutorial on utilizing our SDKs for circuit construction.
 
+## Audits
+
+Both `zk-email-verify` and `zk-regex` were audited by [zkSecurity](https://zksecurity.xyz/). The report can be found [here](/audits/zksecurity-audit.pdf).
+
+Version [`6.1.0`](https://github.com/zkemail/zk-email-verify/releases/tag/v6.1.0) contains the fixes for the issues found in the audit.
+
 
 ## Contributors 💡
 For each pull request that successfully merges and addresses an [open issue](https://github.com/zkemail/zk-email-verify/issues), we offer a $50 reward. Should we overlook issuing your reward, kindly send us a direct message as a reminder. To learn more about how you can contribute to this project, please consult our [Contributing Guide](Contributing.md).
