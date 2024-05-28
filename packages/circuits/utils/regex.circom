@@ -19,7 +19,7 @@ template SelectRegexReveal(maxArrayLen, maxRevealLen) {
 
     signal output out[maxRevealLen];
 
-    var bitLength = log2Ceil(maxArrayLen);
+    var bitLength = log2Ceil(maxArrayLen + maxRevealLen - 1);
 
     signal isStartIndex[maxArrayLen];
     signal isZero[maxArrayLen];
