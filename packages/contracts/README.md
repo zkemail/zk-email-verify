@@ -16,6 +16,12 @@
 For a detailed overview of its functionalities, please refer to the source file: [DKIMRegistry.sol](./DKIMRegistry.sol)
 </details>
 
+## UserOverrideableDKIMRegistry.sol
+
+`UserOverrideableDKIMRegistry.sol` is a Solidity contract within the `@zk-email/contracts` package. Basically the same as DKIMRegistry.sol above, but with the addition of `bool individual` argument to the calling function. Each user can set a publicKeyHash only for himself/herself.
+
+[UserOverrideableDKIMRegistry.sol](./UserOverrideableDKIMRegistry.sol)
+
 ## StringUtils.sol
 
 `StringUtils.sol` is a Solidity library that offers a range of string manipulation functions, including conversion between bytes and strings, and numerical string operations, for use across the `@zk-email/contracts` package.

@@ -1,6 +1,6 @@
 {
   "name": "@zk-email/contracts",
-  "version": "6.1.0",
+  "version": "6.2.0",
   "license": "MIT",
   "scripts": {
     "build": "forge build",
@@ -12,6 +12,7 @@
   },
   "files": [
     "DKIMRegistry.sol",
+    "UserOverrideableDKIMRegistry.sol",
     "/utils",
     "/interfaces"
   ],
