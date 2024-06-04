@@ -32,9 +32,10 @@ Moreover, for those interested in creating the Twitter circuit from scratch, our
 
 ## Audits
 
-Both `zk-email-verify` and `zk-regex` were audited by [zkSecurity](https://zksecurity.xyz/). The report can be found [here](/audits/zksecurity-audit.pdf).
+  - Audit from [zkSecurity](https://zksecurity.xyz/) that cover both `zk-email-verify` and `zk-regex` - [Report](/audits/zksecurity-audit.pdf). Version [`6.1.0`](https://github.com/zkemail/zk-email-verify/releases/tag/v6.1.0) fixes the issues found in the audit.
 
-Version [`6.1.0`](https://github.com/zkemail/zk-email-verify/releases/tag/v6.1.0) contains the fixes for the issues found in the audit.
+  - Audit from [yAcademy](https://yacademy.dev/) - [Report](/audits/yacademy-audit.pdf).
+
 
 
 ## Contributors 💡
