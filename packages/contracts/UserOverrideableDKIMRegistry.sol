@@ -75,16 +75,18 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, Ownable {
         }
     }
 
-    // /**
-    //  * @notice Sets the DKIM public key hash for a given domain.
-    //  * @dev This function allows the owner to set a DKIM public key hash for all users, or an individual user to set it for themselves.
-    //  * @param domainName The domain name for which the DKIM public key hash is being set.
-    //  * @param publicKeyHash The hash of the DKIM public key to be set.
-    //  * @param individual A boolean indicating whether the hash is being set for an individual user (true) or for all users (false).
-    //  * @custom:require Only the owner can set the DKIM public key hash for all users when `individual` is false.
-    //  * @custom:require The public key hash must not be revoked.
-    //  * @custom:event DKIMPublicKeyHashRegistered Emitted when a DKIM public key hash is successfully set.
-    //  */
+    /**
+     * @notice Sets the DKIM public key hash for a given domain with authorization.
+     * @dev This function allows an authorized user or a contract to set a DKIM public key hash. It uses EIP-1271 or ECDSA for signature verification.
+     * @param domainName The domain name for which the DKIM public key hash is being set.
+     * @param publicKeyHash The hash of the DKIM public key to be set.
+     * @param authorizer The address of the authorizer who can set the DKIM public key hash.
+     * @param signature The signature proving the authorization to set the DKIM public key hash.
+     * @custom:require The domain name, public key hash, and authorizer address must not be zero.
+     * @custom:require The public key hash must not be revoked.
+     * @custom:require The signature must be valid according to EIP-1271 if the authorizer is a contract, or ECDSA if the authorizer is an EOA.
+     * @custom:event DKIMPublicKeyHashRegistered Emitted when a DKIM public key hash is successfully set.
+     */
     function setDKIMPublicKeyHash(
         string memory domainName,
         bytes32 publicKeyHash,
@@ -155,14 +157,18 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, Ownable {
         }
     }
 
-    // /**
-    //  * @notice Revokes a DKIM public key hash.
-    //  * @dev This function allows the owner to revoke a DKIM public key hash for all users, or an individual user to revoke it for themselves.
-    //  * @param publicKeyHash The hash of the DKIM public key to be revoked.
-    //  * @param individual A boolean indicating whether the hash is being revoked for an individual user (true) or for all users (false).
-    //  * @custom:require Only the owner can revoke the DKIM public key hash for all users when `individual` is false.
-    //  * @custom:event DKIMPublicKeyHashRevoked Emitted when a DKIM public key hash is successfully revoked.
-    //  */
+    /**
+     * @notice Revokes a DKIM public key hash.
+     * @dev This function allows the owner to revoke a DKIM public key hash for all users, or an individual user to revoke it for themselves.
+     * @param domainName The domain name associated with the DKIM public key hash.
+     * @param publicKeyHash The hash of the DKIM public key to be revoked.
+     * @param authorizer The address of the authorizer who can revoke the DKIM public key hash.
+     * @param signature The signature proving the authorization to revoke the DKIM public key hash.
+     * @custom:require The domain name, public key hash, and authorizer address must not be zero.
+     * @custom:require The public key hash must not already be revoked.
+     * @custom:require The signature must be valid according to EIP-1271 if the authorizer is a contract, or ECDSA if the authorizer is an EOA.
+     * @custom:event DKIMPublicKeyHashRevoked Emitted when a DKIM public key hash is successfully revoked.
+     */
     function revokeDKIMPublicKeyHash(
         string memory domainName,
         bytes32 publicKeyHash,
@@ -204,13 +210,14 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, Ownable {
         emit DKIMPublicKeyHashRevoked(publicKeyHash, authorizer);
     }
 
-    // / @notice Computes a signed message string for setting or revoking a DKIM public key hash.
-    // / @param prefix The operation prefix (SET: or REVOKE:).
-    // / @param selector The selector associated with the DKIM public key.
-    // / @param domainName The domain name related to the operation.
-    // / @param publicKeyHash The DKIM public key hash involved in the operation.
-    // / @return string The computed signed message.
-    // / @dev This function is used internally to generate the message that needs to be signed for setting or revoking a public key hash.
+    /**
+     * @notice Computes a signed message string for setting or revoking a DKIM public key hash.
+     * @param prefix The operation prefix (SET: or REVOKE:).
+     * @param domainName The domain name related to the operation.
+     * @param publicKeyHash The DKIM public key hash involved in the operation.
+     * @return string The computed signed message.
+     * @dev This function is used internally to generate the message that needs to be signed for setting or revoking a public key hash.
+     */
     function computeSignedMsg(
         string memory prefix,
         string memory domainName,
