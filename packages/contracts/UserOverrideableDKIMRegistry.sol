@@ -26,6 +26,7 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, Ownable {
         address register
     );
     event DKIMPublicKeyHashRevoked(bytes32 publicKeyHash, address register);
+    event DKIMPublicKeyHashReactivated(bytes32 publicKeyHash, address register);
 
     // Main authorizer address.
     address public mainAuthorizer;
@@ -38,8 +39,13 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, Ownable {
     mapping(bytes32 => mapping(address => bool))
         public revokedDKIMPublicKeyHashes;
 
+    // DKIM public that are reactivated (eg: in case that a malicious `mainAuthorizer` revokes a valid public key but a user reactivates it.)
+    mapping(bytes32 => mapping(address => bool))
+        public reactivatedDKIMPublicKeyHashes;
+
     string public constant SET_PREFIX = "SET:";
     string public constant REVOKE_PREFIX = "REVOKE:";
+    string public constant REACTIVATE_PREFIX = "REACTIVATE";
 
     constructor(address _owner, address _mainAuthorizer) Ownable(_owner) {
         mainAuthorizer = _mainAuthorizer;
@@ -49,22 +55,27 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, Ownable {
         string memory domainName,
         bytes32 publicKeyHash
     ) public view returns (bool) {
-        return isDKIMPublicKeyHashValid(domainName, publicKeyHash, msg.sender);
+        address ownerOfSender = Ownable(msg.sender).owner();
+        return
+            isDKIMPublicKeyHashValid(domainName, publicKeyHash, ownerOfSender);
     }
 
     function isDKIMPublicKeyHashValid(
         string memory domainName,
         bytes32 publicKeyHash,
-        address user
+        address authorizer
     ) public view returns (bool) {
         require(bytes(domainName).length > 0, "domain name cannot be zero");
         require(publicKeyHash != bytes32(0), "public key hash cannot be zero");
-        require(user != address(0), "user address cannot be zero");
-        uint256 revokeThreshold = _computeRevokeThreshold(publicKeyHash, user);
+        require(authorizer != address(0), "user address cannot be zero");
+        uint256 revokeThreshold = _computeRevokeThreshold(
+            publicKeyHash,
+            authorizer
+        );
         uint256 setThreshold = _computeSetThreshold(
             domainName,
             publicKeyHash,
-            user
+            authorizer
         );
         if (revokeThreshold >= 1) {
             return false;
@@ -129,6 +140,17 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, Ownable {
         emit DKIMPublicKeyHashRegistered(domainName, publicKeyHash, authorizer);
     }
 
+    /**
+     * @dev Sets the DKIM public key hashes in batch.
+     * @param domainNames An array of the domain name for which the DKIM public key hash is being set.
+     * @param publicKeyHashes An array of the hash of the DKIM public key to be set.
+     * @param authorizers An array of the address of the authorizer who can set the DKIM public key hash.
+     * @param signatures An array of the signature proving the authorization to set the DKIM public key hash.
+     * @custom:require The domain name, public key hash, and authorizer address must not be zero.
+     * @custom:require The public key hash must not be revoked.
+     * @custom:require The signature must be valid according to EIP-1271 if the authorizer is a contract, or ECDSA if the authorizer is an EOA.
+     * @custom:event DKIMPublicKeyHashRegistered Emitted when a DKIM public key hash is successfully set.
+     */
     function setDKIMPublicKeyHashes(
         string[] memory domainNames,
         bytes32[] memory publicKeyHashes,
@@ -210,6 +232,59 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, Ownable {
         emit DKIMPublicKeyHashRevoked(publicKeyHash, authorizer);
     }
 
+    function reactivateDKIMPublicKeyHash(
+        string memory domainName,
+        bytes32 publicKeyHash,
+        address authorizer,
+        bytes memory signature
+    ) public {
+        require(bytes(domainName).length > 0, "domain name cannot be zero");
+        require(publicKeyHash != bytes32(0), "public key hash cannot be zero");
+        require(authorizer != address(0), "authorizer address cannot be zero");
+        require(
+            reactivatedDKIMPublicKeyHashes[publicKeyHash][authorizer] == false,
+            "public key hash is already reactivated"
+        );
+        require(
+            authorizer != mainAuthorizer,
+            "mainAuthorizer cannot reactivate the public key hash"
+        );
+        require(
+            _computeRevokeThreshold(publicKeyHash, authorizer) == 1,
+            "revoke threshold must be one"
+        );
+        require(
+            _computeSetThreshold(domainName, publicKeyHash, authorizer) >= 2,
+            "set threshold must be larger than two"
+        );
+        if (msg.sender != authorizer) {
+            string memory signedMsg = computeSignedMsg(
+                REACTIVATE_PREFIX,
+                domainName,
+                publicKeyHash
+            );
+            bytes32 digest = MessageHashUtils.toEthSignedMessageHash(
+                bytes(signedMsg)
+            );
+            if (authorizer.code.length > 0) {
+                require(
+                    IERC1271(authorizer).isValidSignature(digest, signature) ==
+                        0x1626ba7e,
+                    "invalid eip1271 signature"
+                );
+            } else {
+                address recoveredSigner = digest.recover(signature);
+                require(
+                    recoveredSigner == authorizer,
+                    "invalid ecdsa signature"
+                );
+            }
+        }
+        reactivatedDKIMPublicKeyHashes[publicKeyHash][authorizer] = true;
+
+        emit DKIMPublicKeyHashReactivated(publicKeyHash, authorizer);
+    }
+
     /**
      * @notice Computes a signed message string for setting or revoking a DKIM public key hash.
      * @param prefix The operation prefix (SET: or REVOKE:).
@@ -237,7 +312,7 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, Ownable {
     function _computeSetThreshold(
         string memory domainName,
         bytes32 publicKeyHash,
-        address user
+        address authorizer
     ) private view returns (uint256) {
         uint256 threshold = 0;
         if (
@@ -246,7 +321,9 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, Ownable {
         ) {
             threshold += 1;
         }
-        if (dkimPublicKeyHashes[domainName][publicKeyHash][user] == true) {
+        if (
+            dkimPublicKeyHashes[domainName][publicKeyHash][authorizer] == true
+        ) {
             threshold += 2;
         }
         return threshold;
@@ -254,14 +331,20 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, Ownable {
 
     function _computeRevokeThreshold(
         bytes32 publicKeyHash,
-        address user
+        address authorizer
     ) private view returns (uint256) {
         uint256 threshold = 0;
         if (revokedDKIMPublicKeyHashes[publicKeyHash][mainAuthorizer] == true) {
             threshold += 1;
         }
-        if (revokedDKIMPublicKeyHashes[publicKeyHash][user] == true) {
+        if (revokedDKIMPublicKeyHashes[publicKeyHash][authorizer] == true) {
             threshold += 2;
+        }
+        if (
+            threshold == 1 &&
+            reactivatedDKIMPublicKeyHashes[publicKeyHash][authorizer] == true
+        ) {
+            threshold -= 1;
         }
         return threshold;
     }
