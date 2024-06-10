@@ -67,7 +67,7 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, Ownable {
     ) public view returns (bool) {
         require(bytes(domainName).length > 0, "domain name cannot be zero");
         require(publicKeyHash != bytes32(0), "public key hash cannot be zero");
-        require(authorizer != address(0), "user address cannot be zero");
+        require(authorizer != address(0), "authorizer address cannot be zero");
         uint256 revokeThreshold = _computeRevokeThreshold(
             publicKeyHash,
             authorizer
