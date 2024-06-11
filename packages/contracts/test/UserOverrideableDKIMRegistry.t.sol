@@ -70,6 +70,33 @@ contract UserOverrideableDKIMRegistryTest is Test {
         vm.stopPrank();
     }
 
+    function testSetDKIMPublicKeyHashByMainAuthorizerContract() public {
+        vm.startPrank(address(mainAuthorizerContract));
+
+        vm.expectEmit();
+        emit UserOverrideableDKIMRegistry.DKIMPublicKeyHashRegistered(
+            domainName,
+            publicKeyHash,
+            address(mainAuthorizerContract)
+        );
+        registry.setDKIMPublicKeyHash(
+            domainName,
+            publicKeyHash,
+            address(mainAuthorizerContract),
+            new bytes(0)
+        );
+        vm.stopPrank();
+
+        require(
+            registry.isDKIMPublicKeyHashValid(
+                domainName,
+                publicKeyHash,
+                address(mainAuthorizerContract)
+            ),
+            "Invalid public key hash"
+        );
+    }
+
     function testSetDKIMPublicKeyHashByUser1() public {
         vm.startPrank(user1);
 
@@ -601,15 +628,49 @@ contract UserOverrideableDKIMRegistryTest is Test {
 
         vm.startPrank(user1);
 
+        vm.expectEmit();
+        emit UserOverrideableDKIMRegistry.DKIMPublicKeyHashReactivated(
+            publicKeyHash,
+            user1
+        );
+        registry.reactivateDKIMPublicKeyHash(
+            domainName,
+            publicKeyHash,
+            user1,
+            new bytes(0)
+        );
+        vm.stopPrank();
+
+        require(
+            registry.isDKIMPublicKeyHashValid(domainName, publicKeyHash, user1),
+            "Invalid public key hash"
+        );
+    }
+
+    function testReactivateDKIMPublicKeyHashByUser2WithUser1Signature() public {
+        testSetDKIMPublicKeyHashByUser1();
+        testRevokeDKIMPublicKeyHashByMainAuthorizer();
+
+        require(
+            !registry.isDKIMPublicKeyHashValid(
+                domainName,
+                publicKeyHash,
+                user1
+            ),
+            "public key hash is not revoked"
+        );
+
+        vm.startPrank(user2);
+
         string memory signedMsg = registryWithContract.computeSignedMsg(
-            registryWithContract.REVOKE_PREFIX(),
+            registryWithContract.REACTIVATE_PREFIX(),
             domainName,
             publicKeyHash
         );
         bytes32 digest = MessageHashUtils.toEthSignedMessageHash(
             bytes(signedMsg)
         );
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(9, digest);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(2, digest);
         bytes memory signature = abi.encodePacked(r, s, v);
 
         vm.expectEmit();
@@ -627,6 +688,57 @@ contract UserOverrideableDKIMRegistryTest is Test {
 
         require(
             registry.isDKIMPublicKeyHashValid(domainName, publicKeyHash, user1),
+            "Invalid public key hash"
+        );
+    }
+
+    function testReactivateDKIMPublicKeyHashByUser1WithMainAuthorizerSignature()
+        public
+    {
+        testSetDKIMPublicKeyHashByMainAuthorizerContract();
+        testRevokeDKIMPublicKeyHashByMainAuthorizer();
+
+        require(
+            !registry.isDKIMPublicKeyHashValid(
+                domainName,
+                publicKeyHash,
+                address(mainAuthorizerContract)
+            ),
+            "public key hash is not revoked"
+        );
+
+        vm.startPrank(user1);
+
+        string memory signedMsg = registryWithContract.computeSignedMsg(
+            registryWithContract.REACTIVATE_PREFIX(),
+            domainName,
+            publicKeyHash
+        );
+        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(
+            bytes(signedMsg)
+        );
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(9, digest);
+        bytes memory signature = abi.encodePacked(r, s, v);
+
+        vm.expectEmit();
+        emit UserOverrideableDKIMRegistry.DKIMPublicKeyHashReactivated(
+            publicKeyHash,
+            address(mainAuthorizerContract)
+        );
+        registry.reactivateDKIMPublicKeyHash(
+            domainName,
+            publicKeyHash,
+            address(mainAuthorizerContract),
+            signature
+        );
+        vm.stopPrank();
+
+        require(
+            registry.isDKIMPublicKeyHashValid(
+                domainName,
+                publicKeyHash,
+                address(mainAuthorizerContract)
+            ),
             "Invalid public key hash"
         );
     }
