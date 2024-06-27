@@ -48,13 +48,12 @@ export function generatePartialSHA({
 }) {
   let selectorIndex = 0;
 
-  // TODO: See if this (no preselector) could be handled at the circuit level
   if (selectorString) {
     const selector = new TextEncoder().encode(selectorString);
     selectorIndex = findIndexInUint8Array(body, selector);
 
     if (selectorIndex === -1) {
-      throw new Error('Provider SHA precompute selector not found in the body');
+      throw new Error(`SHA precompute selector "${selectorString}" not found in the body`);
     }
   }
 
