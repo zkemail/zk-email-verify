@@ -1,7 +1,7 @@
 pragma circom 2.1.6;
 
-include "circomlib/comparators.circom";
-include "circomlib/mux1.circom";
+include "circomlib/circuits/comparators.circom";
+include "circomlib/circuits/mux1.circom";
 
 template QuinSelector(array_length) {
     signal input array[array_length];
@@ -49,9 +49,6 @@ template RemoveSoftLineBreaks(encoded_length, decoded_length) {
     signal sum_enc[encoded_length];
     signal r_dec[decoded_length];
     signal sum_dec[decoded_length];
-
-    r_enc[0] <== 1;
-    r_dec[0] <== 1;
 
     // Helper components
     component mux_enc[encoded_length];
@@ -102,6 +99,7 @@ template RemoveSoftLineBreaks(encoded_length, decoded_length) {
     }
 
     // Calculate powers of r for encoded
+    r_enc[0] <== 1;
     for (var i = 1; i < encoded_length; i++) {
         mux_enc[i] = Mux1();
         mux_enc[i].c[0] <== r_enc[i - 1] * r;
@@ -111,6 +109,7 @@ template RemoveSoftLineBreaks(encoded_length, decoded_length) {
     }
 
     // Calculate powers of r for decoded
+    r_dec[0] <== 1;
     for (var i = 1; i < decoded_length; i++) {
         r_dec[i] <== r_dec[i - 1] * r;
     }
@@ -130,11 +129,3 @@ template RemoveSoftLineBreaks(encoded_length, decoded_length) {
     // Check if rlc for decoded is equal to rlc for encoded
     is_valid <== IsEqual()([ sum_enc[encoded_length - 1], sum_dec[decoded_length - 1]]);
 }
-
-component main = RemoveSoftLineBreaks(17, 11);
-
-/* INPUT = {
-    "encoded": [115, 101, 115, 58, 61, 13, 10, 45, 32, 83, 114, 101, 97, 107, 61, 13, 10],
-    "decoded": [115, 101, 115, 58, 45, 32, 83, 114, 101, 97, 107],
-    "r": 69
-} */
