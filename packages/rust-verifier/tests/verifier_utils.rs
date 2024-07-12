@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
     use ark_crypto_primitives::snark::SNARK;
-    use utils::verifier::{GrothBn, GrothBnProof, GrothBnVkey, JsonDecoder, PublicInputs};
+    use utils::verifier_utils::{GrothBn, GrothBnProof, GrothBnVkey, JsonDecoder, PublicInputs};
 
     #[test]
     fn test_case_1_proof_valid() {
