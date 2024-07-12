@@ -6,7 +6,6 @@ use std::{
 
 use ark_serialize::{CanonicalSerialize, Write};
 use clap::{Parser, Subcommand};
-use serde::Deserialize;
 use utils::verifier_utils::{
     GrothBnProof, GrothBnVkey, JsonDecoder, PublicInputs, PublicInputsCount,
 };
