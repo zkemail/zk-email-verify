@@ -12,6 +12,8 @@ use ark_ff::MontBackend;
 use ark_groth16::Groth16;
 use ark_groth16::Proof;
 use ark_groth16::VerifyingKey;
+use ark_serialize::CanonicalDeserialize;
+use ark_serialize::CanonicalSerialize;
 use serde::Deserialize;
 use std::fs;
 use std::ops::Deref;
@@ -40,7 +42,7 @@ struct SnarkJsVkey {
 
 #[derive(Debug)]
 pub struct PublicInputs<const N: usize> {
-    inputs: [GrothFp; N],
+    pub inputs: [GrothFp; N],
 }
 
 pub trait JsonDecoder {
@@ -174,5 +176,19 @@ impl<const N: usize> Deref for PublicInputs<N> {
 
     fn deref(&self) -> &Self::Target {
         &self.inputs
+    }
+}
+
+impl<const N: usize> CanonicalSerialize for PublicInputs<N> {
+    fn serialize_with_mode<W: ark_serialize::Write>(
+        &self,
+        writer: W,
+        compress: ark_serialize::Compress,
+    ) -> Result<(), ark_serialize::SerializationError> {
+        self.inputs.serialize_with_mode(writer, compress)
+    }
+
+    fn serialized_size(&self, compress: ark_serialize::Compress) -> usize {
+        self.inputs.serialized_size(compress)
     }
 }
