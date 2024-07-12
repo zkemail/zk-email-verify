@@ -4,7 +4,6 @@ use ark_bn254::Fq2;
 use ark_bn254::FrConfig;
 use ark_bn254::G1Affine;
 use ark_bn254::G2Affine;
-
 use ark_circom::CircomReduction;
 use ark_ec::bn::Bn;
 use ark_ff::Fp;
@@ -12,7 +11,6 @@ use ark_ff::MontBackend;
 use ark_groth16::Groth16;
 use ark_groth16::Proof;
 use ark_groth16::VerifyingKey;
-use ark_serialize::CanonicalDeserialize;
 use ark_serialize::CanonicalSerialize;
 use serde::Deserialize;
 use std::fs;
