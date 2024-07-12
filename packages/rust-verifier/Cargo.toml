@@ -1,58 +1,16 @@
 [package]
 name = "utils"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
-ark-circom = { git = "https://github.com/gakonst/ark-circom.git" }
-
-# WASM operations
-wasmer = { version = "=2.3.0", default-features = false }
-fnv = { version = "=1.0.7", default-features = false }
-num = { version = "=0.4.0" }
-num-traits = { version = "=0.2.15", default-features = false }
-num-bigint = { version = "=0.4.3", default-features = false, features = ["rand"] }
-
-# ZKP Generation
+ark-circom = { git = "https://github.com/gakonst/ark-circom.git", rev = "170b10fc9ed182b5f72ecf379033dda023d0bf07" }
 ark-crypto-primitives = { version = "=0.4.0" }
 ark-ec = { version = "=0.4.1", default-features = false, features = ["parallel"] }
 ark-ff = { version = "=0.4.1", default-features = false, features = ["parallel", "asm"] }
-ark-std = { version = "=0.4.0", default-features = false, features = ["parallel"] }
 ark-bn254 = { version = "=0.4.0" }
 ark-groth16 = { version = "=0.4.0", default-features = false, features = ["parallel"] }
-ark-poly = { version = "=0.4.1", default-features = false, features = ["parallel"] }
-ark-relations = { version = "=0.4.0", default-features = false }
 ark-serialize = { version = "=0.4.1", default-features = false }
-
-# decoding of data
-hex = "=0.4.3"
-byteorder = "=1.4.3"
-
-# ethereum compat
-ethers-core = { version = "=2.0.7", default-features = false, optional = true }
-
-# error handling
-thiserror = "=1.0.39"
-color-eyre = "=0.6.2"
-criterion = "=0.3.6"
-
-cfg-if = "=1.0.0"
 
 serde_json = "=1.0.94"
 serde = "*"
-clap = { version = "4.5.4", features = ["derive"] }
-poseidon-ark = {git = "https://github.com/arnaucube/poseidon-ark"}
-
-
-[dev-dependencies]
-hex-literal = "=0.2.2"
-tokio = { version = "=1.29.1", features = ["macros"] }
-serde_json = "=1.0.94"
-ethers = "=2.0.7"
-
-[features]
-default = ["wasmer/default", "circom-2", "ethereum"]
-wasm = ["wasmer/js-default"]
-bench-complex-all = []
-circom-2 = []
-ethereum = ["ethers-core"]
