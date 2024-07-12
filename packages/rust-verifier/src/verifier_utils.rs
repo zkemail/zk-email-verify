@@ -43,6 +43,12 @@ pub struct PublicInputs<const N: usize> {
     pub inputs: [GrothFp; N],
 }
 
+// helper struct for deserializing public inputs count
+#[derive(Deserialize)]
+pub struct PublicInputsCount {
+    pub nPublic: usize,
+}
+
 pub trait JsonDecoder {
     fn from_json(json: &str) -> Self;
     fn from_json_file(file_path: &str) -> Self
@@ -141,6 +147,12 @@ impl JsonDecoder for GrothBnVkey {
             delta_g2: vk_delta_2,
             gamma_abc_g1: ic,
         }
+    }
+}
+
+impl JsonDecoder for PublicInputsCount {
+    fn from_json(json: &str) -> Self {
+        serde_json::from_str(json).unwrap()
     }
 }
 

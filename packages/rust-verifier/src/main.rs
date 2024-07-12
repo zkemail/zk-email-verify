@@ -6,7 +6,10 @@ use std::{
 
 use ark_serialize::{CanonicalSerialize, Write};
 use clap::{Parser, Subcommand};
-use utils::verifier_utils::{GrothBnProof, GrothBnVkey, JsonDecoder, PublicInputs};
+use serde::Deserialize;
+use utils::verifier_utils::{
+    GrothBnProof, GrothBnVkey, JsonDecoder, PublicInputs, PublicInputsCount,
+};
 
 #[derive(Parser)]
 #[command(name = "rust verifier")]
@@ -48,14 +51,21 @@ fn main() {
         } => {
             println!("Generating verifier with verifying key: {}", verifying_key);
             let vkey = GrothBnVkey::from_json_file(verifying_key);
+            let public_inputs_count = PublicInputsCount::from_json_file(verifying_key);
+
             let mut serialized_vkey = Vec::new();
             let writer = BufWriter::new(&mut serialized_vkey);
             vkey.serialize_compressed(writer).unwrap();
 
             let template = include_str!("verifier_template.rs");
 
-            let verifier_content =
-                template.replace("[COMPRESSED_VKEY]", &format!("{:?}", &serialized_vkey));
+            let verifier_content = template
+                .replace("[COMPRESSED_VKEY]", &format!("{:?}", &serialized_vkey))
+                .replace(
+                    "PUBLIC_INPUTS_COUNT",
+                    public_inputs_count.nPublic.to_string().as_str(),
+                );
+
             let formatted_content =
                 format_rust_code(&verifier_content).expect("Failed to format the code");
 

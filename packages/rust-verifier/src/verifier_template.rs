@@ -18,11 +18,12 @@ pub fn verify(proof: &[u8], public_inputs: &[u8]) -> bool {
     let vk = VerifyingKey::<Bn254>::deserialize_compressed_unchecked([COMPRESSED_VKEY].as_slice())
         .unwrap();
 
-    let public_inputs = <[Fp<MontBackend<FrConfig, 4>, 4>; 3]>::deserialize_with_mode(
-        &public_inputs[..],
-        Compress::Yes,
-        Validate::Yes,
-    );
+    let public_inputs =
+        <[Fp<MontBackend<FrConfig, 4>, 4>; PUBLIC_INPUTS_COUNT]>::deserialize_with_mode(
+            &public_inputs[..],
+            Compress::Yes,
+            Validate::Yes,
+        );
 
     let public_inputs = match public_inputs {
         Ok(inputs) => inputs,
