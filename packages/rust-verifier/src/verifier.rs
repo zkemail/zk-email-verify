@@ -41,15 +41,15 @@ pub fn verify(proof: &[u8], public_inputs: &[u8]) -> bool {
     )
     .unwrap();
 
-    let public_inputs = if let Ok(inputs) =
-        <[Fp<MontBackend<FrConfig, 4>, 4>; 5]>::deserialize_with_mode(
-            &public_inputs[..],
-            Compress::Yes,
-            Validate::Yes,
-        ) {
-        inputs
-    } else {
-        return false;
+    let public_inputs = <[Fp<MontBackend<FrConfig, 4>, 4>; 3]>::deserialize_with_mode(
+        &public_inputs[..],
+        Compress::Yes,
+        Validate::Yes,
+    );
+
+    let public_inputs = match public_inputs {
+        Ok(inputs) => inputs,
+        Err(_) => return false,
     };
 
     if let Ok(proof) = Proof::<Bn<Config>>::deserialize_compressed(&proof[..]) {
