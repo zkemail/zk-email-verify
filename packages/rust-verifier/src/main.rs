@@ -6,7 +6,7 @@ use std::{
 
 use ark_serialize::{CanonicalSerialize, Write};
 use clap::{Parser, Subcommand};
-use utils::verifier_utils::{GrothBnVkey, JsonDecoder};
+use utils::verifier_utils::{GrothBnProof, GrothBnVkey, JsonDecoder, PublicInputs};
 
 #[derive(Parser)]
 #[command(name = "rust verifier")]
@@ -34,7 +34,7 @@ enum Commands {
         proof: String,
         /// Path to the snarkjs public inputs file
         #[arg(short, long)]
-        public_inputs: String,
+        inputs: String,
     },
 }
 
@@ -71,13 +71,27 @@ fn main() {
         }
         Commands::GenerateVerifierArguments {
             proof,
-            public_inputs,
+            inputs: public_inputs,
         } => {
             println!(
                 "Generating verifier arguments with proof: {} and public inputs: {}",
                 proof, public_inputs
             );
-            // Add your logic to handle proof and public inputs files
+
+            let proof = GrothBnProof::from_json_file(proof);
+            let public_inputs: PublicInputs<3> = PublicInputs::from_json_file(public_inputs);
+
+            let mut serialized_public_inputs = Vec::new();
+            let mut serialized_proof = Vec::new();
+
+            let writer = BufWriter::new(&mut serialized_public_inputs);
+            public_inputs.inputs.serialize_compressed(writer).unwrap();
+
+            let writer = BufWriter::new(&mut serialized_proof);
+            proof.serialize_compressed(writer).unwrap();
+
+            println!("PROOF: {:?}\n", serialized_proof);
+            println!("PUBLIC_INPUTS: {:?}", serialized_public_inputs);
         }
     }
 }
