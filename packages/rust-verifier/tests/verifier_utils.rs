@@ -33,7 +33,7 @@ mod tests {
             proof.serialize_compressed(writer).unwrap();
         }
 
-        let verified = verify(&serialized_proof, &serialized_public_inputs);
+        let verified = verify(&serialized_proof, &serialized_public_inputs).unwrap();
 
         assert!(verified);
     }

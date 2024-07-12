@@ -11,28 +11,21 @@ use ark_groth16::Proof;
 use ark_groth16::VerifyingKey;
 use ark_serialize::CanonicalDeserialize;
 use ark_serialize::Compress;
+use ark_serialize::SerializationError;
 use ark_serialize::Validate;
 
-pub fn verify(proof: &[u8], public_inputs: &[u8]) -> bool {
+pub fn verify(proof: &[u8], public_inputs: &[u8]) -> Result<bool, SerializationError> {
     // no need to check serialization since it's hardcoded and known to be correct
-    let vk = VerifyingKey::<Bn254>::deserialize_compressed_unchecked([COMPRESSED_VKEY].as_slice())
-        .unwrap();
+    let vk = VerifyingKey::<Bn254>::deserialize_compressed_unchecked([COMPRESSED_VKEY].as_slice())?;
 
     let public_inputs =
         <[Fp<MontBackend<FrConfig, 4>, 4>; PUBLIC_INPUTS_COUNT]>::deserialize_with_mode(
             &public_inputs[..],
             Compress::Yes,
             Validate::Yes,
-        );
+        )?;
 
-    let public_inputs = match public_inputs {
-        Ok(inputs) => inputs,
-        Err(_) => return false,
-    };
+    let proof = Proof::<Bn<Config>>::deserialize_compressed(&proof[..])?;
 
-    if let Ok(proof) = Proof::<Bn<Config>>::deserialize_compressed(&proof[..]) {
-        Groth16::<Bn254, CircomReduction>::verify(&vk, &public_inputs, &proof).is_ok()
-    } else {
-        false
-    }
+    Ok(Groth16::<Bn254, CircomReduction>::verify(&vk, &public_inputs, &proof).unwrap())
 }
