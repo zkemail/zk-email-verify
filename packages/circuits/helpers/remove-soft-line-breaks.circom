@@ -3,90 +3,63 @@ pragma circom 2.1.6;
 include "circomlib/circuits/comparators.circom";
 include "circomlib/circuits/mux1.circom";
 
-template QuinSelector(array_length) {
-    signal input array[array_length];
-    signal input index;
-    signal output value;
-
-    component is_equal[array_length];
-    component mux[array_length];
-
-    signal selected[array_length + 1];
-    selected[0] <== 0;
-
-    for (var i = 0; i < array_length; i++) {
-        is_equal[i] = IsEqual();
-        is_equal[i].in[0] <== index;
-        is_equal[i].in[1] <== i;
-
-        mux[i] = Mux1();
-        mux[i].c[0] <== selected[i];
-        mux[i].c[1] <== array[i];
-        mux[i].s <== is_equal[i].out;
-
-        selected[i + 1] <== mux[i].out;
-    }
-
-    value <== selected[array_length];
-}
-
-template RemoveSoftLineBreaks(encoded_length, decoded_length) {
-    signal input encoded[encoded_length];
-    signal input decoded[decoded_length];
+template RemoveSoftLineBreaks(maxLength) {
+    signal input encoded[maxLength];
+    signal input decoded[maxLength];
     signal input r;
     signal output is_valid;
 
     // Helper signals
-    signal processed[encoded_length];
-    signal is_equals[encoded_length];
-    signal is_cr[encoded_length];
-    signal is_lf[encoded_length];
-    signal temp_soft_break[encoded_length - 2];
-    signal is_soft_break[encoded_length];
-    signal should_zero[encoded_length];
-    signal is_valid_char[encoded_length];
-    signal r_enc[encoded_length];
-    signal sum_enc[encoded_length];
-    signal r_dec[decoded_length];
-    signal sum_dec[decoded_length];
+    signal processed[maxLength];
+    signal is_equals[maxLength];
+    signal is_cr[maxLength];
+    signal is_lf[maxLength];
+    signal temp_soft_break[maxLength - 2];
+    signal is_soft_break[maxLength];
+    signal should_zero[maxLength];
+    signal is_valid_char[maxLength];
+    signal r_enc[maxLength];
+    signal sum_enc[maxLength];
+    signal r_dec[maxLength];
+    signal sum_dec[maxLength];
 
     // Helper components
-    component mux_enc[encoded_length];
+    component mux_enc[maxLength];
 
     // Check for '=' (61 in ASCII)
-    for (var i = 0; i < encoded_length; i++) {
+    for (var i = 0; i < maxLength; i++) {
         is_equals[i] <== IsEqual()([encoded[i], 61]);
     }
 
     // Check for '\r' (13 in ASCII)
-    for (var i = 0; i < encoded_length - 1; i++) {
+    for (var i = 0; i < maxLength - 1; i++) {
         is_cr[i] <== IsEqual()([encoded[i + 1], 13]);
     }
-    is_cr[encoded_length - 1] <== 0;
+    is_cr[maxLength - 1] <== 0;
 
     // Check for '\n' (10 in ASCII)
-    for (var i = 0; i < encoded_length - 2; i++) {
+    for (var i = 0; i < maxLength - 2; i++) {
         is_lf[i] <== IsEqual()([encoded[i + 2], 10]);
     }
-    is_lf[encoded_length - 2] <== 0;
-    is_lf[encoded_length - 1] <== 0;
+    is_lf[maxLength - 2] <== 0;
+    is_lf[maxLength - 1] <== 0;
 
     // Identify soft line breaks
-    for (var i = 0; i < encoded_length - 2; i++) {
+    for (var i = 0; i < maxLength - 2; i++) {
         temp_soft_break[i] <== is_equals[i] * is_cr[i];
         is_soft_break[i] <== temp_soft_break[i] * is_lf[i];
     }
     // Handle the last two characters
-    is_soft_break[encoded_length - 2] <== is_equals[encoded_length - 2] * is_cr[encoded_length - 2];
-    is_soft_break[encoded_length - 1] <== 0;
+    is_soft_break[maxLength - 2] <== is_equals[maxLength - 2] * is_cr[maxLength - 2];
+    is_soft_break[maxLength - 1] <== 0;
 
     // Determine which characters should be zeroed
-    for (var i = 0; i < encoded_length; i++) {
+    for (var i = 0; i < maxLength; i++) {
         if (i == 0) {
             should_zero[i] <== is_soft_break[i];
         } else if (i == 1) {
             should_zero[i] <== is_soft_break[i] + is_soft_break[i-1];
-        } else if (i == encoded_length - 1) {
+        } else if (i == maxLength - 1) {
             should_zero[i] <== is_soft_break[i-1] + is_soft_break[i-2];
         } else {
             should_zero[i] <== is_soft_break[i] + is_soft_break[i-1] + is_soft_break[i-2];
@@ -94,13 +67,13 @@ template RemoveSoftLineBreaks(encoded_length, decoded_length) {
     }
 
     // Process the encoded input
-    for (var i = 0; i < encoded_length; i++) {
+    for (var i = 0; i < maxLength; i++) {
         processed[i] <== (1 - should_zero[i]) * encoded[i];
     }
 
     // Calculate powers of r for encoded
     r_enc[0] <== 1;
-    for (var i = 1; i < encoded_length; i++) {
+    for (var i = 1; i < maxLength; i++) {
         mux_enc[i] = Mux1();
         mux_enc[i].c[0] <== r_enc[i - 1] * r;
         mux_enc[i].c[1] <== r_enc[i - 1];
@@ -110,22 +83,22 @@ template RemoveSoftLineBreaks(encoded_length, decoded_length) {
 
     // Calculate powers of r for decoded
     r_dec[0] <== 1;
-    for (var i = 1; i < decoded_length; i++) {
+    for (var i = 1; i < maxLength; i++) {
         r_dec[i] <== r_dec[i - 1] * r;
     }
 
     // Calculate rlc for processed
     sum_enc[0] <== processed[0];
-    for (var i = 1; i < encoded_length; i++) {
+    for (var i = 1; i < maxLength; i++) {
         sum_enc[i] <== sum_enc[i - 1] + r_enc[i] * processed[i];
     }
 
     // Calculate rlc for decoded
     sum_dec[0] <== decoded[0];
-    for (var i = 1; i < decoded_length; i++) {
+    for (var i = 1; i < maxLength; i++) {
         sum_dec[i] <== sum_dec[i - 1] + r_dec[i] * decoded[i];
     }
 
     // Check if rlc for decoded is equal to rlc for encoded
-    is_valid <== IsEqual()([ sum_enc[encoded_length - 1], sum_dec[decoded_length - 1]]);
+    is_valid <== IsEqual()([sum_enc[maxLength - 1], sum_dec[maxLength - 1]]);
 }

@@ -2,4 +2,4 @@ pragma circom 2.1.6;
 
 include "../../helpers/remove-soft-line-breaks.circom";
 
-component main = RemoveSoftLineBreaks(17, 11);
+component main = RemoveSoftLineBreaks(32);
