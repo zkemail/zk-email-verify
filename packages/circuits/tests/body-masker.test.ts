@@ -27,4 +27,21 @@ describe("BodyMasker Circuit", () => {
             masked_body: [1, 0, 3, 0, 5, 0, 7, 0, 9, 0],
         });
     });
+
+    it("should fail if mask has non-bit numbers", async () => {
+        const input = {
+            body: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            mask: [1, 2, 1, 0, 1, 0, 1, 0, 1, 0], // Mask with non-bit number (2)
+        };
+
+        try {
+            const witness = await circuit.calculateWitness(input);
+            await circuit.checkConstraints(witness);
+            await circuit.assertOut(witness, {
+                masked_body: [1, 0, 3, 0, 5, 0, 7, 0, 9, 0],
+            });
+        } catch (error) {
+            expect(error).toBeTruthy();
+        }
+    });
 });
