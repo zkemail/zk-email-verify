@@ -13,14 +13,17 @@ type CircuitInput = {
   precomputedSHA?: string[];
   bodyHashIndex?: string;
   decodedEmailBodyIn?: string[];
+  mask?: number[];
 };
 
 type InputGenerationArgs = {
   ignoreBodyHashCheck?: boolean;
+  turnOnBodyMasking?: boolean;
   shaPrecomputeSelector?: string;
   maxHeadersLength?: number; // Max length of the email header including padding
   maxBodyLength?: number; // Max length of the email body after shaPrecomputeSelector including padding
   removeSoftLineBreaks?: boolean;
+  mask?: number[];
 };
 
 function removeSoftLineBreaks(body: string[]): string[] {
@@ -124,6 +127,10 @@ export function generateEmailVerifierInputsFromDKIMResult(
 
     if (params.removeSoftLineBreaks) {
       circuitInputs.decodedEmailBodyIn = removeSoftLineBreaks(circuitInputs.emailBody);
+    }
+    
+    if (params.turnOnBodyMasking) {
+      circuitInputs.mask = params.mask;
     }
   }
 
