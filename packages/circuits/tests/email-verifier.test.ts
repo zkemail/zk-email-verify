@@ -254,7 +254,7 @@ describe("EmailVerifier : With body masking", () => {
                 maxBodyLength: 768,
                 ignoreBodyHashCheck: false,
                 turnOnBodyMasking: true,
-                mask,
+                mask: mask.map((value) => value ? 1 : 0),
             }
         );
 
