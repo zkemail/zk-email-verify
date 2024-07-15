@@ -30,6 +30,7 @@ struct SnarkJsProof {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(non_snake_case)]
 struct SnarkJsVkey {
     vk_alpha_1: [String; 3],
     vk_beta_2: [[String; 2]; 3],
@@ -45,6 +46,7 @@ pub struct PublicInputs<const N: usize> {
 
 // helper struct for deserializing public inputs count
 #[derive(Deserialize)]
+#[allow(non_snake_case)]
 pub struct PublicInputsCount {
     pub nPublic: usize,
 }
