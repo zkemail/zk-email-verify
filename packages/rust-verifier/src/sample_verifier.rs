@@ -14,6 +14,7 @@ use ark_serialize::Compress;
 use ark_serialize::SerializationError;
 use ark_serialize::Validate;
 
+/// This is a sample verifier generated based on proof of twitter circuit.
 pub fn verify(proof: &[u8], public_inputs: &[u8]) -> Result<bool, SerializationError> {
     // no need to check serialization since it's hardcoded and known to be correct
     let vk = VerifyingKey::<Bn254>::deserialize_compressed_unchecked(

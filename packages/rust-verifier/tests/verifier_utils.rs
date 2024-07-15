@@ -4,7 +4,7 @@ mod tests {
 
     use ark_crypto_primitives::snark::SNARK;
     use ark_serialize::CanonicalSerialize;
-    use utils::verifier::verify;
+    use utils::sample_verifier::verify;
     use utils::verifier_utils::{GrothBn, GrothBnProof, GrothBnVkey, JsonDecoder, PublicInputs};
 
     #[test]
