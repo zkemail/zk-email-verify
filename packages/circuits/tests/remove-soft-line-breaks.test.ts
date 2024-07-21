@@ -98,7 +98,7 @@ describe('RemoveSoftLineBreaks', () => {
         114,
         101,
         97,
-        107,
+        108,
         ...Array(21).fill(0),
       ], // Changed last character
       r: 69,
