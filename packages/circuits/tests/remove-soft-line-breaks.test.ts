@@ -54,7 +54,6 @@ describe('RemoveSoftLineBreaks', () => {
         107,
         ...Array(21).fill(0),
       ],
-      r: 69,
     };
 
     const witness = await circuit.calculateWitness(input);
@@ -98,10 +97,9 @@ describe('RemoveSoftLineBreaks', () => {
         114,
         101,
         97,
-        108,
+        108, // Changed last character
         ...Array(21).fill(0),
-      ], // Changed last character
-      r: 69,
+      ],
     };
 
     const witness = await circuit.calculateWitness(input);

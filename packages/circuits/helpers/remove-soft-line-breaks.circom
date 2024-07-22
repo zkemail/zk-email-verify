@@ -2,14 +2,15 @@ pragma circom 2.1.6;
 
 include "circomlib/circuits/comparators.circom";
 include "circomlib/circuits/mux1.circom";
+include "../utils/hash.circom";
 
 template RemoveSoftLineBreaks(maxLength) {
     signal input encoded[maxLength];
     signal input decoded[maxLength];
-    signal input r;
     signal output is_valid;
 
     // Helper signals
+    signal r;
     signal processed[maxLength];
     signal is_equals[maxLength];
     signal is_cr[maxLength];
@@ -25,6 +26,16 @@ template RemoveSoftLineBreaks(maxLength) {
 
     // Helper components
     component mux_enc[maxLength];
+
+    // Deriving r from Poseidon hash
+    component r_hasher = PoseidonModular(2 * maxLength);
+    for (var i = 0; i < maxLength; i++) {
+        r_hasher.in[i] <== encoded[i];
+    }
+    for (var i = 0; i < maxLength; i++) {
+        r_hasher.in[maxLength + i] <== decoded[i];
+    }
+    r <== r_hasher.out;
 
     // Check for '=' (61 in ASCII)
     for (var i = 0; i < maxLength; i++) {
