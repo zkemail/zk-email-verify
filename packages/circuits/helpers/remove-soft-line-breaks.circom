@@ -61,7 +61,7 @@ template RemoveSoftLineBreaks(maxLength) {
         is_soft_break[i] <== temp_soft_break[i] * is_lf[i];
     }
     // Handle the last two characters
-    is_soft_break[maxLength - 2] <== is_equals[maxLength - 2] * is_cr[maxLength - 2];
+    is_soft_break[maxLength - 2] <== 0;
     is_soft_break[maxLength - 1] <== 0;
 
     // Determine which characters should be zeroed
