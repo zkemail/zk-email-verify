@@ -42,6 +42,7 @@ template PoseidonLarge(bitsPerChunk, chunkSize) {
 /// @notice Circuit to calculate Poseidon hash of an arbitrary number of inputs
 /// @notice Splits input into chunks of 16 elements (or less for the last chunk) and hashes them separately
 /// @notice Then combines the chunk hashes using a binary tree structure
+/// @notice This is a modified version from: https://github.com/burnt-labs/email-wallet/blob/b6601fed6fc1bf119739dce6a49e69d69144c5fa/circuits/utils/commit.circom#L24
 /// @param numElements Number of elements in the input array
 /// @input in: Array of numElements to be hashed
 /// @output out: Poseidon hash of the input array
