@@ -109,4 +109,116 @@ describe('RemoveSoftLineBreaks', () => {
       is_valid: 0,
     });
   });
+
+  it('should handle input with no soft line breaks', async () => {
+    const input = {
+      encoded: [104, 101, 108, 108, 111, ...Array(27).fill(0)],
+      decoded: [104, 101, 108, 108, 111, ...Array(27).fill(0)],
+    };
+
+    const witness = await circuit.calculateWitness(input);
+    await circuit.checkConstraints(witness);
+
+    await circuit.assertOut(witness, {
+      is_valid: 1,
+    });
+  });
+
+  it('should handle input with multiple consecutive soft line breaks', async () => {
+    const input = {
+      encoded: [
+        104,
+        101,
+        108,
+        108,
+        111,
+        61,
+        13,
+        10,
+        61,
+        13,
+        10,
+        119,
+        111,
+        114,
+        108,
+        100,
+        ...Array(16).fill(0),
+      ],
+      decoded: [
+        104,
+        101,
+        108,
+        108,
+        111,
+        119,
+        111,
+        114,
+        108,
+        100,
+        ...Array(22).fill(0),
+      ],
+    };
+
+    const witness = await circuit.calculateWitness(input);
+    await circuit.checkConstraints(witness);
+
+    await circuit.assertOut(witness, {
+      is_valid: 1,
+    });
+  });
+
+  // Note: The circuit currently does not handle the case when the encoded input starts with a soft line break.
+  // This test is included to document the expected behavior, but it will fail with the current implementation.
+  it('should handle input with soft line break at the beginning', async () => {
+    const input = {
+      encoded: [61, 13, 10, 104, 101, 108, 108, 111, ...Array(24).fill(0)],
+      decoded: [104, 101, 108, 108, 111, ...Array(27).fill(0)],
+    };
+
+    const witness = await circuit.calculateWitness(input);
+    await circuit.checkConstraints(witness);
+
+    await circuit.assertOut(witness, {
+      is_valid: 1,
+    });
+  });
+
+  it('should handle input with soft line break at the end', async () => {
+    const input = {
+      encoded: [104, 101, 108, 108, 111, 61, 13, 10, ...Array(24).fill(0)],
+      decoded: [104, 101, 108, 108, 111, ...Array(27).fill(0)],
+    };
+
+    const witness = await circuit.calculateWitness(input);
+    await circuit.checkConstraints(witness);
+
+    await circuit.assertOut(witness, {
+      is_valid: 1,
+    });
+  });
+
+  it('should handle input with incomplete soft line break sequence', async () => {
+    const input = {
+      encoded: [
+        104,
+        101,
+        108,
+        108,
+        111,
+        61,
+        13,
+        11, // Not a soft line break (LF should be 10)
+        ...Array(24).fill(0),
+      ],
+      decoded: [104, 101, 108, 108, 111, 61, 13, 11, ...Array(24).fill(0)],
+    };
+
+    const witness = await circuit.calculateWitness(input);
+    await circuit.checkConstraints(witness);
+
+    await circuit.assertOut(witness, {
+      is_valid: 1,
+    });
+  });
 });
