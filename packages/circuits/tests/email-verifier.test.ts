@@ -216,3 +216,45 @@ describe("EmailVerifier : Without body check", () => {
     await circuit.checkConstraints(witness);
   });
 });
+
+describe('EmailVerifier : With soft line breaks', () => {
+  jest.setTimeout(10 * 60 * 1000); // 10 minutes
+
+  let dkimResult: DKIMVerificationResult;
+  let circuit: any;
+
+  beforeAll(async () => {
+    const rawEmail = fs.readFileSync(
+      path.join(__dirname, './test-emails/lorem_ipsum.eml'),
+      'utf8'
+    );
+    dkimResult = await verifyDKIMSignature(rawEmail);
+
+    circuit = await wasm_tester(
+      path.join(
+        __dirname,
+        './test-circuits/email-verifier-with-soft-line-breaks-test.circom'
+      ),
+      {
+        recompile: true,
+        include: path.join(__dirname, '../../../node_modules'),
+        output: path.join(__dirname, "./compiled-test-circuits"),
+      }
+    );
+  });
+
+  it('should verify email when removeSoftLineBreaks is true', async function () {
+    const emailVerifierInputs = generateEmailVerifierInputsFromDKIMResult(
+      dkimResult,
+      {
+        maxHeadersLength: 640,
+        maxBodyLength: 1408,
+        ignoreBodyHashCheck: false,
+        removeSoftLineBreaks: true,
+      }
+    );
+
+    const witness = await circuit.calculateWitness(emailVerifierInputs);
+    await circuit.checkConstraints(witness);
+  });
+});

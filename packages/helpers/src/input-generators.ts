@@ -12,6 +12,7 @@ type CircuitInput = {
   emailBodyLength?: string;
   precomputedSHA?: string[];
   bodyHashIndex?: string;
+  decodedEmailBodyIn?: string[];
 };
 
 type InputGenerationArgs = {
@@ -19,7 +20,30 @@ type InputGenerationArgs = {
   shaPrecomputeSelector?: string;
   maxHeadersLength?: number; // Max length of the email header including padding
   maxBodyLength?: number; // Max length of the email body after shaPrecomputeSelector including padding
+  removeSoftLineBreaks?: boolean;
 };
+
+function removeSoftLineBreaks(body: string[]): string[] {
+  const result = [];
+  let i = 0;
+  while (i < body.length) {
+    if (i + 2 < body.length &&
+        body[i] === '61' && // '=' character
+        body[i + 1] === '13' && // '\r' character
+        body[i + 2] === '10') { // '\n' character
+      // Skip the soft line break sequence
+      i += 3; // Move past the soft line break
+    } else {
+      result.push(body[i]);
+      i++;
+    }
+  }
+  // Pad the result with zeros to make it the same length as the body
+  while (result.length < body.length) {
+    result.push('0');
+  }
+  return result;
+}
 
 /**
  *
@@ -97,6 +121,10 @@ export function generateEmailVerifierInputsFromDKIMResult(
     circuitInputs.precomputedSHA = Uint8ArrayToCharArray(precomputedSha);
     circuitInputs.bodyHashIndex = bodyHashIndex.toString();
     circuitInputs.emailBody = Uint8ArrayToCharArray(bodyRemaining);
+
+    if (params.removeSoftLineBreaks) {
+      circuitInputs.decodedEmailBodyIn = removeSoftLineBreaks(circuitInputs.emailBody);
+    }
   }
 
   return circuitInputs;
