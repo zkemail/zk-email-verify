@@ -4,6 +4,13 @@ include "circomlib/circuits/comparators.circom";
 include "circomlib/circuits/mux1.circom";
 include "../utils/hash.circom";
 
+/// @title RemoveSoftLineBreaks
+/// @notice This template verifies the removal of soft line breaks from an encoded input string
+/// @dev Soft line breaks are defined as "=\r\n" sequences in the encoded input
+/// @param maxLength The maximum length of the input strings
+/// @input encoded An array of ASCII values representing the input string with potential soft line breaks
+/// @input decoded An array of ASCII values representing the expected output after removing soft line breaks
+/// @output isValid A signal that is 1 if the decoded input correctly represents the encoded input with soft line breaks removed, 0 otherwise
 template RemoveSoftLineBreaks(maxLength) {
     signal input encoded[maxLength];
     signal input decoded[maxLength];
