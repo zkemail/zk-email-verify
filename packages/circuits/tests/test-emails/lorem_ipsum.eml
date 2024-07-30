@@ -1,0 +1,160 @@
+Delivered-To: shryas.londhe@gmail.com
+Received: by 2002:a05:6a20:3211:b0:1c3:edfb:6113 with SMTP id hl17csp180962pzc;
+        Thu, 25 Jul 2024 22:18:47 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEgtqWowrWYkB2rAc4WmSlRZfsHDbqLCUjqz3wqtdhYtUDW0pbUKqYB4mgcbyvY3kUnCqDw
+X-Received: by 2002:a05:6a20:8985:b0:1c2:8ece:97a6 with SMTP id adf61e73a8af0-1c47b2033b3mr3940252637.22.1721971127167;
+        Thu, 25 Jul 2024 22:18:47 -0700 (PDT)
+ARC-Seal: i=2; a=rsa-sha256; t=1721971127; cv=pass;
+        d=google.com; s=arc-20160816;
+        b=0ubrCXDRIoRJJB6hiGIf3+srVHL9HhzHYLCroXhk1ylBgM6a0G/9D0iUFrZBQR86m0
+         u9EOZPl6xnC9B2hZ2kSiX+RHGBA5L2kmLp3e+1p9bbUWUKht+7oktAHGf4GrLeQQtvvr
+         EWKgfFXFX7h9um6cW1KXKjrFpjKiiRt+fLz+dTCjEbZKQFvZLq4wA+qfyCHSyWhl03Q9
+         gxfjC15TaDTiRtXWx4oQnTK0bksZAxYgZxdMXf49FN6BDu1Kips5AFZ09J+md0OzLwDB
+         BgISVJn8kKLBVtitGu8ZqNys878HOuWD8Ja6VYB0Y/JsRxsaN9NWbMj3cxQimpLxU6m2
+         67pg==
+ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=mime-version:msip_labels:content-language:accept-language
+         :message-id:date:thread-index:thread-topic:subject:to:from
+         :dkim-signature;
+        bh=8d5kZ05ea5AARnUCNH/+/Q/4akky7qnD3rbHtzbKp4U=;
+        fh=FfnB/GPJd1sNN0SCRER252+RYTKbHbUV3t5XeSm0vpo=;
+        b=UcaOhF+x2CZr88L3TJ8FM7J3i7wPDDQCTgBSfq1zMu6kORk0ceeATcaUCZpEccvV8B
+         /+KJVq7JUTkr3RNfkNxvQBbIgrR9oUztVz1QRx5a6IKLBteVQSUukQ+uEe6lwiBHKJeB
+         g2CV9pxd4nmCrxyOv4LLDCWxVoZ0Odj0MSaUTJt8gpT7xh38gIpZ9gHwMHlVlgHllpf2
+         8YuR/LaD9AlbhRpYuKKLbSPEAmDuoYSLBwRc9aD129FPQ41Ytr++Mx71WBUELmDMJtr3
+         XUnyv8nXqwMAfRUFL/nl74AHaGHiHNre1gPEXYONp2e5qQ0MS0qItvp7y/3bL49HKe9U
+         kSiA==;
+        dara=google.com
+ARC-Authentication-Results: i=2; mx.google.com;
+       dkim=pass header.i=@outlook.com header.s=selector1 header.b=AIJlaNkX;
+       arc=pass (i=1);
+       spf=pass (google.com: domain of shreyas_londhe@outlook.com designates 2a01:111:f400:feab::82b as permitted sender) smtp.mailfrom=shreyas_londhe@outlook.com;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=outlook.com
+Return-Path: <shreyas_londhe@outlook.com>
+Received: from APC01-SG2-obe.outbound.protection.outlook.com (mail-sgaapc01olkn2082b.outbound.protection.outlook.com. [2a01:111:f400:feab::82b])
+        by mx.google.com with ESMTPS id d9443c01a7336-1fed7fecf5esi29468855ad.553.2024.07.25.22.18.46
+        for <shryas.londhe@gmail.com>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 25 Jul 2024 22:18:47 -0700 (PDT)
+Received-SPF: pass (google.com: domain of shreyas_londhe@outlook.com designates 2a01:111:f400:feab::82b as permitted sender) client-ip=2a01:111:f400:feab::82b;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@outlook.com header.s=selector1 header.b=AIJlaNkX;
+       arc=pass (i=1);
+       spf=pass (google.com: domain of shreyas_londhe@outlook.com designates 2a01:111:f400:feab::82b as permitted sender) smtp.mailfrom=shreyas_londhe@outlook.com;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=outlook.com
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=nyKbl9yMhkDS24habjxvJFl277C5u2qcJmklpiaGgxguIaULGcnrZL5xr1wDMe7SR7CbiRFza+fPL7s6NFDiJ/vTNlx6h6FGwAk26Mcxqxe7PX+5ETVGIkGanygNNTr80bHZ+HCL5Az01AlE91/DAEAJpjMfIcC7JvqIQO9KEitlYP/hmGvfoLhTI60qOhccOTOTo+vuYzZB1qP3Ouyaa+dP1Xa7LutLmdryT8UwRmCFFqERt2DfuXgxSPdQ1CnP9a9v0fUf99D8JoThpEBFNeDSGe54EkvrkjDEqJ+O2jNlWk4Tsk4cIFCt1Q0LR3gEPY4+HT9PYrJRZh5TpVKRIg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=8d5kZ05ea5AARnUCNH/+/Q/4akky7qnD3rbHtzbKp4U=;
+ b=DQCjmdkhlADgBgWO+SA6ywRWGcteea+UrjxMCxmt5LBv9sYTtt44DLMNOPc0y3XaqXkdOT/5iyq2V3yqG47M+HSX3AmLv9SdT+ZaLycq4nljH2YHofVl6tN+pPKYbm4Jofqf2yWVRocX3AWMKAECeo85p95A/laV88YCBeDIJ97AgMWL7u45EiAo/VpB9svNDtrPGbq3PDOaciU49fpvkP4prCm0mtMFDoaIDm4dt2M0Wmf2DI8eZfvcOTcB6rBN7WhY+b10LPUrLzLI/DSmumbFmA+KFJpuKqNXjwcRrlC5lZcY5ivZEaIgvS6rJ3atQ1aHvZhSUjj6Hp1abZr3Bw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=8d5kZ05ea5AARnUCNH/+/Q/4akky7qnD3rbHtzbKp4U=;
+ b=AIJlaNkX4MYKjjkCZrP3zoxXcfMOV284bM69uUPlY61XmrCjzDMPMFO1M+7pHEEhXIY21IfxuI+y1m1lSoupWmxLigM5LMeytWRbeaDujaRiYShF+RnZLS4QbrYjp9xKZ6S1cTERU5E/FtI0KC2wyWG7jZ+1uojKkAJLYlpVrZ0XgmMWJZEwMlNcMAVfdM7GQoAnTRUHCfafqg71MYywt+Hj7DYWKm6Ku5kJj3qnignrblodVz4giI5zZhLme/da9MOzDfBVm9RYVg/tkOmadw39tnCdMZj4W7LpseFuEUQd/tni05Tl6yW19/7DmgpZV9z7Mz45DTDdcBkvBeNJfw==
+Received: from PSAPR06MB3909.apcprd06.prod.outlook.com (2603:1096:301:2b::8)
+ by KL1PR06MB7317.apcprd06.prod.outlook.com (2603:1096:820:145::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7784.18; Fri, 26 Jul
+ 2024 05:18:38 +0000
+Received: from PSAPR06MB3909.apcprd06.prod.outlook.com
+ ([fe80::d51a:1004:15a4:b598]) by PSAPR06MB3909.apcprd06.prod.outlook.com
+ ([fe80::d51a:1004:15a4:b598%6]) with mapi id 15.20.7784.020; Fri, 26 Jul 2024
+ 05:18:38 +0000
+From: Shreyas Londhe <shreyas_londhe@outlook.com>
+To: "shryas.londhe@gmail.com" <shryas.londhe@gmail.com>
+Subject: Lorem Ipsum
+Thread-Topic: Lorem Ipsum
+Thread-Index: AQHa3xtFXs5xQ0/RFkWl0Dt9CzcMWQ==
+Date: Fri, 26 Jul 2024 05:18:38 +0000
+Message-ID:
+ <PSAPR06MB390999BBE081241FE392E60FE0B42@PSAPR06MB3909.apcprd06.prod.outlook.com>
+Accept-Language: en-IN, en-GB, en-US
+Content-Language: en-IN
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+msip_labels:
+x-tmn: [UsH6vtCJGTK8st72lnJGj3GdF0i/joI6ObQGBQP9T231F9Fr3YYiDRzQKqDNM5MM]
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: PSAPR06MB3909:EE_|KL1PR06MB7317:EE_
+x-ms-office365-filtering-correlation-id: 27414cfe-d314-4004-98f0-08dcad3267c7
+x-microsoft-antispam:
+ BCL:0;ARA:14566002|461199028|8060799006|19110799003|15030799003|440099028|3412199025|102099032;
+x-microsoft-antispam-message-info:
+ /A4NNAr/tb/RjJPVpt0nRXjyji71Giyp3/HyJs5Pd8WiabReUcGu0jFcinzDfdW4kZohwyB58fPH319h8m5MJU4k7Ap07UAQK1Uayr1viLDGXC9BhM5o50nhAhv1JIAAx57QZWP8O7js3PEcHQInmJzpXBrYZ9T/yGGpIWZ/ptpINRFxrf/aZtndzbYXdhp4JdaRLUkB7cuEI+/Ydgfc0FRycr5R9FiYc/vRW+F5/bzTUZPGw5+wkE90SVnEx/BwIYycHG8LFp0sYej4m33YdbNQAuRGW+sO4FI+zi0Xm4sv5JPKehdov39F6awyCqj9xgvBa6mZ9On1qWbOkbdrPO1pUci+NpTc8cSl2uwhDxScm5GWvRqeRuzIOELQivuwPoqv+BeBGsRkb1i/wJDavOFD75A/ykJFhwtFFg2WMkL4QHBtuTRTOpRR3pv36D9mUMXZ6PUgPfFy3GKWfEBPGlN6jbew+w4NPz9PEDpg5K0gIGOxufPLhlxp/zrymFeh4S3EuPotgqUrfFi3wgCC3z8UWFfuezM/o2fNq+Bi9faCoxOUA3YqBbimzQo3UhORN/UPQN64ppm0Ldm/VWa2DTv9a3LJFEwRqocuIJGQREut5xwBOgHbeCEwhcETPQ+WeQGO+fX5JF3w+LPNNlYMc32Oyj6LobOTPzznNGeDl0g=
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?iso-8859-1?Q?HgHDvlQs2qQmMbHkfiZrCnNmv8IdKRyFJdAPBTKt0kdy7rUTA7S6lw9g9P?=
+ =?iso-8859-1?Q?dizQGj9w4uBEz95cGlJqcOaO/1lqq2lacdXQVk1W+xJTo4PJ83a1zypy1W?=
+ =?iso-8859-1?Q?AuxnNdakaoh8ZwX9Y2WqOdeb+KyhFKP8SOZhmhE0yrOG/RShO218skO7wF?=
+ =?iso-8859-1?Q?SSSXxk5dz/A94gBVv3H4bZD1dXKFbvEHQPRFMk1EG8dKONvFiCYXW9IISq?=
+ =?iso-8859-1?Q?5sIwixUbJ7yCjC1dUl32m8efUvJ4EZ4NnuDyQUp3F62J/I+G+8QQPzmytY?=
+ =?iso-8859-1?Q?+gQqdrzwi8uh2gqkX1aIZC1IZDymikQunPyzc5kjnJKAkpVhAfc7Lz3hwE?=
+ =?iso-8859-1?Q?Pf0zl1xPkGQlqBY7Di2AdJii2hD+9BgdCpbfXaG5NYuMcHV1IquLXiUSYD?=
+ =?iso-8859-1?Q?jiGvPxsZkhW6vYEB4UHa5257kzKWLXsYXGKibWTWiOIJ1LvJbhJqf8DZ2z?=
+ =?iso-8859-1?Q?DbLHx2k415voT1LbSTnT6j8mn7O6oDjOP8LVzlzAlfWBxF1REkmusbc95t?=
+ =?iso-8859-1?Q?W1buwpUqF+JqNHzdPTe11QwMq/KXExWau1vX7miDomysMRUo3QuiH8C1IX?=
+ =?iso-8859-1?Q?YW2oDF+QYCEobP6W2iOCo7WqapQp8PDqwNbQLoS8fopf/jube6t9snIs7R?=
+ =?iso-8859-1?Q?Ny8imXA1d9d41Xh8QxnIN70NIMbqKUMKKyDm6klMXTMjZnCQht+3eGqWUZ?=
+ =?iso-8859-1?Q?DKYSS34Q4ifBEDEqOi5lhkg8HrcVcNotkKRMljZuCX1Clb+FZuRsahpXMJ?=
+ =?iso-8859-1?Q?2FC6PeU0tXQBYWc2rD9vGCnT9+qrHG0cY5hs+LzbYfKw3Pq8+p/sSyAQSM?=
+ =?iso-8859-1?Q?i5ch1oN6i4cCzOncZ8TN/GGZN004MBB+OHaNp071aRkqqLix0lhQLGP4hY?=
+ =?iso-8859-1?Q?XHD0FS+t07mkW7pOnBYP89laxTDpuGw2ZKvGy6DUEYcSXS3nujeamXYraR?=
+ =?iso-8859-1?Q?zUKQfu+0SUaGgoe3uIexst//uXTHpy8h4nm+bWNsU31C2EdGH/qgUdXe7T?=
+ =?iso-8859-1?Q?mYZHL03uzOYBh81MYVE6GxDpWeGnFKpCw3aYnLH8MhmzeIP1wHsrkttJoh?=
+ =?iso-8859-1?Q?uehR7s1hvxU7chWGY2dQb4FfJccls0PEKwOHk2BvqtBawe5/p5PD8M9eUJ?=
+ =?iso-8859-1?Q?x+iMiptyavqxh82zEiuWkcIOcj1R2WPzI9cyxDUYCZ5CM56A5SKU+cKU+s?=
+ =?iso-8859-1?Q?GfB8IMyemcjC3wAcE9hql5+1OCU4oKkSjZlzItDo5F9V9JmYLRMXSZUP3w?=
+ =?iso-8859-1?Q?UbvTI7DVESPxDYnJUZMHp81jc9QRMaNabO3aI4RkYTzvG/JDFBF/p12Dag?=
+ =?iso-8859-1?Q?BLdMdMHePvmjpiVNwfbrAjtRaQUYhUPmzZ2pwQueK4/1P5M=3D?=
+Content-Type: multipart/alternative;
+	boundary="_000_PSAPR06MB390999BBE081241FE392E60FE0B42PSAPR06MB3909apcp_"
+MIME-Version: 1.0
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PSAPR06MB3909.apcprd06.prod.outlook.com
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-Network-Message-Id: 27414cfe-d314-4004-98f0-08dcad3267c7
+X-MS-Exchange-CrossTenant-originalarrivaltime: 26 Jul 2024 05:18:38.0606
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: KL1PR06MB7317
+
+--_000_PSAPR06MB390999BBE081241FE392E60FE0B42PSAPR06MB3909apcp_
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus et imperdi=
+et neque. Cras mattis dolor eu ex pharetra blandit. Integer diam justo, int=
+erdum et erat at, elementum rhoncus neque. Sed dui enim, pretium non est eg=
+et, ornare eleifend ipsum.
+
+--_000_PSAPR06MB390999BBE081241FE392E60FE0B42PSAPR06MB3909apcp_
+Content-Type: text/html; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-8859-=
+1">
+<style type=3D"text/css" style=3D"display:none;"> P {margin-top:0;margin-bo=
+ttom:0;} </style>
+</head>
+<body dir=3D"ltr">
+<div class=3D"elementToProof" style=3D"font-family: Aptos, Aptos_EmbeddedFo=
+nt, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; c=
+olor: rgb(0, 0, 0);">
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus et imperdi=
+et neque. Cras mattis dolor eu ex pharetra blandit. Integer diam justo, int=
+erdum et erat at, elementum rhoncus neque. Sed dui enim, pretium non est eg=
+et, ornare eleifend ipsum.</div>
+</body>
+</html>
+
+--_000_PSAPR06MB390999BBE081241FE392E60FE0B42PSAPR06MB3909apcp_--

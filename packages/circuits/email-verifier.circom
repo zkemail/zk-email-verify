@@ -9,6 +9,7 @@ include "./lib/sha.circom";
 include "./utils/array.circom";
 include "./utils/regex.circom";
 include "./utils/hash.circom";
+include "./helpers/remove-soft-line-breaks.circom";
 
 
 /// @title EmailVerifier
@@ -20,6 +21,7 @@ include "./utils/hash.circom";
 /// @param n Number of bits per chunk the RSA key is split into. Recommended to be 121.
 /// @param k Number of chunks the RSA key is split into. Recommended to be 17.
 /// @param ignoreBodyHashCheck Set 1 to skip body hash check in case data to prove/extract is only in the headers.
+/// @param removeSoftLineBreaks Set 1 to remove soft line breaks from the email body.
 /// @input emailHeader[maxHeadersLength] Email headers that are signed (ones in `DKIM-Signature` header) as ASCII int[], padded as per SHA-256 block size.
 /// @input emailHeaderLength Length of the email header including the SHA-256 padding.
 /// @input pubkey[k] RSA public key split into k chunks of n bits each.
@@ -28,8 +30,10 @@ include "./utils/hash.circom";
 /// @input emailBodyLength Length of the email body including the SHA-256 padding.
 /// @input bodyHashIndex Index of the body hash `bh` in the emailHeader.
 /// @input precomputedSHA[32] Precomputed SHA-256 hash of the email body till the bodyHashIndex.
+/// @input decodedEmailBodyIn[maxBodyLength] Decoded email body without soft line breaks.
 /// @output pubkeyHash Poseidon hash of the pubkey - Poseidon(n/2)(n/2 chunks of pubkey with k*2 bits per chunk).
-template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashCheck) {
+/// @output decodedEmailBodyOut[maxBodyLength] Decoded email body with soft line breaks removed.
+template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashCheck, removeSoftLineBreaks) {
     assert(maxHeadersLength % 64 == 0);
     assert(maxBodyLength % 64 == 0);
     assert(n * k > 2048); // to support 2048 bit RSA
@@ -121,6 +125,19 @@ template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashChec
                 computedBodyHashInts[i].in[7 - j] <== computedBodyHash[i * 8 + j];
             }
             computedBodyHashInts[i].out === headerBodyHash[i];
+        }
+
+        if (removeSoftLineBreaks == 1) {
+            signal input decodedEmailBodyIn[maxBodyLength];
+            signal output decodedEmailBodyOut[maxBodyLength];
+            component qpEncodingChecker = RemoveSoftLineBreaks(maxBodyLength);
+
+            qpEncodingChecker.encoded <== emailBody;
+            qpEncodingChecker.decoded <== decodedEmailBodyIn;
+
+            qpEncodingChecker.isValid === 1;
+
+            decodedEmailBodyOut <== qpEncodingChecker.decoded;
         }
     }
 
