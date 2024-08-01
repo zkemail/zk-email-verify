@@ -1,0 +1,6 @@
+{
+  "name": "utils",
+  "private": true,
+  "version": "1.0.0",
+  "description": "utilities to generating bindings for various proving contexts"
+}
