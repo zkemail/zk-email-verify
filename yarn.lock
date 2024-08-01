@@ -7474,13 +7474,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rust-verifier@workspace:packages/rust-verifier":
-  version: 0.0.0-use.local
-  resolution: "rust-verifier@workspace:packages/rust-verifier"
-  languageName: unknown
-  linkType: soft
-
-"rxjs@npm:^7.8.1":
+"rxjs@npm:^7.5.5":
   version: 7.8.1
   resolution: "rxjs@npm:7.8.1"
   dependencies:
@@ -8349,6 +8343,12 @@ __metadata:
   checksum: 705e51f0de5b446f4edec10739752ac25856541e0254ea1e7e45e5b9f9b0cb105bc4bd415736a6210edc68245a7f903bf085ffb08dd7deb8a0e847f60538a38a
   languageName: node
   linkType: hard
+
+"utils@workspace:packages/rust-verifier":
+  version: 0.0.0-use.local
+  resolution: "utils@workspace:packages/rust-verifier"
+  languageName: unknown
+  linkType: soft
 
 "v8-compile-cache-lib@npm:^3.0.1":
   version: 3.0.1
