@@ -1,5 +1,5 @@
 pragma circom 2.1.6;
 
-include "../../helpers/body-masker.circom";
+include "../../utils/bytes.circom";
 
-component main = BodyMasker(10);
+component main = ByteMask(10);
