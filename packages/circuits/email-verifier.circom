@@ -9,8 +9,8 @@ include "./lib/sha.circom";
 include "./utils/array.circom";
 include "./utils/regex.circom";
 include "./utils/hash.circom";
+include "./utils/bytes.circom";
 include "./helpers/remove-soft-line-breaks.circom";
-include "./helpers/body-masker.circom";
 
 
 /// @title EmailVerifier
@@ -147,11 +147,11 @@ template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashChec
         if (enableBodyMasking == 1) {
             signal input mask[maxBodyLength];
             signal output maskedBody[maxBodyLength];
-            component bodyMasker = BodyMasker(maxBodyLength);
+            component byteMask = ByteMask(maxBodyLength);
             
-            bodyMasker.body <== emailBody;
-            bodyMasker.mask <== mask;
-            maskedBody <== bodyMasker.masked_body;
+            byteMask.body <== emailBody;
+            byteMask.mask <== mask;
+            maskedBody <== byteMask.maskedBody;
         }
     }
 

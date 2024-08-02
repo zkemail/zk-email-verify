@@ -1,7 +1,7 @@
 import { wasm as wasm_tester } from "circom_tester";
 import path from "path";
 
-describe("BodyMasker Circuit", () => {
+describe("ByteMask Circuit", () => {
     let circuit: any;
 
     beforeAll(async () => {
@@ -24,7 +24,7 @@ describe("BodyMasker Circuit", () => {
         const witness = await circuit.calculateWitness(input);
         await circuit.checkConstraints(witness);
         await circuit.assertOut(witness, {
-            masked_body: [1, 0, 3, 0, 5, 0, 7, 0, 9, 0],
+            maskedBody: [1, 0, 3, 0, 5, 0, 7, 0, 9, 0],
         });
     });
 
@@ -38,7 +38,7 @@ describe("BodyMasker Circuit", () => {
             const witness = await circuit.calculateWitness(input);
             await circuit.checkConstraints(witness);
             await circuit.assertOut(witness, {
-                masked_body: [1, 0, 3, 0, 5, 0, 7, 0, 9, 0],
+                maskedBody: [1, 0, 3, 0, 5, 0, 7, 0, 9, 0],
             });
         } catch (error) {
             expect(error).toBeTruthy();
