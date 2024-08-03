@@ -1,12 +1,12 @@
 import { wasm as wasm_tester } from 'circom_tester';
 import path from 'path';
 
-describe('SubstringMatch', () => {
+describe('Case 1: Substring Match With StartIndex', () => {
   let circuit: any;
 
   beforeAll(async () => {
     circuit = await wasm_tester(
-      path.join(__dirname, './test-circuits/substring-match-test.circom'),
+      path.join(__dirname, './test-circuits/substring-match-with-start-index-test.circom'),
       {
         recompile: true,
         include: path.join(__dirname, '../../../node_modules'),

@@ -4,7 +4,7 @@ include "circomlib/circuits/comparators.circom";
 include "circomlib/circuits/mux1.circom";
 include "../utils/hash.circom";
 
-/// @title SubstringMatch
+/// @title SubstringMatchWithStartIndex
 /// @notice This template verifies if a given substring exists within a larger string at a specified index
 /// @dev Uses a Random Linear Combination (RLC) approach to efficiently compare substrings
 /// @param maxLength The maximum length of the input string
@@ -14,7 +14,7 @@ include "../utils/hash.circom";
 /// @input revealedString An array of ASCII values representing the substring to be matched
 /// @input r A random value used for the RLC calculation
 /// @output isValid A signal that is 1 if the substring matches at the given index, 0 otherwise
-template SubstringMatch(maxLength, maxSubstringLength) {
+template SubstringMatchWithStartIndex(maxLength, maxSubstringLength) {
     signal input in[maxLength];
     signal input revealedString[maxSubstringLength];
     signal input startIndex;
