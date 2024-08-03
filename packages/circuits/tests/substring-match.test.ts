@@ -24,8 +24,7 @@ describe('SubstringMatch', () => {
     const input = {
       in: padArray([104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100], 32), // "hello world"
       startIndex: 6,
-      revealedString: padArray([119, 111, 114, 108, 100], 16), // "world"
-      r: 69, // A prime number for the random linear combination
+      revealedString: padArray([119, 111, 114, 108, 100], 16), // "world" 
     };
 
     const witness = await circuit.calculateWitness(input);
@@ -41,7 +40,6 @@ describe('SubstringMatch', () => {
       in: padArray([104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100], 32), // "hello world"
       startIndex: 6,
       revealedString: padArray([119, 111, 114, 108, 107], 16), // "worlk" (last character different)
-      r: 69,
     };
 
     const witness = await circuit.calculateWitness(input);
@@ -57,7 +55,6 @@ describe('SubstringMatch', () => {
       in: padArray([104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100], 32), // "hello world"
       startIndex: 0,
       revealedString: padArray([104, 101, 108, 108, 111], 16), // "hello"
-      r: 69,
     };
 
     const witness = await circuit.calculateWitness(input);
@@ -73,7 +70,6 @@ describe('SubstringMatch', () => {
       in: padArray([104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100], 32), // "hello world"
       startIndex: 7,
       revealedString: padArray([111, 114, 108, 100], 16), // "orld"
-      r: 69,
     };
 
     const witness = await circuit.calculateWitness(input);
@@ -89,7 +85,6 @@ describe('SubstringMatch', () => {
       in: padArray([104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100], 32), // "hello world"
       startIndex: 32, // Out of bounds (valid indices are 0-31)
       revealedString: padArray([100], 16), // "d"
-      r: 69,
     };
 
     const witness = await circuit.calculateWitness(input);

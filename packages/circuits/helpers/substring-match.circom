@@ -2,6 +2,7 @@ pragma circom 2.1.6;
 
 include "circomlib/circuits/comparators.circom";
 include "circomlib/circuits/mux1.circom";
+include "../utils/hash.circom";
 
 /// @title SubstringMatch
 /// @notice This template verifies if a given substring exists within a larger string at a specified index
@@ -15,9 +16,21 @@ include "circomlib/circuits/mux1.circom";
 /// @output isValid A signal that is 1 if the substring matches at the given index, 0 otherwise
 template SubstringMatch(maxLength, maxSubstringLength) {
     signal input in[maxLength];
-    signal input startIndex;
     signal input revealedString[maxSubstringLength];
-    signal input r;
+    signal input startIndex;
+
+    // Derive r from the inputs
+    signal r;
+    component rHasher;
+    rHasher = PoseidonModular(maxLength + maxSubstringLength + 1);
+    rHasher.in[0] <== startIndex;
+    for (var i = 0; i < maxSubstringLength; i++) {
+        rHasher.in[i + 1] <== revealedString[i];
+    }
+    for (var i = 0; i < maxLength; i++) {
+        rHasher.in[i + maxSubstringLength + 1] <== in[i];
+    }
+    r <== rHasher.out;
 
     // Check if each character in the revealed string is non-zero
     signal isNonZero[maxSubstringLength];
