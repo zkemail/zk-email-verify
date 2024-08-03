@@ -89,7 +89,12 @@ template RemoveSoftLineBreaks(maxLength) {
     }
 
     // Calculate powers of r for encoded
-    rEnc[0] <== 1;
+    muxEnc[0] = Mux1();
+    muxEnc[0].c[0] <== r;
+    muxEnc[0].c[1] <== 1;
+    muxEnc[0].s <== shouldZero[0];
+    rEnc[0] <== muxEnc[0].out;
+
     for (var i = 1; i < maxLength; i++) {
         muxEnc[i] = Mux1();
         muxEnc[i].c[0] <== rEnc[i - 1] * r;
@@ -99,19 +104,19 @@ template RemoveSoftLineBreaks(maxLength) {
     }
 
     // Calculate powers of r for decoded
-    rDec[0] <== 1;
+    rDec[0] <== r;
     for (var i = 1; i < maxLength; i++) {
         rDec[i] <== rDec[i - 1] * r;
     }
 
     // Calculate rlc for processed
-    sumEnc[0] <== processed[0];
+    sumEnc[0] <== rEnc[0] * processed[0];
     for (var i = 1; i < maxLength; i++) {
         sumEnc[i] <== sumEnc[i - 1] + rEnc[i] * processed[i];
     }
 
     // Calculate rlc for decoded
-    sumDec[0] <== decoded[0];
+    sumDec[0] <== rDec[0] * decoded[0];
     for (var i = 1; i < maxLength; i++) {
         sumDec[i] <== sumDec[i - 1] + rDec[i] * decoded[i];
     }
