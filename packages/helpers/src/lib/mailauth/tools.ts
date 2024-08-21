@@ -301,11 +301,7 @@ export const getPublicKey = async (
   resolver: (...args: [name: string, type: string]) => Promise<any>
 ) => {
   minBitLength = minBitLength || 1024;
-  if (!IS_BROWSER) {
-    resolver = resolver || require("dns").promises.resolve;
-  } else {
-    resolver = resolveDNSHTTP;
-  }
+  resolver = resolveDNSHTTP;
 
   let list = await resolver(name, "TXT");
   let rr =
