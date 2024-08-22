@@ -249,7 +249,7 @@ export const formatSignatureHeaderLine = (
 
 async function resolveDNSHTTP(name: string, type: string) {
   if (type !== "TXT") {
-    throw new Error("DKIM record type is TXT");
+    throw new Error("DKIM record type is not TXT");
   }
   const DKIMRecord = await DoH.resolveDKIMPublicKey(name, DoHServer.Google);
   if (!DKIMRecord) {
