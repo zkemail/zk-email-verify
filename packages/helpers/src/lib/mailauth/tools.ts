@@ -9,6 +9,7 @@ import crypto, { KeyObject } from "crypto";
 import parseDkimHeaders from "./parse-dkim-headers";
 import { DkimVerifier } from "./dkim-verifier";
 import type { Parsed, SignatureType } from "./dkim-verifier";
+import { DoH, DoHServer } from './DoH';
 
 const IS_BROWSER = typeof window !== "undefined";
 
@@ -247,16 +248,17 @@ export const formatSignatureHeaderLine = (
 };
 
 async function resolveDNSHTTP(name: string, type: string) {
-  const resp = await fetch(
-    "https://dns.google/resolve?" +
-      new URLSearchParams({
-        name: name,
-        type: type,
-      })
-  );
-  const out = await resp.json();
-  // For some DNS, the Answer response here contains more than 1 element in the array. The last element is the one containing the public key
-  return [out.Answer[out.Answer.length - 1].data];
+  if (type !== "TXT") {
+    throw new Error("DKIM record type is not TXT");
+  }
+  const DKIMRecord = await DoH.resolveDKIMPublicKey(name, DoHServer.Google);
+  if (!DKIMRecord) {
+    throw new CustomError("No DKIM record found", "ENODATA");
+  }
+  if (DKIMRecord !== await DoH.resolveDKIMPublicKey(name, DoHServer.Cloudflare)) {
+    console.error("DKIM record mismatch!");
+  }
+  return [DKIMRecord];
 }
 
 // from https://developers.google.com/web/updates/2012/06/How-to-convert-ArrayBuffer-to-and-from-String
@@ -301,9 +303,7 @@ export const getPublicKey = async (
   resolver: (...args: [name: string, type: string]) => Promise<any>
 ) => {
   minBitLength = minBitLength || 1024;
-  if (!IS_BROWSER) {
-    resolver = resolver || require("dns").promises.resolve;
-  } else {
+  if (!resolver) {
     resolver = resolveDNSHTTP;
   }
 
