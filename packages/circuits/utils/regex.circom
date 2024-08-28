@@ -7,6 +7,7 @@ include "./bytes.circom";
 /// @title SelectRegexReveal
 /// @notice Returns reveal bytes of a regex match from the input
 /// @notice Verifies data before and after (maxRevealLen) reveal part is zero
+/// @notice Assumes that there is only one consecutive sequence of non-zero bytes in `in`.
 /// @param maxArrayLen Maximum length of the input array
 /// @param maxRevealLen Maximum length of the reveal part
 /// @input in Input array; assumes elements to be bytes
@@ -25,6 +26,10 @@ template SelectRegexReveal(maxArrayLen, maxRevealLen) {
     signal isZero[maxArrayLen];
     signal isPreviousZero[maxArrayLen];
     signal isAboveMaxRevealLen[maxArrayLen];
+
+    // Assert startIndex < maxArrayLen
+    signal isValidStartIndex <== LessThan(bitLength)([startIndex, maxArrayLen]);
+    isValidStartIndex === 1;
 
     isPreviousZero[0] <== 1;
     for(var i = 0; i < maxArrayLen; i++) {
