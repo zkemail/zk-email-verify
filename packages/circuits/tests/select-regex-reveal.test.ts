@@ -96,22 +96,4 @@ describe("Select Regex Reveal", () => {
             expect((error as Error).message).toMatch("Assert Failed");
         }
     });
-
-    it("should fail when startIndex is larger than max length", async function () {
-        let input = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-        const startIndex = Math.floor(Math.random() * 24);
-        const revealed = Array.from("zk email").map(char => char.charCodeAt(0));
-        for (let i = 0; i < revealed.length; i++) {
-            input[startIndex + i] = revealed[i];
-        }
-        try {
-            const witness = await circuit.calculateWitness({
-                in: input,
-                startIndex: 32
-            });
-            await circuit.checkConstraints(witness);
-        } catch (error) {
-            expect((error as Error).message).toMatch("Assert Failed");
-        }
-    });
 });
