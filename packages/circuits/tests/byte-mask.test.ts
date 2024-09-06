@@ -6,7 +6,7 @@ describe("ByteMask Circuit", () => {
 
     beforeAll(async () => {
         circuit = await wasm_tester(
-            path.join(__dirname, "./test-circuits/body-masker-test.circom"),
+            path.join(__dirname, "./test-circuits/byte-mask-test.circom"),
             {
                 recompile: true,
                 include: path.join(__dirname, "../../../node_modules"),
@@ -17,14 +17,14 @@ describe("ByteMask Circuit", () => {
 
     it("should mask the body correctly", async () => {
         const input = {
-            body: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            in: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
             mask: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
         };
 
         const witness = await circuit.calculateWitness(input);
         await circuit.checkConstraints(witness);
         await circuit.assertOut(witness, {
-            maskedBody: [1, 0, 3, 0, 5, 0, 7, 0, 9, 0],
+            out: [1, 0, 3, 0, 5, 0, 7, 0, 9, 0],
         });
     });
 
