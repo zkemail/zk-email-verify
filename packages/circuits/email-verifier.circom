@@ -144,15 +144,12 @@ template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashChec
 
         if (removeSoftLineBreaks == 1) {
             signal input decodedEmailBodyIn[maxBodyLength];
-            signal output decodedEmailBodyOut[maxBodyLength];
             component qpEncodingChecker = RemoveSoftLineBreaks(maxBodyLength);
 
             qpEncodingChecker.encoded <== emailBody;
             qpEncodingChecker.decoded <== decodedEmailBodyIn;
 
             qpEncodingChecker.isValid === 1;
-
-            decodedEmailBodyOut <== qpEncodingChecker.decoded;
         }
 
         if (enableBodyMasking == 1) {
