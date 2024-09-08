@@ -27,10 +27,6 @@ template SelectRegexReveal(maxArrayLen, maxRevealLen) {
     signal isPreviousZero[maxArrayLen];
     signal isAboveMaxRevealLen[maxArrayLen];
 
-    // Assert startIndex < maxArrayLen
-    signal isValidStartIndex <== LessThan(bitLength)([startIndex, maxArrayLen]);
-    isValidStartIndex === 1;
-
     isPreviousZero[0] <== 1;
     for(var i = 0; i < maxArrayLen; i++) {
         isStartIndex[i] <== IsEqual()([i, startIndex]);
