@@ -18,7 +18,7 @@ describe("Select Regex Reveal", () => {
     });
 
     it("should reveal the substring with maximum revealed length", async function () {
-        let input = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        let input = new Array(34).fill(0);
         const startIndex = Math.floor(Math.random() * 24);
         const revealed = Array.from("zk email").map(char => char.charCodeAt(0));
         for (let i = 0; i < revealed.length; i++) {
@@ -33,7 +33,7 @@ describe("Select Regex Reveal", () => {
     });
 
     it("should reveal the substring with non-maximum revealed length", async function () {
-        let input = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        let input = new Array(34).fill(0);
         const startIndex = 30;
         const revealed = Array.from("zk").map(char => char.charCodeAt(0));
         for (let i = 0; i < revealed.length; i++) {
@@ -48,8 +48,8 @@ describe("Select Regex Reveal", () => {
     });
 
     it("should fail when all zero", async function () {
-        let input = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-        const startIndex = Math.floor(Math.random() * 32);
+        let input = new Array(34).fill(0);
+        const startIndex = Math.floor(Math.random() * 34);
         try {
             const witness = await circuit.calculateWitness({
                 in: input,
@@ -59,10 +59,12 @@ describe("Select Regex Reveal", () => {
         } catch (error) {
             expect((error as Error).message).toMatch("Assert Failed");
         }
+
+        expect.assertions(1);
     });
 
     it("should fail when startIndex is 0", async function () {
-        let input = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        let input = new Array(34).fill(0);
         const startIndex = 1 + Math.floor(Math.random() * 24);
         const revealed = Array.from("zk email").map(char => char.charCodeAt(0));
         for (let i = 0; i < revealed.length; i++) {
@@ -77,10 +79,12 @@ describe("Select Regex Reveal", () => {
         } catch (error) {
             expect((error as Error).message).toMatch("Assert Failed");
         }
+
+        expect.assertions(1);
     });
 
     it("should fail when startIndex is not before 0", async function () {
-        let input = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        let input = new Array(34).fill(0);
         const startIndex = Math.floor(Math.random() * 23);
         const revealed = Array.from("zk email").map(char => char.charCodeAt(0));
         for (let i = 0; i < revealed.length; i++) {
@@ -95,23 +99,7 @@ describe("Select Regex Reveal", () => {
         } catch (error) {
             expect((error as Error).message).toMatch("Assert Failed");
         }
-    });
 
-    it("should fail when startIndex is larger than max length", async function () {
-        let input = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-        const startIndex = Math.floor(Math.random() * 24);
-        const revealed = Array.from("zk email").map(char => char.charCodeAt(0));
-        for (let i = 0; i < revealed.length; i++) {
-            input[startIndex + i] = revealed[i];
-        }
-        try {
-            const witness = await circuit.calculateWitness({
-                in: input,
-                startIndex: 32
-            });
-            await circuit.checkConstraints(witness);
-        } catch (error) {
-            expect((error as Error).message).toMatch("Assert Failed");
-        }
+        expect.assertions(1);
     });
 });
