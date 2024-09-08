@@ -43,5 +43,7 @@ describe("ByteMask Circuit", () => {
         } catch (error) {
             expect(error).toBeTruthy();
         }
+
+        expect.assertions(1);
     });
 });
