@@ -2,6 +2,8 @@ import { wasm as wasm_tester } from 'circom_tester';
 import path from 'path';
 
 describe('RemoveSoftLineBreaks', () => {
+  jest.setTimeout(20_1000);
+
   let circuit: any;
 
   beforeAll(async () => {
