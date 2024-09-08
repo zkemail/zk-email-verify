@@ -1,21 +1,17 @@
 import { wasm } from "circom_tester";
 import path from "path";
 
-
 describe("Base64 Lookup", () => {
   jest.setTimeout(10 * 60 * 1000); // 10 minutes
 
   let circuit: any;
 
   beforeAll(async () => {
-    circuit = await wasm(
-      path.join(__dirname, "./test-circuits/base64-test.circom"),
-      {
-        recompile: true,
-        include: path.join(__dirname, "../../../node_modules"),
-        // output: path.join(__dirname, "./compiled-test-circuits"),
-      }
-    );
+    circuit = await wasm(path.join(__dirname, "./test-circuits/base64-test.circom"), {
+      recompile: true,
+      include: path.join(__dirname, "../../../node_modules"),
+      // output: path.join(__dirname, "./compiled-test-circuits"),
+    });
   });
 
   it("should decode valid base64 chars", async function () {
@@ -29,14 +25,14 @@ describe("Base64 Lookup", () => {
       [43, 62], // +
       [47, 63], // /
       [61, 0], // =
-    ]
+    ];
 
     for (const [input, output] of inputs) {
       const witness = await circuit.calculateWitness({
-        in: input
+        in: input,
       });
       await circuit.checkConstraints(witness);
-      await circuit.assertOut(witness, { out: output })
+      await circuit.assertOut(witness, { out: output });
     }
   });
 
@@ -45,14 +41,14 @@ describe("Base64 Lookup", () => {
 
     expect.assertions(inputs.length);
     for (const input of inputs) {
-    try {
-      const witness = await circuit.calculateWitness({
-        in: input
-      });
-      await circuit.checkConstraints(witness);
-    } catch (error) {
-      expect((error as Error).message).toMatch("Assert Failed");
-    }
+      try {
+        const witness = await circuit.calculateWitness({
+          in: input,
+        });
+        await circuit.checkConstraints(witness);
+      } catch (error) {
+        expect((error as Error).message).toMatch("Assert Failed");
+      }
     }
   });
 });
