@@ -231,18 +231,22 @@ template CountSubstringOccurrences(maxLen, maxSubstringLen) {
     signal output count;
 
     // Check for matches at each possible starting position
-    component matches[maxLen - maxSubstringLen];
-    for (var i = 0; i < maxLen - maxSubstringLen; i++) {
+    component matches[maxLen];
+    for (var i = 0; i < maxLen; i++) {
         matches[i] = CheckSubstringMatch(maxSubstringLen);
         for (var j = 0; j < maxSubstringLen; j++) {
-            matches[i].in[j] <== in[i + j];
+            if (i + j < maxLen) {
+                matches[i].in[j] <== in[i + j];
+            } else {
+                matches[i].in[j] <== 0;
+            }
         }
         matches[i].substring <== substring;
     }
 
     // Sum up all matches to get the total count
-    component summer = CalculateTotal(maxLen - maxSubstringLen);
-    for (var i = 0; i <= maxLen - maxSubstringLen; i++) {
+    component summer = CalculateTotal(maxLen);
+    for (var i = 0; i < maxLen; i++) {
         summer.nums[i] <== matches[i].isMatch;
     }
 

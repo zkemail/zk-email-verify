@@ -25,7 +25,7 @@ describe("CheckSubstringMatch Circuit", () => {
         };
         const witness = await circuit.calculateWitness(input);
         await circuit.checkConstraints(witness);
-        expect(witness[1]).toBe(1n); // isMatch should be 1
+        expect(witness[1]).toBe(1n);
     });
 
     it("should not match when substring is different", async () => {
@@ -35,7 +35,7 @@ describe("CheckSubstringMatch Circuit", () => {
         };
         const witness = await circuit.calculateWitness(input);
         await circuit.checkConstraints(witness);
-        expect(witness[1]).toBe(0n); // isMatch should be 0
+        expect(witness[1]).toBe(0n);
     });
 
     it("should match with full length substring", async () => {
@@ -49,7 +49,7 @@ describe("CheckSubstringMatch Circuit", () => {
         };
         const witness = await circuit.calculateWitness(input);
         await circuit.checkConstraints(witness);
-        expect(witness[1]).toBe(1n); // isMatch should be 1
+        expect(witness[1]).toBe(1n);
     });
 
     it("should fail when first element of substring is zero", async () => {
@@ -69,7 +69,7 @@ describe("CheckSubstringMatch Circuit", () => {
         };
         const witness = await circuit.calculateWitness(input);
         await circuit.checkConstraints(witness);
-        expect(witness[1]).toBe(0n); // isMatch should be 0
+        expect(witness[1]).toBe(0n);
     });
 
     it("should match with single-element substring", async () => {
@@ -79,7 +79,7 @@ describe("CheckSubstringMatch Circuit", () => {
         };
         const witness = await circuit.calculateWitness(input);
         await circuit.checkConstraints(witness);
-        expect(witness[1]).toBe(1n); // isMatch should be 1
+        expect(witness[1]).toBe(1n);
     });
 
     it("should not match when input is all zeros", async () => {
@@ -89,7 +89,7 @@ describe("CheckSubstringMatch Circuit", () => {
         };
         const witness = await circuit.calculateWitness(input);
         await circuit.checkConstraints(witness);
-        expect(witness[1]).toBe(0n); // isMatch should be 0
+        expect(witness[1]).toBe(0n);
     });
 
     it("should not match when substring is longer than non-zero part of input", async () => {
@@ -99,6 +99,6 @@ describe("CheckSubstringMatch Circuit", () => {
         };
         const witness = await circuit.calculateWitness(input);
         await circuit.checkConstraints(witness);
-        expect(witness[1]).toBe(0n); // isMatch should be 0
+        expect(witness[1]).toBe(0n);
     });
 });
