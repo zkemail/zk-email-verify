@@ -29,6 +29,9 @@ include "@zk-email/circuits/email-verifier.circom";
   - `n`: Number of bits per chunk the RSA key is split into. Recommended to be 121.
   - `k`: Number of chunks the RSA key is split into. Recommended to be 17.
   - `ignoreBodyHashCheck`: Set 1 to skip body hash check in case data to prove/extract is only in the headers.
+  - `enableHeaderMasking`: Set 1 to turn on header masking.
+  - `enableBodyMasking`: Set 1 to turn on body masking.
+  - `removeSoftLineBreaks`: Set 1 to remove soft line breaks (`=\r\n`) from the email body.
   
   `Note`: We use these values for n and k because their product (n * k) needs to be more than 2048 (RSA constraint) and n has to be less than half of 255 to fit in a circom signal.
 
@@ -41,10 +44,14 @@ include "@zk-email/circuits/email-verifier.circom";
   - `emailBodyLength`: Length of the email body including the SHA-256 padding.
   - `bodyHashIndex`: Index of the body hash `bh` in the `emailHeader`.
   - `precomputedSHA[32]`: Precomputed SHA-256 hash of the email body till the bodyHashIndex.
+  - `headerMask[maxHeadersLength]`: Mask to be applied on the `emailHeader`.
+  - `bodyMask[maxBodyLength]`: Mask to be applied on the `emailBody`.
+  - `decodedEmailBody[maxBodyLength]`: Decoded email body after removing soft line breaks.
 
   **Output Signal** 
   - `pubkeyHash`: Poseidon hash of the pubkey - Poseidon(n/2)(n/2 chunks of pubkey with k*2 bits per chunk).
-
+  - `maskedHeader[maxHeadersLength]`: Masked email header.
+  - `maskedBody[maxBodyLength]`: Masked email body.
 <br/>
 
 ## **Libraries**
@@ -257,6 +264,33 @@ DigitBytesToInt: Converts a byte array representing digits to an integer.
   - `out`: The output integer after conversion.
 </details>
 
+<details>
+<summary>
+AssertBit: Asserts that a given input is binary.
+</summary>
+
+- **[Source](utils/bytes.circom#L1-L7)**
+- **Inputs**:
+  - `in`: An input signal, expected to be 0 or 1.
+- **Outputs**:
+  - None. This template will throw an assertion error if the input is not binary.
+
+</details>
+
+<details>
+<summary>
+ByteMask: Masks an input array using a binary mask array.
+</summary>
+
+- **[Source](utils/bytes.circom#L9-L25)**
+- **Parameters**:
+  - `maxLength`: The maximum length of the input and mask arrays.
+- **Inputs**:
+  - `in`: An array of signals representing the body to be masked.
+  - `mask`: An array of signals representing the binary mask.
+- **Outputs**:
+  - `out`: An array of signals representing the masked input.
+</details>
 
 ### `utils/constants.circom`
 
@@ -359,5 +393,20 @@ EmailNullifier: Calculates the email nullifier using Poseidon hash.
   - `out`: The email nullifier.
 </details>
 
+### `helpers/remove-soft-line-breaks.circom`
 
+<details>
+<summary>
+RemoveSoftLineBreaks: Verifies the removal of soft line breaks from an encoded input string.
+</summary>
 
+- **[Source](helpers/remove-soft-line-breaks.circom)**
+- **Parameters**:
+  - `maxLength`: The maximum length of the input strings.
+- **Inputs**:
+  - `encoded[maxLength]`: An array of ASCII values representing the input string with potential soft line breaks.
+  - `decoded[maxLength]`: An array of ASCII values representing the expected output after removing soft line breaks.
+- **Outputs**:
+  - `isValid`: A signal that is 1 if the decoded input correctly represents the encoded input with soft line breaks removed, 0 otherwise.
+
+</details>

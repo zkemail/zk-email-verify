@@ -22,8 +22,9 @@ include "./helpers/remove-soft-line-breaks.circom";
 /// @param n Number of bits per chunk the RSA key is split into. Recommended to be 121.
 /// @param k Number of chunks the RSA key is split into. Recommended to be 17.
 /// @param ignoreBodyHashCheck Set 1 to skip body hash check in case data to prove/extract is only in the headers.
-/// @param removeSoftLineBreaks Set 1 to remove soft line breaks from the email body.
+/// @param enableHeaderMasking Set 1 to turn on header masking.
 /// @param enableBodyMasking Set 1 to turn on body masking.
+/// @param removeSoftLineBreaks Set 1 to remove soft line breaks from the email body.
 /// @input emailHeader[maxHeadersLength] Email headers that are signed (ones in `DKIM-Signature` header) as ASCII int[], padded as per SHA-256 block size.
 /// @input emailHeaderLength Length of the email header including the SHA-256 padding.
 /// @input pubkey[k] RSA public key split into k chunks of n bits each.
@@ -36,8 +37,9 @@ include "./helpers/remove-soft-line-breaks.circom";
 /// @input mask[maxBodyLength] Mask for the email body.
 /// @output pubkeyHash Poseidon hash of the pubkey - Poseidon(n/2)(n/2 chunks of pubkey with k*2 bits per chunk).
 /// @output decodedEmailBodyOut[maxBodyLength] Decoded email body with soft line breaks removed.
+/// @output maskedHeader[maxHeadersLength] Masked email header.
 /// @output maskedBody[maxBodyLength] Masked email body.
-template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashCheck, removeSoftLineBreaks, enableBodyMasking) {
+template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashCheck, enableHeaderMasking, enableBodyMasking, removeSoftLineBreaks) {
     assert(maxHeadersLength % 64 == 0);
     assert(maxBodyLength % 64 == 0);
     assert(n * k > 2048); // to support 2048 bit RSA
@@ -89,6 +91,15 @@ template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashChec
     rsaVerifier.modulus <== pubkey;
     rsaVerifier.signature <== signature;
 
+    if (enableHeaderMasking == 1) {
+        signal input headerMask[maxHeadersLength];
+        signal output maskedHeader[maxHeadersLength];
+        component byteMask = ByteMask(maxHeadersLength);
+        
+        byteMask.in <== emailHeader;
+        byteMask.mask <== headerMask;
+        maskedHeader <== byteMask.out;
+    }
 
     // Calculate the SHA256 hash of the body and verify it matches the hash in the header
     if (ignoreBodyHashCheck != 1) {
@@ -133,25 +144,22 @@ template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashChec
 
         if (removeSoftLineBreaks == 1) {
             signal input decodedEmailBodyIn[maxBodyLength];
-            signal output decodedEmailBodyOut[maxBodyLength];
             component qpEncodingChecker = RemoveSoftLineBreaks(maxBodyLength);
 
             qpEncodingChecker.encoded <== emailBody;
             qpEncodingChecker.decoded <== decodedEmailBodyIn;
 
             qpEncodingChecker.isValid === 1;
-
-            decodedEmailBodyOut <== qpEncodingChecker.decoded;
         }
 
         if (enableBodyMasking == 1) {
-            signal input mask[maxBodyLength];
+            signal input bodyMask[maxBodyLength];
             signal output maskedBody[maxBodyLength];
             component byteMask = ByteMask(maxBodyLength);
             
-            byteMask.body <== emailBody;
-            byteMask.mask <== mask;
-            maskedBody <== byteMask.maskedBody;
+            byteMask.in <== emailBody;
+            byteMask.mask <== bodyMask;
+            maskedBody <== byteMask.out;
         }
     }
 
