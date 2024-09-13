@@ -24,12 +24,12 @@ template RevealSubstring(maxLength, maxSubstringLength) {
 
     // substringLength should be less than maxSubstringLength
     signal lengthCheck;
-    lengthCheck <== LessThan(log2Ceil(maxSubstringLength))([substringLength, maxSubstringLength]);
+    lengthCheck <== LessThan(log2Ceil(maxSubstringLength))([substringLength, maxSubstringLength + 1]);
     lengthCheck === 1;
 
     // substringStartIndex + substringLength should be less than maxLength
     signal startIndexPlusLengthCheck;
-    startIndexPlusLengthCheck <== LessThan(log2Ceil(maxLength))([substringStartIndex + substringLength, maxLength]);
+    startIndexPlusLengthCheck <== LessThan(log2Ceil(maxLength))([substringStartIndex + substringLength, maxLength + 1]);
     startIndexPlusLengthCheck === 1;
 
     // Extract the substring
