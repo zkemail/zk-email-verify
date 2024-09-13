@@ -6,7 +6,7 @@ import { generateEmailVerifierInputsFromDKIMResult } from "@zk-email/helpers/src
 import { verifyDKIMSignature } from "@zk-email/helpers/src/dkim";
 
 describe("EmailVerifier : Without body check", () => {
-    jest.setTimeout(15 * 60 * 1000); // 15 minutes
+    jest.setTimeout(10 * 60 * 1000); // 10 minutes
 
     let dkimResult: DKIMVerificationResult;
     let circuit: any;
