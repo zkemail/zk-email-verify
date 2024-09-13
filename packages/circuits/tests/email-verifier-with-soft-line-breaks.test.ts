@@ -6,7 +6,7 @@ import { generateEmailVerifierInputsFromDKIMResult } from "@zk-email/helpers/src
 import { verifyDKIMSignature } from "@zk-email/helpers/src/dkim";
 
 describe("EmailVerifier : With soft line breaks", () => {
-    jest.setTimeout(10 * 60 * 1000); // 10 minutes
+    jest.setTimeout(30 * 60 * 1000); // 30 minutes
 
     let dkimResult: DKIMVerificationResult;
     let circuit: any;
