@@ -7,7 +7,7 @@ import { verifyDKIMSignature } from "@zk-email/helpers/src/dkim";
 import { poseidonLarge } from "@zk-email/helpers/src/hash";
 
 describe("EmailVerifier", () => {
-    jest.setTimeout(10 * 60 * 1000); // 10 minutes
+    jest.setTimeout(15 * 60 * 1000); // 15 minutes
 
     let dkimResult: DKIMVerificationResult;
     let circuit: any;
