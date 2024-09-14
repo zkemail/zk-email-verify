@@ -10,7 +10,7 @@ include "../utils/array.circom";
 ///      (e.g., checking that substringStartIndex and substringLength are within valid ranges)
 /// @param maxLength The maximum length of the input array
 /// @param maxSubstringLength The maximum length of the substring to be revealed
-template RevealSubstring(maxLength, maxSubstringLength) {
+template RevealSubstring(maxLength, maxSubstringLength, shouldCheckUniqueness) {
     assert(maxSubstringLength < maxLength);
 
     signal input in[maxLength];
@@ -25,11 +25,13 @@ template RevealSubstring(maxLength, maxSubstringLength) {
     selectSubArray.startIndex <== substringStartIndex;
     selectSubArray.length <== substringLength;
 
-    // Check if the substring occurs exactly once in the input
-    component countSubstringOccurrences = CountSubstringOccurrences(maxLength, maxSubstringLength);
-    countSubstringOccurrences.in <== in;
-    countSubstringOccurrences.substring <== selectSubArray.out;
-    countSubstringOccurrences.count === 1;
+    if (shouldCheckUniqueness) {
+        // Check if the substring occurs exactly once in the input
+        component countSubstringOccurrences = CountSubstringOccurrences(maxLength, maxSubstringLength);
+        countSubstringOccurrences.in <== in;
+        countSubstringOccurrences.substring <== selectSubArray.out;
+        countSubstringOccurrences.count === 1;
+    }
 
     substring <== selectSubArray.out;
 }

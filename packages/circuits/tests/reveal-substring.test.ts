@@ -87,39 +87,6 @@ describe("RevealSubstring Circuit", () => {
         ]);
     });
 
-    it("should fail when substringStartIndex is out of bounds", async () => {
-        const input = {
-            in: Array(256).fill(1),
-            substringStartIndex: 256,
-            substringLength: 5,
-        };
-        await expect(circuit.calculateWitness(input)).rejects.toThrow(
-            "Assert Failed"
-        );
-    });
-
-    it("should fail when substringLength is greater than maxSubstringLength", async () => {
-        const input = {
-            in: Array(256).fill(1),
-            substringStartIndex: 0,
-            substringLength: 17,
-        };
-        await expect(circuit.calculateWitness(input)).rejects.toThrow(
-            "Assert Failed"
-        );
-    });
-
-    it("should fail when substringStartIndex + substringLength exceeds maxLength", async () => {
-        const input = {
-            in: Array(256).fill(1),
-            substringStartIndex: 250,
-            substringLength: 7,
-        };
-        await expect(circuit.calculateWitness(input)).rejects.toThrow(
-            "Assert Failed"
-        );
-    });
-
     it("should correctly reveal a substring of length 1", async () => {
         const input = {
             in: [
