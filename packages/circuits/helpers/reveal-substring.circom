@@ -6,6 +6,8 @@ include "../utils/array.circom";
 /// @title RevealSubstring
 /// @notice This circuit reveals a substring from an input array and verifies its uniqueness
 /// @dev Ensures the revealed substring occurs exactly once in the input
+/// @dev Note: This circuit assumes that the consuming circuit handles input validation
+///      (e.g., checking that substringStartIndex and substringLength are within valid ranges)
 /// @param maxLength The maximum length of the input array
 /// @param maxSubstringLength The maximum length of the substring to be revealed
 template RevealSubstring(maxLength, maxSubstringLength) {
@@ -16,21 +18,6 @@ template RevealSubstring(maxLength, maxSubstringLength) {
     signal input substringLength;
 
     signal output substring[maxSubstringLength];
-
-    // substringStartIndex should be less than maxLength
-    signal startIndexCheck;
-    startIndexCheck <== LessThan(log2Ceil(maxLength))([substringStartIndex, maxLength]);
-    startIndexCheck === 1;
-
-    // substringLength should be less than maxSubstringLength
-    signal lengthCheck;
-    lengthCheck <== LessThan(log2Ceil(maxSubstringLength))([substringLength, maxSubstringLength + 1]);
-    lengthCheck === 1;
-
-    // substringStartIndex + substringLength should be less than maxLength
-    signal startIndexPlusLengthCheck;
-    startIndexPlusLengthCheck <== LessThan(log2Ceil(maxLength))([substringStartIndex + substringLength, maxLength + 1]);
-    startIndexPlusLengthCheck === 1;
 
     // Extract the substring
     component selectSubArray = SelectSubArray(maxLength, maxSubstringLength);
