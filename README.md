@@ -22,9 +22,9 @@ Contains Solidity contracts for email verification purposes. [Read more](/packag
 
 ## Demo
 
-[Proof of X (Twitter)](https://github.com/zkemail/proof-of-twitter/) is a demo application built using ZK-Email where you can prove ownership of a X (Twitter) account (and mint an NFT) using an email from X (Twitter).
+[Proof of X (formerly Twitter)](https://github.com/zkemail/proof-of-twitter/) is a demo application built using ZK-Email where you can prove ownership of a X (Twitter) account (and mint an NFT) using an email from X (Twitter).
 
-Try here: [https://twitter.prove.email/](https://twitter.prove.email/)
+Try here: [https://x.prove.email/](https://x.prove.email/)
 
 You can fork the project as a starting point for your own ZK-Email application.
 
