@@ -143,4 +143,49 @@ describe("RevealSubstring Circuit", () => {
             ...Array(13).fill(0n),
         ]);
     });
+
+    it("should fail when substringStartIndex is equal to maxLength", async () => {
+        const input = {
+            in: Array(256).fill(1),
+            substringStartIndex: 256, // Equal to maxLength
+            substringLength: 1,
+        };
+        await expect(circuit.calculateWitness(input)).rejects.toThrow();
+    });
+
+    it("should fail when substringStartIndex is greater than maxLength", async () => {
+        const input = {
+            in: Array(256).fill(1),
+            substringStartIndex: 257, // Greater than maxLength
+            substringLength: 1,
+        };
+        await expect(circuit.calculateWitness(input)).rejects.toThrow();
+    });
+
+    it("should fail when substringLength is equal to maxSubstringLength", async () => {
+        const input = {
+            in: Array(256).fill(1),
+            substringStartIndex: 0,
+            substringLength: 16, // Equal to maxSubstringLength
+        };
+        await expect(circuit.calculateWitness(input)).rejects.toThrow();
+    });
+
+    it("should fail when substringLength is greater than maxSubstringLength", async () => {
+        const input = {
+            in: Array(256).fill(1),
+            substringStartIndex: 0,
+            substringLength: 17, // Greater than maxSubstringLength
+        };
+        await expect(circuit.calculateWitness(input)).rejects.toThrow();
+    });
+
+    it("should fail when substringStartIndex + substringLength is greater than maxLength", async () => {
+        const input = {
+            in: Array(256).fill(1),
+            substringStartIndex: 250,
+            substringLength: 7, // 250 + 7 > 256
+        };
+        await expect(circuit.calculateWitness(input)).rejects.toThrow();
+    });
 });
