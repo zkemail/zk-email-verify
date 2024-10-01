@@ -184,3 +184,71 @@ template Slice(n, start, end) {
         out[i - start] <== in[i];
     }
 }
+
+/// @title CheckSubstringMatch
+/// @notice Check if a substring matches the input array
+/// @param maxSubstringLen The maximum length of the substring
+/// @input input The portion of the input array to check
+/// @input substring The substring pattern to match
+/// @output isMatch 1 if the substring matches, 0 otherwise
+template CheckSubstringMatch(maxSubstringLen) {
+    signal input in[maxSubstringLen];
+    signal input substring[maxSubstringLen];
+    signal output isMatch;
+
+    // Ensure the first element of the pattern is non-zero
+    signal firstElementNonZero;
+    firstElementNonZero <== IsZero()(substring[0]);
+    firstElementNonZero === 0;
+
+    signal matchAccumulator[maxSubstringLen + 1];
+    signal difference[maxSubstringLen];
+    signal isZeroDifference[maxSubstringLen];
+
+    matchAccumulator[0] <== 1;
+
+    for (var i = 0; i < maxSubstringLen; i++) {
+        difference[i] <== (in[i] - substring[i]) * substring[i];
+        isZeroDifference[i] <== IsZero()(difference[i]);
+        matchAccumulator[i + 1] <== matchAccumulator[i] * isZeroDifference[i];
+    }
+
+    isMatch <== matchAccumulator[maxSubstringLen];
+}
+
+/// @title CountSubstringOccurrences
+/// @notice Count the number of times a substring occurs in the input array
+/// @param maxLen The maximum length of the input array
+/// @param maxSubstringLen The maximum length of the substring
+/// @input in The input array to search in
+/// @input substring The substring to search for
+/// @output count The number of occurrences of the substring in the input
+template CountSubstringOccurrences(maxLen, maxSubstringLen) {
+    assert(maxLen >= maxSubstringLen);
+
+    signal input in[maxLen];
+    signal input substring[maxSubstringLen];
+    signal output count;
+
+    // Check for matches at each possible starting position
+    component matches[maxLen];
+    for (var i = 0; i < maxLen; i++) {
+        matches[i] = CheckSubstringMatch(maxSubstringLen);
+        for (var j = 0; j < maxSubstringLen; j++) {
+            if (i + j < maxLen) {
+                matches[i].in[j] <== in[i + j];
+            } else {
+                matches[i].in[j] <== 0;
+            }
+        }
+        matches[i].substring <== substring;
+    }
+
+    // Sum up all matches to get the total count
+    component summer = CalculateTotal(maxLen);
+    for (var i = 0; i < maxLen; i++) {
+        summer.nums[i] <== matches[i].isMatch;
+    }
+
+    count <== summer.sum;
+}
