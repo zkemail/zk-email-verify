@@ -3,6 +3,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
+    "lint": "yarn prettier --write packages/**/**.ts",
     "test": "jest"
   },
   "workspaces": [
@@ -12,5 +13,8 @@
   "packageManager": "yarn@3.2.3",
   "engines": {
     "node": ">=14.0.0"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3"
   }
 }
