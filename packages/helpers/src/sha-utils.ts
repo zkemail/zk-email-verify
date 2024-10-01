@@ -1,8 +1,16 @@
-import * as CryptoJS from "crypto";
-import { assert, int64toBytes, int8toBytes, mergeUInt8Arrays } from "./binary-format";
-import { Hash } from "./lib/fast-sha256";
+import * as CryptoJS from 'crypto';
+import {
+  assert,
+  int64toBytes,
+  int8toBytes,
+  mergeUInt8Arrays,
+} from './binary-format';
+import { Hash } from './lib/fast-sha256';
 
-export function findIndexInUint8Array(array: Uint8Array, selector: Uint8Array): number {
+export function findIndexInUint8Array(
+  array: Uint8Array,
+  selector: Uint8Array,
+): number {
   let i = 0;
   let j = 0;
   while (i < array.length) {
@@ -62,7 +70,7 @@ export function generatePartialSHA({
   }
 
   if (bodyRemaining.length % 64 !== 0) {
-    throw new Error("Remaining body was not padded correctly with int64s");
+    throw new Error('Remaining body was not padded correctly with int64s');
   }
 
   bodyRemaining = padUint8ArrayWithZeros(bodyRemaining, maxRemainingBodyLength);
@@ -76,7 +84,7 @@ export function generatePartialSHA({
 }
 
 export function shaHash(str: Uint8Array) {
-  return CryptoJS.createHash("sha256").update(str).digest();
+  return CryptoJS.createHash('sha256').update(str).digest();
 }
 
 export function partialSha(msg: Uint8Array, msgLen: number): Uint8Array {
@@ -85,7 +93,10 @@ export function partialSha(msg: Uint8Array, msgLen: number): Uint8Array {
 }
 
 // Puts an end selector, a bunch of 0s, then the length, then fill the rest with 0s.
-export function sha256Pad(message: Uint8Array, maxShaBytes: number): [Uint8Array, number] {
+export function sha256Pad(
+  message: Uint8Array,
+  maxShaBytes: number,
+): [Uint8Array, number] {
   const msgLen = message.length * 8; // bytes to bits
   const msgLenBytes = int64toBytes(msgLen);
 
@@ -96,7 +107,7 @@ export function sha256Pad(message: Uint8Array, maxShaBytes: number): [Uint8Array
   }
 
   res = mergeUInt8Arrays(res, msgLenBytes);
-  assert((res.length * 8) % 512 === 0, "Padding did not complete properly!");
+  assert((res.length * 8) % 512 === 0, 'Padding did not complete properly!');
   const messageLen = res.length;
   while (res.length < maxShaBytes) {
     res = mergeUInt8Arrays(res, int64toBytes(0));

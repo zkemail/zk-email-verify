@@ -1,5 +1,5 @@
-import { buildPoseidon } from "circomlibjs";
-import { bigIntToChunkedBytes } from "./binary-format";
+import { buildPoseidon } from 'circomlibjs';
+import { bigIntToChunkedBytes } from './binary-format';
 
 export async function poseidonLarge(input: bigint, numChunks: number, bitsPerChunk: number) {
   const poseidon = await buildPoseidon();
