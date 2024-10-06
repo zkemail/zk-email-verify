@@ -101,7 +101,7 @@ export function generateEmailVerifierInputsFromDKIMResult(
   if (params.enableHeaderMasking) {
     circuitInputs.headerMask = params.headerMask;
   }
-  
+
   if (!params.ignoreBodyHashCheck) {
     if (!body || !bodyHash) {
       throw new Error(
