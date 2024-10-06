@@ -12,7 +12,7 @@ include "./bigint-func.circom";
 /// @param a Input 1 to FpMul; assumes to consist of `k` chunks, each of which must fit in `n` bits
 /// @param b Input 2 to FpMul; assumes to consist of `k` chunks, each of which must fit in `n` bits
 /// @param p The modulus; assumes to consist of `k` chunks, each of which must fit in `n` bits
-/// @output out The result of the FpMul
+/// @output out The result of the FpMul; asserted to be less than `p`  
 template FpMul(n, k) {
     assert(n + n + log_ceil(k) + 2 <= 252);
 
