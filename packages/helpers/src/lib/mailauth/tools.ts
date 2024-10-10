@@ -9,7 +9,6 @@ import crypto, { KeyObject } from "crypto";
 import parseDkimHeaders from "./parse-dkim-headers";
 import { DkimVerifier } from "./dkim-verifier";
 import type { Parsed, SignatureType } from "./dkim-verifier";
-import { DoH, DoHServer } from './DoH';
 
 const IS_BROWSER = typeof window !== "undefined";
 

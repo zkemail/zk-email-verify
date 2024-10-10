@@ -1,7 +1,9 @@
 import { pki } from "node-forge";
 import { DkimVerifier } from "../lib/mailauth/dkim-verifier";
-import { writeToStream } from "../lib/mailauth/tools";
+import { CustomError, writeToStream } from "../lib/mailauth/tools";
 import sanitizers from "./sanitizers";
+import { DoH, DoHServer, resolveDNSHTTP } from './dns-over-http';
+import { resolveDNSFromZKEmailArchive } from "./dns-archive";
 
 // `./mailauth` is modified version of https://github.com/postalsys/mailauth
 // Main modification are including emailHeaders in the DKIM result, making it work in the browser, add types
@@ -26,25 +28,26 @@ export interface DKIMVerificationResult {
  * @param email Entire email data as a string or buffer
  * @param domain Domain to verify DKIM signature for. If not provided, the domain is extracted from the `From` header
  * @param enableSanitization If true, email will be applied with various sanitization to try and pass DKIM verification
- * @param enableZKEmailDNSArchiver If provided, this public (modulus as bigint) key will be used instead of the one in the email
+ * @param fallbackToZKEmailDNSArchive If true, ZK Email DNS Archive (https://archive.prove.email/api-explorer) will
+ *                                    be used to resolve DKIM public keys if we cannot resolve from HTTP DNS
  * @returns
  */
 export async function verifyDKIMSignature(
   email: Buffer | string,
   domain: string = "",
   enableSanitization: boolean = true,
-  enableZKEmailDNSArchiver: bigint | null = null
+  fallbackToZKEmailDNSArchive: boolean = false
 ): Promise<DKIMVerificationResult> {
   const emailStr = email.toString();
 
-  let dkimResult = await tryVerifyDKIM(email, domain, enableZKEmailDNSArchiver);
+  let dkimResult = await tryVerifyDKIM(email, domain, fallbackToZKEmailDNSArchive);
 
   // If DKIM verification fails, try again after sanitizing email
   let appliedSanitization;
   if (dkimResult.status.comment === "bad signature" && enableSanitization) {
     const results = await Promise.all(
       sanitizers.map((sanitize) =>
-        tryVerifyDKIM(sanitize(emailStr), domain).then((result) => ({
+        tryVerifyDKIM(sanitize(emailStr), domain, fallbackToZKEmailDNSArchive).then((result) => ({
           result,
           sanitizer: sanitize.name,
         }))
@@ -95,46 +98,27 @@ export async function verifyDKIMSignature(
   };
 }
 
+
 async function tryVerifyDKIM(
   email: Buffer | string,
   domain: string = "",
-  enableZKEmailDNSArchiver: bigint | null = null
+  fallbackToZKEmailDNSArchive: boolean
 ) {
+  const resolver = async (name: string, type: string) => {
+    try {
+      const result = await resolveDNSHTTP(name, type);
+      return result;
+    } catch (e) {
+      if (fallbackToZKEmailDNSArchive) {
+        console.log("DNS over HTTP failed, falling back to ZK Email Archive");
+        return resolveDNSFromZKEmailArchive(name, type);
+      }
+      throw e;
+    }
+  };
+
   const dkimVerifier = new DkimVerifier({
-    ...(enableZKEmailDNSArchiver && {
-      resolver: async (name: string, type: string) => {
-        if (type !== "TXT") {
-          throw new Error(
-            `ZK Email Archive only supports TXT records - got ${type}`
-          );
-        }
-        const ZKEMAIL_DNS_ARCHIVER_API = "https://archive.prove.email/api/key";
-
-        // Get domain from full dns record name - $selector._domainkey.$domain.com
-        const domain = name.split(".").slice(-2).join(".");
-        const selector = name.split(".")[0];
-
-        const queryUrl = new URL(ZKEMAIL_DNS_ARCHIVER_API);
-        queryUrl.searchParams.set("domain", domain);
-
-        const resp = await fetch(queryUrl);
-        const data = await resp.json();
-
-        const dkimRecord = data.find(
-          (record: any) => record.selector === selector
-        );
-
-        if (!dkimRecord) {
-          throw new Error(
-            `DKIM record not found for domain ${domain} and selector ${selector} in ZK Email Archive.`
-          );
-        }
-
-        console.log("dkimRecord", dkimRecord.value);
-
-        return [dkimRecord.value];
-      },
-    }),
+    resolver,
   });
 
   await writeToStream(dkimVerifier, email as any);
