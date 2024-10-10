@@ -9,7 +9,7 @@ describe("SplitBytesToWords Helper unit test", () => {
 
     beforeAll(async () => {
         circuit = await wasm_tester(
-            path.join(__dirname, "./test-circuits/splitBytesToWords-test.circom"),
+            path.join(__dirname, "./test-circuits/split-bytes-to-words-test.circom"),
             {
                 recompile: true,
                 include: path.join(__dirname, "../../../node_modules"),
