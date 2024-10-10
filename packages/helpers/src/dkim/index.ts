@@ -1,9 +1,9 @@
-import { pki } from "node-forge";
-import { DkimVerifier } from "../lib/mailauth/dkim-verifier";
-import { CustomError, writeToStream } from "../lib/mailauth/tools";
-import sanitizers from "./sanitizers";
+import { pki } from 'node-forge';
+import { DkimVerifier } from '../lib/mailauth/dkim-verifier';
+import { CustomError, writeToStream } from '../lib/mailauth/tools';
+import sanitizers from './sanitizers';
 import { DoH, DoHServer, resolveDNSHTTP } from './dns-over-http';
-import { resolveDNSFromZKEmailArchive } from "./dns-archive";
+import { resolveDNSFromZKEmailArchive } from './dns-archive';
 
 // `./mailauth` is modified version of https://github.com/postalsys/mailauth
 // Main modification are including emailHeaders in the DKIM result, making it work in the browser, add types
@@ -34,7 +34,7 @@ export interface DKIMVerificationResult {
  */
 export async function verifyDKIMSignature(
   email: Buffer | string,
-  domain: string = "",
+  domain: string = '',
   enableSanitization: boolean = true,
   fallbackToZKEmailDNSArchive: boolean = false
 ): Promise<DKIMVerificationResult> {
@@ -44,17 +44,15 @@ export async function verifyDKIMSignature(
 
   // If DKIM verification fails, try again after sanitizing email
   let appliedSanitization;
-  if (dkimResult.status.comment === "bad signature" && enableSanitization) {
+  if (dkimResult.status.comment === 'bad signature' && enableSanitization) {
     const results = await Promise.all(
-      sanitizers.map((sanitize) =>
-        tryVerifyDKIM(sanitize(emailStr), domain, fallbackToZKEmailDNSArchive).then((result) => ({
-          result,
-          sanitizer: sanitize.name,
-        }))
-      )
+      sanitizers.map((sanitize) => tryVerifyDKIM(sanitize(emailStr), domain, fallbackToZKEmailDNSArchive).then((result) => ({
+        result,
+        sanitizer: sanitize.name,
+      }))),
     );
 
-    const passed = results.find((r) => r.result.status.result === "pass");
+    const passed = results.find((r) => r.result.status.result === 'pass');
 
     if (passed) {
       console.log(
@@ -75,16 +73,16 @@ export async function verifyDKIMSignature(
     bodyHash,
   } = dkimResult;
 
-  if (result !== "pass") {
+  if (result !== 'pass') {
     throw new Error(
-      `DKIM signature verification failed for domain ${signingDomain}. Reason: ${comment}`
+      `DKIM signature verification failed for domain ${signingDomain}. Reason: ${comment}`,
     );
   }
 
   const pubKeyData = pki.publicKeyFromPem(publicKey.toString());
 
   return {
-    signature: BigInt(`0x${Buffer.from(signature, "base64").toString("hex")}`),
+    signature: BigInt(`0x${Buffer.from(signature, 'base64').toString('hex')}`),
     headers: status.signedHeaders,
     body,
     bodyHash,
@@ -101,7 +99,7 @@ export async function verifyDKIMSignature(
 
 async function tryVerifyDKIM(
   email: Buffer | string,
-  domain: string = "",
+  domain: string = '',
   fallbackToZKEmailDNSArchive: boolean
 ) {
   const resolver = async (name: string, type: string) => {
@@ -110,8 +108,9 @@ async function tryVerifyDKIM(
       return result;
     } catch (e) {
       if (fallbackToZKEmailDNSArchive) {
-        console.log("DNS over HTTP failed, falling back to ZK Email Archive");
-        return resolveDNSFromZKEmailArchive(name, type);
+        console.log('DNS over HTTP failed, falling back to ZK Email Archive');
+        const result = await resolveDNSFromZKEmailArchive(name, type);
+        return result;
       }
       throw e;
     }
@@ -127,20 +126,20 @@ async function tryVerifyDKIM(
   if (!domainToVerifyDKIM) {
     if (dkimVerifier.headerFrom.length > 1) {
       throw new Error(
-        "Multiple From header in email and domain for verification not specified"
+        'Multiple From header in email and domain for verification not specified',
       );
     }
 
-    domainToVerifyDKIM = dkimVerifier.headerFrom[0].split("@")[1];
+    domainToVerifyDKIM = dkimVerifier.headerFrom[0].split('@')[1];
   }
 
   const dkimResult = dkimVerifier.results.find(
-    (d: any) => d.signingDomain === domainToVerifyDKIM
+    (d: any) => d.signingDomain === domainToVerifyDKIM,
   );
 
   if (!dkimResult) {
     throw new Error(
-      `DKIM signature not found for domain ${domainToVerifyDKIM}`
+      `DKIM signature not found for domain ${domainToVerifyDKIM}`,
     );
   }
 
