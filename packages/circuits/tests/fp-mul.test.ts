@@ -38,7 +38,6 @@ describe('FpMul', () => {
         };
 
         const witness = await circuit1.calculateWitness(input);
-        console.log(witness);
         await circuit1.checkConstraints(witness);
 
         await circuit1.assertOut(witness, {
@@ -58,7 +57,6 @@ describe('FpMul', () => {
         expect.assertions(1);
         try {
             const witness = await circuit2.calculateWitness(input);
-            console.log(witness);
             await circuit2.checkConstraints(witness);
         } catch (error) {
             expect((error as Error).message).toMatch("Assert Failed");

@@ -32,7 +32,6 @@ template FpMul_TestRangeCheck(n, k) {
         var v_a = poly_eval(k, a, x);
         var v_b = poly_eval(k, b, x);
         v_ab[x] <== v_a * v_b;
-        log("v_a", v_a, "v_b", v_b, "v_ab", v_ab[x]);
     }
 
 
@@ -60,13 +59,11 @@ template FpMul_TestRangeCheck(n, k) {
         var v_q = poly_eval(k, q, x);
         var v_r = poly_eval(k, r, x);
         v_pq_r[x] <== v_p * v_q + v_r;
-        log("v_p:", v_p, "v_q:", v_q, "v_r:", v_r, "v_pq_r:", v_pq_r[x]);
     }
 
     signal v_t[2*k-1];
     for (var x = 0; x < 2*k-1; x++) {
         v_t[x] <== v_ab[x] - v_pq_r[x];
-        log("v_t", v_t[x]);
     }
 
     var t[200] = poly_interp(2*k-1, v_t);
