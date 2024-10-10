@@ -1,8 +1,8 @@
 import { pki } from 'node-forge';
 import { DkimVerifier } from '../lib/mailauth/dkim-verifier';
-import { CustomError, writeToStream } from '../lib/mailauth/tools';
+import { writeToStream } from '../lib/mailauth/tools';
 import sanitizers from './sanitizers';
-import { DoH, DoHServer, resolveDNSHTTP } from './dns-over-http';
+import { resolveDNSHTTP } from './dns-over-http';
 import { resolveDNSFromZKEmailArchive } from './dns-archive';
 
 // `./mailauth` is modified version of https://github.com/postalsys/mailauth
