@@ -2,6 +2,8 @@ import { pki } from 'node-forge';
 import { DkimVerifier } from '../lib/mailauth/dkim-verifier';
 import { writeToStream } from '../lib/mailauth/tools';
 import sanitizers from './sanitizers';
+import { resolveDNSHTTP } from './dns-over-http';
+import { resolveDNSFromZKEmailArchive } from './dns-archive';
 
 // `./mailauth` is modified version of https://github.com/postalsys/mailauth
 // Main modification are including emailHeaders in the DKIM result, making it work in the browser, add types
@@ -26,22 +28,25 @@ export interface DKIMVerificationResult {
  * @param email Entire email data as a string or buffer
  * @param domain Domain to verify DKIM signature for. If not provided, the domain is extracted from the `From` header
  * @param enableSanitization If true, email will be applied with various sanitization to try and pass DKIM verification
+ * @param fallbackToZKEmailDNSArchive If true, ZK Email DNS Archive (https://archive.prove.email/api-explorer) will
+ *                                    be used to resolve DKIM public keys if we cannot resolve from HTTP DNS
  * @returns
  */
 export async function verifyDKIMSignature(
   email: Buffer | string,
   domain: string = '',
   enableSanitization: boolean = true,
+  fallbackToZKEmailDNSArchive: boolean = false
 ): Promise<DKIMVerificationResult> {
   const emailStr = email.toString();
 
-  let dkimResult = await tryVerifyDKIM(email, domain);
+  let dkimResult = await tryVerifyDKIM(email, domain, fallbackToZKEmailDNSArchive);
 
   // If DKIM verification fails, try again after sanitizing email
   let appliedSanitization;
   if (dkimResult.status.comment === 'bad signature' && enableSanitization) {
     const results = await Promise.all(
-      sanitizers.map((sanitize) => tryVerifyDKIM(sanitize(emailStr), domain).then((result) => ({
+      sanitizers.map((sanitize) => tryVerifyDKIM(sanitize(emailStr), domain, fallbackToZKEmailDNSArchive).then((result) => ({
         result,
         sanitizer: sanitize.name,
       }))),
@@ -91,8 +96,30 @@ export async function verifyDKIMSignature(
   };
 }
 
-async function tryVerifyDKIM(email: Buffer | string, domain: string = '') {
-  const dkimVerifier = new DkimVerifier({});
+
+async function tryVerifyDKIM(
+  email: Buffer | string,
+  domain: string = '',
+  fallbackToZKEmailDNSArchive: boolean
+) {
+  const resolver = async (name: string, type: string) => {
+    try {
+      const result = await resolveDNSHTTP(name, type);
+      return result;
+    } catch (e) {
+      if (fallbackToZKEmailDNSArchive) {
+        console.log('DNS over HTTP failed, falling back to ZK Email Archive');
+        const result = await resolveDNSFromZKEmailArchive(name, type);
+        return result;
+      }
+      throw e;
+    }
+  };
+
+  const dkimVerifier = new DkimVerifier({
+    resolver,
+  });
+
   await writeToStream(dkimVerifier, email as any);
 
   let domainToVerifyDKIM = domain;

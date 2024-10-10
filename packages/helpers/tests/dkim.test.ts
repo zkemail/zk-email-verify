@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import { verifyDKIMSignature } from '../src/dkim';
+import * as dnsOverHttp from '../src/dkim/dns-over-http';
+import * as dnsArchive from '../src/dkim/dns-archive';
 
 jest.setTimeout(10000);
 
@@ -86,6 +88,76 @@ describe('DKIM signature verification', () => {
       );
     }
   });
+});
+
+
+
+it("should fallback to ZK Email Archive if DNS over HTTP fails", async () => {
+  const email = fs.readFileSync(
+    path.join(__dirname, "test-data/email-good.eml")
+  );
+
+  // Mock resolveDNSHTTP to throw an error just for this test
+  const mockResolveDNSHTTP = jest
+    .spyOn(dnsOverHttp, "resolveDNSHTTP")
+    .mockRejectedValue(new Error("Failed due to mock"));
+
+  const consoleSpy = jest.spyOn(console, "log");
+  await verifyDKIMSignature(email, "icloud.com", true, true);
+
+  // Check if the error was logged to ensure fallback to ZK Email Archive happened
+  expect(consoleSpy).toHaveBeenCalledWith(
+    "DNS over HTTP failed, falling back to ZK Email Archive"
+  );
+
+  mockResolveDNSHTTP.mockRestore();
+});
+
+it("should fail on DNS over HTTP failure if fallback is not enabled", async () => {
+  const email = fs.readFileSync(
+    path.join(__dirname, "test-data/email-good.eml")
+  );
+
+  // Mock resolveDNSHTTP to throw an error just for this test
+  const mockResolveDNSHTTP = jest
+    .spyOn(dnsOverHttp, "resolveDNSHTTP")
+    .mockRejectedValue(new Error("Failed due to mock"));
+
+  expect.assertions(1);
+  try {
+    await verifyDKIMSignature(email, "icloud.com", true, false);
+  } catch (e) {
+    expect(e.message).toBe(
+      "DKIM signature verification failed for domain icloud.com. Reason: DNS failure: Failed due to mock"
+    );
+  }
+  mockResolveDNSHTTP.mockRestore();
+});
+
+it("should fail if both DNS over HTTP and ZK Email Archive fail", async () => {
+  const email = fs.readFileSync(
+    path.join(__dirname, "test-data/email-good.eml")
+  );
+
+  const mockResolveDNSHTTP = jest
+    .spyOn(dnsOverHttp, "resolveDNSHTTP")
+    .mockRejectedValue(new Error("Failed due to mock"));
+  
+  const mockResolveDNSFromZKEmailArchive = jest
+    .spyOn(dnsArchive, "resolveDNSFromZKEmailArchive")
+    .mockRejectedValue(new Error("Failed due to mock"));
+
+  expect.assertions(1);
+  try {
+    await verifyDKIMSignature(email, "icloud.com", true, false);
+  } catch (e) {
+    expect(e.message).toBe(
+      "DKIM signature verification failed for domain icloud.com. Reason: DNS failure: Failed due to mock"
+    );
+  }
+
+  mockResolveDNSHTTP.mockRestore();
+  mockResolveDNSFromZKEmailArchive.mockRestore();
 });
 
 describe('DKIM with sanitization', () => {

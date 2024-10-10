@@ -9,7 +9,6 @@ import crypto, { KeyObject } from "crypto";
 import parseDkimHeaders from "./parse-dkim-headers";
 import { DkimVerifier } from "./dkim-verifier";
 import type { Parsed, SignatureType } from "./dkim-verifier";
-import { DoH, DoHServer } from './DoH';
 
 const IS_BROWSER = typeof window !== "undefined";
 
@@ -247,20 +246,6 @@ export const formatSignatureHeaderLine = (
   return header;
 };
 
-async function resolveDNSHTTP(name: string, type: string) {
-  if (type !== "TXT") {
-    throw new Error("DKIM record type is not TXT");
-  }
-  const DKIMRecord = await DoH.resolveDKIMPublicKey(name, DoHServer.Google);
-  if (!DKIMRecord) {
-    throw new CustomError("No DKIM record found", "ENODATA");
-  }
-  if (DKIMRecord !== await DoH.resolveDKIMPublicKey(name, DoHServer.Cloudflare)) {
-    console.error("DKIM record mismatch!");
-  }
-  return [DKIMRecord];
-}
-
 // from https://developers.google.com/web/updates/2012/06/How-to-convert-ArrayBuffer-to-and-from-String
 function str2ab(str: string) {
   const buf = new ArrayBuffer(str.length);
@@ -303,9 +288,6 @@ export const getPublicKey = async (
   resolver: (...args: [name: string, type: string]) => Promise<any>
 ) => {
   minBitLength = minBitLength || 1024;
-  if (!resolver) {
-    resolver = resolveDNSHTTP;
-  }
 
   let list = await resolver(name, "TXT");
   let rr =
