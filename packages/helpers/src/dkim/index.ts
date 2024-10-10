@@ -56,7 +56,7 @@ export async function verifyDKIMSignature(
 
     if (passed) {
       console.log(
-        `DKIM: Verification passed after applying sanitization "${passed.sanitizer}"`
+        `DKIM: Verification passed after applying sanitization "${passed.sanitizer}"`,
       );
       dkimResult = passed.result;
       appliedSanitization = passed.sanitizer;
