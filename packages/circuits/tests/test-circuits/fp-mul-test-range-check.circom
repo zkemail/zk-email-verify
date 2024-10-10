@@ -81,4 +81,4 @@ template FpMul_TestRangeCheck(n, k) {
 }
 
 
-component main = FpMul(4, 2);
+component main = FpMul_TestRangeCheck(4, 2);
