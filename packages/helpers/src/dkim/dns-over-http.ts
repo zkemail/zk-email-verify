@@ -115,14 +115,16 @@ export async function resolveDNSHTTP(name: string, type: string) {
     throw new CustomError("No DKIM record found in Google", "ENODATA");
   }
 
-  const cloudflareResult = await DoH.resolveDKIMPublicKey(name, DoHServer.Cloudflare);
-  if (!cloudflareResult) {
-    throw new CustomError("No DKIM record found in Cloudflare", "ENODATA");
-  }
+  const cloudflareResult = await DoH.resolveDKIMPublicKey(
+    name,
+    DoHServer.Cloudflare
+  );
 
   // Log an error if there is a mismatch in the result
   if (googleResult !== cloudflareResult) {
-    console.error("DKIM record mismatch!");
+    console.error(
+      "DKIM record mismatch between Google and Cloudflare! Using Google result."
+    );
   }
 
   return [googleResult];
