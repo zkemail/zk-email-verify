@@ -20,7 +20,7 @@ describe('FpMul', () => {
         circuit2 = await wasm_tester(
             path.join(
                 __dirname,
-                './test-circuits/fp-mul-test2.circom'
+                './test-circuits/fp-mul-test-range-check.circom'
             ),
             {
                 recompile: true,

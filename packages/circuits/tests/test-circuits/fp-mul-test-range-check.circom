@@ -8,13 +8,15 @@ include "../../lib/bigint.circom";
 include "../../lib/bigint-func.circom";
 
 
-/// @title FpMul
-/// @notice Multiple two numbers in Fp
+/// @title FpMul_TestRangeCheck
+/// @notice Multiple two numbers in Fp, where q and r are also provided as inputs only for test purposes
 /// @param a Input 1 to FpMul; assumes to consist of `k` chunks, each of which must fit in `n` bits
 /// @param b Input 2 to FpMul; assumes to consist of `k` chunks, each of which must fit in `n` bits
 /// @param p The modulus; assumes to consist of `k` chunks, each of which must fit in `n` bits
+/// @param q The quotient; assumes to consist of `k` chunks, each of which must fit in `n` bits
+/// @param r The remainder; assumes to consist of `k` chunks, each of which must fit in `n` bits
 /// @output out The result of the FpMul
-template FpMul(n, k) {
+template FpMul_TestRangeCheck(n, k) {
     assert(n + n + log_ceil(k) + 2 <= 252);
 
     signal input a[k];
