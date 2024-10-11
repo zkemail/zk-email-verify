@@ -1,24 +1,29 @@
 pragma circom 2.1.6;
 
+
 include "circomlib/circuits/bitify.circom";
 include "circomlib/circuits/comparators.circom";
 include "circomlib/circuits/sign.circom";
-include "./bigint.circom";
-include "./bigint-func.circom";
+include "../../lib/bigint.circom";
+include "../../lib/bigint-func.circom";
 
 
-/// @title FpMul
-/// @notice Multiple two numbers in Fp
+/// @title FpMul_TestRangeCheck
+/// @notice Multiple two numbers in Fp, where q and r are also provided as inputs only for test purposes
 /// @param a Input 1 to FpMul; assumes to consist of `k` chunks, each of which must fit in `n` bits
 /// @param b Input 2 to FpMul; assumes to consist of `k` chunks, each of which must fit in `n` bits
 /// @param p The modulus; assumes to consist of `k` chunks, each of which must fit in `n` bits
-/// @output out The result of the FpMul; asserted to be less than `p`  
-template FpMul(n, k) {
+/// @param q The quotient; assumes to consist of `k` chunks, each of which must fit in `n` bits
+/// @param r The remainder; assumes to consist of `k` chunks, each of which must fit in `n` bits
+/// @output out The result of the FpMul
+template FpMul_TestRangeCheck(n, k) {
     assert(n + n + log_ceil(k) + 2 <= 252);
 
     signal input a[k];
     signal input b[k];
     signal input p[k];
+    signal input q[k];
+    signal input r[k];
 
     signal output out[k];
 
@@ -29,25 +34,17 @@ template FpMul(n, k) {
         v_ab[x] <== v_a * v_b;
     }
 
-    var ab[200] = poly_interp(2*k-1, v_ab);
-    // ab_proper has length 2*k
-    var ab_proper[100] = getProperRepresentation(n + n + log_ceil(k), n, 2*k-1, ab);
 
-    var long_div_out[2][100] = long_div(n, k, k, ab_proper, p);
 
     // Since we're only computing a*b, we know that q < p will suffice, so we
     // know it fits into k chunks and can do size n range checks.
-    signal q[k];
     component q_range_check[k];
-    signal r[k];
     component r_range_check[k];
     component r_p_lt_check = BigLessThan(n,k);
     for (var i = 0; i < k; i++) {
-        q[i] <-- long_div_out[0][i];
         q_range_check[i] = Num2Bits(n);
         q_range_check[i].in <== q[i];
 
-        r[i] <-- long_div_out[1][i];
         r_range_check[i] = Num2Bits(n);
         r_range_check[i].in <== r[i];
 
@@ -79,3 +76,6 @@ template FpMul(n, k) {
         out[i] <== r[i];
     }
 }
+
+
+component main = FpMul_TestRangeCheck(4, 2);
