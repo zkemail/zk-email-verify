@@ -41,7 +41,7 @@ template FpMul(n, k) {
     component q_range_check[k];
     signal r[k];
     component r_range_check[k];
-    component r_p_range_check = BigLessThan(n,k);
+    component r_p_lt_check = BigLessThan(n,k);
     for (var i = 0; i < k; i++) {
         q[i] <-- long_div_out[0][i];
         q_range_check[i] = Num2Bits(n);
@@ -51,10 +51,10 @@ template FpMul(n, k) {
         r_range_check[i] = Num2Bits(n);
         r_range_check[i].in <== r[i];
 
-        r_p_range_check.a[i] <== r[i];
-        r_p_range_check.b[i] <== p[i];
+        r_p_lt_check.a[i] <== r[i];
+        r_p_lt_check.b[i] <== p[i];
     }
-    r_p_range_check.out === 1;
+    r_p_lt_check.out === 1;
 
     signal v_pq_r[2*k-1];
     for (var x = 0; x < 2*k-1; x++) {
