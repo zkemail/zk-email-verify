@@ -36,7 +36,7 @@ export async function verifyDKIMSignature(
   email: Buffer | string,
   domain: string = '',
   enableSanitization: boolean = true,
-  fallbackToZKEmailDNSArchive: boolean = false
+  fallbackToZKEmailDNSArchive: boolean = false,
 ): Promise<DKIMVerificationResult> {
   const emailStr = email.toString();
 
@@ -96,11 +96,10 @@ export async function verifyDKIMSignature(
   };
 }
 
-
 async function tryVerifyDKIM(
   email: Buffer | string,
   domain: string = '',
-  fallbackToZKEmailDNSArchive: boolean
+  fallbackToZKEmailDNSArchive: boolean = false,
 ) {
   const resolver = async (name: string, type: string) => {
     try {
