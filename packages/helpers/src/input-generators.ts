@@ -29,6 +29,12 @@ type InputGenerationArgs = {
   bodyMask?: number[];
 };
 
+type DKIMVerificationArgs = {
+  domain?: string;
+  enableSanitization?: boolean;
+  fallbackToZKEmailDNSArchive?: boolean;
+};
+
 function removeSoftLineBreaks(body: string[]): string[] {
   const result = [];
   let i = 0;
@@ -58,16 +64,23 @@ function removeSoftLineBreaks(body: string[]): string[] {
  *
  * @description Generate circuit inputs for the EmailVerifier circuit from raw email content
  * @param rawEmail Full email content as a buffer or string
- * @param params Arguments to control the input generation
+ * @param inputParams Arguments to control the input generation
+ * @param dkimVerificationArgs Arguments to control the DKIM verification
  * @returns Circuit inputs for the EmailVerifier circuit
  */
 export async function generateEmailVerifierInputs(
   rawEmail: Buffer | string,
-  params: InputGenerationArgs = {},
+  inputParams: InputGenerationArgs = {},
+  dkimVerificationArgs: DKIMVerificationArgs = {},
 ) {
-  const dkimResult = await verifyDKIMSignature(rawEmail);
+  const dkimResult = await verifyDKIMSignature(
+    rawEmail,
+    dkimVerificationArgs.domain,
+    dkimVerificationArgs.enableSanitization,
+    dkimVerificationArgs.fallbackToZKEmailDNSArchive,
+  );
 
-  return generateEmailVerifierInputsFromDKIMResult(dkimResult, params);
+  return generateEmailVerifierInputsFromDKIMResult(dkimResult, inputParams);
 }
 
 /**
