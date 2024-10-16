@@ -65,7 +65,7 @@ export class DoH {
         if (result.Status === DoH.DoHStatusNoError && result.Answer.length > 0) {
           for (const ans of result.Answer) {
             if (ans.type === DoH.DoHTypeTXT) {
-              let DKIMRecord = ans.data;
+              let dkimRecord = ans.data;
               /*
                   Remove all double quotes
                   Some DNS providers wrap TXT records in double quotes, 
@@ -73,8 +73,8 @@ export class DoH {
                   TXT (potentially multi-line) and DKIM (Base64 data) standards,
                   we can directly remove all double quotes from the DKIM public key.
               */
-              DKIMRecord = DKIMRecord.replace(/"/g, "");
-              return DKIMRecord;
+              dkimRecord = dkimRecord.replace(/"/g, "");
+              return dkimRecord;
             }
           }
         }
@@ -113,6 +113,15 @@ export async function resolveDNSHTTP(name: string, type: string) {
   const googleResult = await DoH.resolveDKIMPublicKey(name, DoHServer.Google);
   if (!googleResult) {
     throw new CustomError('No DKIM record found in Google', 'ENODATA');
+  }
+
+  const regex = /p=([^;]*)/;
+  const match = regex.exec(googleResult);
+  if (match) {
+    const valueAfterP = match[1]; // Extracting the value after p=
+    if (valueAfterP === '') {
+      throw new CustomError('No DKIM record found in Google (empty p=)', 'ENODATA');
+    }
   }
 
   const cloudflareResult = await DoH.resolveDKIMPublicKey(
