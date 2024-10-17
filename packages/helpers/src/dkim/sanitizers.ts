@@ -19,10 +19,7 @@ function revertGoogleMessageId(email: string): string {
     return email;
   }
 
-  const googleReplacedMessageId = getHeaderValue(
-    email,
-    'X-Google-Original-Message-ID',
-  );
+  const googleReplacedMessageId = getHeaderValue(email, 'X-Google-Original-Message-ID');
 
   if (googleReplacedMessageId) {
     return setHeaderValue(email, 'Message-ID', googleReplacedMessageId);
@@ -65,11 +62,6 @@ function sanitizeTabs(email: string): string {
   return email.replace('=09', '\t');
 }
 
-const sanitizers = [
-  revertGoogleMessageId,
-  removeLabels,
-  insert13Before10,
-  sanitizeTabs,
-];
+const sanitizers = [revertGoogleMessageId, removeLabels, insert13Before10, sanitizeTabs];
 
 export default sanitizers;

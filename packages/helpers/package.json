@@ -1,12 +1,12 @@
 {
   "name": "@zk-email/helpers",
-  "version": "6.1.6",
+  "version": "6.2.0",
   "license": "MIT",
   "main": "dist",
   "scripts": {
     "build": "tsc",
     "test": "jest tests/**/*.test.ts",
-    "lint": "eslint .",
+    "lint": "prettier --write src/**/*.ts tests/**/*.ts && eslint .",
     "prepublish": "yarn lint && yarn build",
     "publish": "yarn npm publish --access=public"
   },

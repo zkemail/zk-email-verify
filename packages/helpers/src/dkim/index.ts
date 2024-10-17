@@ -46,18 +46,18 @@ export async function verifyDKIMSignature(
   let appliedSanitization;
   if (dkimResult.status.comment === 'bad signature' && enableSanitization) {
     const results = await Promise.all(
-      sanitizers.map((sanitize) => tryVerifyDKIM(sanitize(emailStr), domain, fallbackToZKEmailDNSArchive).then((result) => ({
-        result,
-        sanitizer: sanitize.name,
-      }))),
+      sanitizers.map((sanitize) =>
+        tryVerifyDKIM(sanitize(emailStr), domain, fallbackToZKEmailDNSArchive).then((result) => ({
+          result,
+          sanitizer: sanitize.name,
+        })),
+      ),
     );
 
     const passed = results.find((r) => r.result.status.result === 'pass');
 
     if (passed) {
-      console.log(
-        `DKIM: Verification passed after applying sanitization "${passed.sanitizer}"`,
-      );
+      console.log(`DKIM: Verification passed after applying sanitization "${passed.sanitizer}"`);
       dkimResult = passed.result;
       appliedSanitization = passed.sanitizer;
     }
@@ -74,9 +74,7 @@ export async function verifyDKIMSignature(
   } = dkimResult;
 
   if (result !== 'pass') {
-    throw new Error(
-      `DKIM signature verification failed for domain ${signingDomain}. Reason: ${comment}`,
-    );
+    throw new Error(`DKIM signature verification failed for domain ${signingDomain}. Reason: ${comment}`);
   }
 
   const pubKeyData = pki.publicKeyFromPem(publicKey.toString());
@@ -124,22 +122,16 @@ async function tryVerifyDKIM(
   let domainToVerifyDKIM = domain;
   if (!domainToVerifyDKIM) {
     if (dkimVerifier.headerFrom.length > 1) {
-      throw new Error(
-        'Multiple From header in email and domain for verification not specified',
-      );
+      throw new Error('Multiple From header in email and domain for verification not specified');
     }
 
     domainToVerifyDKIM = dkimVerifier.headerFrom[0].split('@')[1];
   }
 
-  const dkimResult = dkimVerifier.results.find(
-    (d: any) => d.signingDomain === domainToVerifyDKIM,
-  );
+  const dkimResult = dkimVerifier.results.find((d: any) => d.signingDomain === domainToVerifyDKIM);
 
   if (!dkimResult) {
-    throw new Error(
-      `DKIM signature not found for domain ${domainToVerifyDKIM}`,
-    );
+    throw new Error(`DKIM signature not found for domain ${domainToVerifyDKIM}`);
   }
 
   dkimResult.headers = dkimVerifier.headers;

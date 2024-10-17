@@ -30,10 +30,7 @@ export class DoH {
    * @return {*}  {(Promise<string | null>)} DKIM public key or null if not found
    * @memberof DoH
    */
-  public static async resolveDKIMPublicKey(
-    name: string,
-    dnsServerURL: string
-  ): Promise<string | null> {
+  public static async resolveDKIMPublicKey(name: string, dnsServerURL: string): Promise<string | null> {
     let cleanURL = dnsServerURL;
     if (!cleanURL.startsWith('https://')) {
       cleanURL = `https://${cleanURL}`;
@@ -47,20 +44,14 @@ export class DoH {
     queryUrl.searchParams.set('type', DoH.DoHTypeTXT.toString());
 
     const resp = await fetch(queryUrl, {
-        headers: {
-          accept: 'application/dns-json',
-        },
-      }
-    );
+      headers: {
+        accept: 'application/dns-json',
+      },
+    });
 
     if (resp.status === 200) {
       const out = await resp.json();
-      if (
-        typeof out === 'object' &&
-        out !== null &&
-        'Status' in out &&
-        'Answer' in out
-      ) {
+      if (typeof out === 'object' && out !== null && 'Status' in out && 'Answer' in out) {
         const result = out as DoHResponse;
         if (result.Status === DoH.DoHStatusNoError && result.Answer.length > 0) {
           for (const ans of result.Answer) {
@@ -73,7 +64,7 @@ export class DoH {
                   TXT (potentially multi-line) and DKIM (Base64 data) standards,
                   we can directly remove all double quotes from the DKIM public key.
               */
-              dkimRecord = dkimRecord.replace(/"/g, "");
+              dkimRecord = dkimRecord.replace(/"/g, '');
               return dkimRecord;
             }
           }
@@ -124,16 +115,11 @@ export async function resolveDNSHTTP(name: string, type: string) {
     }
   }
 
-  const cloudflareResult = await DoH.resolveDKIMPublicKey(
-    name,
-    DoHServer.Cloudflare
-  );
+  const cloudflareResult = await DoH.resolveDKIMPublicKey(name, DoHServer.Cloudflare);
 
   // Log an error if there is a mismatch in the result
   if (googleResult !== cloudflareResult) {
-    console.error(
-      'DKIM record mismatch between Google and Cloudflare! Using Google result.'
-    );
+    console.error('DKIM record mismatch between Google and Cloudflare! Using Google result.');
   }
 
   return [googleResult];

@@ -190,14 +190,18 @@ export function packedNBytesToString(packedBytes: bigint[], n: number = 31): str
 }
 
 export function packBytesIntoNBytes(messagePaddedRaw: Uint8Array | string, n = 7): Array<bigint> {
-  const messagePadded: Uint8Array = typeof messagePaddedRaw === 'string' ? stringToBytes(messagePaddedRaw) : messagePaddedRaw;
+  const messagePadded: Uint8Array =
+    typeof messagePaddedRaw === 'string' ? stringToBytes(messagePaddedRaw) : messagePaddedRaw;
   const output: Array<bigint> = [];
   for (let i = 0; i < messagePadded.length; i++) {
     if (i % n === 0) {
       output.push(0n);
     }
     const j = (i / n) | 0;
-    console.assert(j === output.length - 1, 'Not editing the index of the last element -- packing loop invariants bug!');
+    console.assert(
+      j === output.length - 1,
+      'Not editing the index of the last element -- packing loop invariants bug!',
+    );
     output[j] += BigInt(messagePadded[i]) << BigInt((i % n) * 8);
   }
   return output;
