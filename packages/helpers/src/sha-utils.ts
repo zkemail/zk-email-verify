@@ -1,16 +1,8 @@
 import * as CryptoJS from 'crypto';
-import {
-  assert,
-  int64toBytes,
-  int8toBytes,
-  mergeUInt8Arrays,
-} from './binary-format';
+import { assert, int64toBytes, int8toBytes, mergeUInt8Arrays } from './binary-format';
 import { Hash } from './lib/fast-sha256';
 
-export function findIndexInUint8Array(
-  array: Uint8Array,
-  selector: Uint8Array,
-): number {
+export function findIndexInUint8Array(array: Uint8Array, selector: Uint8Array): number {
   let i = 0;
   let j = 0;
   while (i < array.length) {
@@ -93,10 +85,7 @@ export function partialSha(msg: Uint8Array, msgLen: number): Uint8Array {
 }
 
 // Puts an end selector, a bunch of 0s, then the length, then fill the rest with 0s.
-export function sha256Pad(
-  message: Uint8Array,
-  maxShaBytes: number,
-): [Uint8Array, number] {
+export function sha256Pad(message: Uint8Array, maxShaBytes: number): [Uint8Array, number] {
   const msgLen = message.length * 8; // bytes to bits
   const msgLenBytes = int64toBytes(msgLen);
 

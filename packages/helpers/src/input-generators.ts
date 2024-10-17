@@ -40,10 +40,10 @@ function removeSoftLineBreaks(body: string[]): string[] {
   let i = 0;
   while (i < body.length) {
     if (
-      i + 2 < body.length
-            && body[i] === '61' // '=' character
-            && body[i + 1] === '13' // '\r' character
-            && body[i + 2] === '10'
+      i + 2 < body.length &&
+      body[i] === '61' && // '=' character
+      body[i + 1] === '13' && // '\r' character
+      body[i + 2] === '10'
     ) {
       // '\n' character
       // Skip the soft line break sequence
@@ -94,15 +94,10 @@ export function generateEmailVerifierInputsFromDKIMResult(
   dkimResult: DKIMVerificationResult,
   params: InputGenerationArgs = {},
 ): CircuitInput {
-  const {
-    headers, body, bodyHash, publicKey, signature,
-  } = dkimResult;
+  const { headers, body, bodyHash, publicKey, signature } = dkimResult;
 
   // SHA add padding
-  const [messagePadded, messagePaddedLen] = sha256Pad(
-    headers,
-    params.maxHeadersLength || MAX_HEADER_PADDED_BYTES,
-  );
+  const [messagePadded, messagePaddedLen] = sha256Pad(headers, params.maxHeadersLength || MAX_HEADER_PADDED_BYTES);
 
   const circuitInputs: CircuitInput = {
     emailHeader: Uint8ArrayToCharArray(messagePadded), // Packed into 1 byte signals
@@ -117,9 +112,7 @@ export function generateEmailVerifierInputsFromDKIMResult(
 
   if (!params.ignoreBodyHashCheck) {
     if (!body || !bodyHash) {
-      throw new Error(
-        'body and bodyHash are required when ignoreBodyHashCheck is false',
-      );
+      throw new Error('body and bodyHash are required when ignoreBodyHashCheck is false');
     }
 
     const bodyHashIndex = headers.toString().indexOf(bodyHash);
@@ -128,10 +121,7 @@ export function generateEmailVerifierInputsFromDKIMResult(
     // 65 comes from the 64 at the end and the 1 bit in the start, then 63 comes from the formula to round it up to the nearest 64.
     // see sha256algorithm.com for a more full explanation of padding length
     const bodySHALength = Math.floor((body.length + 63 + 65) / 64) * 64;
-    const [bodyPadded, bodyPaddedLen] = sha256Pad(
-      body,
-      Math.max(maxBodyLength, bodySHALength),
-    );
+    const [bodyPadded, bodyPaddedLen] = sha256Pad(body, Math.max(maxBodyLength, bodySHALength));
 
     const { precomputedSha, bodyRemaining, bodyRemainingLength } = generatePartialSHA({
       body: bodyPadded,
@@ -146,9 +136,7 @@ export function generateEmailVerifierInputsFromDKIMResult(
     circuitInputs.emailBody = Uint8ArrayToCharArray(bodyRemaining);
 
     if (params.removeSoftLineBreaks) {
-      circuitInputs.decodedEmailBodyIn = removeSoftLineBreaks(
-        circuitInputs.emailBody,
-      );
+      circuitInputs.decodedEmailBodyIn = removeSoftLineBreaks(circuitInputs.emailBody);
     }
 
     if (params.enableBodyMasking) {
