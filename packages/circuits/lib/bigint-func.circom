@@ -104,15 +104,16 @@ function poly_interp(len, v) {
 
 // 1 if true, 0 if false
 function long_gt(n, k, a, b) {
+    var is_set = 0;
+    var is_gt = 0;
     for (var i = k - 1; i >= 0; i--) {
-        if (a[i] > b[i]) {
-            return 1;
-        }
-        if (a[i] < b[i]) {
-            return 0;
-        }
+        is_gt = is_set == 0 && a[i] > b[i] ? 1 : is_gt;
+        is_set = is_set == 0 && a[i] > b[i] ? 1 : is_set;
+
+        // if <=, set the is_set var to True
+        is_set = is_set == 0 && a[i] < b[i] ? 1 : is_set;
     }
-    return 0;
+    return is_gt;
 }
 
 // n bits per register
@@ -124,21 +125,11 @@ function long_sub(n, k, a, b) {
     var borrow[100];
     for (var i = 0; i < k; i++) {
         if (i == 0) {
-           if (a[i] >= b[i]) {
-               diff[i] = a[i] - b[i];
-               borrow[i] = 0;
-            } else {
-               diff[i] = a[i] - b[i] + (1 << n);
-               borrow[i] = 1;
-            }
+            diff[i] = a[i] >= b[i] ? a[i] - b[i] : a[i] - b[i] + (1 << n);
+            borrow[i] = a[i] >= b[i] ? 0 : 1;
         } else {
-            if (a[i] >= b[i] + borrow[i - 1]) {
-               diff[i] = a[i] - b[i] - borrow[i - 1];
-               borrow[i] = 0;
-            } else {
-               diff[i] = (1 << n) + a[i] - b[i] - borrow[i - 1];
-               borrow[i] = 1;
-            }
+            diff[i] = a[i] >= b[i] + borrow[i - 1] ? a[i] - b[i] - borrow[i - 1] : (1 << n) + a[i] - b[i] - borrow[i - 1];
+            borrow[i] = a[i] >= b[i] + borrow[i - 1] ? 0 : 1;
         }
     }
     return diff;
@@ -168,13 +159,6 @@ function long_scalar_mult(n, k, a, b) {
 // implements algorithm of https://people.eecs.berkeley.edu/~fateman/282/F%20Wright%20notes/week4.pdf
 function long_div(n, k, m, a, b){
     var out[2][100];
-    m += k;
-    while (b[k-1] == 0) {
-        out[1][k] = 0;
-        k--;
-        assert(k > 0);
-    }
-    m -= k;
 
     var remainder[100];
     for (var i = 0; i < m + k; i++) {
@@ -224,21 +208,15 @@ function long_div(n, k, m, a, b){
 // 0 <= a < (2**n) * b
 function short_div_norm(n, k, a, b) {
    var qhat = (a[k] * (1 << n) + a[k - 1]) \ b[k - 1];
-   if (qhat > (1 << n) - 1) {
-      qhat = (1 << n) - 1;
-   }
+   var v = (1 << n) - 1;
+   qhat = qhat > v ? v : qhat;
 
    var mult[100] = long_scalar_mult(n, k, qhat, b);
-   if (long_gt(n, k + 1, mult, a) == 1) {
-      mult = long_sub(n, k + 1, mult, b);
-      if (long_gt(n, k + 1, mult, a) == 1) {
-         return qhat - 2;
-      } else {
-         return qhat - 1;
-      }
-   } else {
-       return qhat;
-   }
+   var cond = long_gt(n, k + 1, mult, a);
+   var mult2[100] = long_sub(n, k + 1, mult, b);
+   var cond2 = long_gt(n, k + 1, mult2, a);
+   var qhat2 = cond2 == 1 ? qhat - 2 : qhat - 1;
+   return cond == 1 ? qhat2 : qhat;
 }
 
 // n bits per register
@@ -254,11 +232,9 @@ function short_div(n, k, a, b) {
    // k + 1 registers now
    var norm_b[100] = long_scalar_mult(n, k, scale, b);
 
-   var ret;
-   if (norm_b[k] != 0) {
-       ret = short_div_norm(n, k + 1, norm_a, norm_b);
-   } else {
-       ret = short_div_norm(n, k, norm_a, norm_b);
-   }
+   var ret_a = short_div_norm(n, k + 1, norm_a, norm_b);
+   var ret_b = short_div_norm(n, k, norm_a, norm_b);
+   var ret = norm_b[k] != 0 ? ret_a : ret_b;
+
    return ret;
 }
