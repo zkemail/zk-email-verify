@@ -241,15 +241,6 @@ template Sha256Partial(maxBitLength) {
     bitLengthVerifier.in[1] <== maxBitLength;
     bitLengthVerifier.out === 1;
 
-    component ha0 = H(0);
-    component hb0 = H(1);
-    component hc0 = H(2);
-    component hd0 = H(3);
-    component he0 = H(4);
-    component hf0 = H(5);
-    component hg0 = H(6);
-    component hh0 = H(7);
-
     component sha256compression[maxBlocks];
 
     for (i=0; i<maxBlocks; i++) {
