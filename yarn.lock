@@ -2324,6 +2324,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@openzeppelin/contracts-upgradeable@npm:^5.0.0":
+  version: 5.1.0
+  resolution: "@openzeppelin/contracts-upgradeable@npm:5.1.0"
+  peerDependencies:
+    "@openzeppelin/contracts": 5.1.0
+  checksum: 6bbb2665d97714921a4c1e6d4a0ec03a285480d2a6b3f3944bfda514696d86ec3c3190cafb6206132574c95e46d6df185bcf21343ab7a4fddccf1191d42ad35a
+  languageName: node
+  linkType: hard
+
 "@openzeppelin/contracts@npm:^5.0.0":
   version: 5.0.2
   resolution: "@openzeppelin/contracts@npm:5.0.2"
@@ -2790,6 +2799,7 @@ __metadata:
   resolution: "@zk-email/contracts@workspace:packages/contracts"
   dependencies:
     "@openzeppelin/contracts": ^5.0.0
+    "@openzeppelin/contracts-upgradeable": ^5.0.0
     dotenv: ^16.3.1
     forge-std: "https://github.com/foundry-rs/forge-std"
   languageName: unknown
