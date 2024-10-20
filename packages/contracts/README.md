@@ -19,7 +19,7 @@ For a detailed overview of its functionalities, please refer to the source file:
 ## UserOverrideableDKIMRegistry.sol
 
 `UserOverrideableDKIMRegistry.sol` is a Solidity contract within the `@zk-email/contracts` package.     
-This functions similarly to [DKIMRegistry](./DKIMRegistry.sol), but it allows users to set their own public keys. Even if the main authorizer, who is the contract owner, has already approved a public key, the user's signature is still required for setting it. Additionally, the public key can be revoked by the signature of either the user or the main authorizer alone.
+This functions similarly to [DKIMRegistry](./DKIMRegistry.sol), but it allows users to set their own public keys. Even if the main authorizer, who is the contract owner, has already approved a public key, the user's signature is still required for setting it until the predetermined delay time has passed. Additionally, the public key can be revoked by the signature of either the user or the main authorizer alone.
 
 [UserOverrideableDKIMRegistry.sol](./UserOverrideableDKIMRegistry.sol)
 
