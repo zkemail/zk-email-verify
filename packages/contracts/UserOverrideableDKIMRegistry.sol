@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./interfaces/IDKIMRegistry.sol";
+import "./interfaces/IDKIMRegistryExt.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import {IERC1271} from "@openzeppelin/contracts/interfaces/IERC1271.sol";
@@ -17,7 +17,7 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
   Additionally, the public key can be revoked by the signature of either the user or the main authorizer alone.
  */
 contract UserOverrideableDKIMRegistry is
-    IDKIMRegistry,
+    IDKIMRegistryExt,
     OwnableUpgradeable,
     UUPSUpgradeable
 {
