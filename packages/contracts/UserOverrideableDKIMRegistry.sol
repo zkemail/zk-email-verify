@@ -104,6 +104,8 @@ contract UserOverrideableDKIMRegistry is
     /// @param authorizer The address of the expected authorizer
     /// @return bool True if the DKIM public key hash is valid, false otherwise.
     /// @dev This function returns true if 1) at least the given `authorizer` approves the public key hash before `enabledTimeOfDKIMPublicKeyHash` and 2) neither `mainAuthorizer` nor `authorizer` revokes the public key hash. However, after `enabledTimeOfDKIMPublicKeyHash`, only one of their approvals is required. In addition, if the public key hash is reactivated by the `authorizer`, the public key hash revoked only by `mainAuthorizer` is considered valid.
+    /// @dev The domain name, public key hash, and authorizer address must not be zero.
+    /// @dev The authorizer address cannot be the mainAuthorizer.
     function isDKIMPublicKeyHashValid(
         string memory domainName,
         bytes32 publicKeyHash,
@@ -112,6 +114,10 @@ contract UserOverrideableDKIMRegistry is
         require(bytes(domainName).length > 0, "domain name cannot be zero");
         require(publicKeyHash != bytes32(0), "public key hash cannot be zero");
         require(authorizer != address(0), "authorizer address cannot be zero");
+        require(
+            authorizer != mainAuthorizer,
+            "authorizer cannot be mainAuthorizer"
+        );
         uint256 revokeThreshold = _computeRevokeThreshold(
             publicKeyHash,
             authorizer
