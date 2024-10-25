@@ -1,13 +1,13 @@
 {
   "name": "@zk-email/circuits",
-  "version": "6.2.0",
+  "version": "6.3.0",
   "license": "MIT",
   "scripts": {
     "publish": "yarn npm publish --access=public",
     "test": "NODE_OPTIONS=--max_old_space_size=8192 jest --runInBand --detectOpenHandles --forceExit --verbose tests"
   },
   "dependencies": {
-    "@zk-email/zk-regex-circom": "^2.1.0",
+    "@zk-email/zk-regex-circom": "^2.3.0",
     "circomlib": "^2.0.5"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 {
   "name": "@zk-email/contracts",
-  "version": "6.2.0",
+  "version": "6.3.0",
   "license": "MIT",
   "scripts": {
     "build": "forge build",
@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.0.0",
+    "@openzeppelin/contracts-upgradeable": "^5.0.0",
     "dotenv": "^16.3.1"
   },
   "files": [
