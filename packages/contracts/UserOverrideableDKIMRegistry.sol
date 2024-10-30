@@ -43,6 +43,9 @@ contract UserOverrideableDKIMRegistry is
         address indexed authorizer
     );
 
+    /// @notice Emitted when the main authorizer address is changed.
+    event MainAuthorizerChanged(address indexed newMainAuthorizer);
+
     /// @notice Main authorizer address.
     address public mainAuthorizer;
 
@@ -354,6 +357,27 @@ contract UserOverrideableDKIMRegistry is
         reactivatedDKIMPublicKeyHashes[publicKeyHash][authorizer] = true;
 
         emit DKIMPublicKeyHashReactivated(publicKeyHash, authorizer);
+    }
+
+    /**
+     * @notice Changes the main authorizer address.
+     * @param newMainAuthorizer The address of the new main authorizer.
+     * @custom:require Only the owner can change the main authorizer address.
+     * @custom:require The new main authorizer address cannot be zero.
+     * @custom:require The new main authorizer address cannot be the same as the current main authorizer.
+     * @custom:event MainAuthorizerChanged Emitted when the main authorizer address changes.
+     */
+    function changeMainAuthorizer(address newMainAuthorizer) public onlyOwner {
+        require(
+            newMainAuthorizer != address(0),
+            "newMainAuthorizer address cannot be zero"
+        );
+        require(
+            newMainAuthorizer != mainAuthorizer,
+            "newMainAuthorizer address cannot be the same as the current mainAuthorizer"
+        );
+        mainAuthorizer = newMainAuthorizer;
+        emit MainAuthorizerChanged(newMainAuthorizer);
     }
 
     /**
