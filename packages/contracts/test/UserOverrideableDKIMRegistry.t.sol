@@ -590,6 +590,22 @@ contract UserOverrideableDKIMRegistryTest is Test {
         vm.stopPrank();
     }
 
+    function testChangeMainAuthorizer() public {
+        vm.startPrank(deployer);
+        vm.expectEmit();
+        emit UserOverrideableDKIMRegistry.MainAuthorizerChanged(user1);
+        registry.changeMainAuthorizer(user1);
+        vm.stopPrank();
+    }
+
+    function testChangeMainAuthorizerContract() public {
+        vm.startPrank(deployer);
+        vm.expectEmit();
+        emit UserOverrideableDKIMRegistry.MainAuthorizerChanged(user1);
+        registryWithContract.changeMainAuthorizer(address(user1));
+        vm.stopPrank();
+    }
+
     function testFailIsDKIMPublicKeyHashValidByUser2() public {
         testSetDKIMPublicKeyHashByUser1();
 
@@ -1098,5 +1114,33 @@ contract UserOverrideableDKIMRegistryTest is Test {
             "Invalid signed message"
         );
         console.log(signedMsg);
+    }
+
+    function testExpectRevertChangeMainAuthorizerByNonOwner() public {
+        vm.startPrank(mainAuthorizer);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                OwnableUpgradeable.OwnableUnauthorizedAccount.selector,
+                mainAuthorizer
+            )
+        );
+        registry.changeMainAuthorizer(user1);
+        vm.stopPrank();
+    }
+
+    function testExpectRevertChangeMainAuthorizerIsZero() public {
+        vm.startPrank(deployer);
+        vm.expectRevert("newMainAuthorizer address cannot be zero");
+        registry.changeMainAuthorizer(address(0));
+        vm.stopPrank();
+    }
+
+    function testExpectRevertChangeMainAuthorizerIsSame() public {
+        vm.startPrank(deployer);
+        vm.expectRevert(
+            "newMainAuthorizer address cannot be the same as the current mainAuthorizer"
+        );
+        registry.changeMainAuthorizer(mainAuthorizer);
+        vm.stopPrank();
     }
 }
