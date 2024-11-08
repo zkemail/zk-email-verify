@@ -1,6 +1,6 @@
 {
   "name": "@zk-email/contracts",
-  "version": "6.3.1",
+  "version": "6.3.2",
   "license": "MIT",
   "scripts": {
     "build": "forge build",

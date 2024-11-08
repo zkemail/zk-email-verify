@@ -2708,7 +2708,7 @@ __metadata:
     "@babel/core": ^7.22.5
     "@babel/preset-env": ^7.22.2
     "@babel/preset-typescript": ^7.21.5
-    "@zk-email/zk-regex-circom": ^2.3.0
+    "@zk-email/zk-regex-circom": ^2.3.1
     babel-jest: ^29.5.0
     babel-preset-jest: ^29.5.0
     circom_tester: ^0.0.20
@@ -2782,13 +2782,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@zk-email/zk-regex-circom@npm:^2.3.0":
-  version: 2.3.0
-  resolution: "@zk-email/zk-regex-circom@npm:2.3.0"
+"@zk-email/zk-regex-circom@npm:^2.3.1":
+  version: 2.3.1
+  resolution: "@zk-email/zk-regex-circom@npm:2.3.1"
   dependencies:
     commander: ^11.0.0
     snarkjs: ^0.7.5
-  checksum: 029235cbf1586bc641ac33bc599a5a9e379d5aff3faa59b6971fa7affb72816a1f60159b55de6368e421bf14f94e4ba22164799c17e60f973f9fb492039a4180
+  checksum: 81cf723b93c8ad052f52a62609068ae1452335304b53d978b8dc1d9ad7191bb8aa4727f5ab81fa8b21f62c80d23e21bed94fed9a4145c8b95122feadae76d8e0
   languageName: node
   linkType: hard
 
