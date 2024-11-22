@@ -33,17 +33,11 @@ export async function poseidonModular(inputs: bigint[]): Promise<bigint> {
     for (let i = 0; i < chunks; i++) {
         const start = i * CHUNK_SIZE;
         let end = start + CHUNK_SIZE;
-        let chunkHash: bigint;
-
         if (end > numElements) {
-            // last chunk
             end = numElements;
-            const lastChunk = inputs.slice(start, end);
-            chunkHash = poseidon.F.toObject(poseidon(lastChunk));
-        } else {
-            const chunk = inputs.slice(start, end);
-            chunkHash = poseidon.F.toObject(poseidon(chunk));
         }
+        const chunk = inputs.slice(start, end);
+        const chunkHash = poseidon.F.toObject(poseidon(chunk));
 
         if (i === 0) {
             out = chunkHash;
