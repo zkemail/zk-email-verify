@@ -1,0 +1,29 @@
+[package]
+version = "0.1.0"
+name = "fibonacci-script"
+edition = "2021"
+default-run = "fibonacci"
+
+[[bin]]
+name = "fibonacci"
+path = "src/bin/main.rs"
+
+[[bin]]
+name = "evm"
+path = "src/bin/evm.rs"
+
+[dependencies]
+sp1-sdk = "3.0.0"
+serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
+serde = { version = "1.0.200", default-features = false, features = ["derive"] }
+clap = { version = "4.0", features = ["derive", "env"] }
+tracing = "0.1.40"
+hex = "0.4.3"
+alloy-sol-types = { workspace = true }
+sha2-prover-lib = { path = "../lib" }
+actix-web = "4.5.1"
+tokio = "1.37.0"
+
+
+[build-dependencies]
+sp1-helper = "3.0.0"

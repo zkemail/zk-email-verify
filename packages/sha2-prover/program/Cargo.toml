@@ -1,0 +1,10 @@
+[package]
+version = "0.1.0"
+name = "sha2-prover-program"
+edition = "2021"
+
+[dependencies]
+alloy-sol-types = { workspace = true }
+sp1-zkvm = "3.0.0-rc4"
+sha2-prover-lib = { path = "../lib" }
+ark-ff = { version = "0.4.0" }

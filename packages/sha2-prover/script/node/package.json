@@ -1,0 +1,6 @@
+{
+    "dependencies": {
+        "@zk-email/helpers": "^6.3.2"
+    },
+    "packageManager": "yarn@3.2.3"
+}
