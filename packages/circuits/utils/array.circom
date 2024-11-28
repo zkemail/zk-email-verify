@@ -252,3 +252,31 @@ template CountSubstringOccurrences(maxLen, maxSubstringLen) {
 
     count <== summer.sum;
 }
+
+/// @title RLC
+/// @notice Compute a random linear combination of array elements
+/// @notice Formula: out = in[0] + r*in[1] + r²*in[2] + r³*in[3] + ...
+/// @param n The number of elements in the input array
+/// @input r The random value used for the linear combination
+/// @input in The input array of length n
+/// @output out The resulting random linear combination
+template RLC(n) {
+    signal input r;
+    signal input in[n];
+
+    signal output out;
+
+    signal outArr[n];
+    signal rArr[n];
+    signal temp[n];
+
+    outArr[0] <== in[0];
+    rArr[0] <== 1;
+    for (var i = 1; i < n; i++) {
+        rArr[i] <== r * rArr[i - 1];
+        temp[i] <== rArr[i] * in[i];
+        outArr[i] <== outArr[i - 1] + temp[i];
+    }
+
+    out <== outArr[n - 1];
+}

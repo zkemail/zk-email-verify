@@ -104,10 +104,11 @@ template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashChec
     // Calculate the SHA256 hash of the body and verify it matches the hash in the header
     if (ignoreBodyHashCheck != 1) {
         signal input bodyHashIndex;
-        signal input precomputedSHA[32];
         signal input emailBody[maxBodyLength];
         signal input emailBodyLength;
 
+        signal output bodyHashCommit;
+        signal output bodyCommit;
 
         // Assert `emailBodyLength` fits in `ceil(log2(maxBodyLength))`
         component n2bBodyLength = Num2Bits(log2Ceil(maxBodyLength));
@@ -127,20 +128,13 @@ template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashChec
         signal bhBase64[shaB64Length] <== SelectRegexReveal(maxHeadersLength, shaB64Length)(bhReveal, bodyHashIndex);
         signal headerBodyHash[32] <== Base64Decode(32)(bhBase64);
 
-        // Compute SHA256 of email body : 760,142 constraints (for maxBodyLength = 1536)
-        // We are using a technique to save constraints by precomputing the SHA hash of the body till the area we want to extract
-        // It doesn't have an impact on security since a user must have known the pre-image of a signed message to be able to fake it
-        signal computedBodyHash[256] <== Sha256BytesPartial(maxBodyLength)(emailBody, emailBodyLength, precomputedSHA);
+        // Commit to the body hash
+        signal signatureHash <== PoseidonLarge(n, k)(signature);
+        signal headerBodyHashHash <== PoseidonLarge(8, 32)(headerBodyHash);
+        bodyHashCommit <== Poseidon(2)([signatureHash, headerBodyHashHash]);
 
-        // Ensure the bodyHash from the header matches the calculated body hash
-        component computedBodyHashInts[32];
-        for (var i = 0; i < 32; i++) {
-            computedBodyHashInts[i] = Bits2Num(8);
-            for (var j = 0; j < 8; j++) {
-                computedBodyHashInts[i].in[7 - j] <== computedBodyHash[i * 8 + j];
-            }
-            computedBodyHashInts[i].out === headerBodyHash[i];
-        }
+        // Commit to the body
+        bodyCommit <== RLC(maxBodyLength)(bodyHashCommit, emailBody);
 
         if (removeSoftLineBreaks == 1) {
             signal input decodedEmailBodyIn[maxBodyLength];
