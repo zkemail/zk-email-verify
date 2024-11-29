@@ -6,7 +6,7 @@ import { resolveDNSHTTP } from './dns-over-http';
 import { resolveDNSFromZKEmailArchive } from './dns-archive';
 
 // `./mailauth` is modified version of https://github.com/postalsys/mailauth
-// Main modification are including emailHeaders in the DKIM result, making it work in the browser, add types
+// Main modifications are including emailHeaders in the DKIM result, making it work in the browser, add types
 // TODO: Fork the repo and make the changes; consider upstream to original repo
 
 export interface DKIMVerificationResult {
@@ -122,7 +122,7 @@ async function tryVerifyDKIM(
   let domainToVerifyDKIM = domain;
   if (!domainToVerifyDKIM) {
     if (dkimVerifier.headerFrom.length > 1) {
-      throw new Error('Multiple From header in email and domain for verification not specified');
+      throw new Error('Multiple From headers in email and domain for verification not specified');
     }
 
     domainToVerifyDKIM = dkimVerifier.headerFrom[0].split('@')[1];
