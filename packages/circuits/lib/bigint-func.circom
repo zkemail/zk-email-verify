@@ -207,7 +207,7 @@ function long_div(n, k, m, a, b){
 // assumes leading digit of b is at least 2 ** (n - 1)
 // 0 <= a < (2**n) * b
 function short_div_norm(n, k, a, b) {
-   var qhat = (a[k] * (1 << n) + a[k - 1]) \ b[k - 1];
+   var qhat = b[k-1] == 0 ? 0 : (a[k] * (1 << n) + a[k - 1]) \ b[k - 1];
    var v = (1 << n) - 1;
    qhat = qhat > v ? v : qhat;
 
