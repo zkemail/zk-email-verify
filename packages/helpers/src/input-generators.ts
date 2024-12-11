@@ -35,29 +35,126 @@ type DKIMVerificationArgs = {
   fallbackToZKEmailDNSArchive?: boolean;
 };
 
-function removeSoftLineBreaks(body: string[]): string[] {
+/**
+ * Finds a selector string in cleaned content and maps it back to its original position.
+ *
+ * @param cleanContent - Uint8Array of content with soft line breaks removed
+ * @param selector - String to find in the cleaned content
+ * @param positionMap - Map of cleaned content indices to original content indices
+ * @returns Object containing the selector and its position in original content
+ * @throws Error if selector not found or position mapping fails
+ *
+ * @example
+ * cleanContent: "HelloWorld"
+ * selector: "World"
+ * positionMap: { 5->8 } (due to removed "=\r\n")
+ * returns: { selector: "World", originalIndex: 8 }
+ */
+function findSelectorInCleanContent(
+  cleanContent: Uint8Array,
+  selector: string,
+  positionMap: Map<number, number>,
+): { selector: string; originalIndex: number } {
+  const cleanString = new TextDecoder().decode(cleanContent);
+  const selectorIndex = cleanString.indexOf(selector);
+
+  if (selectorIndex === -1) {
+    throw new Error(`SHA precompute selector "${selector}" not found in cleaned body`);
+  }
+
+  const originalIndex = positionMap.get(selectorIndex);
+  if (originalIndex === undefined) {
+    throw new Error(`Failed to map selector position to original body`);
+  }
+
+  return { selector, originalIndex };
+}
+
+/**
+ * Gets the adjusted selector string that accounts for potential soft line breaks in QP encoding.
+ * If the selector exists in original body, returns it as-is. Otherwise, finds it in cleaned content
+ * and maps it back to the original format including any soft line breaks.
+ *
+ * @param originalBody - Original Uint8Array with potential soft line breaks
+ * @param selector - String to find in the content
+ * @param cleanContent - Uint8Array with soft line breaks removed
+ * @param positionMap - Map of cleaned content indices to original content indices
+ * @returns Adjusted selector string that matches the original body format
+ *
+ * @example
+ * originalBody: "Hel=\r\nlo"
+ * selector: "Hello"
+ * returns: "Hel=\r\nlo"
+ */
+function getAdjustedSelector(
+  originalBody: Uint8Array,
+  selector: string,
+  cleanContent: Uint8Array,
+  positionMap: Map<number, number>,
+): string {
+  // First try finding selector in original body
+  if (new TextDecoder().decode(originalBody).includes(selector)) {
+    return selector;
+  }
+
+  // If not found, look in cleaned content and map back to original
+  const { originalIndex } = findSelectorInCleanContent(cleanContent, selector, positionMap);
+  const bodyString = new TextDecoder().decode(originalBody);
+
+  // Add 3 to length to account for potential soft line break
+  return bodyString.slice(originalIndex, originalIndex + selector.length + 3);
+}
+
+/**
+ * Removes soft line breaks from a Quoted-Printable encoded byte array while maintaining a mapping
+ * between cleaned and original positions.
+ *
+ * Soft line breaks in QP encoding are sequences of "=\r\n" (hex: 3D0D0A) that are used to split long lines.
+ * These breaks should be removed when decoding the content while preserving the original content.
+ *
+ * @param body - Uint8Array containing QP encoded content
+ * @returns {QPDecodeResult} Object containing:
+ *   - cleanContent: Uint8Array with soft line breaks removed, padded with zeros to match original length
+ *   - positionMap: Map of indices from cleaned content to original content positions
+ *
+ * @example
+ * Input:  Hello=\r\nWorld  ([72,101,108,108,111,61,13,10,87,111,114,108,100])
+ * Output: {
+ *   cleanContent: [72,101,108,108,111,87,111,114,108,100,0,0,0],
+ *   positionMap: { 0->0, 1->1, 2->2, 3->3, 4->4, 5->8, 6->9, 7->10, 8->11, 9->12 }
+ * }
+ */
+function removeSoftLineBreaks(body: Uint8Array): { cleanContent: Uint8Array; positionMap: Map<number, number> } {
   const result = [];
+  const positionMap = new Map<number, number>(); // clean -> original
   let i = 0;
+  let cleanPos = 0;
+
   while (i < body.length) {
     if (
       i + 2 < body.length &&
-      body[i] === '61' && // '=' character
-      body[i + 1] === '13' && // '\r' character
-      body[i + 2] === '10'
+      body[i] === 61 && // '=' character
+      body[i + 1] === 13 && // '\r' character
+      body[i + 2] === 10 // '\n' character
     ) {
-      // '\n' character
-      // Skip the soft line break sequence
       i += 3; // Move past the soft line break
     } else {
+      positionMap.set(cleanPos, i);
       result.push(body[i]);
+      cleanPos++;
       i++;
     }
   }
-  // Pad the result with zeros to make it the same length as the body
+
+  // Pad the result with zeros to make it the same length as body
   while (result.length < body.length) {
-    result.push('0');
+    result.push(0);
   }
-  return result;
+
+  return {
+    cleanContent: new Uint8Array(result),
+    positionMap,
+  };
 }
 
 /**
@@ -123,10 +220,16 @@ export function generateEmailVerifierInputsFromDKIMResult(
     const bodySHALength = Math.floor((body.length + 63 + 65) / 64) * 64;
     const [bodyPadded, bodyPaddedLen] = sha256Pad(body, Math.max(maxBodyLength, bodySHALength));
 
+    let adjustedSelector = params.shaPrecomputeSelector;
+    if (params.shaPrecomputeSelector) {
+      const { cleanContent, positionMap } = removeSoftLineBreaks(bodyPadded);
+      adjustedSelector = getAdjustedSelector(body, params.shaPrecomputeSelector, cleanContent, positionMap);
+    }
+
     const { precomputedSha, bodyRemaining, bodyRemainingLength } = generatePartialSHA({
       body: bodyPadded,
       bodyLength: bodyPaddedLen,
-      selectorString: params.shaPrecomputeSelector,
+      selectorString: adjustedSelector,
       maxRemainingBodyLength: maxBodyLength,
     });
 
@@ -136,7 +239,8 @@ export function generateEmailVerifierInputsFromDKIMResult(
     circuitInputs.emailBody = Uint8ArrayToCharArray(bodyRemaining);
 
     if (params.removeSoftLineBreaks) {
-      circuitInputs.decodedEmailBodyIn = removeSoftLineBreaks(circuitInputs.emailBody);
+      const { cleanContent } = removeSoftLineBreaks(bodyRemaining);
+      circuitInputs.decodedEmailBodyIn = Uint8ArrayToCharArray(cleanContent);
     }
 
     if (params.enableBodyMasking) {
