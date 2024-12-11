@@ -59,6 +59,6 @@ describe('Input generators', () => {
       generateEmailVerifierInputs(email, {
         shaPrecomputeSelector: 'Bla Bla',
       }),
-    ).rejects.toThrow('SHA precompute selector "Bla Bla" not found in the body');
+    ).rejects.toThrow('SHA precompute selector "Bla Bla" not found in cleaned body');
   });
 });
