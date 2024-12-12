@@ -53,6 +53,9 @@ export function generatePartialSHA({
     const result: number[] = [];
     let i = 0;
 
+    // Debug logging
+    console.log('Original body:', bodyBuffer.toString());
+
     while (i < bodyBuffer.length) {
       // Skip soft line breaks
       if (i < bodyBuffer.length - 2 &&
@@ -82,11 +85,18 @@ export function generatePartialSHA({
     const decoder = new TextDecoder();
     const decodedStr = decoder.decode(new Uint8Array(result));
 
+    // Debug logging
+    console.log('Decoded body:', decodedStr);
+    console.log('Looking for selector:', selectorString);
+
     // Find the selector in decoded content
     const selectorIndex = decodedStr.indexOf(selectorString);
     if (selectorIndex === -1) {
-      throw new Error(`SHA precompute selector "${selectorString}" not found in body`);
+      throw new Error(`SHA precompute selector "${selectorString}" not found in cleaned body`);
     }
+
+    // Debug logging
+    console.log('Found selector at index:', selectorIndex);
 
     // Map back to original index
     let originalIndex = 0;
@@ -111,6 +121,10 @@ export function generatePartialSHA({
       }
     }
     shaCutoffIndex = originalIndex;
+
+    // Debug logging
+    console.log('Original cutoff index:', shaCutoffIndex);
+    console.log('Original content at cutoff:', bodyBuffer.slice(shaCutoffIndex, shaCutoffIndex + 50).toString());
   }
 
   if (shaCutoffIndex < 0) {
