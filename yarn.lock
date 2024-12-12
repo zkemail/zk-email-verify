@@ -2492,7 +2492,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^18.19.68":
+"@types/node@npm:*":
   version: 18.19.68
   resolution: "@types/node@npm:18.19.68"
   dependencies:
@@ -2507,6 +2507,15 @@ __metadata:
   dependencies:
     undici-types: ~6.19.2
   checksum: 1a8bbb504efaffcef7b8491074a428e5c0b5425b0c0ffb13e7262cb8462c275e8cc5eaf90a38d8fbf52a1eeda7c01ab3b940673c43fc2414140779c973e40ec6
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^22.10.2":
+  version: 22.10.2
+  resolution: "@types/node@npm:22.10.2"
+  dependencies:
+    undici-types: ~6.20.0
+  checksum: b22401e6e7d1484e437d802c72f5560e18100b1257b9ad0574d6fe05bebe4dbcb620ea68627d1f1406775070d29ace8b6b51f57e7b1c7b8bafafe6da7f29c843
   languageName: node
   linkType: hard
 
@@ -2721,7 +2730,7 @@ __metadata:
     "@types/atob": ^2.1.2
     "@types/jest": ^29.5.1
     "@types/mocha": ^10.0.1
-    "@types/node": ^18.19.68
+    "@types/node": ^22.10.2
     "@types/node-forge": ^1.3.2
     "@types/psl": ^1.1.2
     "@typescript-eslint/eslint-plugin": ^7.0.0
@@ -7453,6 +7462,8 @@ __metadata:
 "root-workspace-0b6124@workspace:.":
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
+  dependencies:
+    "@types/node": ^22.10.2
   languageName: unknown
   linkType: soft
 
@@ -8284,6 +8295,13 @@ __metadata:
   version: 6.19.8
   resolution: "undici-types@npm:6.19.8"
   checksum: de51f1b447d22571cf155dfe14ff6d12c5bdaec237c765085b439c38ca8518fc360e88c70f99469162bf2e14188a7b0bcb06e1ed2dc031042b984b0bb9544017
+  languageName: node
+  linkType: hard
+
+"undici-types@npm:~6.20.0":
+  version: 6.20.0
+  resolution: "undici-types@npm:6.20.0"
+  checksum: b7bc50f012dc6afbcce56c9fd62d7e86b20a62ff21f12b7b5cbf1973b9578d90f22a9c7fe50e638e96905d33893bf2f9f16d98929c4673c2480de05c6c96ea8b
   languageName: node
   linkType: hard
 

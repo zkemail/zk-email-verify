@@ -13,5 +13,8 @@
   "packageManager": "yarn@3.2.3",
   "engines": {
     "node": ">=14.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2"
   }
 }
