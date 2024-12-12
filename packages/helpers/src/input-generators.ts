@@ -95,7 +95,7 @@ function findSelectorInCleanContent(
   const selectorIndex = decodedString.indexOf(selector);
 
   if (selectorIndex === -1) {
-    throw new Error(`SHA precompute selector "${selector}" not found in the body`);
+    throw new Error(`SHA precompute selector "${selector}" not found in cleaned body`);
   }
 
   // Map back to original position using our index maps
