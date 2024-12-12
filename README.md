@@ -1,7 +1,11 @@
-# Welcome to ZK-Email
+# Welcome to ZK Email
 
 <p align="center">
-  <img src="docs/logo.jpg" width="300">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/logo-light.svg">
+    <source media="(prefers-color-scheme: light)" srcset="docs/logo-dark.svg">
+    <img alt="zkemail." src="docs/logo-light.svg">
+  </picture>
 </p>
 
 ZK Email is an application that allows for anonymous verification of email signatures while masking specific data. It enables verification of emails to/from specific domains or subsets of domains, as well as verification based on specific text in the email body. Our core SDK comes with libraries to assist with circuit generation as well as utility templates for general zk applications.
@@ -28,7 +32,7 @@ Try here: [https://twitter.prove.email/](https://twitter.prove.email/)
 
 You can fork the project as a starting point for your own ZK-Email application.
 
-Moreover, for those interested in creating the Twitter circuit from scratch, our [Proof of Twitter guide](https://prove.email/blog/twitter) offers a step-by-step tutorial on utilizing our SDKs for circuit construction.
+Moreover, for those interested in creating the Twitter circuit from scratch, our [Proof of Twitter guide](https://zk.email/blog/twitter) offers a step-by-step tutorial on utilizing our SDKs for circuit construction.
 
 ## Audits
 
