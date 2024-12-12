@@ -55,8 +55,8 @@ function findSelectorInCleanContent(
   selector: string,
   positionMap: Map<number, number>,
 ): { selector: string; originalIndex: number } {
-  // Convert cleanContent to Buffer to ensure consistent type handling
-  const cleanBuffer = Buffer.from(cleanContent);
+  // Convert cleanContent to Buffer for consistent type handling
+  const cleanBuffer: Buffer = Buffer.from(cleanContent);
 
   // First build a clean string without soft line breaks
   const cleanString = cleanBuffer.toString();
@@ -190,7 +190,7 @@ function getAdjustedSelector(
  */
 function removeSoftLineBreaks(body: Uint8Array): { cleanContent: Uint8Array; positionMap: Map<number, number> } {
   // Convert to Buffer for consistent handling
-  const bodyBuffer = Buffer.from(body);
+  const bodyBuffer: Buffer = Buffer.from(body);
   const result: number[] = [];
   const positionMap = new Map<number, number>(); // clean -> original
   let i = 0;
