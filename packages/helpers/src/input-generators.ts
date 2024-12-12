@@ -55,14 +55,53 @@ function findSelectorInCleanContent(
   selector: string,
   positionMap: Map<number, number>,
 ): { selector: string; originalIndex: number } {
+  // First build a clean string without soft line breaks
   const cleanString = new TextDecoder().decode(cleanContent);
-  const selectorIndex = cleanString.indexOf(selector);
+  let decodedString = '';
+  let cleanIndex = 0;
+  const indexMap = new Map<number, number>(); // decodedPos -> cleanPos
 
-  if (selectorIndex === -1) {
-    throw new Error(`SHA precompute selector "${selector}" not found in cleaned body`);
+  while (cleanIndex < cleanString.length) {
+    // Handle multi-byte UTF-8 sequences in QP format (e.g., =E2=80=94 for em dash)
+    const qpMatch = cleanString.slice(cleanIndex).match(/^=([0-9A-F]{2})=([0-9A-F]{2})=([0-9A-F]{2})/);
+    if (qpMatch) {
+      const byte1 = parseInt(qpMatch[1], 16);
+      const byte2 = parseInt(qpMatch[2], 16);
+      const byte3 = parseInt(qpMatch[3], 16);
+      const bytes = new Uint8Array([byte1, byte2, byte3]);
+      decodedString += new TextDecoder().decode(bytes);
+      indexMap.set(decodedString.length - 1, cleanIndex);
+      cleanIndex += 9; // Skip over the entire QP sequence
+      continue;
+    }
+
+    // Handle single-byte QP sequences
+    if (cleanString[cleanIndex] === '=' &&
+        /[0-9A-F]{2}/.test(cleanString.slice(cleanIndex + 1, cleanIndex + 3))) {
+      const byte = parseInt(cleanString.slice(cleanIndex + 1, cleanIndex + 3), 16);
+      decodedString += String.fromCharCode(byte);
+      indexMap.set(decodedString.length - 1, cleanIndex);
+      cleanIndex += 3;
+    } else {
+      decodedString += cleanString[cleanIndex];
+      indexMap.set(decodedString.length - 1, cleanIndex);
+      cleanIndex++;
+    }
   }
 
-  const originalIndex = positionMap.get(selectorIndex);
+  const selectorIndex = decodedString.indexOf(selector);
+
+  if (selectorIndex === -1) {
+    throw new Error(`SHA precompute selector "${selector}" not found in the body`);
+  }
+
+  // Map back to original position using our index maps
+  const cleanPos = indexMap.get(selectorIndex);
+  if (cleanPos === undefined) {
+    throw new Error(`Failed to map selector position in decoded content`);
+  }
+
+  const originalIndex = positionMap.get(cleanPos);
   if (originalIndex === undefined) {
     throw new Error(`Failed to map selector position to original body`);
   }
@@ -92,17 +131,39 @@ function getAdjustedSelector(
   cleanContent: Uint8Array,
   positionMap: Map<number, number>,
 ): string {
-  // First try finding selector in original body
-  if (new TextDecoder().decode(originalBody).includes(selector)) {
-    return selector;
+  const decoder = new TextDecoder();
+  const originalString = decoder.decode(originalBody);
+
+  // Look in cleaned and decoded content and map back to original
+  const { originalIndex } = findSelectorInCleanContent(cleanContent, selector, positionMap);
+
+  // Find the end of the QP sequence by looking for multi-byte UTF-8 characters
+  let encodedLength = 0;
+  let currentIndex = originalIndex;
+
+  for (let i = 0; i < selector.length; i++) {
+    const char = selector[i];
+    if (char.charCodeAt(0) > 127) {
+      // Look for QP-encoded multi-byte sequence
+      const qpMatch = originalString.slice(currentIndex).match(/^=([0-9A-F]{2})=([0-9A-F]{2})=([0-9A-F]{2})/);
+      if (qpMatch) {
+        encodedLength += 9; // Length of =XX=XX=XX
+        currentIndex += 9;
+        continue;
+      }
+    }
+    // Look for single-byte QP sequence or regular character
+    if (originalString[currentIndex] === '=' &&
+        /[0-9A-F]{2}/.test(originalString.slice(currentIndex + 1, currentIndex + 3))) {
+      encodedLength += 3;
+      currentIndex += 3;
+    } else {
+      encodedLength++;
+      currentIndex++;
+    }
   }
 
-  // If not found, look in cleaned content and map back to original
-  const { originalIndex } = findSelectorInCleanContent(cleanContent, selector, positionMap);
-  const bodyString = new TextDecoder().decode(originalBody);
-
-  // Add 3 to length to account for potential soft line break
-  return bodyString.slice(originalIndex, originalIndex + selector.length + 3);
+  return originalString.slice(originalIndex, originalIndex + encodedLength);
 }
 
 /**
@@ -131,19 +192,55 @@ function removeSoftLineBreaks(body: Uint8Array): { cleanContent: Uint8Array; pos
   let cleanPos = 0;
 
   while (i < body.length) {
-    if (
-      i + 2 < body.length &&
-      body[i] === 61 && // '=' character
-      body[i + 1] === 13 && // '\r' character
-      body[i + 2] === 10 // '\n' character
-    ) {
-      i += 3; // Move past the soft line break
-    } else {
-      positionMap.set(cleanPos, i);
-      result.push(body[i]);
-      cleanPos++;
-      i++;
+    // Handle multi-byte UTF-8 sequences in QP format (e.g., =E2=80=94 for em dash)
+    if (i < body.length - 8 && body[i] === 61) { // '=' character
+      const slice = body.slice(i, i + 9);
+      const str = new TextDecoder().decode(slice);
+      const qpMatch = str.match(/^=([0-9A-F]{2})=([0-9A-F]{2})=([0-9A-F]{2})/);
+      if (qpMatch) {
+        const byte1 = parseInt(qpMatch[1], 16);
+        const byte2 = parseInt(qpMatch[2], 16);
+        const byte3 = parseInt(qpMatch[3], 16);
+        result.push(byte1, byte2, byte3);
+        positionMap.set(cleanPos, i);
+        positionMap.set(cleanPos + 1, i + 3);
+        positionMap.set(cleanPos + 2, i + 6);
+        cleanPos += 3;
+        i += 9;
+        continue;
+      }
     }
+
+    // Handle single-byte QP sequences
+    if (i < body.length - 2 && body[i] === 61) { // '=' character
+      const nextTwo = new TextDecoder().decode(body.slice(i + 1, i + 3));
+      if (/[0-9A-F]{2}/.test(nextTwo)) {
+        const byte = parseInt(nextTwo, 16);
+        result.push(byte);
+        positionMap.set(cleanPos, i);
+        cleanPos++;
+        i += 3;
+        continue;
+      }
+    }
+
+    // Handle soft line breaks with optional whitespace
+    if (i < body.length - 1 && body[i] === 61) { // '=' character
+      let j = i + 1;
+      // Skip whitespace and newlines after the '='
+      while (j < body.length && (body[j] === 13 || body[j] === 10 || body[j] === 32 || body[j] === 9)) {
+        j++;
+      }
+      if (j > i + 1) {
+        i = j;
+        continue;
+      }
+    }
+
+    positionMap.set(cleanPos, i);
+    result.push(body[i]);
+    cleanPos++;
+    i++;
   }
 
   // Pad the result with zeros to make it the same length as body
@@ -236,11 +333,51 @@ export function generateEmailVerifierInputsFromDKIMResult(
     circuitInputs.emailBodyLength = bodyRemainingLength.toString();
     circuitInputs.precomputedSHA = Uint8ArrayToCharArray(precomputedSha);
     circuitInputs.bodyHashIndex = bodyHashIndex.toString();
-    circuitInputs.emailBody = Uint8ArrayToCharArray(bodyRemaining);
+
+    // First remove soft line breaks to ensure QP sequences aren't broken
+    const { cleanContent: contentWithoutBreaks } = removeSoftLineBreaks(bodyRemaining);
+
+    // Then decode QP-encoded content
+    const decodedContent = new Uint8Array(contentWithoutBreaks.length);
+    let writePos = 0;
+    let readPos = 0;
+
+    while (readPos < contentWithoutBreaks.length) {
+      // Handle multi-byte UTF-8 sequences
+      if (readPos < contentWithoutBreaks.length - 8 && contentWithoutBreaks[readPos] === 61) { // '=' character
+        const slice = contentWithoutBreaks.slice(readPos, readPos + 9);
+        const str = new TextDecoder().decode(slice);
+        const qpMatch = str.match(/^=([0-9A-F]{2})=([0-9A-F]{2})=([0-9A-F]{2})/);
+        if (qpMatch) {
+          const byte1 = parseInt(qpMatch[1], 16);
+          const byte2 = parseInt(qpMatch[2], 16);
+          const byte3 = parseInt(qpMatch[3], 16);
+          decodedContent[writePos++] = byte1;
+          decodedContent[writePos++] = byte2;
+          decodedContent[writePos++] = byte3;
+          readPos += 9;
+          continue;
+        }
+      }
+
+      // Handle single-byte QP sequences
+      if (readPos < contentWithoutBreaks.length - 2 && contentWithoutBreaks[readPos] === 61) {
+        const nextTwo = new TextDecoder().decode(contentWithoutBreaks.slice(readPos + 1, readPos + 3));
+        if (/[0-9A-F]{2}/.test(nextTwo)) {
+          decodedContent[writePos++] = parseInt(nextTwo, 16);
+          readPos += 3;
+          continue;
+        }
+      }
+
+      decodedContent[writePos++] = contentWithoutBreaks[readPos++];
+    }
+
+    const finalDecodedContent = decodedContent.slice(0, writePos);
+    circuitInputs.emailBody = Uint8ArrayToCharArray(finalDecodedContent);
 
     if (params.removeSoftLineBreaks) {
-      const { cleanContent } = removeSoftLineBreaks(bodyRemaining);
-      circuitInputs.decodedEmailBodyIn = Uint8ArrayToCharArray(cleanContent);
+      circuitInputs.decodedEmailBodyIn = circuitInputs.emailBody;
     }
 
     if (params.enableBodyMasking) {

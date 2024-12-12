@@ -41,12 +41,67 @@ export function generatePartialSHA({
   let selectorIndex = 0;
 
   if (selectorString) {
-    const selector = new TextEncoder().encode(selectorString);
-    selectorIndex = findIndexInUint8Array(body, selector);
+    // First remove soft line breaks and get position mapping
+    const cleanContent = new Uint8Array(body);
+    const positionMap = new Map<number, number>();
+    let cleanPos = 0;
+    let i = 0;
+
+    // Build clean content and position map
+    while (i < body.length) {
+      if (i < body.length - 1 && body[i] === 61) { // '=' character
+        // Check for multi-byte UTF-8 sequence in QP format
+        const qpMatch = body.slice(i, i + 9).toString().match(/^=([0-9A-F]{2})=([0-9A-F]{2})=([0-9A-F]{2})/);
+        if (qpMatch) {
+          // Handle 3-byte UTF-8 sequence
+          const byte1 = parseInt(qpMatch[1], 16);
+          const byte2 = parseInt(qpMatch[2], 16);
+          const byte3 = parseInt(qpMatch[3], 16);
+          cleanContent[cleanPos] = byte1;
+          cleanContent[cleanPos + 1] = byte2;
+          cleanContent[cleanPos + 2] = byte3;
+          positionMap.set(cleanPos, i);
+          positionMap.set(cleanPos + 1, i + 3);
+          positionMap.set(cleanPos + 2, i + 6);
+          cleanPos += 3;
+          i += 9;
+          continue;
+        }
+
+        // Check for line continuation
+        let j = i + 1;
+        while (j < body.length && (body[j] === 13 || body[j] === 10 || body[j] === 32 || body[j] === 9)) {
+          j++;
+        }
+        if (j > i + 1) {
+          i = j;
+          continue;
+        }
+      }
+      positionMap.set(cleanPos, i);
+      cleanContent[cleanPos] = body[i];
+      cleanPos++;
+      i++;
+    }
+
+    // Create a view of only the valid content
+    const validContent = cleanContent.slice(0, cleanPos);
+
+    // Find selector in decoded content
+    const cleanString = new TextDecoder().decode(validContent);
+    selectorIndex = cleanString.indexOf(selectorString);
 
     if (selectorIndex === -1) {
       throw new Error(`SHA precompute selector "${selectorString}" not found in the body`);
     }
+
+    // Map back to original position
+    const originalIndex = positionMap.get(selectorIndex);
+    if (originalIndex === undefined) {
+      throw new Error(`Failed to map selector position to original body`);
+    }
+
+    selectorIndex = originalIndex;
   }
 
   const shaCutoffIndex = Math.floor(selectorIndex / 64) * 64;
