@@ -20,7 +20,8 @@ export function findIndexInUint8Array(array: Uint8Array, selector: Uint8Array): 
 }
 
 export function padUint8ArrayWithZeros(array: Uint8Array, length: number): Uint8Array {
-  const result = new Uint8Array(Math.max(array.length, length));
+  const buffer = new ArrayBuffer(Math.max(array.length, length));
+  const result = new Uint8Array(buffer);
   result.set(array);
   return result;
 }
