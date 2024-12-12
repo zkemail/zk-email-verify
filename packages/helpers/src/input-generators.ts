@@ -55,8 +55,11 @@ function findSelectorInCleanContent(
   selector: string,
   positionMap: Map<number, number>,
 ): { selector: string; originalIndex: number } {
+  // Convert cleanContent to Buffer to ensure consistent type handling
+  const cleanBuffer = Buffer.from(cleanContent);
+
   // First build a clean string without soft line breaks
-  const cleanString = new TextDecoder().decode(cleanContent);
+  const cleanString = cleanBuffer.toString();
   let decodedString = '';
   let cleanIndex = 0;
   const indexMap = new Map<number, number>(); // decodedPos -> cleanPos
@@ -68,8 +71,8 @@ function findSelectorInCleanContent(
       const byte1 = parseInt(qpMatch[1], 16);
       const byte2 = parseInt(qpMatch[2], 16);
       const byte3 = parseInt(qpMatch[3], 16);
-      const bytes = new Uint8Array([byte1, byte2, byte3]);
-      decodedString += new TextDecoder().decode(bytes);
+      const bytes = Buffer.from([byte1, byte2, byte3]);
+      decodedString += bytes.toString();
       indexMap.set(decodedString.length - 1, cleanIndex);
       cleanIndex += 9; // Skip over the entire QP sequence
       continue;
@@ -186,16 +189,18 @@ function getAdjustedSelector(
  * }
  */
 function removeSoftLineBreaks(body: Uint8Array): { cleanContent: Uint8Array; positionMap: Map<number, number> } {
-  const result = [];
+  // Convert to Buffer for consistent handling
+  const bodyBuffer = Buffer.from(body);
+  const result: number[] = [];
   const positionMap = new Map<number, number>(); // clean -> original
   let i = 0;
   let cleanPos = 0;
 
-  while (i < body.length) {
+  while (i < bodyBuffer.length) {
     // Handle multi-byte UTF-8 sequences in QP format (e.g., =E2=80=94 for em dash)
-    if (i < body.length - 8 && body[i] === 61) { // '=' character
-      const slice = body.slice(i, i + 9);
-      const str = new TextDecoder().decode(slice);
+    if (i < bodyBuffer.length - 8 && bodyBuffer[i] === 61) { // '=' character
+      const slice = bodyBuffer.slice(i, i + 9);
+      const str = slice.toString();
       const qpMatch = str.match(/^=([0-9A-F]{2})=([0-9A-F]{2})=([0-9A-F]{2})/);
       if (qpMatch) {
         const byte1 = parseInt(qpMatch[1], 16);
@@ -203,17 +208,26 @@ function removeSoftLineBreaks(body: Uint8Array): { cleanContent: Uint8Array; pos
         const byte3 = parseInt(qpMatch[3], 16);
         result.push(byte1, byte2, byte3);
         positionMap.set(cleanPos, i);
-        positionMap.set(cleanPos + 1, i + 3);
-        positionMap.set(cleanPos + 2, i + 6);
+        positionMap.set(cleanPos + 1, i);
+        positionMap.set(cleanPos + 2, i);
         cleanPos += 3;
         i += 9;
         continue;
       }
     }
 
+    // Check for soft line break
+    if (i < bodyBuffer.length - 2 &&
+        bodyBuffer[i] === 61 && // '='
+        bodyBuffer[i + 1] === 13 && // '\r'
+        bodyBuffer[i + 2] === 10) { // '\n'
+      i += 3; // Skip the soft line break
+      continue;
+    }
+
     // Handle single-byte QP sequences
-    if (i < body.length - 2 && body[i] === 61) { // '=' character
-      const nextTwo = new TextDecoder().decode(body.slice(i + 1, i + 3));
+    if (i < bodyBuffer.length - 2 && bodyBuffer[i] === 61) { // '='
+      const nextTwo = bodyBuffer.slice(i + 1, i + 3).toString();
       if (/[0-9A-F]{2}/.test(nextTwo)) {
         const byte = parseInt(nextTwo, 16);
         result.push(byte);
@@ -224,34 +238,15 @@ function removeSoftLineBreaks(body: Uint8Array): { cleanContent: Uint8Array; pos
       }
     }
 
-    // Handle soft line breaks with optional whitespace
-    if (i < body.length - 1 && body[i] === 61) { // '=' character
-      let j = i + 1;
-      // Skip whitespace and newlines after the '='
-      while (j < body.length && (body[j] === 13 || body[j] === 10 || body[j] === 32 || body[j] === 9)) {
-        j++;
-      }
-      if (j > i + 1) {
-        i = j;
-        continue;
-      }
-    }
-
+    result.push(bodyBuffer[i]);
     positionMap.set(cleanPos, i);
-    result.push(body[i]);
     cleanPos++;
     i++;
   }
 
-  // Pad the result with zeros to make it the same length as body
-  while (result.length < body.length) {
-    result.push(0);
-  }
-
-  return {
-    cleanContent: new Uint8Array(result),
-    positionMap,
-  };
+  // Create final Uint8Array with proper length
+  const cleanContent = new Uint8Array(result);
+  return { cleanContent, positionMap };
 }
 
 /**
