@@ -59,6 +59,18 @@ describe('Input generators', () => {
       generateEmailVerifierInputs(email, {
         shaPrecomputeSelector: 'Bla Bla',
       }),
-    ).rejects.toThrow('SHA precompute selector "Bla Bla" not found in the body');
+    ).rejects.toThrow('SHA precompute selector "Bla Bla" not found in cleaned body');
+  });
+
+  it('should handle UTF-8 characters in selector and body', async () => {
+    const email = fs.readFileSync(path.join(__dirname, 'test-data/email-good-large.eml'));
+
+    const inputs = await generateEmailVerifierInputs(email, {
+      shaPrecomputeSelector: 'Genesis Block —',
+    });
+
+    expect(inputs.emailBody).toBeDefined();
+    const strBody = bytesToString(Uint8Array.from(inputs.emailBody!.map((b) => Number(b))));
+    expect(strBody).toContain('Genesis Block —');
   });
 });

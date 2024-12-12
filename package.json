@@ -13,5 +13,9 @@
   "packageManager": "yarn@3.2.3",
   "engines": {
     "node": ">=14.0.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.10.2"
   }
 }

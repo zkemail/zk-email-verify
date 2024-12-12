@@ -24,16 +24,13 @@ const keyOrderingDKIM = ['v', 'a', 'c', 'd', 'h', 'i', 'l', 'q', 's', 't', 'x', 
 
 export const writeToStream = async (
   stream: DkimVerifier,
-  input: Buffer & { pipe: (...args: any) => void; on: (...args: any) => void },
+  input: Buffer & NodeJS.ReadableStream,
   chunkSize: number = 0,
 ) => {
   chunkSize = chunkSize || 64 * 1024;
 
   if (typeof input === 'string') {
-    input = Buffer.from(input) as Buffer & {
-      pipe: (...args: any) => void;
-      on: (...args: any) => void;
-    };
+    input = Buffer.from(input) as unknown as Buffer & NodeJS.ReadableStream;
   }
 
   return new Promise((resolve, reject) => {
