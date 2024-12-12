@@ -20,11 +20,9 @@ export function findIndexInUint8Array(array: Uint8Array, selector: Uint8Array): 
 }
 
 export function padUint8ArrayWithZeros(array: Uint8Array, length: number): Uint8Array {
-  while (array.length < length) {
-    // eslint-disable-next-line no-param-reassign
-    array = mergeUInt8Arrays(array, int8toBytes(0));
-  }
-  return array;
+  const result = new Uint8Array(Math.max(array.length, length));
+  result.set(array);
+  return result;
 }
 
 export function generatePartialSHA({

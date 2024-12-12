@@ -30,7 +30,7 @@ export const writeToStream = async (
   chunkSize = chunkSize || 64 * 1024;
 
   if (typeof input === 'string') {
-    input = Buffer.from(input) as Buffer & NodeJS.ReadableStream;
+    input = Buffer.from(input) as unknown as Buffer & NodeJS.ReadableStream;
   }
 
   return new Promise((resolve, reject) => {
