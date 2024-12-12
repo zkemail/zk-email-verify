@@ -267,8 +267,13 @@ export async function generateEmailVerifierInputs(
   inputParams: InputGenerationArgs = {},
   dkimVerificationArgs: DKIMVerificationArgs = {},
 ) {
+  // Convert string to Buffer if needed, ensuring consistent Buffer type
+  const emailBuffer: Buffer = typeof rawEmail === 'string'
+    ? Buffer.from(rawEmail)
+    : (rawEmail as Buffer);
+
   const dkimResult = await verifyDKIMSignature(
-    rawEmail,
+    emailBuffer,
     dkimVerificationArgs.domain,
     dkimVerificationArgs.enableSanitization,
     dkimVerificationArgs.fallbackToZKEmailDNSArchive,
@@ -338,15 +343,15 @@ export function generateEmailVerifierInputsFromDKIMResult(
     const { cleanContent: contentWithoutBreaks } = removeSoftLineBreaks(bodyRemaining);
 
     // Then decode QP-encoded content
-    const decodedContent = new Uint8Array(contentWithoutBreaks.length);
+    const decodedContent = Buffer.alloc(contentWithoutBreaks.length);
     let writePos = 0;
     let readPos = 0;
 
     while (readPos < contentWithoutBreaks.length) {
       // Handle multi-byte UTF-8 sequences
       if (readPos < contentWithoutBreaks.length - 8 && contentWithoutBreaks[readPos] === 61) { // '=' character
-        const slice = contentWithoutBreaks.slice(readPos, readPos + 9);
-        const str = new TextDecoder().decode(slice);
+        const slice = Buffer.from(contentWithoutBreaks.slice(readPos, readPos + 9));
+        const str = slice.toString();
         const qpMatch = str.match(/^=([0-9A-F]{2})=([0-9A-F]{2})=([0-9A-F]{2})/);
         if (qpMatch) {
           const byte1 = parseInt(qpMatch[1], 16);
@@ -362,7 +367,7 @@ export function generateEmailVerifierInputsFromDKIMResult(
 
       // Handle single-byte QP sequences
       if (readPos < contentWithoutBreaks.length - 2 && contentWithoutBreaks[readPos] === 61) {
-        const nextTwo = new TextDecoder().decode(contentWithoutBreaks.slice(readPos + 1, readPos + 3));
+        const nextTwo = Buffer.from(contentWithoutBreaks.slice(readPos + 1, readPos + 3)).toString();
         if (/[0-9A-F]{2}/.test(nextTwo)) {
           decodedContent[writePos++] = parseInt(nextTwo, 16);
           readPos += 3;
@@ -373,8 +378,8 @@ export function generateEmailVerifierInputsFromDKIMResult(
       decodedContent[writePos++] = contentWithoutBreaks[readPos++];
     }
 
-    const finalDecodedContent = decodedContent.slice(0, writePos);
-    circuitInputs.emailBody = Uint8ArrayToCharArray(finalDecodedContent);
+    const finalDecodedContent = Buffer.from(decodedContent.slice(0, writePos));
+    circuitInputs.emailBody = Uint8ArrayToCharArray(new Uint8Array(finalDecodedContent));
 
     if (params.removeSoftLineBreaks) {
       circuitInputs.decodedEmailBodyIn = circuitInputs.emailBody;
