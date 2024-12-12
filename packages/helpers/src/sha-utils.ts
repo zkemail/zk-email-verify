@@ -28,18 +28,26 @@ export function padUint8ArrayWithZeros(array: Uint8Array, length: number): Uint8
 
 export function generatePartialSHA({
   body,
-  precomputeText,
-  shaCutoffIndex,
+  bodyLength,
+  selectorString,
   maxRemainingBodyLength,
 }: {
   body: Uint8Array;
-  precomputeText: Uint8Array;
-  shaCutoffIndex: number;
+  bodyLength: number;
+  selectorString?: string;
   maxRemainingBodyLength: number;
 }): {
   bodyRemaining: Uint8Array;
   precomputedSha: Uint8Array;
+  bodyRemainingLength: number;
 } {
+  if (!body || !(body instanceof Uint8Array)) {
+    throw new Error('Invalid input: body must be a Uint8Array');
+  }
+
+  const precomputeText = selectorString ? Buffer.from(selectorString) : body;
+  const shaCutoffIndex = selectorString ? body.indexOf(precomputeText[0]) : bodyLength;
+
   if (shaCutoffIndex < 0) {
     throw new Error('Negative sha cutoff index');
   }
@@ -52,20 +60,21 @@ export function generatePartialSHA({
 
   const buffer = new ArrayBuffer(maxRemainingBodyLength);
   const bodyRemaining = new Uint8Array(buffer);
-
   const slicedBody = new Uint8Array(body.buffer, shaCutoffIndex);
   bodyRemaining.set(slicedBody);
 
   if (bodyRemaining.length < maxRemainingBodyLength) {
     return {
       bodyRemaining: padUint8ArrayWithZeros(bodyRemaining, maxRemainingBodyLength),
-      precomputedSha: partialSha(precomputeText, shaCutoffIndex)
+      precomputedSha: partialSha(precomputeText, shaCutoffIndex),
+      bodyRemainingLength: bodyRemaining.length
     };
   }
 
   return {
     bodyRemaining,
-    precomputedSha: partialSha(precomputeText, shaCutoffIndex)
+    precomputedSha: partialSha(precomputeText, shaCutoffIndex),
+    bodyRemainingLength: bodyRemaining.length
   };
 }
 
