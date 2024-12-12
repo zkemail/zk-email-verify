@@ -48,83 +48,17 @@ export function generatePartialSHA({
   let shaCutoffIndex = bodyLength;
 
   if (selectorString) {
-    // First remove soft line breaks and decode QP content
+    // Convert to Buffer for consistent handling
     const bodyBuffer = Buffer.from(body);
-    const result: number[] = [];
-    let i = 0;
+    const bodyStr = bodyBuffer.toString();
 
-    // Debug logging
-    console.log('Original body:', bodyBuffer.toString());
-
-    while (i < bodyBuffer.length) {
-      // Skip soft line breaks
-      if (i < bodyBuffer.length - 2 &&
-          bodyBuffer[i] === 61 && // '='
-          bodyBuffer[i + 1] === 13 && // '\r'
-          bodyBuffer[i + 2] === 10) { // '\n'
-        i += 3;
-        continue;
-      }
-
-      // Handle QP sequences
-      if (i < bodyBuffer.length - 2 && bodyBuffer[i] === 61) { // '='
-        const nextTwo = bodyBuffer.slice(i + 1, i + 3).toString();
-        if (/[0-9A-F]{2}/.test(nextTwo)) {
-          const byte = parseInt(nextTwo, 16);
-          result.push(byte);
-          i += 3;
-          continue;
-        }
-      }
-
-      result.push(bodyBuffer[i]);
-      i++;
-    }
-
-    // Convert decoded content to string for searching
-    const decoder = new TextDecoder();
-    const decodedStr = decoder.decode(new Uint8Array(result));
-
-    // Debug logging
-    console.log('Decoded body:', decodedStr);
-    console.log('Looking for selector:', selectorString);
-
-    // Find the selector in decoded content
-    const selectorIndex = decodedStr.indexOf(selectorString);
+    // Find the selector in the body
+    const selectorIndex = bodyStr.indexOf(selectorString);
     if (selectorIndex === -1) {
-      throw new Error(`SHA precompute selector "${selectorString}" not found in cleaned body`);
+      throw new Error(`SHA precompute selector "${selectorString}" not found in body`);
     }
 
-    // Debug logging
-    console.log('Found selector at index:', selectorIndex);
-
-    // Map back to original index
-    let originalIndex = 0;
-    let decodedIndex = 0;
-    while (decodedIndex < selectorIndex) {
-      if (bodyBuffer[originalIndex] === 61 && // '='
-          bodyBuffer[originalIndex + 1] === 13 && // '\r'
-          bodyBuffer[originalIndex + 2] === 10) { // '\n'
-        originalIndex += 3;
-      } else if (bodyBuffer[originalIndex] === 61) { // '='
-        const nextTwo = bodyBuffer.slice(originalIndex + 1, originalIndex + 3).toString();
-        if (/[0-9A-F]{2}/.test(nextTwo)) {
-          originalIndex += 3;
-          decodedIndex++;
-        } else {
-          originalIndex++;
-          decodedIndex++;
-        }
-      } else {
-        originalIndex++;
-        decodedIndex++;
-      }
-    }
-    shaCutoffIndex = originalIndex;
-
-    // Debug logging
-    console.log('Original cutoff index:', shaCutoffIndex);
-    console.log('Original content at cutoff:', bodyBuffer.slice(shaCutoffIndex, shaCutoffIndex + 50).toString());
+    shaCutoffIndex = selectorIndex;
   }
 
   if (shaCutoffIndex < 0) {
