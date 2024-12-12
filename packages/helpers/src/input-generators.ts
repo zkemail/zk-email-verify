@@ -56,7 +56,7 @@ function findSelectorInCleanContent(
   positionMap: Map<number, number>,
 ): { selector: string; originalIndex: number } {
   // Convert cleanContent to Buffer to ensure consistent type handling
-  const cleanBuffer = Buffer.from(cleanContent);
+  const cleanBuffer = Buffer.from(cleanContent.buffer);
 
   // First build a clean string without soft line breaks
   const cleanString = cleanBuffer.toString();
@@ -190,7 +190,7 @@ function getAdjustedSelector(
  */
 function removeSoftLineBreaks(body: Uint8Array): { cleanContent: Uint8Array; positionMap: Map<number, number> } {
   // Convert to Buffer for consistent handling
-  const bodyBuffer = Buffer.from(body);
+  const bodyBuffer = Buffer.from(body.buffer);
   const result: number[] = [];
   const positionMap = new Map<number, number>(); // clean -> original
   let i = 0;
@@ -345,7 +345,7 @@ export function generateEmailVerifierInputsFromDKIMResult(
     while (readPos < contentWithoutBreaks.length) {
       // Handle multi-byte UTF-8 sequences
       if (readPos < contentWithoutBreaks.length - 8 && contentWithoutBreaks[readPos] === 61) { // '=' character
-        const slice = Buffer.from(contentWithoutBreaks.slice(readPos, readPos + 9));
+        const slice = Buffer.from(contentWithoutBreaks.slice(readPos, readPos + 9).buffer);
         const str = slice.toString();
         const qpMatch = str.match(/^=([0-9A-F]{2})=([0-9A-F]{2})=([0-9A-F]{2})/);
         if (qpMatch) {
@@ -362,7 +362,7 @@ export function generateEmailVerifierInputsFromDKIMResult(
 
       // Handle single-byte QP sequences
       if (readPos < contentWithoutBreaks.length - 2 && contentWithoutBreaks[readPos] === 61) {
-        const nextTwo = Buffer.from(contentWithoutBreaks.slice(readPos + 1, readPos + 3)).toString();
+        const nextTwo = Buffer.from(contentWithoutBreaks.slice(readPos + 1, readPos + 3).buffer).toString();
         if (/[0-9A-F]{2}/.test(nextTwo)) {
           decodedContent[writePos++] = parseInt(nextTwo, 16);
           readPos += 3;
