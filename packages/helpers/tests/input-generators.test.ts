@@ -59,7 +59,7 @@ describe('Input generators', () => {
       generateEmailVerifierInputs(email, {
         shaPrecomputeSelector: 'Bla Bla',
       }),
-    ).rejects.toThrow('SHA precompute selector "Bla Bla" not found in the body');
+    ).rejects.toThrow('SHA precompute selector "Bla Bla" not found in cleaned body');
   });
 
   it('should handle UTF-8 characters in selector and body', async () => {
