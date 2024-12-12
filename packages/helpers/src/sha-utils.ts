@@ -50,15 +50,67 @@ export function generatePartialSHA({
   if (selectorString) {
     // Convert to Buffer for consistent handling
     const bodyBuffer = Buffer.from(body);
-    const bodyStr = bodyBuffer.toString();
+    const result: number[] = [];
+    const positionMap = new Map<number, number>(); // decoded -> original
+    let i = 0;
+    let decodedPos = 0;
 
-    // Find the selector in the body
-    const selectorIndex = bodyStr.indexOf(selectorString);
-    if (selectorIndex === -1) {
-      throw new Error(`SHA precompute selector "${selectorString}" not found in body`);
+    // Helper function to decode QP string
+    const decodeQP = (str: string): string => {
+      return str.replace(/=([0-9A-F]{2})/g, (_, hex) =>
+        String.fromCharCode(parseInt(hex, 16))
+      );
+    };
+
+    // First decode the selector if it's QP-encoded
+    const decodedSelector = decodeQP(selectorString);
+
+    while (i < bodyBuffer.length) {
+      // Skip soft line breaks
+      if (i < bodyBuffer.length - 2 &&
+          bodyBuffer[i] === 61 && // '='
+          bodyBuffer[i + 1] === 13 && // '\r'
+          bodyBuffer[i + 2] === 10) { // '\n'
+        i += 3;
+        continue;
+      }
+
+      // Handle QP sequences
+      if (i < bodyBuffer.length - 2 && bodyBuffer[i] === 61) { // '='
+        const nextTwo = bodyBuffer.slice(i + 1, i + 3).toString();
+        if (/[0-9A-F]{2}/.test(nextTwo)) {
+          const byte = parseInt(nextTwo, 16);
+          result.push(byte);
+          positionMap.set(decodedPos, i);
+          decodedPos++;
+          i += 3;
+          continue;
+        }
+      }
+
+      result.push(bodyBuffer[i]);
+      positionMap.set(decodedPos, i);
+      decodedPos++;
+      i++;
     }
 
-    shaCutoffIndex = selectorIndex;
+    // Convert decoded content to string for searching
+    const decoder = new TextDecoder();
+    const decodedStr = decoder.decode(new Uint8Array(result));
+
+    // Find the selector in decoded content
+    const selectorIndex = decodedStr.indexOf(decodedSelector);
+    if (selectorIndex === -1) {
+      throw new Error(`SHA precompute selector "${decodedSelector}" not found in body`);
+    }
+
+    // Map back to original position
+    const originalIndex = positionMap.get(selectorIndex);
+    if (originalIndex === undefined) {
+      throw new Error('Failed to map selector position back to original content');
+    }
+
+    shaCutoffIndex = originalIndex;
   }
 
   if (shaCutoffIndex < 0) {
