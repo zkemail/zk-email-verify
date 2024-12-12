@@ -19,7 +19,7 @@ export function findIndexInUint8Array(array: Uint8Array, selector: Uint8Array): 
   return -1;
 }
 
-export function padUint8ArrayWithZeros(array: Uint8Array, length: number) {
+export function padUint8ArrayWithZeros(array: Uint8Array, length: number): Uint8Array {
   while (array.length < length) {
     // eslint-disable-next-line no-param-reassign
     array = mergeUInt8Arrays(array, int8toBytes(0));
