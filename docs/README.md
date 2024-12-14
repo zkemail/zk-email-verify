@@ -73,7 +73,7 @@ Note that it is completely client side and [open source](https://github.com/zk-e
 
 ## Verifying Signatures
 
-To verify a group signature, simply paste the resulting proof on the right hand
+To verify a group signature, simply paste the resulting proof on the right-hand
 side and click the `Verify` button. We will try to populate some signals.
 
 ## Advanced Understanding
