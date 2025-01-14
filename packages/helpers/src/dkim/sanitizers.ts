@@ -10,7 +10,7 @@ function setHeaderValue(email: string, header: string, value: string) {
   return email.replace(getHeaderValue(email, header), value);
 }
 
-// Google sets their own Message-ID and put the original one  in X-Google-Original-Message-ID
+// Google sets their own Message-ID and puts the original one  in X-Google-Original-Message-ID
 // when ARC forwarding
 // TODO: Add test for this
 function revertGoogleMessageId(email: string): string {
@@ -28,7 +28,7 @@ function revertGoogleMessageId(email: string): string {
   return email;
 }
 
-// Remove labels inserted to Subject - `[ListName] Newsletter 2024` to `Newsletter 2024`
+// Remove labels inserted in Subject - `[ListName] Newsletter 2024` to `Newsletter 2024`
 function removeLabels(email: string): string {
   // Replace Subject: [label] with Subject:
   const sanitized = email.replace(/Subject: \[.*\]/, 'Subject:');
