@@ -64,8 +64,11 @@ template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashChec
     
 
     // Calculate SHA256 hash of the `emailHeader` - 506,670 constraints
-    signal output sha[256] <== Sha256Bytes(maxHeadersLength)(emailHeader, emailHeaderLength);
-
+    signal sha[256] <== Sha256Bytes(maxHeadersLength)(emailHeader, emailHeaderLength);
+    component bitPacker = PackBits(256, 128);
+    bitPacker.in <== sha;
+    signal output shaHi <== bitPacker.out[0];
+    signal output shaLo <== bitPacker.out[1];
 
     // Pack SHA output bytes to int[] for RSA input message
     var rsaMessageSize = (256 + n) \ n;
