@@ -183,3 +183,28 @@ template ByteMask(maxLength) {
         out[i] <== in[i] * mask[i];
     }
 }
+
+/// @title PackBits
+/// @notice Packs an array of bits into field elements of specified bit size
+/// @dev Assumes input bits are in big-endian order and maintains BE in output
+/// @param numBits Total number of input bits
+/// @param bitsPerElement Number of bits to pack into each element
+/// @input in Array of bits in big-endian order
+/// @output out Array of packed field elements in big-endian order
+template PackBits(numBits, bitsPerElement) {
+    signal input in[numBits];
+    var numElements = (numBits + bitsPerElement - 1) \ bitsPerElement;
+    signal output out[numElements];
+    
+    for (var i = 0; i < numElements; i++) {
+        var sum = 0;
+        for (var j = 0; j < bitsPerElement; j++) {
+            var idx = i * bitsPerElement + j;
+            if (idx < numBits) {
+                // Maintain BE order by using (bitsPerElement - 1 - j) for bit position
+                sum += in[idx] * (1 << (bitsPerElement - 1 - j));
+            }
+        }
+        out[i] <== sum;
+    }
+}
