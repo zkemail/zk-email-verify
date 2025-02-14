@@ -1,0 +1,17 @@
+{
+  "name": "zk-email-verify-e2e-lambdatest",
+  "version": "1.0.0",
+  "description": "Tests for ZK Email on LambdaTest",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/preset-typescript": "^7.21.0",
+    "@jest/globals": "^29.4.3",
+    "jest": "^29.4.3",
+    "jest-puppeteer": "^7.0.1"
+  }
+}
