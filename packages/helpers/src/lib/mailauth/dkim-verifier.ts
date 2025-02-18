@@ -182,7 +182,7 @@ export class DkimVerifier extends MessageParser {
 
   async finalChunk() {
     try {
-      if ((!this.headers || !this.bodyHashes.size) && !this.skipBodyHash) {
+      if (!this.headers || (!this.skipBodyHash && !this.bodyHashes.size)) {
         return;
       }
 
