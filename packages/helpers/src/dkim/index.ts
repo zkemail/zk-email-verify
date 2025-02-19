@@ -30,6 +30,7 @@ export interface DKIMVerificationResult {
  * @param enableSanitization If true, email will be applied with various sanitization to try and pass DKIM verification
  * @param fallbackToZKEmailDNSArchive If true, ZK Email DNS Archive (https://archive.prove.email/api-explorer) will
  *                                    be used to resolve DKIM public keys if we cannot resolve from HTTP DNS
+ * @param skipBodyHash If true, it bypass the dkim body hash check
  * @returns
  */
 export async function verifyDKIMSignature(
@@ -37,17 +38,18 @@ export async function verifyDKIMSignature(
   domain: string = '',
   enableSanitization: boolean = true,
   fallbackToZKEmailDNSArchive: boolean = false,
+  skipBodyHash = false,
 ): Promise<DKIMVerificationResult> {
   const emailStr = email.toString();
 
-  let dkimResult = await tryVerifyDKIM(email, domain, fallbackToZKEmailDNSArchive);
+  let dkimResult = await tryVerifyDKIM(email, domain, fallbackToZKEmailDNSArchive, skipBodyHash);
 
   // If DKIM verification fails, try again after sanitizing email
   let appliedSanitization;
   if (dkimResult.status.comment === 'bad signature' && enableSanitization) {
     const results = await Promise.all(
       sanitizers.map((sanitize) =>
-        tryVerifyDKIM(sanitize(emailStr), domain, fallbackToZKEmailDNSArchive).then((result) => ({
+        tryVerifyDKIM(sanitize(emailStr), domain, fallbackToZKEmailDNSArchive, skipBodyHash).then((result) => ({
           result,
           sanitizer: sanitize.name,
         })),
@@ -98,6 +100,7 @@ async function tryVerifyDKIM(
   email: Buffer | string,
   domain: string = '',
   fallbackToZKEmailDNSArchive: boolean = false,
+  skipBodyHash = false,
 ) {
   const resolver = async (name: string, type: string) => {
     try {
@@ -115,6 +118,7 @@ async function tryVerifyDKIM(
 
   const dkimVerifier = new DkimVerifier({
     resolver,
+    skipBodyHash,
   });
 
   await writeToStream(dkimVerifier, email as any);

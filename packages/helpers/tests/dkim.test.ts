@@ -72,6 +72,28 @@ describe('DKIM signature verification', () => {
       expect(e.message).toBe('DKIM signature not found for domain domain.com');
     }
   });
+
+  it('should skip body-hash verification for body-less emails', async () => {
+    // From address domain is icloud.com
+    const email = fs.readFileSync(path.join(__dirname, 'test-data/email-bodyless.eml'));
+
+    // Should pass with default domain
+    const result = await verifyDKIMSignature(email, "", true, false, true);
+    expect.assertions(1);
+    expect(result.signingDomain).toBe('icloud.com');
+  });
+
+  it('should pass for tampered body if skipBodyHash=true', async () => {
+    const email = fs.readFileSync(path.join(__dirname, 'test-data/email-body-tampered.eml'));
+
+    try {
+      await verifyDKIMSignature(email, '', true, false, true);
+    } catch (e) {
+      expect(e.message).toBe(
+        'DKIM signature verification failed for domain icloud.com. Reason: body hash did not verify',
+      );
+    }
+  });
 });
 
 it('should fallback to ZK Email Archive if DNS over HTTP fails', async () => {

@@ -50,12 +50,14 @@ export class DkimVerifier extends MessageParser {
   private arc: { chain: false };
   private seal: { bodyHash: string };
   private sealBodyHashKey: string = '';
+  private skipBodyHash: boolean = false;
   constructor(options: Record<string, any>) {
     super();
 
     this.options = options || {};
     this.resolver = this.options.resolver;
     this.minBitLength = this.options.minBitLength;
+    this.skipBodyHash = this.options.skipBodyHash 
 
     this.results = [];
 
@@ -180,7 +182,7 @@ export class DkimVerifier extends MessageParser {
 
   async finalChunk() {
     try {
-      if (!this.headers || !this.bodyHashes.size) {
+      if (!this.headers || (!this.skipBodyHash && !this.bodyHashes.size)) {
         return;
       }
 
@@ -242,7 +244,7 @@ export class DkimVerifier extends MessageParser {
 
         let bodyHashObj = this.bodyHashes.get(signatureHeader.bodyHashKey);
         let bodyHash = bodyHashObj?.hash;
-        if (signatureHeader.parsed?.bh?.value !== bodyHash) {
+        if ((signatureHeader.parsed?.bh?.value !== bodyHash) && !this.skipBodyHash) {
           status.result = 'neutral';
           status.comment = `body hash did not verify`;
         } else {
@@ -332,7 +334,8 @@ export class DkimVerifier extends MessageParser {
 
         if (
           typeof signatureHeader.maxBodyLength === 'number' &&
-          signatureHeader.maxBodyLength !== signatureHeader.bodyHashedBytes
+          signatureHeader.maxBodyLength !== signatureHeader.bodyHashedBytes &&
+          !this.skipBodyHash
         ) {
           status.result = 'fail';
           status.comment = `invalid body length ${signatureHeader.bodyHashedBytes}`;
