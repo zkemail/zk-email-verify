@@ -1,0 +1,81 @@
+Delivered-To: thezdev1@gmail.com
+Received: by 2002:a05:7208:c17:b0:9a:379d:950d with SMTP id ix23csp1259588rbb;
+        Sat, 22 Feb 2025 23:50:37 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHhMtArTyySjkzIIxFpO/HXHJyPeeHwqytzECNNfICoL56h6oHBh1k5QL2k6eZ9U4KQ52xp
+X-Received: by 2002:a05:600c:1986:b0:439:7c0b:13f6 with SMTP id 5b1f17b1804b1-439b2d233e6mr67302825e9.31.1740297037625;
+        Sat, 22 Feb 2025 23:50:37 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1740297037; cv=none;
+        d=google.com; s=arc-20240605;
+        b=YgxJ9tsJQMVGtzRzZ4eVEiSVPRWrcNiAb/QTYNzsTd/66R0PSkUqBZQ1uzDWBi2pJF
+         nWtLW7QghFzvUMa69U1ndVaFuPDPDg2FPS0bWofZtIynVDEuJ3P3ywriWdYtXnkJw9KF
+         2ZOY+JVnik/zBalCwwlLf5+S8vS9K59V2FmIiCckZVodjb+e3lTpv7R0mXrmZkUPeV4S
+         d+FZ+9/uwRb4YULgeJjf0PH03hwWv9lNlPpSOSE35S1G22p66+WC+6jk4XDztuGmU42t
+         KCzMCO+DQmxn84Id995/+gUyXzOM0XZk4V6CG3X+kDt/sxdw2j31zEawK0c4UZziOTOP
+         lwqQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=mime-version:feedback-id:message-id:subject:from:to:date
+         :dkim-signature;
+        bh=fK2qdClK9QTQJoFzQbidFPXUBwNdEw6fXbUKKrZkRag=;
+        fh=fKx4dHH9grCprgDNudqj9qlwtgzhY5M43m6nZ/lCdBY=;
+        b=HVRuKXYqrvSwk4lH1Dcd5nBhHMS49pk4e6gKsExJLd/9Ev1Y/eKJplf1RY2SNaRNwG
+         aqRntl4vUuR2551q8o72mv0SBO/S16gCi8Jn6IeEqZDtJ/czou0e6dSfWwxwyoYSbBZc
+         Zs7GnldktVLRM3czwhJsFlhK943kecjHp09znWz1CmfNIHaP5wnFTVForGffG8ZWe3iW
+         FuWbVg79xyT1qN1uA5g1v3MmDl6C6CYZs+bwG1vfmG8/lm6xsro+hqEdSthVmUgbN1fM
+         RBZqqZMvBv7zQd9TzYbtNmGTPmxxhF8+POg0WajXtcjWShvM2jC1+3uZGSgRP21nZ5Bl
+         XyoQ==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@proton.me header.s=protonmail header.b=fk+ET0yc;
+       spf=pass (google.com: domain of thezdev1@proton.me designates 185.70.43.166 as permitted sender) smtp.mailfrom=thezdev1@proton.me;
+       dmarc=pass (p=QUARANTINE sp=QUARANTINE dis=NONE) header.from=proton.me
+Return-Path: <thezdev1@proton.me>
+Received: from mail-43166.protonmail.ch (mail-43166.protonmail.ch. [185.70.43.166])
+        by mx.google.com with ESMTPS id 5b1f17b1804b1-439b02fd789si33478305e9.142.2025.02.22.23.50.37
+        for <thezdev1@gmail.com>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 22 Feb 2025 23:50:37 -0800 (PST)
+Received-SPF: pass (google.com: domain of thezdev1@proton.me designates 185.70.43.166 as permitted sender) client-ip=185.70.43.166;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@proton.me header.s=protonmail header.b=fk+ET0yc;
+       spf=pass (google.com: domain of thezdev1@proton.me designates 185.70.43.166 as permitted sender) smtp.mailfrom=thezdev1@proton.me;
+       dmarc=pass (p=QUARANTINE sp=QUARANTINE dis=NONE) header.from=proton.me
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
+	s=protonmail; t=1740297037; x=1740556237;
+	bh=fK2qdClK9QTQJoFzQbidFPXUBwNdEw6fXbUKKrZkRag=;
+	h=Date:To:From:Subject:Message-ID:Feedback-ID:From:To:Cc:Date:
+	 Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector:
+	 List-Unsubscribe:List-Unsubscribe-Post;
+	b=fk+ET0ycbp4QSnQyekz/ye0B/Pw8x/QGPpT2rWIdGb9RQIFtNfuHomx0ircgpzpBC
+	 OcbpoFIZYhj6hsBCFT3bchxRx9N6Cy1aQM/Bdy2iQn9+HU0mFsb42pTQwoGjcfKns0
+	 qsq3hU1kzJ4yRJRGhszz0L8KOX2Rvn3TxHdTFWJZD20X/SHav7S2cWWC/liDUaBtjc
+	 rQLApxInLamYT+DfkkGVDZJo4gHDyTTnUsLv0xBy6u7iRHGNIgsWRc2vG3OHw4vB5T
+	 RPQyaaLpPeHpXQAu2FUQEKqREenzecbtPwNbQdPgtfT44AWjJMbhmIuuN0lLf26bod
+	 6l1ikhe3jFb9A==
+Date: Sun, 23 Feb 2025 07:50:33 +0000
+To: "thezdev1@gmail.com" <thezdev1@gmail.com>
+From: thezdev1 <thezdev1@proton.me>
+Subject: This is from proton to gmail
+Message-ID: <UdlQJvMPJwVS6-WsTC0zsyFQI7eS55iIFA_nevwz9ERExxIuB0AElN_euz2dSSpNrNlg9VJRPLpW6n5AtL4M95nDTCjdKEItrWEmuDVjaPA=@proton.me>
+Feedback-ID: 135381554:user:proton
+X-Pm-Message-ID: 5707ffccdcdc03761793323d30eab6ce0dbc3105
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="b1=_7cvD6bH3OyE9nJSMtsUF2LZqWlTvibSoWfexyXRXGw"
+
+--b1=_7cvD6bH3OyE9nJSMtsUF2LZqWlTvibSoWfexyXRXGw
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9keSBpcyBpZ25vcmVk
+
+--b1=_7cvD6bH3OyE9nJSMtsUF2LZqWlTvibSoWfexyXRXGw
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGRpdiBzdHlsZT0iZm9udC1mYW1pbHk6IEFyaWFsLCBzYW5zLXNlcmlmOyBmb250LXNpemU6IDE0
+cHg7IGNvbG9yOiByZ2IoMCwgMCwgMCk7IGJhY2tncm91bmQtY29sb3I6IHJnYigyNTUsIDI1NSwg
+MjU1KTsiPkJvZHkgaXMgaWdub3JlZDwvZGl2Pg==
+
+
+--b1=_7cvD6bH3OyE9nJSMtsUF2LZqWlTvibSoWfexyXRXGw--
+

@@ -94,6 +94,21 @@ describe('DKIM signature verification', () => {
       );
     }
   });
+
+  it('should pass for gmail to proton email', async () => {
+    const email = fs.readFileSync(path.join(__dirname, 'test-data/gmail-to-proton.eml'));
+    const result = await verifyDKIMSignature(email, '', true, false, true);
+    expect(result.signingDomain).toBe('gmail.com');
+    expect(result.appliedSanitization).toBeFalsy();
+  })
+
+  it('should pass for proton to gmail email', async () => {
+    const email = fs.readFileSync(path.join(__dirname, 'test-data/proton-to-gmail.eml'));
+    const result = await verifyDKIMSignature(email, '', true, false, true);
+    expect(result.signingDomain).toBe('proton.me');
+    expect(result.appliedSanitization).toBeFalsy();
+  })
+
 });
 
 it('should fallback to ZK Email Archive if DNS over HTTP fails', async () => {
