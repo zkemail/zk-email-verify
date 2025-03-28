@@ -362,6 +362,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4c7f02d4ea65f2c1853089ffd8d2787bdbc63de2f0d29dedbcf8ccdfa0ccd4cf"
 
 [[package]]
+name = "base64"
+version = "0.22.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
+
+[[package]]
 name = "base64ct"
 version = "1.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1693,6 +1699,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "poseidon-ark"
+version = "0.0.1"
+source = "git+https://github.com/arnaucube/poseidon-ark#6d2487aa1308d9d3860a2b724c485d73095c1c68"
+dependencies = [
+ "ark-bn254",
+ "ark-ff",
+ "ark-std",
+]
+
+[[package]]
 name = "ppv-lite86"
 version = "0.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2509,7 +2525,9 @@ dependencies = [
  "ark-ff",
  "ark-groth16",
  "ark-serialize",
+ "base64",
  "clap 4.5.9",
+ "poseidon-ark",
  "serde",
  "serde_json",
 ]
