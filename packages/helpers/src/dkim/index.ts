@@ -23,6 +23,8 @@ export interface DKIMVerificationResult {
   appliedSanitization?: string;
 }
 
+const GAPPS_DOMAIN = 'gappssmtp.com';
+
 /**
  *
  * @param email Entire email data as a string or buffer
@@ -123,19 +125,38 @@ async function tryVerifyDKIM(
 
   await writeToStream(dkimVerifier, email as any);
 
-  let domainToVerifyDKIM = domain;
-  if (!domainToVerifyDKIM) {
+  // Extract domain from From header if not provided
+  let fromDomain = domain;
+  if (!fromDomain) {
     if (dkimVerifier.headerFrom.length > 1) {
       throw new Error('Multiple From header in email and domain for verification not specified');
     }
 
-    domainToVerifyDKIM = dkimVerifier.headerFrom[0].split('@')[1];
+    if (dkimVerifier.headerFrom.length === 0) {
+      throw new Error('From header not found or empty');
+    }
+
+    fromDomain = dkimVerifier.headerFrom[0].split('@')[1];
   }
 
-  const dkimResult = dkimVerifier.results.find((d: any) => d.signingDomain === domainToVerifyDKIM);
+  // First try direct match
+  let dkimResult = dkimVerifier.results.find((d: any) => d.signingDomain === fromDomain);
+
+  // Then try domains ending with fromDomain (subdomains)
+  if (!dkimResult) {
+    dkimResult = dkimVerifier.results.find((d: any) => d.signingDomain.endsWith(`.${fromDomain}`));
+  }
+
+  // As a last resort, try Google Apps domain
+  if (!dkimResult) {
+    dkimResult = dkimVerifier.results.find((d: any) => d.signingDomain.includes(GAPPS_DOMAIN));
+  }
 
   if (!dkimResult) {
-    throw new Error(`DKIM signature not found for domain ${domainToVerifyDKIM}`);
+    const availableDomains = dkimVerifier.results.map((d: any) => d.signingDomain).join(', ');
+    throw new Error(
+      `DKIM signature not found for domain ${fromDomain}. Available domains: [${availableDomains || 'none'}]`,
+    );
   }
 
   dkimResult.headers = dkimVerifier.headers;
