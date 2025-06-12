@@ -51,7 +51,7 @@ describe('DKIM signature verification', () => {
     try {
       await verifyDKIMSignature(email);
     } catch (e) {
-      expect(e.message).toBe('DKIM signature not found for domain gmail.com');
+      expect(e.message).toBe('DKIM signature not found for domain gmail.com. Available domains: [icloud.com]');
     }
   });
 
@@ -69,7 +69,7 @@ describe('DKIM signature verification', () => {
     try {
       await verifyDKIMSignature(email, 'domain.com');
     } catch (e) {
-      expect(e.message).toBe('DKIM signature not found for domain domain.com');
+      expect(e.message).toBe('DKIM signature not found for domain domain.com. Available domains: [icloud.com]');
     }
   });
 
@@ -78,7 +78,7 @@ describe('DKIM signature verification', () => {
     const email = fs.readFileSync(path.join(__dirname, 'test-data/email-bodyless.eml'));
 
     // Should pass with default domain
-    const result = await verifyDKIMSignature(email, "", true, false, true);
+    const result = await verifyDKIMSignature(email, '', true, false, true);
     expect.assertions(1);
     expect(result.signingDomain).toBe('icloud.com');
   });
