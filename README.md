@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/516236309.svg)](https://doi.org/10.5281/zenodo.15653239)
+
 # Welcome to ZK Email
 
 <p align="center">
