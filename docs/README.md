@@ -10,7 +10,7 @@ For a deeper dive, read our full [blog post](https://blog.aayushg.com/posts/zkem
 
 ## Sections
 
-### [Installation](./zkEmailDocs/Installation/README.md)
+### [Installation](./zk-email-docs/Installation/README.md)
 
 Get started with zkEmail, install our SDKs so that you can build your own application.
 
