@@ -58,13 +58,13 @@ export class DoH {
             if (ans.type === DoH.DoHTypeTXT) {
               let dkimRecord = ans.data;
               /*
-                  Remove all double quotes
+                  Remove all double quotes and spaces around them
                   Some DNS providers wrap TXT records in double quotes, 
                   and others like Cloudflare may include them. According to 
                   TXT (potentially multi-line) and DKIM (Base64 data) standards,
                   we can directly remove all double quotes from the DKIM public key.
               */
-              dkimRecord = dkimRecord.replace(/"/g, '');
+              dkimRecord = dkimRecord.replace(/\s*"\s*/g, '');
               return dkimRecord;
             }
           }
