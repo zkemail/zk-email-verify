@@ -101,26 +101,55 @@ export async function resolveDNSHTTP(name: string, type: string) {
   if (type !== 'TXT') {
     throw new Error(`DNS over HTTP: Only type TXT is supported, got ${type}`);
   }
-  const googleResult = await DoH.resolveDKIMPublicKey(name, DoHServer.Google);
-  if (!googleResult) {
-    throw new CustomError('No DKIM record found in Google', 'ENODATA');
+
+
+  let dkimRecord: string | null = null;
+  let googleError: CustomError | null = null;
+  let cloudflareError: CustomError | null = null;
+
+  // Try Google DNS first
+  try {
+    const googleResult = await DoH.resolveDKIMPublicKey(name, DoHServer.Google);
+    if (googleResult) {
+      const regex = /p=([^;]*)/;
+      const match = regex.exec(googleResult);
+      if (match && match[1] !== '') {
+        dkimRecord = googleResult;
+      }
+    }
+  } catch (error) {
+    googleError = new CustomError('No DKIM record found in Google', 'ENODATA');
   }
 
-  const regex = /p=([^;]*)/;
-  const match = regex.exec(googleResult);
-  if (match) {
-    const valueAfterP = match[1]; // Extracting the value after p=
-    if (valueAfterP === '') {
-      throw new CustomError('No DKIM record found in Google (empty p=)', 'ENODATA');
+  // Try Cloudflare as well
+  try {
+    const cloudflareResult = await DoH.resolveDKIMPublicKey(name, DoHServer.Cloudflare);
+
+    // If we have both results, log if there's a mismatch
+    if (dkimRecord && cloudflareResult && dkimRecord !== cloudflareResult) {
+      console.warn('DKIM record mismatch between Google and Cloudflare! Using Google result.');
+    }
+
+    // If we don't have a Google result, use Cloudflare's result
+    if (!dkimRecord && cloudflareResult) {
+      const regex = /p=([^;]*)/;
+      const match = regex.exec(cloudflareResult);
+      if (match && match[1] !== '') {
+        dkimRecord = cloudflareResult;
+      }
+    }
+  } catch (error) {
+    cloudflareError = new CustomError('No DKIM record found in Cloudflare', 'ENODATA');
+  }
+
+  //
+  if (!dkimRecord) {
+    if (googleError && cloudflareError) {
+      throw new Error(`Failed to fetch DKIM record from both providers. Google: ${googleError},\n Cloudflare: ${cloudflareError}`);
+    } else if (!dkimRecord) {
+      throw new CustomError('No valid DKIM record found (empty or missing p= value)', 'ENODATA');
     }
   }
 
-  const cloudflareResult = await DoH.resolveDKIMPublicKey(name, DoHServer.Cloudflare);
-
-  // Log an error if there is a mismatch in the result
-  if (googleResult !== cloudflareResult) {
-    console.error('DKIM record mismatch between Google and Cloudflare! Using Google result.');
-  }
-
-  return [googleResult];
+  return [dkimRecord];
 }
