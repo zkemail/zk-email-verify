@@ -74,7 +74,7 @@ describe('Test zkp fetch and store', () => {
     expect(str).toBe('not compressed 👍');
   });
 
-  test('should should download all the zkeys and save them in local storage for snarkjs to access.', async () => {
+  test('should download all the zkeys and save them in local storage for snarkjs to access.', async () => {
     // downloadProofFiles calls downloadFromFilename 10 times, one for each zkey, b-k.
     const onDownloaded = jest.fn();
     await downloadProofFiles(MOCK_BASE_URL, 'email', onDownloaded);
