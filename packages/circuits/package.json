@@ -7,7 +7,7 @@
     "test": "NODE_OPTIONS=--max_old_space_size=8192 jest --runInBand --detectOpenHandles --forceExit --verbose tests"
   },
   "dependencies": {
-    "@zk-email/zk-regex-circom": "^2.3.1",
+    "@zk-email/zk-regex-circom": "2.3.2",
     "circomlib": "^2.0.5"
   },
   "devDependencies": {
