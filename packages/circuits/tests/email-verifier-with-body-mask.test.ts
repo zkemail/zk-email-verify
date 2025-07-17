@@ -52,8 +52,15 @@ describe("EmailVerifier : With body masking", () => {
 
         const witness = await circuit.calculateWitness(emailVerifierInputs);
         await circuit.checkConstraints(witness);
-        await circuit.assertOut(witness, {
-            maskedBody: expectedMaskedBody,
-        });
+                
+        const maskedBodyStartIndex = 4; // Skip  (Index 0: constant 1,pubkeyHash, shaHi, shaLo)
+        const maskedBodyWitness = witness.slice(maskedBodyStartIndex, maskedBodyStartIndex + expectedMaskedBody.length);
+        
+        // Convert BigInt values to regular numbers for assertOut
+        const maskedBodyWitnessNumbers = maskedBodyWitness.map((val: any) => String(val));
+        const expectedMaskedBodyNumbers = expectedMaskedBody.map(val => String(val));
+        
+        expect(maskedBodyWitnessNumbers).toEqual(expectedMaskedBodyNumbers);
+
     });
 });
