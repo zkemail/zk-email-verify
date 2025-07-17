@@ -143,8 +143,6 @@ template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashChec
 
         bodyHashRegex.isValid === 1;
 
-        // var shaB64Length = 44; // Length of SHA-256 hash when base64 encoded - ceil(32 / 3) * 4
-        //signal bhBase64[shaB64Length] <== SelectRegexReveal(128, shaB64Length)(bodyHashRegex.capture1, bodyHashIndex);
         signal headerBodyHash[32] <== Base64Decode(32)(bodyHashRegex.capture1);
 
         // Compute SHA256 of email body : 760,142 constraints (for maxBodyLength = 1536)

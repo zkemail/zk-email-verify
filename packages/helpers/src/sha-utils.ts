@@ -65,7 +65,7 @@ export function generatePartialSHA({
     throw new Error('Remaining body was not padded correctly with int64s');
   }
 
-  bodyRemaining = padUint8ArrayWithZeros(bodyRemaining, maxRemainingBodyLength);
+  bodyRemaining = padUint8ArrayWithZeros(bodyRemaining, maxRemainingBodyLength) as Uint8Array<ArrayBuffer>;
   const precomputedSha = partialSha(precomputeText, shaCutoffIndex);
 
   return {
