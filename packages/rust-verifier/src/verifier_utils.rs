@@ -40,11 +40,10 @@ struct SnarkJsVkey {
 }
 
 #[derive(Debug)]
-pub struct PublicInputs<const N: usize> {
-    pub inputs: [GrothFp; N],
+pub struct PublicInputs {
+    pub inputs: Vec<GrothFp>,
 }
 
-// helper struct for deserializing public inputs count
 #[derive(Deserialize)]
 #[allow(non_snake_case)]
 pub struct PublicInputsCount {
@@ -158,32 +157,18 @@ impl JsonDecoder for PublicInputsCount {
     }
 }
 
-impl<const N: usize> JsonDecoder for PublicInputs<N> {
+impl JsonDecoder for PublicInputs {
     fn from_json(json: &str) -> Self {
         let inputs: Vec<String> = serde_json::from_str(json).unwrap();
         let inputs: Vec<GrothFp> = inputs
             .iter()
             .map(|input| Fp::from_str(input).unwrap())
             .collect();
-        Self {
-            inputs: inputs.try_into().unwrap(),
-        }
+        Self { inputs }
     }
 }
 
-impl<const N: usize> PublicInputs<N> {
-    pub fn from(inputs: [&str; N]) -> Self {
-        let inputs: Vec<GrothFp> = inputs
-            .iter()
-            .map(|input| Fp::from_str(input).unwrap())
-            .collect();
-        Self {
-            inputs: inputs.try_into().unwrap(),
-        }
-    }
-}
-
-impl<const N: usize> Deref for PublicInputs<N> {
+impl Deref for PublicInputs {
     type Target = [GrothFp];
 
     fn deref(&self) -> &Self::Target {
@@ -191,16 +176,22 @@ impl<const N: usize> Deref for PublicInputs<N> {
     }
 }
 
-impl<const N: usize> CanonicalSerialize for PublicInputs<N> {
+impl CanonicalSerialize for PublicInputs {
     fn serialize_with_mode<W: ark_serialize::Write>(
         &self,
-        writer: W,
+        mut writer: W,
         compress: ark_serialize::Compress,
     ) -> Result<(), ark_serialize::SerializationError> {
-        self.inputs.serialize_with_mode(writer, compress)
+        for input in &self.inputs {
+            input.serialize_with_mode(&mut writer, compress)?;
+        }
+        Ok(())
     }
 
     fn serialized_size(&self, compress: ark_serialize::Compress) -> usize {
-        self.inputs.serialized_size(compress)
+        self.inputs
+            .iter()
+            .map(|input| input.serialized_size(compress))
+            .sum()
     }
 }
