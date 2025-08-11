@@ -3,6 +3,8 @@ import path from 'path';
 import { verifyDKIMSignature } from '../src/dkim';
 import * as dnsOverHttp from '../src/dkim/dns-over-http';
 import * as dnsArchive from '../src/dkim/dns-archive';
+import { DkimVerifier } from '../src/lib/mailauth/dkim-verifier';
+import { writeToStream } from '../src/lib/mailauth/tools';
 
 jest.setTimeout(10000);
 
@@ -166,5 +168,56 @@ describe('DKIM with sanitization', () => {
     const result = await verifyDKIMSignature(tamperedEmail);
 
     expect(result.appliedSanitization).toBe('removeLabels');
+  });
+});
+
+describe('DKIM skipped headers', () => {
+  it('should correctly identify skip reasons for invalid signature headers', async () => {
+    const dkimVerifier = new DkimVerifier({
+      resolver: async () => {},
+      skipBodyHash: false,
+    });
+
+    // Test with invalid signing algorithm
+    const invalidAlgoHeader = {
+      type: 'DKIM',
+      signAlgo: 'invalid-algorithm',
+      hashAlgo: 'sha256',
+      headerCanon: 'relaxed',
+      bodyCanon: 'relaxed',
+      signingDomain: 'example.com',
+      selector: 'test',
+    };
+
+    const skipReasons = dkimVerifier['getSkipReasons'](invalidAlgoHeader);
+    expect(skipReasons).toContain('invalid signing algorithm: invalid-algorithm');
+
+    // Test with missing domain
+    const missingDomainHeader = {
+      type: 'DKIM',
+      signAlgo: 'rsa',
+      hashAlgo: 'sha256',
+      headerCanon: 'relaxed',
+      bodyCanon: 'relaxed',
+      signingDomain: '',
+      selector: 'test',
+    };
+
+    const skipReasons2 = dkimVerifier['getSkipReasons'](missingDomainHeader);
+    expect(skipReasons2).toContain('missing signing domain');
+
+    // Test with missing selector
+    const missingSelectorHeader = {
+      type: 'DKIM',
+      signAlgo: 'rsa',
+      hashAlgo: 'sha256',
+      headerCanon: 'relaxed',
+      bodyCanon: 'relaxed',
+      signingDomain: 'example.com',
+      selector: '',
+    };
+
+    const skipReasons3 = dkimVerifier['getSkipReasons'](missingSelectorHeader);
+    expect(skipReasons3).toContain('missing selector');
   });
 });
