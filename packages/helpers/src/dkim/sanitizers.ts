@@ -53,7 +53,7 @@ function insert13Before10(email: string): string {
     j++;
   }
 
-  return Buffer.from(ret.slice(0, j).buffer).toString();
+  return new TextDecoder().decode(ret.slice(0, j));
 }
 
 // Replace `=09` with `\t` in email
