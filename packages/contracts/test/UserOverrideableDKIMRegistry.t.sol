@@ -623,7 +623,7 @@ contract UserOverrideableDKIMRegistryTest is Test {
         testSetDKIMPublicKeyHashByUser1();
     }
 
-    function testIsDKIMPublicKeyHashValidBeforeEnabledWithoutUserConfirm()
+    function testRevertWhenIsDKIMPublicKeyHashBeforeEnabledWithoutUserConfirm()
         public
     {
         vm.startPrank(mainAuthorizer);
@@ -652,7 +652,7 @@ contract UserOverrideableDKIMRegistryTest is Test {
         vm.stopPrank();
     }
 
-    function testIsDKIMPublicKeyHashValidBeforeEnabledWithoutUserConfirmECDSA()
+    function testIsDKIMPublicKeyHashBeforeEnabledWithoutUserConfirmECDSA()
         public
     {
         vm.startPrank(deployer);
@@ -691,7 +691,7 @@ contract UserOverrideableDKIMRegistryTest is Test {
         vm.stopPrank();
     }
 
-    function testIsDKIMPublicKeyHashValidBeforeEnabledWithoutUserConfirmContract()
+    function testIsDKIMPublicKeyHashBeforeEnabledWithoutUserConfirmContract()
         public
     {
         vm.startPrank(deployer);
@@ -774,99 +774,99 @@ contract UserOverrideableDKIMRegistryTest is Test {
         vm.stopPrank();
     }
 
-    // function testExpectRevertDomainNameCannotBeZeroSetDKIMPublicKeyHashByUser1()
-    //     public
-    // {
-    //     vm.startPrank(user1);
-    //     vm.expectRevert("domain name cannot be zero");
-    //     registry.setDKIMPublicKeyHash("", publicKeyHash, user1, new bytes(0));
-    //     vm.stopPrank();
-    // }
+    function testExpectRevertDomainNameCannotBeZeroSetDKIMPublicKeyHashByUser1()
+        public
+    {
+        vm.startPrank(user1);
+        vm.expectRevert("domain name cannot be zero");
+        registry.setDKIMPublicKeyHash("", publicKeyHash, user1, new bytes(0));
+        vm.stopPrank();
+    }
 
-    // function testExpectRevertPublicKeyHashCannotBeZeroSetDKIMPublicKeyHashByUser1()
-    //     public
-    // {
-    //     vm.startPrank(user1);
+    function testExpectRevertPublicKeyHashCannotBeZeroSetDKIMPublicKeyHashByUser1()
+        public
+    {
+        vm.startPrank(user1);
 
-    //     vm.expectRevert("public key hash cannot be zero");
-    //     registry.setDKIMPublicKeyHash(
-    //         domainName,
-    //         bytes32(uint256(0)),
-    //         user1,
-    //         new bytes(0)
-    //     );
-    //     vm.stopPrank();
-    // }
+        vm.expectRevert("public key hash cannot be zero");
+        registry.setDKIMPublicKeyHash(
+            domainName,
+            bytes32(uint256(0)),
+            user1,
+            new bytes(0)
+        );
+        vm.stopPrank();
+    }
 
-    // function testExpectRevertAuthorizerAddressCannotBeZeroSetDKIMPublicKeyHashByUser1()
-    //     public
-    // {
-    //     vm.startPrank(user1);
+    function testExpectRevertAuthorizerAddressCannotBeZeroSetDKIMPublicKeyHashByUser1()
+        public
+    {
+        vm.startPrank(user1);
 
-    //     vm.expectRevert("authorizer address cannot be zero");
-    //     registry.setDKIMPublicKeyHash(
-    //         domainName,
-    //         publicKeyHash,
-    //         address(0),
-    //         new bytes(0)
-    //     );
-    //     vm.stopPrank();
-    // }
+        vm.expectRevert("authorizer address cannot be zero");
+        registry.setDKIMPublicKeyHash(
+            domainName,
+            publicKeyHash,
+            address(0),
+            new bytes(0)
+        );
+        vm.stopPrank();
+    }
 
-    // function testExpectRevertPublicKeyHashIsAlreadySetDKIMPublicKeyHashByMainAuthorizer()
-    //     public
-    // {
-    //     testSetDKIMPublicKeyHashByMainAuthorizerAfterEnabled();
-    //     vm.startPrank(mainAuthorizer);
+    function testExpectRevertPublicKeyHashIsAlreadySetDKIMPublicKeyHashByMainAuthorizer()
+        public
+    {
+        testSetDKIMPublicKeyHashByMainAuthorizerAfterEnabled();
+        vm.startPrank(mainAuthorizer);
 
-    //     vm.expectRevert("public key hash is already set");
-    //     registry.setDKIMPublicKeyHash(
-    //         domainName,
-    //         publicKeyHash,
-    //         mainAuthorizer,
-    //         new bytes(0)
-    //     );
-    //     vm.stopPrank();
-    // }
+        vm.expectRevert("public key hash is already set");
+        registry.setDKIMPublicKeyHash(
+            domainName,
+            publicKeyHash,
+            mainAuthorizer,
+            new bytes(0)
+        );
+        vm.stopPrank();
+    }
 
-    // function testExpectRevertPublicKeyHashIsAlreadyRevokedByUser1() public {
-    //     testRevokeDKIMPublicKeyHashByUser1();
-    //     vm.startPrank(user1);
+        function testExpectRevertPublicKeyHashIsAlreadyRevokedByUser1() public {
+            testRevokeDKIMPublicKeyHashByUser1();
+            vm.startPrank(user1);
 
-    //     vm.expectRevert("public key hash is already revoked");
-    //     registry.setDKIMPublicKeyHash(
-    //         domainName,
-    //         publicKeyHash,
-    //         user1,
-    //         new bytes(0)
-    //     );
+            vm.expectRevert("public key hash is already revoked");
+            registry.setDKIMPublicKeyHash(
+                domainName,
+                publicKeyHash,
+                user1,
+                new bytes(0)
+            );
 
-    //     vm.expectRevert("public key hash is already revoked");
-    //     registry.revokeDKIMPublicKeyHash(
-    //         domainName,
-    //         publicKeyHash,
-    //         user1,
-    //         new bytes(0)
-    //     );
-    //     vm.stopPrank();
-    // }
+            vm.expectRevert("public key hash is already revoked");
+            registry.revokeDKIMPublicKeyHash(
+                domainName,
+                publicKeyHash,
+                user1,
+                new bytes(0)
+            );
+            vm.stopPrank();
+        }
 
-    // function testExpectRevertReactivateDKIMPublicKeyHashByMainAuthorizer()
-    //     public
-    // {
-    //     testSetDKIMPublicKeyHashByMainAuthorizerAfterEnabled();
-    //     testRevokeDKIMPublicKeyHashByMainAuthorizer();
+    function testExpectRevertReactivateDKIMPublicKeyHashByMainAuthorizer()
+        public
+    {
+        testSetDKIMPublicKeyHashByMainAuthorizerAfterEnabled();
+        testRevokeDKIMPublicKeyHashByMainAuthorizer();
 
-    //     vm.startPrank(mainAuthorizer);
-    //     vm.expectRevert("mainAuthorizer cannot reactivate the public key hash");
-    //     registry.reactivateDKIMPublicKeyHash(
-    //         domainName,
-    //         publicKeyHash,
-    //         mainAuthorizer,
-    //         new bytes(0)
-    //     );
-    //     vm.stopPrank();
-    // }
+        vm.startPrank(mainAuthorizer);
+        vm.expectRevert("mainAuthorizer cannot reactivate the public key hash");
+        registry.reactivateDKIMPublicKeyHash(
+            domainName,
+            publicKeyHash,
+            mainAuthorizer,
+            new bytes(0)
+        );
+        vm.stopPrank();
+    }
 
     function testExpectReactivatePublicKeyHashIsAlreadyRevokedByUser1() public {
         testDKIMPublicKeyHashValidByUser1AfterSetByMainAuthorizerBeforeEnabledReactivatedByUser1();
@@ -939,21 +939,21 @@ contract UserOverrideableDKIMRegistryTest is Test {
         vm.stopPrank();
     }
 
-    // function testExpectRevertDomainNameCannotBeZeroRevokeDKIMPublicKeyHashByUser1()
-    //     public
-    // {
-    //     testSetDKIMPublicKeyHashByUser1();
+    function testExpectRevertDomainNameCannotBeZeroRevokeDKIMPublicKeyHashByUser1()
+        public
+    {
+        testSetDKIMPublicKeyHashByUser1();
 
-    //     vm.startPrank(user1);
-    //     vm.expectRevert("domain name cannot be zero");
-    //     registry.revokeDKIMPublicKeyHash(
-    //         "",
-    //         publicKeyHash,
-    //         user1,
-    //         new bytes(0)
-    //     );
-    //     vm.stopPrank();
-    // }
+        vm.startPrank(user1);
+        vm.expectRevert("domain name cannot be zero");
+        registry.revokeDKIMPublicKeyHash(
+            "",
+            publicKeyHash,
+            user1,
+            new bytes(0)
+        );
+        vm.stopPrank();
+    }
 
     // function testFailIsDKIMPublicKeyHashValidByUser1AfterRevokedByMainAuthorizer()
     //     public
