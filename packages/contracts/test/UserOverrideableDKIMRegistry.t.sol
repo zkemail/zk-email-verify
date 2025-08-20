@@ -955,123 +955,131 @@ contract UserOverrideableDKIMRegistryTest is Test {
         vm.stopPrank();
     }
 
-    // function testFailIsDKIMPublicKeyHashValidByUser1AfterRevokedByMainAuthorizer()
-    //     public
-    // {
-    //     testRevokeDKIMPublicKeyHashByMainAuthorizer();
+    function testIsDKIMPublicKeyHashValidByUser1AfterRevokedByMainAuthorizer()
+        public
+    {
+        testRevokeDKIMPublicKeyHashByMainAuthorizer();
 
-    //     vm.startPrank(address(exampleOwnable1));
-    //     // revokeThreshold = 1
-    //     require(
-    //         registry.isDKIMPublicKeyHashValid(domainName, publicKeyHash),
-    //         "Invalid public key hash"
-    //     );
-    //     vm.stopPrank();
-    // }
+        vm.startPrank(address(exampleOwnable1));
+        // revokeThreshold = 1
+        bool isValid = registry.isDKIMPublicKeyHashValid(
+            domainName,
+            publicKeyHash
+        );
+        assertEq(isValid, false);
+        vm.stopPrank();
+    }
 
-    // function testFailIsDKIMPublicKeyHashValidByUser1AfterRevokedByUser1()
-    //     public
-    // {
-    //     testRevokeDKIMPublicKeyHashByUser1();
+    function testIsDKIMPublicKeyHashValidByUser1AfterRevokedByUser1()
+        public
+    {
+        testRevokeDKIMPublicKeyHashByUser1();
 
-    //     vm.startPrank(address(exampleOwnable1));
-    //     // revokeThreshold = 1
-    //     require(
-    //         registry.isDKIMPublicKeyHashValid(domainName, publicKeyHash),
-    //         "Invalid public key hash"
-    //     );
-    //     vm.stopPrank();
-    // }
+        vm.startPrank(address(exampleOwnable1));
+        // revokeThreshold = 1
+        bool isValid = registry.isDKIMPublicKeyHashValid(
+            domainName,
+            publicKeyHash
+        );
+        assertEq(isValid, false);
+        vm.stopPrank();
+    }
 
-    // function testFailIsDKIMPublicKeyHashValidByUser1AfterSetByUser1RevokedByMainAuthorizer()
-    //     public
-    // {
-    //     testSetDKIMPublicKeyHashByUser1();
-    //     testRevokeDKIMPublicKeyHashByMainAuthorizer();
+    function testIsDKIMPublicKeyHashValidByUser1AfterSetByUser1RevokedByMainAuthorizer()
+        public
+    {
+        testSetDKIMPublicKeyHashByUser1();
+        testRevokeDKIMPublicKeyHashByMainAuthorizer();
 
-    //     vm.startPrank(address(exampleOwnable1));
-    //     // revokeThreshold = 1
-    //     require(
-    //         registry.isDKIMPublicKeyHashValid(domainName, publicKeyHash),
-    //         "Invalid public key hash"
-    //     );
-    //     vm.stopPrank();
-    // }
+        vm.startPrank(address(exampleOwnable1));
+        // revokeThreshold = 1
+        bool isValid = registry.isDKIMPublicKeyHashValid(
+            domainName,
+            publicKeyHash
+        );
+        assertEq(isValid, false);
+        vm.stopPrank();
+    }
 
-    // function testFailIsDKIMPublicKeyHashValidByUser1AfterSetByMainAuthorizerBeforeEnabledRevokedByMainAuthorizer()
-    //     public
-    // {
-    //     testSetDKIMPublicKeyHashByMainAuthorizerBeforeEnabled();
-    //     testRevokeDKIMPublicKeyHashByMainAuthorizer();
+    function testIsDKIMPublicKeyHashValidByUser1AfterSetByMainAuthorizerBeforeEnabledRevokedByMainAuthorizer()
+        public
+    {
+        testSetDKIMPublicKeyHashByMainAuthorizerBeforeEnabled();
+        testRevokeDKIMPublicKeyHashByMainAuthorizer();
 
-    //     vm.startPrank(address(exampleOwnable1));
-    //     // revokeThreshold = 1
-    //     require(
-    //         registry.isDKIMPublicKeyHashValid(domainName, publicKeyHash),
-    //         "Invalid public key hash"
-    //     );
-    //     vm.stopPrank();
-    // }
+        vm.startPrank(address(exampleOwnable1));
+        // revokeThreshold = 1
+        bool isValid = registry.isDKIMPublicKeyHashValid(
+            domainName,
+            publicKeyHash
+        );
+        assertEq(isValid, false);
+        vm.stopPrank();
+    }
 
-    // function testFailIsDKIMPublicKeyHashValidByUser1AfterSetByMainAuthorizerAfterEnabledRevokedByMainAuthorizer()
-    //     public
-    // {
-    //     testSetDKIMPublicKeyHashByMainAuthorizerAfterEnabled();
-    //     testRevokeDKIMPublicKeyHashByMainAuthorizer();
+    function testIsDKIMPublicKeyHashValidByUser1AfterSetByMainAuthorizerAfterEnabledRevokedByMainAuthorizer()
+        public
+    {
+        testSetDKIMPublicKeyHashByMainAuthorizerAfterEnabled();
+        testRevokeDKIMPublicKeyHashByMainAuthorizer();
 
-    //     vm.startPrank(address(exampleOwnable1));
-    //     // revokeThreshold = 1
-    //     require(
-    //         registry.isDKIMPublicKeyHashValid(domainName, publicKeyHash),
-    //         "Invalid public key hash"
-    //     );
-    //     vm.stopPrank();
-    // }
+        vm.startPrank(address(exampleOwnable1));
+        // revokeThreshold = 1
+        bool isValid = registry.isDKIMPublicKeyHashValid(
+            domainName,
+            publicKeyHash
+        );
+        assertEq(isValid, false);
+        vm.stopPrank();
+    }
 
-    // function testFailIsDKIMPublicKeyHashValidByUser1AfterSetByUser1RevokedByUser1()
-    //     public
-    // {
-    //     testSetDKIMPublicKeyHashByUser1();
-    //     testRevokeDKIMPublicKeyHashByUser1();
+    function testIsDKIMPublicKeyHashValidByUser1AfterSetByUser1RevokedByUser1()
+        public
+    {
+        testSetDKIMPublicKeyHashByUser1();
+        testRevokeDKIMPublicKeyHashByUser1();
 
-    //     vm.startPrank(address(exampleOwnable1));
-    //     // revokeThreshold = 2
-    //     require(
-    //         registry.isDKIMPublicKeyHashValid(domainName, publicKeyHash),
-    //         "Invalid public key hash"
-    //     );
-    //     vm.stopPrank();
-    // }
+        vm.startPrank(address(exampleOwnable1));
+        // revokeThreshold = 2
+        bool isValid = registry.isDKIMPublicKeyHashValid(
+            domainName,
+            publicKeyHash
+        );
+        assertEq(isValid, false);
+        vm.stopPrank();
+    }
 
-    // function testFailIsDKIMPublicKeyHashValidByUser1AfterSetByMainAuthorizerBeforeEnabledRevokedByUser1()
-    //     public
-    // {
-    //     testSetDKIMPublicKeyHashByMainAuthorizerBeforeEnabled();
-    //     testRevokeDKIMPublicKeyHashByUser1();
+    function testIsDKIMPublicKeyHashValidByUser1AfterSetByMainAuthorizerBeforeEnabledRevokedByUser1()
+        public
+    {
+        testSetDKIMPublicKeyHashByMainAuthorizerBeforeEnabled();
+        testRevokeDKIMPublicKeyHashByUser1();
 
-    //     vm.startPrank(address(exampleOwnable1));
-    //     // revokeThreshold = 2
-    //     require(
-    //         registry.isDKIMPublicKeyHashValid(domainName, publicKeyHash),
-    //         "Invalid public key hash"
-    //     );
-    //     vm.stopPrank();
-    // }
+        vm.startPrank(address(exampleOwnable1));
+        // revokeThreshold = 2
+        bool isValid = registry.isDKIMPublicKeyHashValid(
+            domainName,
+            publicKeyHash
+        );
+        assertEq(isValid, false);
+        vm.stopPrank();
+    }
 
-    // function testFailIsDKIMPublicKeyHashValidByUser1AfterSetByMainAuthorizerAfterEnabledRevokedByUser1()
-    //     public
-    // {
-    //     testSetDKIMPublicKeyHashByMainAuthorizerAfterEnabled();
-    //     testRevokeDKIMPublicKeyHashByUser1();
+    function testIsDKIMPublicKeyHashValidByUser1AfterSetByMainAuthorizerAfterEnabledRevokedByUser1()
+        public
+    {
+        testSetDKIMPublicKeyHashByMainAuthorizerAfterEnabled();
+        testRevokeDKIMPublicKeyHashByUser1();
 
-    //     vm.startPrank(address(exampleOwnable1));
-    //     // revokeThreshold = 2
-    //     require(
-    //         registry.isDKIMPublicKeyHashValid(domainName, publicKeyHash),
-    //         "Invalid public key hash"
-    //     );
-    //     vm.stopPrank();
-    // }
+        vm.startPrank(address(exampleOwnable1));
+        // revokeThreshold = 2
+        bool isValid = registry.isDKIMPublicKeyHashValid(
+            domainName,
+            publicKeyHash
+        );
+        assertEq(isValid, false);
+        vm.stopPrank();
+    }
 
     function testcomputeSetSignedMsg() public view {
         string memory signedMsg = registry.computeSignedMsg(
