@@ -104,4 +104,4 @@ target/
 *.pdb
 
 # ignore build logs
-build.log
+thinking.log
