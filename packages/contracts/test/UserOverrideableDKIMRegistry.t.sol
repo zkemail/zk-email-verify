@@ -547,7 +547,7 @@ contract UserOverrideableDKIMRegistryTest is Test {
         vm.stopPrank();
     }
 
-    function testIsDKIMPublicKeyHashValidByUser2() public {
+    function testIsKeyHashValidByUser2() public {
         testSetDKIMPublicKeyHashByUser1();
 
         vm.startPrank(address(exampleOwnable2));
@@ -864,9 +864,7 @@ contract UserOverrideableDKIMRegistryTest is Test {
         vm.stopPrank();
     }
 
-    function testIsDKIMPublicKeyHashValidByUser1AfterRevokedByMainAuthorizer()
-        public
-    {
+    function testIsKeyHashValidByUser1AfterRevokedByMainAuthorizer() public {
         testRevokeDKIMPublicKeyHashByMainAuthorizer();
 
         vm.startPrank(address(exampleOwnable1));
@@ -875,7 +873,7 @@ contract UserOverrideableDKIMRegistryTest is Test {
         vm.stopPrank();
     }
 
-    function testIsDKIMPublicKeyHashValidByUser1AfterRevokedByUser1() public {
+    function testIsKeyHashValidByUser1AfterRevokedByUser1() public {
         testRevokeDKIMPublicKeyHashByUser1();
 
         vm.startPrank(address(exampleOwnable1));
@@ -884,7 +882,7 @@ contract UserOverrideableDKIMRegistryTest is Test {
         vm.stopPrank();
     }
 
-    function testIsDKIMPublicKeyHashValidByUser1AfterSetByUser1RevokedByMainAuthorizer()
+    function testIsKeyHashValidByUser1AfterSetByUser1RevokedByMainAuthorizer()
         public
     {
         testSetDKIMPublicKeyHashByUser1();
@@ -896,7 +894,7 @@ contract UserOverrideableDKIMRegistryTest is Test {
         vm.stopPrank();
     }
 
-    function testIsDKIMPublicKeyHashValidByUser1AfterSetByMainAuthorizerBeforeEnabledRevokedByMainAuthorizer()
+    function testIsKeyHashValidByUser1AfterSetByMainAuthorizerBeforeEnabledRevokedByMainAuthorizer()
         public
     {
         testSetDKIMPublicKeyHashByMainAuthorizerBeforeEnabled();
@@ -908,7 +906,7 @@ contract UserOverrideableDKIMRegistryTest is Test {
         vm.stopPrank();
     }
 
-    function testIsDKIMPublicKeyHashValidByUser1AfterSetByMainAuthorizerAfterEnabledRevokedByMainAuthorizer()
+    function testIsKeyHashValidByUser1AfterSetByMainAuthorizerAfterEnabledRevokedByMainAuthorizer()
         public
     {
         testSetDKIMPublicKeyHashByMainAuthorizerAfterEnabled();
@@ -920,9 +918,7 @@ contract UserOverrideableDKIMRegistryTest is Test {
         vm.stopPrank();
     }
 
-    function testIsDKIMPublicKeyHashValidByUser1AfterSetByUser1RevokedByUser1()
-        public
-    {
+    function testIsKeyHashValidByUser1AfterSetByUser1RevokedByUser1() public {
         testSetDKIMPublicKeyHashByUser1();
         testRevokeDKIMPublicKeyHashByUser1();
 
@@ -932,7 +928,7 @@ contract UserOverrideableDKIMRegistryTest is Test {
         vm.stopPrank();
     }
 
-    function testIsDKIMPublicKeyHashValidByUser1AfterSetByMainAuthorizerBeforeEnabledRevokedByUser1()
+    function testIsKeyHashValidByUser1AfterSetByMainAuthorizerBeforeEnabledRevokedByUser1()
         public
     {
         testSetDKIMPublicKeyHashByMainAuthorizerBeforeEnabled();
@@ -944,7 +940,7 @@ contract UserOverrideableDKIMRegistryTest is Test {
         vm.stopPrank();
     }
 
-    function testIsDKIMPublicKeyHashValidByUser1AfterSetByMainAuthorizerAfterEnabledRevokedByUser1()
+    function testIsKeyHashValidByUser1AfterSetByMainAuthorizerAfterEnabledRevokedByUser1()
         public
     {
         testSetDKIMPublicKeyHashByMainAuthorizerAfterEnabled();
