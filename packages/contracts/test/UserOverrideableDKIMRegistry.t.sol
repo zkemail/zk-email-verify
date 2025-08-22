@@ -636,7 +636,6 @@ contract UserOverrideableDKIMRegistryTest is Test {
         assertFalse(
             registryWithContract.isKeyHashValid(domainNameHash, publicKeyHash)
         );
-        assertEq(isValid, false);
         vm.stopPrank();
     }
 
