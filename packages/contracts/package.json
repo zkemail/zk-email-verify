@@ -9,7 +9,7 @@
   "dependencies": {
     "@openzeppelin/contracts": "5.3.0",
     "@openzeppelin/contracts-upgradeable": "5.3.0",
-    "@zk-email/email-tx-builder": "https://github.com/zkemail/email-tx-builder#e97edf2062dc3493bdd3d2a5a318bdee5aeed0f3",
+    "@zk-email/email-tx-builder": "https://github.com/zkemail/email-tx-builder#9620b7bbec4a2e15704f01ccc2635ec66bedbf7b",
     "dotenv": "^16.3.1"
   },
   "files": [

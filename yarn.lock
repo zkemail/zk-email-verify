@@ -2734,16 +2734,16 @@ __metadata:
   dependencies:
     "@openzeppelin/contracts": 5.3.0
     "@openzeppelin/contracts-upgradeable": 5.3.0
-    "@zk-email/email-tx-builder": "https://github.com/zkemail/email-tx-builder#e97edf2062dc3493bdd3d2a5a318bdee5aeed0f3"
+    "@zk-email/email-tx-builder": "https://github.com/zkemail/email-tx-builder#9620b7bbec4a2e15704f01ccc2635ec66bedbf7b"
     dotenv: ^16.3.1
     forge-std: "https://github.com/foundry-rs/forge-std"
   languageName: unknown
   linkType: soft
 
-"@zk-email/email-tx-builder@https://github.com/zkemail/email-tx-builder#e97edf2062dc3493bdd3d2a5a318bdee5aeed0f3":
+"@zk-email/email-tx-builder@https://github.com/zkemail/email-tx-builder#9620b7bbec4a2e15704f01ccc2635ec66bedbf7b":
   version: 1.0.0
-  resolution: "@zk-email/email-tx-builder@https://github.com/zkemail/email-tx-builder.git#commit=e97edf2062dc3493bdd3d2a5a318bdee5aeed0f3"
-  checksum: f67c4024ee43c94410959c5875969692fee84544b270b6a497b5ad0ff058a072b3a0e14a3b41ea89285b5d838d6d960ff94db6edb4d49a936c45e70db83461f8
+  resolution: "@zk-email/email-tx-builder@https://github.com/zkemail/email-tx-builder.git#commit=9620b7bbec4a2e15704f01ccc2635ec66bedbf7b"
+  checksum: da3d79f0299202794f161b0019a2d32f56530e28ae248b5ef3b0388e90546377767f28d7ae2690d259c878126d3d2f3e48f45a4e62081a7bb25371bcfe5bf517
   languageName: node
   linkType: hard
 
