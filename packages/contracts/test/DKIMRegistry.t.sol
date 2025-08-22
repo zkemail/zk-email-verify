@@ -2,9 +2,9 @@
 pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "forge-std/Test.sol";
-import "forge-std/console.sol";
-import "../interfaces/IDKIMRegistry.sol";
+import "forge-std/src/Test.sol";
+import "forge-std/src/console.sol";
+import "../interfaces/IERC7969.sol";
 import "../DKIMRegistry.sol";
 
 /// @title ECDSAOwnedDKIMRegistry
