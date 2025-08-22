@@ -116,20 +116,6 @@ library CircuitUtils {
     }
 
     /**
-     * @notice Packs a public key (as bytes) into field elements
-     * @param pubKeyBytes The public key bytes (encoded as uint256[17])
-     * @return fields The packed field elements
-     */
-    function packPubKey(bytes memory pubKeyBytes) internal pure returns (uint256[] memory fields) {
-        uint256[17] memory pubKeyChunks = abi.decode(pubKeyBytes, (uint256[17]));
-        fields = new uint256[](17);
-        for (uint256 i = 0; i < 17; i++) {
-            fields[i] = pubKeyChunks[i];
-        }
-        return fields;
-    }
-
-    /**
      * @notice Unpacks field elements back to bytes
      * @param _pucSignals Array of public signals
      * @param _startIndex Starting index in pubSignals
@@ -224,107 +210,21 @@ library CircuitUtils {
     }
 
     /**
-     * @notice Extracts miscellaneous data from public signals
-     * @param pubSignals Array of public signals
-     * @param startIndex Starting index of miscellaneous data
-     * @return miscellaneousData The miscellaneous data
-     */
-    function unpackMiscellaneousData(
-        uint256[] calldata pubSignals,
-        uint256 startIndex
-    )
-        internal
-        pure
-        returns (bytes memory miscellaneousData)
-    {
-        uint256[17] memory pubKeyChunks;
-        for (uint256 i = 0; i < pubKeyChunks.length; i++) {
-
-
-
-
-            
-            pubKeyChunks[i] = pubSignals[startIndex + i];
-        }
-        miscellaneousData = abi.encode(pubKeyChunks);
-        return miscellaneousData;
-    }
-
-    /**
-     * @notice Extracts the parts of an email address, replacing '@' with '$' and splitting by '.'
-     * @param email The email address to process
-     * @return The parts of the email address as a string array
-     */
-    function extractEmailParts(string memory email) internal pure returns (string[] memory) {
-        bytes memory emailBytes = bytes(email);
-        bytes memory modifiedEmail = new bytes(emailBytes.length);
-        uint256 atIndex = 0;
-        for (uint256 i = 0; i < emailBytes.length; i++) {
-            if (emailBytes[i] == "@") {
-                modifiedEmail[i] = "$";
-                atIndex = i;
-            } else {
-                modifiedEmail[i] = emailBytes[i];
-            }
-        }
-
-        return _splitString(string(modifiedEmail), ".");
-    }
-
-    /**
-     * @notice Verifies that the email parts are dot separated and match the claimed email
-     * @param emailParts The parts of the email address dot separated
-     * @param email The complete email address
-     * @return True if the email parts are dot separated and match the claimed email, false otherwise
-     */
-    function verifyEmailParts(string[] memory emailParts, string memory email) internal pure returns (bool) {
-        string memory composedEmail = "";
-        for (uint256 i = 0; i < emailParts.length; i++) {
-            composedEmail = string.concat(composedEmail, emailParts[i]);
-            if (i < emailParts.length - 1) {
-                composedEmail = string.concat(composedEmail, ".");
-            }
-        }
-
-        bytes memory emailBytes = bytes(email);
-        bytes memory composedEmailBytes = bytes(composedEmail);
-
-        // Ensure composedEmail and emailBytes have the same length
-        if (composedEmailBytes.length != emailBytes.length) {
-            return false;
-        }
-
-        // check if the email parts are dot separated and match the claimed email
-        // note since @ sign is not in ens encoding valid char set, we are arbitrarily replacing it with a $
-        for (uint256 i = 0; i < emailBytes.length; i++) {
-            bytes1 currentByte = emailBytes[i];
-            if (currentByte == "@") {
-                if (composedEmailBytes[i] != "$") {
-                    return false;
-                }
-            } else if (currentByte != composedEmailBytes[i]) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
      * @notice Flattens multiple arrays of field elements into a single array of length 60
      * @param inputs The arrays of field elements to flatten
      * @return out The flattened array of length 60
      */
-    function flattenFields(uint256[][] memory inputs) internal pure returns (uint256[60] memory out) {
+    function flattenFields(uint256[][] memory inputs, uint256 outLength) internal pure returns (uint256[] memory out) {
+        out = new uint256[](outLength);
         uint256 k = 0;
         for (uint256 i = 0; i < inputs.length; i++) {
             uint256[] memory arr = inputs[i];
             for (uint256 j = 0; j < arr.length; j++) {
-                if (k >= 60) revert InvalidPubSignalsLength();
+                if (k >= outLength) revert InvalidPubSignalsLength();
                 out[k++] = arr[j];
             }
         }
-        if (k != 60) revert InvalidPubSignalsLength();
+        if (k != outLength) revert InvalidPubSignalsLength();
         return out;
     }
 

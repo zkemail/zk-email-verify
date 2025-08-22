@@ -16,12 +16,8 @@ contract CircuitUtilsHelper {
         return CircuitUtils.extractCommandParamByIndex(template, command, index);
     }
 
-    function callExtractEmailParts(string memory email) external pure returns (string[] memory) {
-        return CircuitUtils.extractEmailParts(email);
-    }
-
-    function callFlattenFields(uint256[][] memory inputs) external pure returns (uint256[60] memory) {
-        return CircuitUtils.flattenFields(inputs);
+    function callFlattenFields(uint256[][] memory inputs, uint256 outLength) external pure returns (uint256[] memory) {
+        return CircuitUtils.flattenFields(inputs, outLength);
     }
 
     function callPackBytes2Fields(bytes memory data, uint256 paddedSize) external pure returns (uint256[] memory) {

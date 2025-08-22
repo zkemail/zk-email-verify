@@ -23,7 +23,7 @@ contract FlattenFieldsTest is Test {
             inputs[1][i] = i + 31;
         }
         vm.expectRevert(CircuitUtils.InvalidPubSignalsLength.selector);
-        _helper.callFlattenFields(inputs);
+        _helper.callFlattenFields(inputs, 60);
     }
 
     function test_expectRevert_tooFewElements() public {
@@ -37,13 +37,13 @@ contract FlattenFieldsTest is Test {
             inputs[1][i] = i + 31;
         }
         vm.expectRevert(CircuitUtils.InvalidPubSignalsLength.selector);
-        _helper.callFlattenFields(inputs);
+        _helper.callFlattenFields(inputs, 60);
     }
 
     function test_zeroArrays() public {
         uint256[][] memory inputs = new uint256[][](0);
         vm.expectRevert(CircuitUtils.InvalidPubSignalsLength.selector);
-        _helper.callFlattenFields(inputs);
+        _helper.callFlattenFields(inputs, 60);
     }
 
     function test_singleArray() public view {
@@ -52,7 +52,7 @@ contract FlattenFieldsTest is Test {
         for (uint256 i = 0; i < 60; i++) {
             inputs[0][i] = i + 1;
         }
-        uint256[60] memory result = _helper.callFlattenFields(inputs);
+        uint256[] memory result = _helper.callFlattenFields(inputs, 60);
         for (uint256 i = 0; i < 60; i++) {
             assertEq(result[i], i + 1);
         }
@@ -68,7 +68,7 @@ contract FlattenFieldsTest is Test {
             inputs[1][i] = i + 21;
             inputs[2][i] = i + 41;
         }
-        uint256[60] memory result = _helper.callFlattenFields(inputs);
+        uint256[] memory result = _helper.callFlattenFields(inputs, 60);
         for (uint256 i = 0; i < 20; i++) {
             assertEq(result[i], i + 1);
             assertEq(result[i + 20], i + 21);
@@ -82,7 +82,7 @@ contract FlattenFieldsTest is Test {
             inputs[i] = new uint256[](1);
             inputs[i][0] = i + 1;
         }
-        uint256[60] memory result = _helper.callFlattenFields(inputs);
+        uint256[] memory result = _helper.callFlattenFields(inputs, 60);
         for (uint256 i = 0; i < 60; i++) {
             assertEq(result[i], i + 1);
         }
