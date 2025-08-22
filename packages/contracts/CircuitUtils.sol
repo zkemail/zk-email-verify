@@ -2,8 +2,6 @@
 pragma solidity ^0.8.0;
 
 import { Bytes } from "@openzeppelin/contracts/utils/Bytes.sol";
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { CommandUtils } from "@zk-email/email-tx-builder/src/libraries/CommandUtils.sol";
 
 /**
  * @title CircuitUtils
@@ -13,7 +11,6 @@ import { CommandUtils } from "@zk-email/email-tx-builder/src/libraries/CommandUt
  */
 library CircuitUtils {
     using Bytes for bytes;
-    using Strings for string;
 
     /**
      * @notice Error thrown when the public signals array length is not exactly 60
@@ -210,9 +207,10 @@ library CircuitUtils {
     }
 
     /**
-     * @notice Flattens multiple arrays of field elements into a single array of length 60
+     * @notice Flattens multiple arrays of field elements into a single array
      * @param inputs The arrays of field elements to flatten
-     * @return out The flattened array of length 60
+     * @param outLength The length of the flattened array   
+     * @return out The flattened array
      */
     function flattenFields(uint256[][] memory inputs, uint256 outLength) internal pure returns (uint256[] memory out) {
         out = new uint256[](outLength);
@@ -226,99 +224,5 @@ library CircuitUtils {
         }
         if (k != outLength) revert InvalidPubSignalsLength();
         return out;
-    }
-
-    /// @notice Extracts a parameter from a command string based on the template and parameter index.
-    /// @param template The command template as an array of strings.
-    /// @param command The command string to extract from.
-    /// @param paramIndex The zero-based index of the parameter to extract.
-    /// @return The extracted parameter as a string, or an empty string if not found.
-    function extractCommandParamByIndex(
-        string[] memory template,
-        string memory command,
-        uint256 paramIndex
-    )
-        internal
-        pure
-        returns (string memory)
-    {
-        uint256 wordIndex = _getParamWordIndex(template, paramIndex);
-        if (wordIndex == type(uint256).max) {
-            return "";
-        }
-
-        return _splitString(command, " ")[wordIndex];
-    }
-
-    /**
-     * @notice Checks if the given template string is a matcher (parameter placeholder).
-     * @param templateString The template string to check.
-     * @return True if the string is a matcher, false otherwise.
-     */
-    function _isMatcher(string memory templateString) private pure returns (bool) {
-        return Strings.equal(templateString, CommandUtils.STRING_MATCHER)
-            || Strings.equal(templateString, CommandUtils.UINT_MATCHER)
-            || Strings.equal(templateString, CommandUtils.INT_MATCHER)
-            || Strings.equal(templateString, CommandUtils.DECIMALS_MATCHER)
-            || Strings.equal(templateString, CommandUtils.ETH_ADDR_MATCHER);
-    }
-
-    /**
-     * @notice Finds the index in the template corresponding to the Nth matcher (zero-based).
-     * @param template The command template as an array of strings.
-     * @param paramIndex The zero-based index of the parameter to find.
-     * @return paramTemplateIndex The zero-based index in the template array, or uint256 max if not found.
-     */
-    function _getParamWordIndex(
-        string[] memory template,
-        uint256 paramIndex
-    )
-        private
-        pure
-        returns (uint256 paramTemplateIndex)
-    {
-        paramTemplateIndex = 0;
-        for (uint256 i = 0; i < template.length; i++) {
-            if (_isMatcher(template[i])) {
-                if (paramTemplateIndex == paramIndex) {
-                    return i;
-                }
-                paramTemplateIndex++;
-            }
-        }
-
-        // return uint max if param not found
-        return type(uint256).max;
-    }
-
-    /**
-     * @notice Splits a string by a delimiter into an array of strings
-     * @param str The string to split
-     * @param delimiter The delimiter to split by
-     * @return The array of split strings
-     */
-    function _splitString(string memory str, bytes1 delimiter) private pure returns (string[] memory) {
-        bytes memory strBytes = bytes(str);
-        uint256 count = 1;
-        for (uint256 i = 0; i < strBytes.length; i++) {
-            if (strBytes[i] == delimiter) {
-                count++;
-            }
-        }
-
-        string[] memory parts = new string[](count);
-        uint256 lastIndex = 0;
-        uint256 partIndex = 0;
-        for (uint256 i = 0; i < strBytes.length; i++) {
-            if (strBytes[i] == delimiter) {
-                bytes memory partBytes = strBytes.slice(lastIndex, i);
-                parts[partIndex] = string(partBytes);
-                lastIndex = i + 1;
-                partIndex++;
-            }
-        }
-        bytes memory lastPartBytes = strBytes.slice(lastIndex, strBytes.length);
-        parts[partIndex] = string(lastPartBytes);
-        return parts;
     }
 }

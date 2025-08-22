@@ -4,18 +4,6 @@ pragma solidity ^0.8.30;
 import { CircuitUtils } from "../../CircuitUtils.sol";
 
 contract CircuitUtilsHelper {
-    function callExtractCommandParamByIndex(
-        string[] memory template,
-        string memory command,
-        uint256 index
-    )
-        external
-        pure
-        returns (string memory)
-    {
-        return CircuitUtils.extractCommandParamByIndex(template, command, index);
-    }
-
     function callFlattenFields(uint256[][] memory inputs, uint256 outLength) external pure returns (uint256[] memory) {
         return CircuitUtils.flattenFields(inputs, outLength);
     }
