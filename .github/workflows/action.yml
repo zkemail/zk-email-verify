@@ -37,7 +37,7 @@ jobs:
 
       - name: Install Yarn dependencies
         working-directory: ./packages/circuits
-        run: yarn install --immutable --ignore-checksums
+        run: yarn install --immutable
 
       - name: Run Tests
         working-directory: ./packages/circuits
@@ -56,7 +56,7 @@ jobs:
 
       - name: Install Yarn dependencies
         working-directory: ./packages/helpers
-        run: yarn install --immutable --ignore-checksums
+        run: yarn install --immutable
 
       - name: Run build
         working-directory: ./packages/helpers
