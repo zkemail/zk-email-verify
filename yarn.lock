@@ -2504,11 +2504,11 @@ __metadata:
   linkType: hard
 
 "@types/node-forge@npm:^1.3.2":
-  version: 1.3.13
-  resolution: "@types/node-forge@npm:1.3.13"
+  version: 1.3.14
+  resolution: "@types/node-forge@npm:1.3.14"
   dependencies:
     "@types/node": "*"
-  checksum: dee446d958e7098c8ad74076843d27cb46908632cf289f732ccc5c0a2c1e62927df44d22725bd37a84579ea3336e52b4c064385c53e22b741e277d07c9da20cb
+  checksum: ff621803390e723e56b289a89fca3a06f9f8b438add1b843203a0f64bcbc7ac03d457136b3c15010b5bc89d81f57b35f62964e6e980f6290597bb21b4463c009
   languageName: node
   linkType: hard
 
@@ -3357,7 +3357,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"browserslist@npm:^4.24.0, browserslist@npm:^4.25.1":
+"browserslist@npm:^4.24.0, browserslist@npm:^4.25.3":
   version: 4.25.3
   resolution: "browserslist@npm:4.25.3"
   dependencies:
@@ -3471,9 +3471,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30001735":
-  version: 1.0.30001735
-  resolution: "caniuse-lite@npm:1.0.30001735"
-  checksum: 41ee174f41b876a76d9f9a164d84a43a2d7d4cfba9076b459f165370fd5e0778327262ec3cd676c05f8e8cdeb4f6362d31714fecdcdc584034ae91e987b5bf84
+  version: 1.0.30001737
+  resolution: "caniuse-lite@npm:1.0.30001737"
+  checksum: 347ad0dccd76d04d86163fdd59ec89894660cced949252ff05c65aea4a35ffeba5814a60733c0b44ee1b56c083ae9aba4ab715b783ab72b69d8a653ef3ab6c9e
   languageName: node
   linkType: hard
 
@@ -3735,11 +3735,11 @@ __metadata:
   linkType: hard
 
 "core-js-compat@npm:^3.43.0":
-  version: 3.45.0
-  resolution: "core-js-compat@npm:3.45.0"
+  version: 3.45.1
+  resolution: "core-js-compat@npm:3.45.1"
   dependencies:
-    browserslist: ^4.25.1
-  checksum: 98808620626b761eb4772cb8719d959289e9a9127d4fd4d2e3e78aa8341c4935bdc395883134c9419f718776222c0d3eda1ae2337e67e171388e4547d3097b51
+    browserslist: ^4.25.3
+  checksum: 817286f6b7deb90278fd1f46131664fda36b74983e2fc4859a36ae85ef9361868b307964eea0e364251763e415eab7589e9abe2a4ec4d1672c2870f03c52b1ac
   languageName: node
   linkType: hard
 
@@ -3983,9 +3983,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.5.204":
-  version: 1.5.207
-  resolution: "electron-to-chromium@npm:1.5.207"
-  checksum: 1a80f7ae83197d7afe124cfa5ba605c2911f9ff8f1d553cc87d2dcb827f66c2318c7169c26e55301ce627e385c6884784c17528b6014201eab485d62c5f6f933
+  version: 1.5.208
+  resolution: "electron-to-chromium@npm:1.5.208"
+  checksum: 3b206597b3f11b9db304ea9fccb7dfc3fac0a078a0b5f294315cdde7b826870639ab48c053b5085f839175a143a7ab73396449cdb797cbb7c265a190f90843fb
   languageName: node
   linkType: hard
 
@@ -6767,8 +6767,8 @@ __metadata:
   linkType: hard
 
 "node-gyp@npm:latest":
-  version: 11.3.0
-  resolution: "node-gyp@npm:11.3.0"
+  version: 11.4.1
+  resolution: "node-gyp@npm:11.4.1"
   dependencies:
     env-paths: ^2.2.0
     exponential-backoff: ^3.1.1
@@ -6782,7 +6782,7 @@ __metadata:
     which: ^5.0.0
   bin:
     node-gyp: bin/node-gyp.js
-  checksum: 64255952af18222e930a0bb8239e8fc86ec25eddfbf61523ab30b45f19670c1e66384ceda0472f5d59e63a7779b2134eab8ec5322b9f092f60202b0e312a66c8
+  checksum: 5a9be6e8c3f1e64268e7b26431296ed81c34b08e845158640577617b64eafc1404800665799bc4d9980d13ffebb583e2b453e5e726e3d56916cd77c707cc6996
   languageName: node
   linkType: hard
 
