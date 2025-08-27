@@ -163,6 +163,7 @@ describe("EmailVerifier", () => {
         }
     });
 
+    // TODO : THis test fails, since it generates the witness with wrong bodyhash
     it("should fail if body hash is tampered", async function () {
         const invalidBodyHash = dkimResult.bodyHash + "a";
 
@@ -201,8 +202,8 @@ describe("EmailVerifier", () => {
         // Calculate the hash using the circuit
         const witness = await circuit.calculateWitness(emailVerifierInputs);
 
-        await circuit.assertOut(witness, {
-            pubkeyHash: poseidonHash,
-        });
+        // witness 1st index is the pubKeyHash
+        expect(poseidonHash).toEqual(witness[1]);
+
     });
 });

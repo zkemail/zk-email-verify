@@ -52,8 +52,14 @@ describe("EmailVerifier : With header masking", () => {
 
         const witness = await circuit.calculateWitness(emailVerifierInputs);
         await circuit.checkConstraints(witness);
-        await circuit.assertOut(witness, {
-            maskedHeader: expectedMaskedHeader,
-        });
+        
+        // The witness output starts after the first 4 elements (Index 0: constant 1,pubkeyHash, shaHi, shaLo) and then masked header
+        const maskedHeaderStartIndex = 4; // Skip first 4 elements (1,pubkeyHash, shaHi, shaLo)
+        const maskedHeaderWitness = witness.slice(maskedHeaderStartIndex, maskedHeaderStartIndex + expectedMaskedHeader.length);
+        
+        const maskedHeaderWitnessNumbers = maskedHeaderWitness.map((val: any) => String(val));
+        const expectedMaskedHeaderNumbers = expectedMaskedHeader.map(val => String(val));
+        
+        expect(maskedHeaderWitnessNumbers).toEqual(expectedMaskedHeaderNumbers);
     });
 });

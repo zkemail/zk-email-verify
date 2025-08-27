@@ -2,6 +2,8 @@ import { Uint8ArrayToCharArray, toCircomBigIntBytes } from './binary-format';
 import { MAX_BODY_PADDED_BYTES, MAX_HEADER_PADDED_BYTES } from './constants';
 import { DKIMVerificationResult, verifyDKIMSignature } from './dkim';
 import { generatePartialSHA, sha256Pad } from './sha-utils';
+import { genCircuitInputs, ProvingFramework } from '@zk-email/zk-regex-compiler';
+import bodyHashJson from '@zk-email/zk-regex-circom/circuits/common/body_hash_graph.json';
 
 type CircuitInput = {
   emailHeader: string[];
@@ -15,6 +17,13 @@ type CircuitInput = {
   decodedEmailBodyIn?: string[];
   headerMask?: number[];
   bodyMask?: number[];
+  bodyHashMatchStart?: number;
+  bodyHashMatchLength?: number;
+  bodyHashCurrStates?: number[];
+  bodyHashNextStates?: number[];
+  bodyHashCaptureGroup1Id?: number[];
+  bodyHashCaptureGroup1Start?: number[];
+  bodyHashCaptureGroupStartIndices?: number[];
 };
 
 type InputGenerationArgs = {
@@ -246,6 +255,26 @@ export function generateEmailVerifierInputsFromDKIMResult(
     if (params.enableBodyMasking) {
       circuitInputs.bodyMask = params.bodyMask;
     }
+
+    // Generate bodyHashRegex circuit inputs
+    const { type, ...bodyHashCircuitInputs } = JSON.parse(
+      genCircuitInputs(
+        JSON.stringify(bodyHashJson),
+        headers.toString(),
+        (params.maxHeadersLength || MAX_HEADER_PADDED_BYTES),
+        (params.maxHeadersLength || MAX_HEADER_PADDED_BYTES) - 1,
+        ProvingFramework.Circom
+      )
+    );
+
+    // Flatten body hash inputs into direct circuit inputs
+    circuitInputs.bodyHashMatchStart = bodyHashCircuitInputs.matchStart;
+    circuitInputs.bodyHashMatchLength = bodyHashCircuitInputs.matchLength;
+    circuitInputs.bodyHashCurrStates = bodyHashCircuitInputs.currStates?.map((s: any) => Number(s));
+    circuitInputs.bodyHashNextStates = bodyHashCircuitInputs.nextStates?.map((s: any) => Number(s));
+    circuitInputs.bodyHashCaptureGroup1Id = bodyHashCircuitInputs.captureGroupIds?.[0]?.map((s: any) => Number(s));
+    circuitInputs.bodyHashCaptureGroup1Start = bodyHashCircuitInputs.captureGroupStarts?.[0]?.map((s: any) => Number(s));
+    circuitInputs.bodyHashCaptureGroupStartIndices = bodyHashCircuitInputs.captureGroupStartIndices?.map((s: any) => Number(s) - bodyHashCircuitInputs.matchStart);
   }
 
   return circuitInputs;

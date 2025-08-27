@@ -111,6 +111,14 @@ template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashChec
         signal input emailBody[maxBodyLength];
         signal input emailBodyLength;
 
+        // Body hash regex inputs
+        signal input bodyHashMatchStart;
+        signal input bodyHashMatchLength;
+        signal input bodyHashCurrStates[maxHeadersLength-1];
+        signal input bodyHashNextStates[maxHeadersLength-1];
+        signal input bodyHashCaptureGroup1Id[maxHeadersLength-1];
+        signal input bodyHashCaptureGroup1Start[maxHeadersLength-1];
+        signal input bodyHashCaptureGroupStartIndices[1];
 
         // Assert `emailBodyLength` fits in `ceil(log2(maxBodyLength))`
         component n2bBodyLength = Num2Bits(log2Ceil(maxBodyLength));
@@ -122,13 +130,20 @@ template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashChec
 
 
         // Body hash regex - 617,597 constraints
-        // Extract the body hash from the header (i.e. the part after bh= within the DKIM-signature section)
-        signal (bhRegexMatch, bhReveal[maxHeadersLength]) <== BodyHashRegex(maxHeadersLength)(emailHeader);
-        bhRegexMatch === 1;
+        // Extract the body hash from the header using the new BodyHashRegex
+        component bodyHashRegex = BodyHashRegex(maxHeadersLength, maxHeadersLength-1);
+        bodyHashRegex.inHaystack <== emailHeader;
+        bodyHashRegex.matchStart <== bodyHashMatchStart;
+        bodyHashRegex.matchLength <== bodyHashMatchLength;
+        bodyHashRegex.currStates <== bodyHashCurrStates;
+        bodyHashRegex.nextStates <== bodyHashNextStates;
+        bodyHashRegex.captureGroup1Id <== bodyHashCaptureGroup1Id;
+        bodyHashRegex.captureGroup1Start <== bodyHashCaptureGroup1Start;
+        bodyHashRegex.captureGroupStartIndices <== bodyHashCaptureGroupStartIndices;
 
-        var shaB64Length = 44; // Length of SHA-256 hash when base64 encoded - ceil(32 / 3) * 4
-        signal bhBase64[shaB64Length] <== SelectRegexReveal(maxHeadersLength, shaB64Length)(bhReveal, bodyHashIndex);
-        signal headerBodyHash[32] <== Base64Decode(32)(bhBase64);
+        bodyHashRegex.isValid === 1;
+
+        signal headerBodyHash[32] <== Base64Decode(32)(bodyHashRegex.capture1);
 
         // Compute SHA256 of email body : 760,142 constraints (for maxBodyLength = 1536)
         // We are using a technique to save constraints by precomputing the SHA hash of the body till the area we want to extract
