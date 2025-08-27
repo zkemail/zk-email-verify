@@ -48,20 +48,20 @@ jobs:
     environment: development
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Set Node.js 18.x
         uses: actions/setup-node@v3
         with:
           node-version: 18
-      
+
       - name: Install Yarn dependencies
         working-directory: ./packages/helpers
         run: yarn install --immutable
-      
+
       - name: Run build
         working-directory: ./packages/helpers
         run: yarn build
-     
+
       - name: Run Tests
         working-directory: ./packages/helpers
         run: yarn test

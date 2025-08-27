@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-import "forge-std/src/Test.sol";
-import "forge-std/src/console.sol";
+import "forge-std/Test.sol";
+import "forge-std/console.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "../UserOverrideableDKIMRegistry.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
@@ -738,27 +738,27 @@ contract UserOverrideableDKIMRegistryTest is Test {
         vm.stopPrank();
     }
 
-    function testExpectRevertPublicKeyHashIsAlreadyRevokedByUser1() public {
-        testRevokeDKIMPublicKeyHashByUser1();
-        vm.startPrank(user1);
+        function testExpectRevertPublicKeyHashIsAlreadyRevokedByUser1() public {
+            testRevokeDKIMPublicKeyHashByUser1();
+            vm.startPrank(user1);
 
-        vm.expectRevert("public key hash is already revoked");
-        registry.setDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            user1,
-            new bytes(0)
-        );
+            vm.expectRevert("public key hash is already revoked");
+            registry.setDKIMPublicKeyHash(
+                domainName,
+                publicKeyHash,
+                user1,
+                new bytes(0)
+            );
 
-        vm.expectRevert("public key hash is already revoked");
-        registry.revokeDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            user1,
-            new bytes(0)
-        );
-        vm.stopPrank();
-    }
+            vm.expectRevert("public key hash is already revoked");
+            registry.revokeDKIMPublicKeyHash(
+                domainName,
+                publicKeyHash,
+                user1,
+                new bytes(0)
+            );
+            vm.stopPrank();
+        }
 
     function testExpectRevertReactivateDKIMPublicKeyHashByMainAuthorizer()
         public
