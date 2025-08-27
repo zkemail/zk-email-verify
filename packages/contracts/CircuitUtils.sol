@@ -25,6 +25,12 @@ library CircuitUtils {
     error InvalidCommandLength();
 
     /**
+     * @notice Error thrown when the data length is greater than the padded size
+     * @dev The data should have the expected format and length
+     */
+    error InvalidDataLength();
+
+    /**
      * @notice Packs byte arrays into field elements for ZK circuit compatibility
      * @param _bytes The byte array to pack into field elements
      * @param _paddedSize The target size after padding (must be larger than or equal to _bytes.length)
@@ -39,6 +45,8 @@ library CircuitUtils {
      *      the BN128 curve order. Bytes are packed as: byte0 + (byte1 << 8) + (byte2 << 16) + ...
      */
     function packBytes2Fields(bytes memory _bytes, uint256 _paddedSize) internal pure returns (uint256[] memory) {
+        if (_bytes.length > _paddedSize) revert InvalidDataLength();
+
         uint256 remain = _paddedSize % 31;
         uint256 numFields = (_paddedSize - remain) / 31;
         if (remain > 0) {

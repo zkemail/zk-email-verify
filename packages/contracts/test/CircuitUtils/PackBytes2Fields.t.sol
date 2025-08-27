@@ -2,6 +2,7 @@
 pragma solidity ^0.8.30;
 
 import { Test } from "forge-std/Test.sol";
+import { CircuitUtils } from "../../CircuitUtils.sol";
 import { CircuitUtilsHelper } from "./_CircuitUtilsHelper.sol";
 
 contract PackBytes2FieldsTest is Test {
@@ -115,14 +116,9 @@ contract PackBytes2FieldsTest is Test {
         }
     }
 
-    function test_paddedSizeSmallerThanData() public view {
-        bytes memory data = "This is a longer string that should be truncated";
-        uint256[] memory fields = _helper.callPackBytes2Fields(data, 10);
-        assertEq(fields.length, 1);
-        uint256 expected = 0;
-        for (uint256 i = 0; i < 10; i++) {
-            expected += uint256(uint8(data[i])) << (8 * i);
-        }
-        assertEq(fields[0], expected);
+    function test_paddedSizeSmallerThanData() public {
+        bytes memory data = "This is a longer string that should revert";
+        vm.expectRevert(CircuitUtils.InvalidDataLength.selector);
+        _helper.callPackBytes2Fields(data, 10);
     }
 }
