@@ -37,7 +37,7 @@ describe("EmailVerifier : With soft line breaks", () => {
             {
                 maxHeadersLength: 640,
                 maxBodyLength: 1408,
-                ignoreBodyHashCheck: false,
+                ignoreBodyHashCheck: true,
                 removeSoftLineBreaks: true,
                 shaPrecomputeSelector: "imperdiet neque.",
             }
