@@ -1,4 +1,4 @@
-import * as CryptoJS from 'crypto';
+import { createHash } from 'crypto';
 import { assert, int64toBytes, int8toBytes, mergeUInt8Arrays } from './binary-format';
 import { Hash } from './lib/fast-sha256';
 
@@ -76,7 +76,7 @@ export function generatePartialSHA({
 }
 
 export function shaHash(str: Uint8Array) {
-  return CryptoJS.createHash('sha256').update(str).digest();
+  return createHash('sha256').update(Buffer.from(str)).digest();
 }
 
 export function partialSha(msg: Uint8Array, msgLen: number): Uint8Array {
