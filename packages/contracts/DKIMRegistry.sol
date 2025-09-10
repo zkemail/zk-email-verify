@@ -26,7 +26,7 @@ contract DKIMRegistry is IDKIMRegistry, Ownable {
         bytes32 publicKeyHash
     ) public view returns (bool) {
         return
-            dkimPublicKeyHashes[domainNameHash][publicKeyHash] ||
+            dkimPublicKeyHashes[domainNameHash][publicKeyHash] && 
             !revokedDKIMPublicKeyHashes[publicKeyHash];
     }
 
