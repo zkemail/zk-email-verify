@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import { Test } from "forge-std/Test.sol";
-import { CircuitUtilsHelper } from "./_CircuitUtilsHelper.sol";
+import {Test} from "forge-std/Test.sol";
+import {CircuitUtilsHelper} from "./_CircuitUtilsHelper.sol";
 
 contract UnpackFields2BytesTest is Test {
     CircuitUtilsHelper private _helper;
@@ -12,22 +12,22 @@ contract UnpackFields2BytesTest is Test {
     }
 
     function test_emptyFields() public view {
-        uint256[] memory fields = new uint256[](0);
+        bytes32[] memory fields = new bytes32[](0);
         bytes memory result = _helper.callUnpackFields2Bytes(fields, 0, 0);
         assertEq(result.length, 0);
     }
 
     function test_singleFieldSingleByte() public view {
-        uint256[] memory fields = new uint256[](1);
-        fields[0] = 0x41;
+        bytes32[] memory fields = new bytes32[](1);
+        fields[0] = bytes32(uint256(0x41));
         bytes memory result = _helper.callUnpackFields2Bytes(fields, 0, 1);
         assertEq(result.length, 1);
         assertEq(uint8(result[0]), 0x41);
     }
 
     function test_singleFieldMultipleBytes() public view {
-        uint256[] memory fields = new uint256[](1);
-        fields[0] = 0x41 + (0x42 << 8) + (0x43 << 16);
+        bytes32[] memory fields = new bytes32[](1);
+        fields[0] = bytes32(uint256(0x41 + (0x42 << 8) + (0x43 << 16)));
         bytes memory result = _helper.callUnpackFields2Bytes(fields, 0, 3);
         assertEq(result.length, 3);
         assertEq(uint8(result[0]), 0x41);
@@ -36,9 +36,9 @@ contract UnpackFields2BytesTest is Test {
     }
 
     function test_multipleFields() public view {
-        uint256[] memory fields = new uint256[](2);
-        fields[0] = 0x41 + (0x42 << 8) + (0x43 << 16);
-        fields[1] = 0x44 + (0x45 << 8) + (0x46 << 16);
+        bytes32[] memory fields = new bytes32[](2);
+        fields[0] = bytes32(uint256(0x41 + (0x42 << 8) + (0x43 << 16)));
+        fields[1] = bytes32(uint256(0x44 + (0x45 << 8) + (0x46 << 16)));
         bytes memory result = _helper.callUnpackFields2Bytes(fields, 0, 6);
         // Only the first 3 bytes are non-zero, the rest are zeros and will be trimmed
         assertEq(result.length, 3);
@@ -48,8 +48,8 @@ contract UnpackFields2BytesTest is Test {
     }
 
     function test_trimTrailingZeros() public view {
-        uint256[] memory fields = new uint256[](1);
-        fields[0] = 0x41 + (0x42 << 8) + (0x00 << 16);
+        bytes32[] memory fields = new bytes32[](1);
+        fields[0] = bytes32(uint256(0x41 + (0x42 << 8) + (0x00 << 16)));
         bytes memory result = _helper.callUnpackFields2Bytes(fields, 0, 3);
         assertEq(result.length, 2);
         assertEq(uint8(result[0]), 0x41);
@@ -57,8 +57,8 @@ contract UnpackFields2BytesTest is Test {
     }
 
     function test_zerosInMiddle() public view {
-        uint256[] memory fields = new uint256[](1);
-        fields[0] = 0x41 + (0x00 << 8) + (0x43 << 16);
+        bytes32[] memory fields = new bytes32[](1);
+        fields[0] = bytes32(uint256(0x41 + (0x00 << 8) + (0x43 << 16)));
         bytes memory result = _helper.callUnpackFields2Bytes(fields, 0, 3);
         assertEq(result.length, 3);
         assertEq(uint8(result[0]), 0x41);
@@ -67,10 +67,10 @@ contract UnpackFields2BytesTest is Test {
     }
 
     function test_withOffset() public view {
-        uint256[] memory fields = new uint256[](3);
-        fields[0] = 0x11 + (0x12 << 8);
-        fields[1] = 0x21 + (0x22 << 8) + (0x23 << 16);
-        fields[2] = 0x31 + (0x32 << 8);
+        bytes32[] memory fields = new bytes32[](3);
+        fields[0] = bytes32(uint256(0x11 + (0x12 << 8)));
+        fields[1] = bytes32(uint256(0x21 + (0x22 << 8) + (0x23 << 16)));
+        fields[2] = bytes32(uint256(0x31 + (0x32 << 8)));
         bytes memory result = _helper.callUnpackFields2Bytes(fields, 1, 3);
         assertEq(result.length, 3);
         assertEq(uint8(result[0]), 0x21);
@@ -79,8 +79,8 @@ contract UnpackFields2BytesTest is Test {
     }
 
     function test_moreFieldsThanAvailable() public view {
-        uint256[] memory fields = new uint256[](1);
-        fields[0] = 0x41 + (0x42 << 8);
+        bytes32[] memory fields = new bytes32[](1);
+        fields[0] = bytes32(uint256(0x41 + (0x42 << 8)));
         bytes memory result = _helper.callUnpackFields2Bytes(fields, 0, 4);
         assertEq(result.length, 2);
         assertEq(uint8(result[0]), 0x41);
@@ -88,18 +88,19 @@ contract UnpackFields2BytesTest is Test {
     }
 
     function test_allZeros() public view {
-        uint256[] memory fields = new uint256[](1);
-        fields[0] = 0;
+        bytes32[] memory fields = new bytes32[](1);
+        fields[0] = bytes32(uint256(0));
         bytes memory result = _helper.callUnpackFields2Bytes(fields, 0, 31);
         assertEq(result.length, 0);
     }
 
     function test_maxFieldValue() public view {
-        uint256[] memory fields = new uint256[](1);
-        fields[0] = 0;
+        bytes32[] memory fields = new bytes32[](1);
+        uint256 fieldValue = 0;
         for (uint256 i = 0; i < 31; i++) {
-            fields[0] += 0xFF << (8 * i);
+            fieldValue += 0xFF << (8 * i);
         }
+        fields[0] = bytes32(fieldValue);
         bytes memory result = _helper.callUnpackFields2Bytes(fields, 0, 31);
         assertEq(result.length, 31);
         for (uint256 i = 0; i < 31; i++) {
@@ -108,9 +109,9 @@ contract UnpackFields2BytesTest is Test {
     }
 
     function test_multipleFieldsWithPadding() public view {
-        uint256[] memory fields = new uint256[](2);
-        fields[0] = 0x41 + (0x42 << 8) + (0x43 << 16);
-        fields[1] = 0x44 + (0x45 << 8);
+        bytes32[] memory fields = new bytes32[](2);
+        fields[0] = bytes32(uint256(0x41 + (0x42 << 8) + (0x43 << 16)));
+        fields[1] = bytes32(uint256(0x44 + (0x45 << 8)));
         bytes memory result = _helper.callUnpackFields2Bytes(fields, 0, 5);
         // Only the first 3 bytes are non-zero, the rest are zeros and will be trimmed
         assertEq(result.length, 3);
@@ -120,8 +121,8 @@ contract UnpackFields2BytesTest is Test {
     }
 
     function test_partialFieldUnpack() public view {
-        uint256[] memory fields = new uint256[](1);
-        fields[0] = 0x41 + (0x42 << 8) + (0x43 << 16) + (0x44 << 24);
+        bytes32[] memory fields = new bytes32[](1);
+        fields[0] = bytes32(uint256(0x41 + (0x42 << 8) + (0x43 << 16) + (0x44 << 24)));
         bytes memory result = _helper.callUnpackFields2Bytes(fields, 0, 2);
         assertEq(result.length, 2);
         assertEq(uint8(result[0]), 0x41);

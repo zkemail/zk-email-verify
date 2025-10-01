@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import { Bytes } from "@openzeppelin/contracts/utils/Bytes.sol";
+import {Bytes} from "@openzeppelin/contracts/utils/Bytes.sol";
 
 /**
  * @title CircuitUtils
@@ -13,10 +13,10 @@ library CircuitUtils {
     using Bytes for bytes;
 
     /**
-     * @notice Error thrown when the public signals array length is not exactly 60
-     * @dev The ZK circuit expects exactly 60 public signals for verification
+     * @notice Error thrown when the public inputs array length is not exactly 60
+     * @dev The ZK circuit expects exactly 60 public inputs for verification
      */
-    error InvalidPubSignalsLength();
+    error InvalidPublicInputsLength();
 
     /**
      * @notice Error thrown when the command length is invalid
@@ -79,11 +79,15 @@ library CircuitUtils {
     /**
      * @notice Packs a string into field elements for ZK circuit compatibility
      * @param _string The string to pack
-     * @param paddedSize The target size after padding
+     * @param _paddedSize The target size after padding
      * @return fields The packed field elements
      */
-    function packString(string memory _string, uint256 paddedSize) internal pure returns (uint256[] memory fields) {
-        fields = packBytes2Fields(bytes(_string), paddedSize);
+    function packString(string memory _string, uint256 _paddedSize) internal pure returns (bytes32[] memory fields) {
+        uint256[] memory fieldsArray = packBytes2Fields(bytes(_string), _paddedSize);
+        fields = new bytes32[](fieldsArray.length);
+        for (uint256 i = 0; i < fields.length; i++) {
+            fields[i] = bytes32(fieldsArray[i]);
+        }
         return fields;
     }
 
@@ -100,12 +104,12 @@ library CircuitUtils {
 
     /**
      * @notice Packs a boolean value into a single field element
-     * @param b The boolean value to pack
+     * @param _b The boolean value to pack
      * @return fields The packed field element
      */
-    function packBool(bool b) internal pure returns (uint256[] memory fields) {
-        fields = new uint256[](1);
-        fields[0] = b ? 1 : 0;
+    function packBool(bool _b) internal pure returns (bytes32[] memory fields) {
+        fields = new bytes32[](1);
+        fields[0] = _b ? bytes32(uint256(1)) : bytes32(uint256(0));
         return fields;
     }
 
@@ -122,20 +126,20 @@ library CircuitUtils {
 
     /**
      * @notice Unpacks field elements back to bytes
-     * @param _pucSignals Array of public signals
-     * @param _startIndex Starting index in pubSignals
+     * @param _publicInputs Array of public inputs
+     * @param _startIndex Starting index in publicInputs
      * @param _paddedSize Original padded size of the bytes
      * @return The unpacked bytes
      */
-    function unpackFields2Bytes(
-        uint256[] calldata _pucSignals,
-        uint256 _startIndex,
-        uint256 _paddedSize
-    )
+    function unpackFields2Bytes(bytes32[] calldata _publicInputs, uint256 _startIndex, uint256 _paddedSize)
         internal
         pure
         returns (bytes memory)
     {
+        uint256[] memory publicInputsArray = new uint256[](_publicInputs.length);
+        for (uint256 i = 0; i < _publicInputs.length; i++) {
+            publicInputsArray[i] = uint256(_publicInputs[i]);
+        }
         uint256 remain = _paddedSize % 31;
         uint256 numFields = (_paddedSize - remain) / 31;
         if (remain > 0) {
@@ -146,7 +150,7 @@ library CircuitUtils {
         uint256 resultIndex = 0;
 
         for (uint256 i = 0; i < numFields; i++) {
-            uint256 field = _pucSignals[_startIndex + i];
+            uint256 field = publicInputsArray[_startIndex + i];
             for (uint256 j = 0; j < 31 && resultIndex < _paddedSize; j++) {
                 result[resultIndex] = bytes1(uint8(field & 0xFF));
                 field = field >> 8;
@@ -167,70 +171,70 @@ library CircuitUtils {
 
     /**
      * @notice Unpacks field elements to a string
-     * @param pubSignals Array of public signals
-     * @param startIndex Starting index in pubSignals
-     * @param paddedSize Original padded size of the string
+     * @param _publicInputs Array of public inputs
+     * @param _startIndex Starting index in publicInputs
+     * @param _paddedSize Original padded size of the string
      * @return The unpacked string
      */
-    function unpackString(
-        uint256[] calldata pubSignals,
-        uint256 startIndex,
-        uint256 paddedSize
-    )
+    function unpackString(bytes32[] calldata _publicInputs, uint256 _startIndex, uint256 _paddedSize)
         internal
         pure
         returns (string memory)
     {
-        return string(unpackFields2Bytes(pubSignals, startIndex, paddedSize));
+        return string(unpackFields2Bytes(_publicInputs, _startIndex, _paddedSize));
     }
 
     /**
-     * @notice Unpacks a bytes32 value from public signals
-     * @param pubSignals Array of public signals
-     * @param startIndex Starting index in pubSignals
+     * @notice Unpacks a bytes32 value from public inputs
+     * @param _publicInputs Array of public inputs
+     * @param _startIndex Starting index in publicInputs
      * @return The unpacked bytes32 value
      */
-    function unpackBytes32(uint256[] calldata pubSignals, uint256 startIndex) internal pure returns (bytes32) {
-        return bytes32(pubSignals[startIndex]);
+    function unpackBytes32(uint256[] calldata _publicInputs, uint256 _startIndex) internal pure returns (bytes32) {
+        return bytes32(_publicInputs[_startIndex]);
     }
 
     /**
-     * @notice Unpacks a uint256 value from public signals
-     * @param pubSignals Array of public signals
-     * @param startIndex Starting index in pubSignals
+     * @notice Unpacks a uint256 value from public inputs
+     * @param _publicInputs Array of public inputs
+     * @param _startIndex Starting index in publicInputs
      * @return The unpacked uint256 value
      */
-    function unpackUint256(uint256[] calldata pubSignals, uint256 startIndex) internal pure returns (uint256) {
-        return pubSignals[startIndex];
+    function unpackUint256(uint256[] calldata _publicInputs, uint256 _startIndex) internal pure returns (uint256) {
+        return _publicInputs[_startIndex];
     }
 
     /**
-     * @notice Unpacks a boolean value from public signals
-     * @param pubSignals Array of public signals
-     * @param startIndex Starting index in pubSignals
+     * @notice Unpacks a boolean value from public inputs
+     * @param _publicInputs Array of public inputs
+     * @param _startIndex Starting index in publicInputs
      * @return The unpacked boolean value
      */
-    function unpackBool(uint256[] calldata pubSignals, uint256 startIndex) internal pure returns (bool) {
-        return pubSignals[startIndex] == 1;
+    function unpackBool(bytes32[] calldata _publicInputs, uint256 _startIndex) internal pure returns (bool) {
+        return uint256(_publicInputs[_startIndex]) == 1;
     }
 
     /**
      * @notice Flattens multiple arrays of field elements into a single array
-     * @param inputs The arrays of field elements to flatten
-     * @param outLength The length of the flattened array   
+     * @param _inputs The arrays of field elements to flatten
+     * @param _outLength The length of the flattened array
      * @return out The flattened array
      */
-    function flattenFields(uint256[][] memory inputs, uint256 outLength) internal pure returns (uint256[] memory out) {
-        out = new uint256[](outLength);
+    function flattenFields(uint256[][] memory _inputs, uint256 _outLength)
+        internal
+        pure
+        returns (uint256[] memory out)
+    {
+        out = new uint256[](_outLength);
         uint256 k = 0;
-        for (uint256 i = 0; i < inputs.length; i++) {
-            uint256[] memory arr = inputs[i];
+        for (uint256 i = 0; i < _inputs.length; i++) {
+            uint256[] memory arr = _inputs[i];
             for (uint256 j = 0; j < arr.length; j++) {
-                if (k >= outLength) revert InvalidPubSignalsLength();
+                if (k >= _outLength) revert InvalidPublicInputsLength();
                 out[k++] = arr[j];
             }
         }
-        if (k != outLength) revert InvalidPubSignalsLength();
+        if (k != _outLength) revert InvalidPublicInputsLength();
         return out;
     }
 }

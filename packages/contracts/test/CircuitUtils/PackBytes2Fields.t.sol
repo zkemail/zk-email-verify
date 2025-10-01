@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import { Test } from "forge-std/Test.sol";
-import { CircuitUtils } from "../../CircuitUtils.sol";
-import { CircuitUtilsHelper } from "./_CircuitUtilsHelper.sol";
+import {Test} from "forge-std/Test.sol";
+import {CircuitUtils} from "../../CircuitUtils.sol";
+import {CircuitUtilsHelper} from "./_CircuitUtilsHelper.sol";
 
 contract PackBytes2FieldsTest is Test {
     CircuitUtilsHelper private _helper;
