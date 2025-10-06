@@ -2,13 +2,13 @@
 pragma solidity ^0.8.30;
 
 import {Test} from "forge-std/Test.sol";
-import {CircuitUtilsHelper} from "./_CircuitUtilsHelper.sol";
+import {CircomUtilsHelper} from "./_CircomUtilsHelper.sol";
 
 contract UnpackFields2BytesTest is Test {
-    CircuitUtilsHelper private _helper;
+    CircomUtilsHelper private _helper;
 
     function setUp() public {
-        _helper = new CircuitUtilsHelper();
+        _helper = new CircomUtilsHelper();
     }
 
     function test_emptyFields() public view {

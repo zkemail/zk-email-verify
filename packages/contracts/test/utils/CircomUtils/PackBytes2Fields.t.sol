@@ -2,14 +2,14 @@
 pragma solidity ^0.8.30;
 
 import {Test} from "forge-std/Test.sol";
-import {CircuitUtils} from "../../CircuitUtils.sol";
-import {CircuitUtilsHelper} from "./_CircuitUtilsHelper.sol";
+import {CircomUtils} from "../../../utils/CircomUtils.sol";
+import {CircomUtilsHelper} from "./_CircomUtilsHelper.sol";
 
 contract PackBytes2FieldsTest is Test {
-    CircuitUtilsHelper private _helper;
+    CircomUtilsHelper private _helper;
 
     function setUp() public {
-        _helper = new CircuitUtilsHelper();
+        _helper = new CircomUtilsHelper();
     }
 
     function test_emptyBytes() public view {
@@ -118,7 +118,7 @@ contract PackBytes2FieldsTest is Test {
 
     function test_paddedSizeSmallerThanData() public {
         bytes memory data = "This is a longer string that should revert";
-        vm.expectRevert(CircuitUtils.InvalidDataLength.selector);
+        vm.expectRevert(CircomUtils.InvalidDataLength.selector);
         _helper.callPackBytes2Fields(data, 10);
     }
 }

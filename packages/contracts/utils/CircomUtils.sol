@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.30;
 
 import {Bytes} from "@openzeppelin/contracts/utils/Bytes.sol";
 
 /**
- * @title CircuitUtils
+ * @title CircomUtils
  * @notice Library for ZK circuit-related utilities including field element packing and proof processing
  * @dev This library provides functions for converting between byte arrays and field elements
  *      and other utilities needed for zero-knowledge proof circuit compatibility.
  */
-library CircuitUtils {
+library CircomUtils {
     using Bytes for bytes;
 
     /**

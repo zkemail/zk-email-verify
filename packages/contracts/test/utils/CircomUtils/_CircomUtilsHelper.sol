@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import {CircuitUtils} from "../../CircuitUtils.sol";
+import {CircomUtils} from "../../../utils/CircomUtils.sol";
 
-contract CircuitUtilsHelper {
+contract CircomUtilsHelper {
     function callFlattenFields(uint256[][] memory inputs, uint256 outLength) external pure returns (uint256[] memory) {
-        return CircuitUtils.flattenFields(inputs, outLength);
+        return CircomUtils.flattenFields(inputs, outLength);
     }
 
     function callPackBytes2Fields(bytes memory data, uint256 paddedSize) external pure returns (uint256[] memory) {
-        return CircuitUtils.packBytes2Fields(data, paddedSize);
+        return CircomUtils.packBytes2Fields(data, paddedSize);
     }
 
     function callUnpackFields2Bytes(bytes32[] calldata fields, uint256 startIndex, uint256 paddedSize)
@@ -17,6 +17,6 @@ contract CircuitUtilsHelper {
         pure
         returns (bytes memory)
     {
-        return CircuitUtils.unpackFields2Bytes(fields, startIndex, paddedSize);
+        return CircomUtils.unpackFields2Bytes(fields, startIndex, paddedSize);
     }
 }

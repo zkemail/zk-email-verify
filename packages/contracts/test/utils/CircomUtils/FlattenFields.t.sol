@@ -2,14 +2,14 @@
 pragma solidity ^0.8.30;
 
 import {Test} from "forge-std/Test.sol";
-import {CircuitUtils} from "../../CircuitUtils.sol";
-import {CircuitUtilsHelper} from "./_CircuitUtilsHelper.sol";
+import {CircomUtils} from "../../../utils/CircomUtils.sol";
+import {CircomUtilsHelper} from "./_CircomUtilsHelper.sol";
 
 contract FlattenFieldsTest is Test {
-    CircuitUtilsHelper private _helper;
+    CircomUtilsHelper private _helper;
 
     function setUp() public {
-        _helper = new CircuitUtilsHelper();
+        _helper = new CircomUtilsHelper();
     }
 
     function test_expectRevert_tooManyElements() public {
@@ -22,7 +22,7 @@ contract FlattenFieldsTest is Test {
         for (uint256 i = 0; i < 31; i++) {
             inputs[1][i] = i + 31;
         }
-        vm.expectRevert(CircuitUtils.InvalidPublicInputsLength.selector);
+        vm.expectRevert(CircomUtils.InvalidPublicInputsLength.selector);
         _helper.callFlattenFields(inputs, 60);
     }
 
@@ -36,13 +36,13 @@ contract FlattenFieldsTest is Test {
         for (uint256 i = 0; i < 29; i++) {
             inputs[1][i] = i + 31;
         }
-        vm.expectRevert(CircuitUtils.InvalidPublicInputsLength.selector);
+        vm.expectRevert(CircomUtils.InvalidPublicInputsLength.selector);
         _helper.callFlattenFields(inputs, 60);
     }
 
     function test_zeroArrays() public {
         uint256[][] memory inputs = new uint256[][](0);
-        vm.expectRevert(CircuitUtils.InvalidPublicInputsLength.selector);
+        vm.expectRevert(CircomUtils.InvalidPublicInputsLength.selector);
         _helper.callFlattenFields(inputs, 60);
     }
 

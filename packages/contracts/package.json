@@ -14,7 +14,6 @@
   "files": [
     "DKIMRegistry.sol",
     "UserOverrideableDKIMRegistry.sol",
-    "CircuitUtils.sol",
     "/utils",
     "/interfaces"
   ],
