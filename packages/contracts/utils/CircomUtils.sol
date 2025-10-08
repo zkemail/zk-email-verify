@@ -108,10 +108,6 @@ library CircomUtils {
         pure
         returns (bytes memory)
     {
-        uint256[] memory publicInputsArray = new uint256[](_publicInputs.length);
-        for (uint256 i = 0; i < _publicInputs.length; i++) {
-            publicInputsArray[i] = uint256(_publicInputs[i]);
-        }
         uint256 remain = _paddedSize % 31;
         uint256 numFields = (_paddedSize - remain) / 31;
         if (remain > 0) {
@@ -122,7 +118,7 @@ library CircomUtils {
         uint256 resultIndex = 0;
 
         for (uint256 i = 0; i < numFields; i++) {
-            uint256 field = publicInputsArray[_startIndex + i];
+            uint256 field = uint256(_publicInputs[_startIndex + i]);
             for (uint256 j = 0; j < 31 && resultIndex < _paddedSize; j++) {
                 result[resultIndex] = bytes1(uint8(field & 0xFF));
                 field = field >> 8;
