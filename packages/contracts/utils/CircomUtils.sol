@@ -19,12 +19,6 @@ library CircomUtils {
     error InvalidPublicInputsLength();
 
     /**
-     * @notice Error thrown when the command length is invalid
-     * @dev The command should have the expected format and length
-     */
-    error InvalidCommandLength();
-
-    /**
      * @notice Error thrown when the data length is greater than the padded size
      * @dev The data should have the expected format and length
      */
@@ -92,17 +86,6 @@ library CircomUtils {
     }
 
     /**
-     * @notice Packs a bytes32 value into a single field element
-     * @param _bytes32 The bytes32 value to pack
-     * @return fields The packed field element
-     */
-    function packBytes32(bytes32 _bytes32) internal pure returns (uint256[] memory fields) {
-        fields = new uint256[](1);
-        fields[0] = uint256(_bytes32);
-        return fields;
-    }
-
-    /**
      * @notice Packs a boolean value into a single field element
      * @param _b The boolean value to pack
      * @return fields The packed field element
@@ -110,17 +93,6 @@ library CircomUtils {
     function packBool(bool _b) internal pure returns (bytes32[] memory fields) {
         fields = new bytes32[](1);
         fields[0] = _b ? bytes32(uint256(1)) : bytes32(uint256(0));
-        return fields;
-    }
-
-    /**
-     * @notice Packs a uint256 value into a single field element
-     * @param _uint256 The uint256 value to pack
-     * @return fields The packed field element
-     */
-    function packUint256(uint256 _uint256) internal pure returns (uint256[] memory fields) {
-        fields = new uint256[](1);
-        fields[0] = _uint256;
         return fields;
     }
 
@@ -185,26 +157,6 @@ library CircomUtils {
     }
 
     /**
-     * @notice Unpacks a bytes32 value from public inputs
-     * @param _publicInputs Array of public inputs
-     * @param _startIndex Starting index in publicInputs
-     * @return The unpacked bytes32 value
-     */
-    function unpackBytes32(uint256[] calldata _publicInputs, uint256 _startIndex) internal pure returns (bytes32) {
-        return bytes32(_publicInputs[_startIndex]);
-    }
-
-    /**
-     * @notice Unpacks a uint256 value from public inputs
-     * @param _publicInputs Array of public inputs
-     * @param _startIndex Starting index in publicInputs
-     * @return The unpacked uint256 value
-     */
-    function unpackUint256(uint256[] calldata _publicInputs, uint256 _startIndex) internal pure returns (uint256) {
-        return _publicInputs[_startIndex];
-    }
-
-    /**
      * @notice Unpacks a boolean value from public inputs
      * @param _publicInputs Array of public inputs
      * @param _startIndex Starting index in publicInputs
@@ -212,29 +164,5 @@ library CircomUtils {
      */
     function unpackBool(bytes32[] calldata _publicInputs, uint256 _startIndex) internal pure returns (bool) {
         return uint256(_publicInputs[_startIndex]) == 1;
-    }
-
-    /**
-     * @notice Flattens multiple arrays of field elements into a single array
-     * @param _inputs The arrays of field elements to flatten
-     * @param _outLength The length of the flattened array
-     * @return out The flattened array
-     */
-    function flattenFields(uint256[][] memory _inputs, uint256 _outLength)
-        internal
-        pure
-        returns (uint256[] memory out)
-    {
-        out = new uint256[](_outLength);
-        uint256 k = 0;
-        for (uint256 i = 0; i < _inputs.length; i++) {
-            uint256[] memory arr = _inputs[i];
-            for (uint256 j = 0; j < arr.length; j++) {
-                if (k >= _outLength) revert InvalidPublicInputsLength();
-                out[k++] = arr[j];
-            }
-        }
-        if (k != _outLength) revert InvalidPublicInputsLength();
-        return out;
     }
 }
