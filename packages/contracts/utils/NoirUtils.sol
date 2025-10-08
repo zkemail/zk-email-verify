@@ -6,29 +6,25 @@ uint256 constant FIELD_BYTES = 31;
 library NoirUtils {
     error InvalidLength();
 
-    function packBoundedVecU8(string memory input, uint256 numFields) internal pure returns (bytes32[] memory) {
-        bytes memory strBytes = bytes(input);
-
+    function packBoundedVecU8(bytes memory input, uint256 numFields) internal pure returns (bytes32[] memory) {
         // numFields includes the length field, therefore length should be less than numFields
-        if (strBytes.length >= numFields) revert InvalidLength();
+        if (input.length >= numFields) revert InvalidLength();
 
         bytes32[] memory result = new bytes32[](numFields);
 
         // First fields are the data
-        for (uint256 i = 0; i < strBytes.length; i++) {
-            result[i] = bytes32(uint256(uint8(strBytes[i])));
+        for (uint256 i = 0; i < input.length; i++) {
+            result[i] = bytes32(uint256(uint8(input[i])));
         }
         // Other fields are empty
 
         // Last element is the length
-        result[numFields - 1] = bytes32(strBytes.length);
+        result[numFields - 1] = bytes32(input.length);
         return result;
     }
 
-    function packFieldsArray(string memory input, uint256 numFields) internal pure returns (bytes32[] memory) {
-        bytes memory strBytes = bytes(input);
-
-        if (strBytes.length > numFields * FIELD_BYTES) revert InvalidLength();
+    function packFieldsArray(bytes memory input, uint256 numFields) internal pure returns (bytes32[] memory) {
+        if (input.length > numFields * FIELD_BYTES) revert InvalidLength();
 
         bytes32[] memory fieldElements = new bytes32[](numFields);
 
@@ -37,9 +33,9 @@ library NoirUtils {
             uint256 field = 0;
 
             for (uint256 j = 0; j < FIELD_BYTES; j++) {
-                if (start + j < strBytes.length) {
+                if (start + j < input.length) {
                     // LSB first
-                    field |= uint256(uint8(strBytes[start + j])) << (8 * j);
+                    field |= uint256(uint8(input[start + j])) << (8 * j);
                 } else {
                     // Padding with 0x00 (already zeroed by default)
                     break;
@@ -52,7 +48,7 @@ library NoirUtils {
         return fieldElements;
     }
 
-    function unpackBoundedVecU8(bytes32[] memory fields) internal pure returns (string memory) {
+    function unpackBoundedVecU8(bytes32[] memory fields) internal pure returns (bytes memory) {
         // BoundedVec stores the length of the array in the last element
         uint256 length = uint256(fields[fields.length - 1]);
         // Create a new bytes array of the correct length
@@ -61,10 +57,10 @@ library NoirUtils {
             // u8 is 8 bits, so we need to take the least-significant byte of each bytes32
             result[i] = bytes1(uint8(uint256(fields[i])));
         }
-        return string(result);
+        return result;
     }
 
-    function unpackFieldsArray(bytes32[] memory fields) internal pure returns (string memory) {
+    function unpackFieldsArray(bytes32[] memory fields) internal pure returns (bytes memory) {
         uint256 totalBytes = fields.length * FIELD_BYTES;
         bytes memory result = new bytes(totalBytes);
         uint256 resultIndex = 0;
@@ -93,6 +89,6 @@ library NoirUtils {
             trimmed[i] = result[i];
         }
 
-        return string(trimmed);
+        return trimmed;
     }
 }

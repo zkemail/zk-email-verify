@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import { Test } from "forge-std/Test.sol";
-import { NoirUtilsHelper } from "./_NoirUtilsHelper.sol";
+import {Test} from "forge-std/Test.sol";
+import {NoirUtilsHelper} from "./_NoirUtilsHelper.sol";
 
 contract UnpackFieldsArrayTest is Test {
     NoirUtilsHelper private _helper;
@@ -11,28 +11,28 @@ contract UnpackFieldsArrayTest is Test {
         _helper = new NoirUtilsHelper();
     }
 
-    function test_emptyString() public view {
+    function test_emptyBytes() public view {
         bytes32[] memory inputFields = new bytes32[](1);
         inputFields[0] = bytes32(0);
 
-        string memory expected = "";
+        bytes memory expected = bytes("");
 
-        string memory result = _helper.callUnpackFieldsArray(inputFields);
-        assertEq(result, expected);
+        bytes memory result = _helper.callUnpackFieldsArray(inputFields);
+        assertEq(keccak256(result), keccak256(expected));
     }
 
-    function test_singleChar() public view {
+    function test_singleByte() public view {
         bytes32[] memory inputFields = new bytes32[](1);
         inputFields[0] = bytes32(uint256(0x41));
 
-        string memory expected = "A";
+        bytes memory expected = bytes("A");
 
-        string memory result = _helper.callUnpackFieldsArray(inputFields);
-        assertEq(result, expected);
+        bytes memory result = _helper.callUnpackFieldsArray(inputFields);
+        assertEq(keccak256(result), keccak256(expected));
     }
 
     function test_31Bytes() public view {
-        // we want a 31 bytes length string that fits in 1 field
+        // we want a 31 bytes length bytes that fits in 1 field
         bytes32[] memory inputFields = new bytes32[](1);
         // the field will hold an empty byte and 31 "A" bytes
         bytes memory data = new bytes(32);
@@ -42,18 +42,18 @@ contract UnpackFieldsArrayTest is Test {
         }
         inputFields[0] = bytes32(data);
 
-        // expected string is 31 "A" bytes
-        string memory expected = "";
+        // expected bytes is 31 "A" bytes
+        bytes memory expected = bytes("");
         for (uint256 i = 0; i < 31; i++) {
-            expected = string.concat(expected, "A");
+            expected = bytes.concat(expected, bytes("A"));
         }
 
-        string memory result = _helper.callUnpackFieldsArray(inputFields);
-        assertEq(result, expected);
+        bytes memory result = _helper.callUnpackFieldsArray(inputFields);
+        assertEq(keccak256(result), keccak256(expected));
     }
 
     function test_32Bytes() public view {
-        // we want a 32 bytes length string with "A" in each byte that only fits in 2 fields
+        // we want a 32 bytes length bytes with "A" in each byte that only fits in 2 fields
         bytes32[] memory inputFields = new bytes32[](2);
 
         // first field will hold an empty byte and 31 "A" bytes
@@ -67,17 +67,17 @@ contract UnpackFieldsArrayTest is Test {
         // second field will hold the last "A" byte
         inputFields[1] = bytes32(uint256(uint8(bytes1("A"))));
 
-        // expected string is 32 "A" bytes
-        string memory expected = "";
+        // expected bytes is 32 "A" bytes
+        bytes memory expected = bytes("");
         for (uint256 i = 0; i < 32; i++) {
-            expected = string.concat(expected, "A");
+            expected = bytes.concat(expected, bytes("A"));
         }
 
-        string memory result = _helper.callUnpackFieldsArray(inputFields);
-        assertEq(result, expected);
+        bytes memory result = _helper.callUnpackFieldsArray(inputFields);
+        assertEq(keccak256(result), keccak256(expected));
     }
 
-    function test_stringWithUnusedSlots() public view {
+    function test_bytesWithUnusedSlots() public view {
         bytes32[] memory inputFields = new bytes32[](3);
         // 1 data slot
         inputFields[0] = bytes32(
@@ -91,10 +91,10 @@ contract UnpackFieldsArrayTest is Test {
         inputFields[1] = bytes32(0);
         inputFields[2] = bytes32(0);
 
-        string memory expected = "ABC";
+        bytes memory expected = bytes("ABC");
 
-        string memory result = _helper.callUnpackFieldsArray(inputFields);
-        assertEq(result, expected);
+        bytes memory result = _helper.callUnpackFieldsArray(inputFields);
+        assertEq(keccak256(result), keccak256(expected));
     }
 
     function test_realisticString() public view {
@@ -113,9 +113,9 @@ contract UnpackFieldsArrayTest is Test {
             )
         );
 
-        string memory expected = "gmail.com";
+        bytes memory expected = bytes("gmail.com");
 
-        string memory result = _helper.callUnpackFieldsArray(inputFields);
-        assertEq(result, expected);
+        bytes memory result = _helper.callUnpackFieldsArray(inputFields);
+        assertEq(keccak256(result), keccak256(expected));
     }
 }

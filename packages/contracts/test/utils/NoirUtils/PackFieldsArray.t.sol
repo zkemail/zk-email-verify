@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import { Test } from "forge-std/Test.sol";
-import { NoirUtilsHelper } from "./_NoirUtilsHelper.sol";
+import {Test} from "forge-std/Test.sol";
+import {NoirUtilsHelper} from "./_NoirUtilsHelper.sol";
 
 contract PackFieldsArrayTest is Test {
     NoirUtilsHelper private _helper;
@@ -13,7 +13,7 @@ contract PackFieldsArrayTest is Test {
 
     function test_revertsWhen_inputTooLong() public {
         // 32 bytes of data
-        string memory input = string(new bytes(32));
+        bytes memory input = new bytes(32);
         // 1 field can fit only 31 bytes, so this should revert
         uint256 numFields = 1;
 
@@ -21,8 +21,8 @@ contract PackFieldsArrayTest is Test {
         _helper.callPackFieldsArray(input, numFields);
     }
 
-    function test_emptyString() public view {
-        string memory input = "";
+    function test_emptyBytes() public view {
+        bytes memory input = "";
         uint256 numFields = 1;
 
         bytes32[] memory expected = new bytes32[](1);
@@ -33,7 +33,7 @@ contract PackFieldsArrayTest is Test {
     }
 
     function test_singleChar() public view {
-        string memory input = "A";
+        bytes memory input = bytes("A");
         uint256 numFields = 1;
 
         bytes32[] memory expected = new bytes32[](1);
@@ -44,7 +44,7 @@ contract PackFieldsArrayTest is Test {
     }
 
     function test_31Bytes() public view {
-        string memory input = string(new bytes(31));
+        bytes memory input = new bytes(31);
         // 1 field can fit exactly 31 bytes
         uint256 numFields = 1;
 
@@ -55,8 +55,8 @@ contract PackFieldsArrayTest is Test {
         _assertEq(fields, expected);
     }
 
-    function test_stringWithUnusedSlots() public view {
-        string memory input = "ABC";
+    function test_bytesWithUnusedSlots() public view {
+        bytes memory input = bytes("ABC");
         uint256 numFields = 3;
 
         // 3 slots: 1 data slot + 2 unused slots
@@ -78,7 +78,7 @@ contract PackFieldsArrayTest is Test {
     }
 
     function test_realisticString() public view {
-        string memory input = "gmail.com";
+        bytes memory input = bytes("gmail.com");
         uint256 numFields = 1;
 
         bytes32[] memory expected = new bytes32[](1);

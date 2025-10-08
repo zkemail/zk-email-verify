@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import { Test } from "forge-std/Test.sol";
-import { NoirUtilsHelper } from "./_NoirUtilsHelper.sol";
+import {Test} from "forge-std/Test.sol";
+import {NoirUtilsHelper} from "./_NoirUtilsHelper.sol";
 
 contract PackBoundedVecU8Test is Test {
     NoirUtilsHelper private _helper;
@@ -13,7 +13,7 @@ contract PackBoundedVecU8Test is Test {
 
     function test_revertsWhen_InputLengthEqualsNumFields() public {
         // 6 length data
-        string memory input = "abcdef";
+        bytes memory input = bytes("abcdef");
         // data needs 6 slots + 1 length slot, so this should revert
         uint256 numFields = 6;
 
@@ -23,7 +23,7 @@ contract PackBoundedVecU8Test is Test {
 
     function test_revertsWhen_InputTooLong() public {
         // 7 length data
-        string memory input = "toolong";
+        bytes memory input = bytes("toolong");
         // data needs 7 slots + 1 length slot, so this should revert
         uint256 numFields = 6;
 
@@ -32,7 +32,7 @@ contract PackBoundedVecU8Test is Test {
     }
 
     function test_correctlyPacks() public view {
-        string memory input = "hello";
+        bytes memory input = bytes("hello");
         uint256 numFields = 8;
 
         // 8 slots: 5 data slots + 2 unused slots + 1 length slot

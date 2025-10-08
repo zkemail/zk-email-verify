@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import { Test } from "forge-std/Test.sol";
-import { NoirUtilsHelper } from "./_NoirUtilsHelper.sol";
+import {Test} from "forge-std/Test.sol";
+import {NoirUtilsHelper} from "./_NoirUtilsHelper.sol";
 
 contract UnpackBoundedVecU8Test is Test {
     NoirUtilsHelper private _helper;
@@ -26,9 +26,9 @@ contract UnpackBoundedVecU8Test is Test {
         // 1 length slot
         input[7] = bytes32(uint256(5));
 
-        string memory expected = "hello";
+        bytes memory expected = bytes("hello");
 
-        string memory result = _helper.callUnpackBoundedVecU8(input);
-        assertEq(result, expected);
+        bytes memory result = _helper.callUnpackBoundedVecU8(input);
+        assertEq(keccak256(result), keccak256(expected));
     }
 }
