@@ -126,7 +126,7 @@ library CircomUtils {
      * @param fields Array of field elements
      * @return result The unpacked boolean value
      */
-    function unpackBool(bytes32[] calldata fields) internal pure returns (bool result) {
+    function unpackBool(bytes32[] memory fields) internal pure returns (bool result) {
         return uint256(fields[0]) == 1;
     }
 }
