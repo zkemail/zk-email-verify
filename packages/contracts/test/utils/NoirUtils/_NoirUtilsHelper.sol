@@ -14,10 +14,6 @@ contract NoirUtilsHelper {
         return NoirUtils.packFieldsArray(input, numFields);
     }
 
-    function callPackHeaderHash(bytes32 headerHash) external pure returns (bytes32[] memory) {
-        return NoirUtils.packHeaderHash(headerHash);
-    }
-
     // UNPACK FUNCTIONS
 
     function callUnpackBoundedVecU8(bytes32[] memory fields) external pure returns (string memory) {
@@ -26,9 +22,5 @@ contract NoirUtilsHelper {
 
     function callUnpackFieldsArray(bytes32[] memory fields) external pure returns (string memory) {
         return NoirUtils.unpackFieldsArray(fields);
-    }
-
-    function callUnpackHeaderHash(bytes32[] memory fields) external pure returns (bytes32) {
-        return NoirUtils.unpackHeaderHash(fields);
     }
 }
