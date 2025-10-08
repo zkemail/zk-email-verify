@@ -26,13 +26,13 @@ contract PackFieldsArrayTest is Test {
         uint256 numFields = 1;
 
         bytes32[] memory expected = new bytes32[](1);
-        expected[0] = bytes32(0);
+        expected[0] = bytes32(uint256(0));
 
         bytes32[] memory fields = _helper.callPackFieldsArray(input, numFields);
         _assertEq(fields, expected);
     }
 
-    function test_singleChar() public view {
+    function test_singleByte() public view {
         bytes memory input = bytes("A");
         uint256 numFields = 1;
 
@@ -70,8 +70,8 @@ contract PackFieldsArrayTest is Test {
             )
         );
         // 2 unused slots
-        expected[1] = bytes32(0);
-        expected[2] = bytes32(0);
+        expected[1] = bytes32(uint256(0));
+        expected[2] = bytes32(uint256(0));
 
         bytes32[] memory fields = _helper.callPackFieldsArray(input, numFields);
         _assertEq(fields, expected);

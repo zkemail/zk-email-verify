@@ -38,7 +38,7 @@ library CircomUtils {
      *      Each field element can contain up to 31 bytes to ensure the result stays below
      *      the BN128 curve order. Bytes are packed as: byte0 + (byte1 << 8) + (byte2 << 16) + ...
      */
-    function packBytes2Fields(bytes memory _bytes, uint256 _paddedSize) internal pure returns (uint256[] memory) {
+    function packFieldsArray(bytes memory _bytes, uint256 _paddedSize) internal pure returns (bytes32[] memory) {
         if (_bytes.length > _paddedSize) revert InvalidDataLength();
 
         uint256 remain = _paddedSize % 31;
@@ -46,7 +46,7 @@ library CircomUtils {
         if (remain > 0) {
             numFields += 1;
         }
-        uint256[] memory fields = new uint256[](numFields);
+        bytes32[] memory fields = new bytes32[](numFields);
         uint256 idx = 0;
         uint256 byteVal = 0;
         for (uint256 i = 0; i < numFields; i++) {
@@ -61,26 +61,11 @@ library CircomUtils {
                     byteVal = uint256(uint8(_bytes[idx]));
                 }
                 if (j == 0) {
-                    fields[i] = byteVal;
+                    fields[i] = bytes32(byteVal);
                 } else {
-                    fields[i] += (byteVal << (8 * j));
+                    fields[i] = bytes32(uint256(fields[i]) + (byteVal << (8 * j)));
                 }
             }
-        }
-        return fields;
-    }
-
-    /**
-     * @notice Packs a string into field elements for ZK circuit compatibility
-     * @param _string The string to pack
-     * @param _paddedSize The target size after padding
-     * @return fields The packed field elements
-     */
-    function packString(string memory _string, uint256 _paddedSize) internal pure returns (bytes32[] memory fields) {
-        uint256[] memory fieldsArray = packBytes2Fields(bytes(_string), _paddedSize);
-        fields = new bytes32[](fieldsArray.length);
-        for (uint256 i = 0; i < fields.length; i++) {
-            fields[i] = bytes32(fieldsArray[i]);
         }
         return fields;
     }
@@ -103,7 +88,7 @@ library CircomUtils {
      * @param _paddedSize Original padded size of the bytes
      * @return The unpacked bytes
      */
-    function unpackFields2Bytes(bytes32[] calldata _publicInputs, uint256 _startIndex, uint256 _paddedSize)
+    function unpackFieldsArray(bytes32[] calldata _publicInputs, uint256 _startIndex, uint256 _paddedSize)
         internal
         pure
         returns (bytes memory)
@@ -135,21 +120,6 @@ library CircomUtils {
         }
 
         return result.slice(0, actualLength);
-    }
-
-    /**
-     * @notice Unpacks field elements to a string
-     * @param _publicInputs Array of public inputs
-     * @param _startIndex Starting index in publicInputs
-     * @param _paddedSize Original padded size of the string
-     * @return The unpacked string
-     */
-    function unpackString(bytes32[] calldata _publicInputs, uint256 _startIndex, uint256 _paddedSize)
-        internal
-        pure
-        returns (string memory)
-    {
-        return string(unpackFields2Bytes(_publicInputs, _startIndex, _paddedSize));
     }
 
     /**

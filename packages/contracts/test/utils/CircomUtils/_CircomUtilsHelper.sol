@@ -4,15 +4,15 @@ pragma solidity ^0.8.30;
 import {CircomUtils} from "../../../utils/CircomUtils.sol";
 
 contract CircomUtilsHelper {
-    function callPackBytes2Fields(bytes memory data, uint256 paddedSize) external pure returns (uint256[] memory) {
-        return CircomUtils.packBytes2Fields(data, paddedSize);
+    function callPackFieldsArray(bytes memory data, uint256 paddedSize) external pure returns (bytes32[] memory) {
+        return CircomUtils.packFieldsArray(data, paddedSize);
     }
 
-    function callUnpackFields2Bytes(bytes32[] calldata fields, uint256 startIndex, uint256 paddedSize)
+    function callUnpackFieldsArray(bytes32[] calldata fields, uint256 startIndex, uint256 paddedSize)
         external
         pure
         returns (bytes memory)
     {
-        return CircomUtils.unpackFields2Bytes(fields, startIndex, paddedSize);
+        return CircomUtils.unpackFieldsArray(fields, startIndex, paddedSize);
     }
 }
