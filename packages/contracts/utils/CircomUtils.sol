@@ -26,39 +26,39 @@ library CircomUtils {
 
     /**
      * @notice Packs byte arrays into field elements for ZK circuit compatibility
-     * @param _bytes The byte array to pack into field elements
-     * @param _paddedSize The target size after padding (must be larger than or equal to _bytes.length)
-     * @return An array of field elements containing the packed byte data
+     * @param input The byte array to pack into field elements
+     * @param paddedSize The target size after padding (must be larger than or equal to _bytes.length)
+     * @return fields An array of field elements containing the packed byte data
      * @dev This function packs bytes into field elements by:
      *      1. Determining how many field elements are needed (31 bytes per field element)
      *      2. Packing bytes in little-endian order within each field element
-     *      3. Padding with zeros if the input is shorter than _paddedSize
+     *      3. Padding with zeros if the input is shorter than paddedSize
      *      4. Ensuring the resulting field elements are compatible with ZK circuits
      *
      *      Each field element can contain up to 31 bytes to ensure the result stays below
      *      the BN128 curve order. Bytes are packed as: byte0 + (byte1 << 8) + (byte2 << 16) + ...
      */
-    function packFieldsArray(bytes memory _bytes, uint256 _paddedSize) internal pure returns (bytes32[] memory) {
-        if (_bytes.length > _paddedSize) revert InvalidDataLength();
+    function packFieldsArray(bytes memory input, uint256 paddedSize) internal pure returns (bytes32[] memory fields) {
+        if (input.length > paddedSize) revert InvalidDataLength();
 
-        uint256 remain = _paddedSize % 31;
-        uint256 numFields = (_paddedSize - remain) / 31;
+        uint256 remain = paddedSize % 31;
+        uint256 numFields = (paddedSize - remain) / 31;
         if (remain > 0) {
             numFields += 1;
         }
-        bytes32[] memory fields = new bytes32[](numFields);
+        fields = new bytes32[](numFields);
         uint256 idx = 0;
         uint256 byteVal = 0;
         for (uint256 i = 0; i < numFields; i++) {
             for (uint256 j = 0; j < 31; j++) {
                 idx = i * 31 + j;
-                if (idx >= _paddedSize) {
+                if (idx >= paddedSize) {
                     break;
                 }
-                if (idx >= _bytes.length) {
+                if (idx >= input.length) {
                     byteVal = 0;
                 } else {
-                    byteVal = uint256(uint8(_bytes[idx]));
+                    byteVal = uint256(uint8(input[idx]));
                 }
                 if (j == 0) {
                     fields[i] = bytes32(byteVal);
@@ -72,39 +72,38 @@ library CircomUtils {
 
     /**
      * @notice Packs a boolean value into a single field element
-     * @param _b The boolean value to pack
+     * @param input The boolean value to pack
      * @return fields The packed field element
      */
-    function packBool(bool _b) internal pure returns (bytes32[] memory fields) {
+    function packBool(bool input) internal pure returns (bytes32[] memory fields) {
         fields = new bytes32[](1);
-        fields[0] = _b ? bytes32(uint256(1)) : bytes32(uint256(0));
+        fields[0] = input ? bytes32(uint256(1)) : bytes32(uint256(0));
         return fields;
     }
 
     /**
      * @notice Unpacks field elements back to bytes
-     * @param _publicInputs Array of public inputs
-     * @param _startIndex Starting index in publicInputs
-     * @param _paddedSize Original padded size of the bytes
-     * @return The unpacked bytes
+     * @param fields Array of field elements
+     * @param paddedSize Original padded size of the bytes
+     * @return result The unpacked bytes
      */
-    function unpackFieldsArray(bytes32[] calldata _publicInputs, uint256 _startIndex, uint256 _paddedSize)
+    function unpackFieldsArray(bytes32[] calldata fields, uint256 paddedSize)
         internal
         pure
-        returns (bytes memory)
+        returns (bytes memory result)
     {
-        uint256 remain = _paddedSize % 31;
-        uint256 numFields = (_paddedSize - remain) / 31;
+        uint256 remain = paddedSize % 31;
+        uint256 numFields = (paddedSize - remain) / 31;
         if (remain > 0) {
             numFields += 1;
         }
 
-        bytes memory result = new bytes(_paddedSize);
+        result = new bytes(paddedSize);
         uint256 resultIndex = 0;
 
         for (uint256 i = 0; i < numFields; i++) {
-            uint256 field = uint256(_publicInputs[_startIndex + i]);
-            for (uint256 j = 0; j < 31 && resultIndex < _paddedSize; j++) {
+            uint256 field = uint256(fields[i]);
+            for (uint256 j = 0; j < 31 && resultIndex < paddedSize; j++) {
                 result[resultIndex] = bytes1(uint8(field & 0xFF));
                 field = field >> 8;
                 resultIndex++;
@@ -124,11 +123,10 @@ library CircomUtils {
 
     /**
      * @notice Unpacks a boolean value from public inputs
-     * @param _publicInputs Array of public inputs
-     * @param _startIndex Starting index in publicInputs
-     * @return The unpacked boolean value
+     * @param fields Array of field elements
+     * @return result The unpacked boolean value
      */
-    function unpackBool(bytes32[] calldata _publicInputs, uint256 _startIndex) internal pure returns (bool) {
-        return uint256(_publicInputs[_startIndex]) == 1;
+    function unpackBool(bytes32[] calldata fields) internal pure returns (bool result) {
+        return uint256(fields[0]) == 1;
     }
 }
