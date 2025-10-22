@@ -1,0 +1,775 @@
+Delivered-To: yogeshshahi120@gmail.com
+Received: by 2002:a05:7108:16ca:b0:40c:8dfd:882c with SMTP id s10csp1177349gdo;
+        Fri, 9 May 2025 08:38:01 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHO2n3/iY14zDnX7gWJTrPj8RTNa9wYtoQuzAmaVv0z4q+cSL34GBRk/qSOdsHlgZMlqQ0V
+X-Received: by 2002:a05:600c:1553:b0:43c:f575:e305 with SMTP id 5b1f17b1804b1-442d6d3e24emr32135795e9.8.1746805081311;
+        Fri, 09 May 2025 08:38:01 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1746805081; cv=none;
+        d=google.com; s=arc-20240605;
+        b=lVT9F/3kKNe1XaiFpH8QYeahO6b7JEVPxxneeL5Md8RsV8bg0plByWH/aJzpxUoqWv
+         Aulr2mofKwb8wm0OJs/J1Z7Mz73Nd5agOr1RnatmIddLCmCJMKxEqs3kaqoFUX6TAwPz
+         vINesbGEKX++4fzYcTRta9vEsn7uDGuQgONJiHEA8E6WLfUjhWoDP+e4I4q1Bfd/dUgf
+         YNceEbO2evq/aplyyOBxxy7qYFlzqPvllNKXjEnGtUbpZieSJ3L03kMIJLduzsNazJSv
+         Oev7BOuV3fsrjU49Jk/auBGS9F+8YceIZBfXf9GfW43548T7P2hLK0phlEXcvarOIYCf
+         LTSA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=feedback-id:list-unsubscribe-post:precedence:mime-version:subject
+         :message-id:to:reply-to:from:date:list-unsubscribe:dkim-signature
+         :dkim-signature;
+        bh=egPh9lqCja81XebzVBSgWqfVvlJkcNgxhZA/OYWvdw8=;
+        fh=PXCLHRYZTDx0GpJOsXH5W7B7zmbB6KBNB5HvvWK5Ux8=;
+        b=BfVwsGQS6EVEfEqI5bQDUryXh6l0+3f0qmURlMVGtRE1B/Sod/PvOOFrpaOEjozwVt
+         qjRK1esMIa86KxPkk6W0E3fsasQdZ4uZMBTy68WmoR3KLD2LxPJ92nfg5dt5Pju1sNfw
+         RfSwGS2Yuw+PsInn+pU6F1Egp+A6y2RnuThaEUoRlfEQwE87KoXIugjolTy9/eGNZZ2E
+         FMkCNUCij4nglBMO1R1oK8VmKQTC19hJGd5R39DNU3NnHLs0VE3TVyGla/U7jbMWRiA5
+         7t+uaMyTY+GMcNlAs44LD6scm9uL/ntIUPgUCM2zGJ/1fpgoLeF/BQhyjz6OMBsiuD1o
+         K/CA==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@bf01.eu1.hubspotstarter.net header.s=hs2 header.b=q91nIcvc;
+       dkim=pass header.i=@starknet.org header.s=hs1-145681388 header.b=P35X3x8X;
+       spf=pass (google.com: domain of 1axclk1bzqg4n43i25e8fa4ia9lyhprr3kurai-yogeshshahi120=gmail.com@bf01.eu1.hubspotstarter.net designates 143.244.84.155 as permitted sender) smtp.mailfrom="1axclk1bzqg4n43i25e8fa4ia9lyhprr3kurai-yogeshshahi120=gmail.com@bf01.eu1.hubspotstarter.net";
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=starknet.org
+Return-Path: <1axclk1bzqg4n43i25e8fa4ia9lyhprr3kurai-yogeshshahi120=gmail.com@bf01.eu1.hubspotstarter.net>
+Received: from bd77fal.bf01.eu1.hubspotstarter.net (bd77fal.bf01.eu1.hubspotstarter.net. [143.244.84.155])
+        by mx.google.com with ESMTPS id 5b1f17b1804b1-442d686075asi17590505e9.141.2025.05.09.08.38.01
+        for <yogeshshahi120@gmail.com>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 09 May 2025 08:38:01 -0700 (PDT)
+Received-SPF: pass (google.com: domain of 1axclk1bzqg4n43i25e8fa4ia9lyhprr3kurai-yogeshshahi120=gmail.com@bf01.eu1.hubspotstarter.net designates 143.244.84.155 as permitted sender) client-ip=143.244.84.155;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@bf01.eu1.hubspotstarter.net header.s=hs2 header.b=q91nIcvc;
+       dkim=pass header.i=@starknet.org header.s=hs1-145681388 header.b=P35X3x8X;
+       spf=pass (google.com: domain of 1axclk1bzqg4n43i25e8fa4ia9lyhprr3kurai-yogeshshahi120=gmail.com@bf01.eu1.hubspotstarter.net designates 143.244.84.155 as permitted sender) smtp.mailfrom="1axclk1bzqg4n43i25e8fa4ia9lyhprr3kurai-yogeshshahi120=gmail.com@bf01.eu1.hubspotstarter.net";
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=starknet.org
+Received: by 172.16.38.52 with SMTP id a089896hoz745zl7lw7c1zi5t5hksf0lgqrim5lxhg;
+        Fri, 9 May 2025 15:37:59 GMT
+DKIM-Signature: v=1; s=hs2; d=bf01.eu1.hubspotstarter.net; 
+        i=@bf01.eu1.hubspotstarter.net; 
+        h=sender:from:from:reply-to:to:to:cc:cc:subject:subject:list-unsubscribe:form-sub:feedback-id:list-unsubscribe-post; 
+        a=rsa-sha256; c=relaxed/relaxed; 
+        bh=egPh9lqCja81XebzVBSgWqfVvlJkcNgxhZA/OYWvdw8=; 
+        b=q91nIcvcu2P72kYl08hW2z1oTlQ14NUnooxEaFHuwHMP7+DrQQ7u4DvYKxN6Dk
+         0PLKxJE8VSQ3W4/6TQDFMpDKyTgPzxncFUsTPF0FYyNIX+aNAnCSqtZrruaGJAc
+         UQOZRbXTdZ4/Hwe8skVVcKFEL0b1PRLa7686r8JITy3CmFg8SofC+z4C68D77Be
+         h4aFK0AzrgVMVX/+ifXs2+W7aorhq/yaHecIs636RuKUx+FB2EMgaQ6gEDXJSg6
+         5FIyMTUzeff7nDMFY38zAAGcEsqqJjZXpbGrO6Zo0ZR0l+xjmy9Hh+oQJj2Y0sM
+         v1Q4vFG+oPGZw8mIn3fwLpwaDvBA==; q=dns/txt; t=1746805079; 
+        x=1747067879;
+DKIM-Signature: v=1; s=hs1-145681388; d=starknet.org; 
+        i=@starknet.org; 
+        h=sender:from:from:reply-to:to:to:cc:cc:subject:subject:list-unsubscribe:form-sub:feedback-id:list-unsubscribe-post; 
+        a=rsa-sha256; c=relaxed/relaxed; 
+        bh=egPh9lqCja81XebzVBSgWqfVvlJkcNgxhZA/OYWvdw8=; 
+        b=P35X3x8XLlCf8a4dSNl8sQsKXw7sQAmLpIicLMifz3sgbx4LOvqkU97lrq5XwT
+         dAIsEHsCl+1KEErR/ngAYDPM34/W+ted5OIDmk41LipkC1UYyAlIvd4bRT6Ae8O
+         aSyvBY3PpP6t7UPVhtMK1WIDyO78QOpMKzJoK7cLqMfVjgdASfurx+1KzBSrdZc
+         MPzhWTUFsADAbXktClCNtwojctJVfHyH2x08Gdv0EPgJ8VUTXquj5YdFCe2kRuF
+         rIu+sB5UIuvvBMMKU+3PD48o01ZBrcMdkET/gX4LCpWtRyf0IPds9jpdbYDTfrF
+         jkTZW1lvWvbEGe61C1ZZ1TBodXmA==; q=dns/txt; t=1746805079; 
+        x=1747067879;
+Return-Path: <1axclk1bzqg4n43i25e8fa4ia9lyhprr3kurai-yogeshshahi120=gmail.com@bf01.eu1.hubspotstarter.net>
+X-HS-Cid: 1axftmiyx224bvhlump0879n1pv0a0hubj20kq
+List-Unsubscribe: <mailto:1axdi0mwdsdurrnt4i98v0p00tuzr7221wfp12-yogeshshahi120=gmail.com@bf01.eu1.hubspotstarter.net?subject=unsubscribe>, <https://hs-145681388.s.hubspotstarter-eu1.net/subscription-preferences/v2/unsubscribe-all?data=W2nVjwf3Y2x98W3h_m4B1_63lpW2xzmvk47WcH0W3M5d6_3BVCn3W2qLHcy34vphxW1ZmYvg2KCdc9W4tgMhP1ShDx8W3M2jbt45XdgGW1Bg_rv2MmWzRW1Bxj081VhPc3W1Zm-p-2-zM4JW2FCG932xGGlsW32sxDm1L3LZpW2s_DyY43NY5sW3JHYrx2y1FtRW3_VPDs3j4mMwW4tDsN730qK1XW22TJqc2MC2yMW3NFq9n49CBLkW49Jfvw45Wv3PW3ZCCvq1XhcVMW2FHp-f1_j0btW1Z6Dyg43PRq3W3dbbkd47FXQnW45qJ4x22Tfs6W4cQhhw4fjQJ9W1Vg_lL4cxJVMW2Ft3lG1-YrgfW3g8fL-49n6xkW2KXgsK3K2XdtW3R4pNB41GWwfW23hGKR4hJWBLW47zLsK253jfpW1Q0SN13SKdysW21lKrY2Ttv-RW1V1fBX2MqthgW4hd4Ly1Qyw8LW2xPmz12p9-0bW41LFPk2FZMV4W4kfv_w4p9JQyW38mPYk2sT8GLW3QZKP33C2P7XW1N5_X02Tx2mNW43KgB72PQWmzW1Sr1GZ2q-YlgW4tz5nM2-KdK4W43B5kZ2sRqyL0>
+Date: Fri, 9 May 2025 11:37:59 -0400
+From: Starknet Foundation <hello@starknet.org>
+Reply-To: hello@starknet.org
+To: yogeshshahi120@gmail.com
+Message-ID: <1746805079451.21e593a6-ff1d-440b-a8b4-140956bd695d@bf01.eu1.hubspotstarter.net>
+Subject: Starknet Hackathon: Re{ignite} - Bounty information, hackathon
+ checklist, and more!
+MIME-Version: 1.0
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_105424_851581277.1746805079879"
+Precedence: bulk
+X-Report-Abuse-To: abuse@hubspotstarter.net (see
+ https://hubspotstarter.net/)
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Feedback-ID: aeco0qri:aib3a1j5:aidf:HubSpot
+
+------=_Part_105424_851581277.1746805079879
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+Join us at Re{ignite} for exciting bounties and support!
+
+Starknet Hackathon: Re{ignite} - Bounty information, hackathon checklist, a=
+nd more!
+
+In our previous newsletter, we promised you more information about the Star=
+knet Hackathon: Re{ignite} (https://dk79kv04.eu1.hubspotlinksstarter.com/Ct=
+c/2Q+113/dk79kv04/VVDcWB65vV92Mr0d4xlr0-NW3pvQRf5wmB3LN5GS5S43lcq-W6N1vHY6l=
+Z3pmW6dK_mh7vRtpbN6YtMq1YDg12W4T2cxd1KqYrsN8bnQ3V5Cpt5W5nl--95SrWhLW7vGPHD5=
+1RSHrW7g4S7m4txmwJW6Kq1B46SGhnkW5T3x3k7lxrMjW5J__9b2ysj5gW6gvwpG6X_2LrN1wcs=
+7R_cHBkN4hVYTML8lf8W4CfMHQ2_sGdyV8f2J77NmqxGW1gt74Z8gNzBYW8Qn0zh39Xn1PW7BmF=
+jL2lPgwXW5hTPzZ1ZHH-JW4zLndX8d1Z3bW2BgvBg92brWMW4rv58C2kTmj0f5ntBLY04 ) . T=
+he countdown has begun. With just a few days remaining until launch, now is=
+ the ideal time to finalize your preparations and get ready to build your p=
+rojects on Starknet!
+
+The hackathon will start on May 12th at 13:00 UTC and the submissions will =
+close on May 26th 23:59 UTC.
+
+Register for Re{ignite}
+(https://dk79kv04.eu1.hubspotlinksstarter.com/Ctc/2Q+113/dk79kv04/VVDcWB65v=
+V92Mr0d4xlr0-NW3pvQRf5wmB3LN5GS5S43lcq-W6N1vHY6lZ3pmW6dK_mh7vRtpbN6YtMq1YDg=
+12W4T2cxd1KqYrsN8bnQ3V5Cpt5W5nl--95SrWhLW7vGPHD51RSHrW7g4S7m4txmwJW6Kq1B46S=
+GhnkW5T3x3k7lxrMjW5J__9b2ysj5gW6gvwpG6X_2LrN1wcs7R_cHBkN4hVYTML8lf8W4CfMHQ2=
+_sGdyV8f2J77NmqxGW1gt74Z8gNzBYW8Qn0zh39Xn1PW7BmFjL2lPgwXW5hTPzZ1ZHH-JW4zLnd=
+X8d1Z3bW2BgvBg92brWMW4rv58C2kTmj0f5ntBLY04 )
+
+$33,000 in bounties up for grabs
+
+We're happy to announce our expanded prize pool of $33,000! Here are the ex=
+citing bounties you can compete for:
+
+- Build Mobile Apps with Starknet.dart =E2=80=94 Build the next generation =
+of mobile app products using Starknet.dart to onboard millions of users.
+- Build with Dojo =E2=80=94 Unleash your creativity and build games using t=
+he Dojo Engine and the Cartridge Controller on Starknet.
+- Build with Pragma =E2=80=94 Implement any of Pragma's product suite, incl=
+uding price feeds, computational feeds, or optimistic oracle.
+- BTCfi Season powered by Vesu =E2=80=94 Build the best BTC yield app power=
+ed by Starknet=E2=80=99s DeFi power houses Vesu and Ekubo.
+- Best use of Starknet =E2=80=94 Let your creativity flow and build any dAp=
+p on Starknet, whether it=E2=80=99s for infrastructure, artistic expression=
+, or community-driven purposes.
+
+Your Hackathon support system
+
+Remember, you have an entire support system at your disposal during Re{igni=
+te} (https://dk79kv04.eu1.hubspotlinksstarter.com/Ctc/2Q+113/dk79kv04/VVDcW=
+B65vV92Mr0d4xlr0-NW3pvQRf5wmB3LN5GS5S43lcq-W6N1vHY6lZ3pmW6dK_mh7vRtpbN6YtMq=
+1YDg12W4T2cxd1KqYrsN8bnQ3V5Cpt5W5nl--95SrWhLW7vGPHD51RSHrW7g4S7m4txmwJW6Kq1=
+B46SGhnkW5T3x3k7lxrMjW5J__9b2ysj5gW6gvwpG6X_2LrN1wcs7R_cHBkN4hVYTML8lf8W4Cf=
+MHQ2_sGdyV8f2J77NmqxGW1gt74Z8gNzBYW8Qn0zh39Xn1PW7BmFjL2lPgwXW5hTPzZ1ZHH-JW4=
+zLndX8d1Z3bW2BgvBg92brWMW4rv58C2kTmj0f5ntBLY04 ) . Use it!
+
+Here=E2=80=99s the type of support you can expect:
+
+- Workshops & Learning =E2=80=94 Check out our full agenda (https://dk79kv0=
+4.eu1.hubspotlinksstarter.com/Ctc/2Q+113/dk79kv04/VVDcWB65vV92Mr0d4xlr0-NW3=
+pvQRf5wmB3LN5GS5Tg3lcq-W95jsWP6lZ3ptW21l_8P8LcMjRVrWTgJ4fBWZ3W8DwHFW4rw56PW=
+2VwH9R2595BBVMVb9B4vz29WN8P-xKHNGNV3W1zy9qV1jXvpCW14FHwL7HKlB7W6yLZLz8kg7Sp=
+W2V3BBD5W9lM8VPYtKW54qzl8W4QQYyX5PtSmwW3cfvW15nv0LtN2hD9BrW-wb5W8mdBRr7MWq6=
+jW8L00F_4Lyz2zW6TXRHP79MwP0W95Pr8f4n3XKxW6b3PFt9j9gZPN648D1KTt4xlW55m62M3pR=
+7hrW3G3jN433mJmqW1j9R9m5WyX0hW31F6kM7-RRggW8BPwk18KJ_b1W5q1MJH2MMVkVW18g398=
+33Z5_vW235yBj6xLjf2N4LwtFXbHygxW2D0F8N4rL2MBf366MWW04 ) of workshops throug=
+hout the two-week period.
+- Community Support =E2=80=94 Join our Hackathon Telegram Group (https://dk=
+79kv04.eu1.hubspotlinksstarter.com/Ctc/2Q+113/dk79kv04/VVDcWB65vV92Mr0d4xlr=
+0-NW3pvQRf5wmB3LN5GS5S43lcq-W6N1vHY6lZ3pgW5v7FjV6Msv2pW405wCG5B0Zh1W41KkDC3=
+d9XlzW2MLjZt6wq9H_MPzpm9Yp1XCW4JjT4y4cdp1fW76MRLv2zvKzCW4KGZRp4nRyBqW2K7jzD=
+19WjQQW28dsl82H70bKV5wHbG2S8kxXW1p6sWM5w05WdW62BfGm3tJdn0W3NLqxk5F71mwW4ZF0=
+392TYZY4W2LlW0w8YkBc0W8zMQ5v3T7MGxV7t7xn3Q2HkcW9kyF283TdDd7W1hQtWj65PKWQN6N=
+HDq__hBjWW16q4Kb1NxBZ1f3-7hDK04 ) for real-time updates, support, and impor=
+tant announcements.
+- Team Building =E2=80=94 Still looking for a team? Visit our Team Formatio=
+n channel (https://dk79kv04.eu1.hubspotlinksstarter.com/Ctc/2Q+113/dk79kv04=
+/VVDcWB65vV92Mr0d4xlr0-NW3pvQRf5wmB3LN5GS5S43lcq-W6N1vHY6lZ3pgW5v7FjV6Msv2p=
+W405wCG5B0Zh1W41KkDC3d9XlzW2MLjZt6wq9H_MPzpm9Yp1XCW4JjT4y4cdp1fW76MRLv2zvKz=
+CW4KGZRp4nRyBqW2K7jzD19WjQQW28dsl82H70bKV5wHbG2S8kxXW1p6sWM5w05WdW62BfGm3tJ=
+dn0W3NLqxk5F71mwW4ZF0392TYZY4W2LlW0w8YkBc0W8zMQ5v3T7MGxV7t7xn3Q2HkcW9kyF283=
+TdDd7W1hQtWj65PKWQN6NHDq__hBjWW16q4Kb1NxBZ1f3-7hDK04 ) or attend our Office=
+ Hours sessions.
+
+Hackathon checklist: Your pre-event guide
+
+We want you to succeed, so we=E2=80=99ve put together a super short guide o=
+n how to best prepare for Re{ignite}:
+
+=E2=9C=94=EF=B8=8F Assemble your team.
+
+=E2=9C=94=EF=B8=8F Brainstorm and find the right idea.
+
+=E2=9C=94=EF=B8=8F Create a clear project plan with defined roles and miles=
+tones.
+
+=E2=9C=94=EF=B8=8F Get familiar with the tools and technologies you'll be u=
+sing.
+
+Final steps
+
+Haven't registered yet? Sign up here (https://dk79kv04.eu1.hubspotlinksstar=
+ter.com/Ctc/2Q+113/dk79kv04/VVDcWB65vV92Mr0d4xlr0-NW3pvQRf5wmB3LN5GS5S43lcq=
+-W6N1vHY6lZ3pmW6dK_mh7vRtpbN6YtMq1YDg12W4T2cxd1KqYrsN8bnQ3V5Cpt5W5nl--95SrW=
+hLW7vGPHD51RSHrW7g4S7m4txmwJW6Kq1B46SGhnkW5T3x3k7lxrMjW5J__9b2ysj5gW6gvwpG6=
+X_2LrN1wcs7R_cHBkN4hVYTML8lf8W4CfMHQ2_sGdyV8f2J77NmqxGW1gt74Z8gNzBYW8Qn0zh3=
+9Xn1PW7BmFjL2lPgwXW5hTPzZ1ZHH-JW4zLndX8d1Z3bW2BgvBg92brWMW4rv58C2kTmj0f5ntB=
+LY04 ) to secure your spot in Re{ignite}!
+
+We can't wait to see what you build! Get ready to launch innovative solutio=
+ns on Starknet!
+
+Happy building,
+
+The Starknet Foundation Team
+
+Register for Re{ignite}
+(https://dk79kv04.eu1.hubspotlinksstarter.com/Ctc/2Q+113/dk79kv04/VVDcWB65v=
+V92Mr0d4xlr0-NW3pvQRf5wmB3LN5GS5S43lcq-W6N1vHY6lZ3pmW6dK_mh7vRtpbN6YtMq1YDg=
+12W4T2cxd1KqYrsN8bnQ3V5Cpt5W5nl--95SrWhLW7vGPHD51RSHrW7g4S7m4txmwJW6Kq1B46S=
+GhnkW5T3x3k7lxrMjW5J__9b2ysj5gW6gvwpG6X_2LrN1wcs7R_cHBkN4hVYTML8lf8W4CfMHQ2=
+_sGdyV8f2J77NmqxGW1gt74Z8gNzBYW8Qn0zh39Xn1PW7BmFjL2lPgwXW5hTPzZ1ZHH-JW4zLnd=
+X8d1Z3bW2BgvBg92brWMW4rv58C2kTmj0f5ntBLY04 )
+
+Starknet Foundation, Suite 3119, 9 Forum Lane, Camana Bay, PO Box 144, Geor=
+ge Town, Grand Cayman
+
+Unsubscribe (https://hs-145681388.s.hubspotstarter-eu1.net/preferences/en/u=
+nsubscribe?data=3DW2nVjwf3Y2x4TW2PCdy32zW1qyW2FBmn22nN6bsW215nh736y5R1W1VdY=
+Xy2KppT-W3XX2Cn4rDLxtW1Z8HNS1Q3h4MW3FdWLg22WrfSW3VXHqf2-CmVvW47VnyL4chR2jW3=
+648FP3LHnN9W2Yrxpm1Swgy8W2PQ00f3DJLY0W30mmP934qcT9W212YZs2-GMpxW1NpTY13T4bh=
+0W2vSX3n2KMYxFW30pTRw4kgnvvW3LV7XJ3_-P8cW2HBY3B3H4l7YW34lVxG3D-lFfW3BWpzr38=
+5DXGW2Pmh1q3gxJnzW3brJ9021nPFSW21rkTG3P7-MKW2WxdFR1LBd4NW43V0ys2sQG_nW4rj-S=
+J3SD9HTW4hFvv53ZDp2TW3gtMnH3VQ3m5W2Kz4NT1LgxWXW3R1Zj93blhZMW3Fh1LL2zP8HMW32=
+743X4chm_CW3BYYyd2YKVjtW3gg_W-3djnbLW41HSfd4kD243W4rw33d32s_4GW2Ysmfd2v-9M-=
+W3R4sdg3ZW2YyW47RtpN1Qhq60W2qCFCF3QZPtYW4kJg8C1ShxwMW36pHN7327TLzW3g9X_B3ZT=
+NpFW3P5Whq2HPnNfW4mGpsZ3dglKx0&_hsenc=3Dp2ANqtz--OUAgfHRfjSs8iOcHoG_AYkgVaQ=
+miVJ3_LrsDKvTwU1xO-XDKL3bGz9ZqvkgbwGv6KECb3y7D3TCBBWZXpPjrY5CVVeQ&_hsmi=3D1=
+09210387 )
+Manage preferences (https://hs-145681388.s.hubspotstarter-eu1.net/preferenc=
+es/en/manage?data=3DW2nVjwf3Y2x4TW2PCdy32zW1qyW2FBmn22nN6bsW215nh736y5R1W1V=
+dYXy2KppT-W3XX2Cn4rDLxtW1Z8HNS1Q3h4MW3FdWLg22WrfSW3VXHqf2-CmVvW47VnyL4chR2j=
+W3648FP3LHnN9W2Yrxpm1Swgy8W2PQ00f3DJLY0W30mmP934qcT9W212YZs2-GMpxW1NpTY13T4=
+bh0W2vSX3n2KMYxFW30pTRw4kgnvvW3LV7XJ3_-P8cW2HBY3B3H4l7YW34lVxG3D-lFfW3BWpzr=
+385DXGW2Pmh1q3gxJnzW3brJ9021nPFSW21rkTG3P7-MKW2WxdFR1LBd4NW43V0ys2sQG_nW4rj=
+-SJ3SD9HTW4hFvv53ZDp2TW3gtMnH3VQ3m5W2Kz4NT1LgxWXW3R1Zj93blhZMW3Fh1LL2zP8HMW=
+32743X4chm_CW3BYYyd2YKVjtW3gg_W-3djnbLW41HSfd4kD243W4rw33d32s_4GW2Ysmfd2v-9=
+M-W3R4sdg3ZW2YyW47RtpN1Qhq60W2qCFCF3QZPtYW4kJg8C1ShxwMW36pHN7327TLzW3g9X_B3=
+ZTNpFW3P5Whq2HPnNfW4mGpsZ3dglKx0&_hsenc=3Dp2ANqtz--OUAgfHRfjSs8iOcHoG_AYkgV=
+aQmiVJ3_LrsDKvTwU1xO-XDKL3bGz9ZqvkgbwGv6KECb3y7D3TCBBWZXpPjrY5CVVeQ&_hsmi=
+=3D109210387 )
+------=_Part_105424_851581277.1746805079879
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www=
+.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns=3D"http://www.w3=
+.org/1999/xhtml" xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:=
+v=3D"urn:schemas-microsoft-com:vml" lang=3D"en"><head><!--[if !mso]><!--><l=
+ink rel=3D"stylesheet" type=3D"text/css" hs-webfonts=3D"true" href=3D"https=
+://fonts.googleapis.com/css?family=3DLato|Lato:i,b,bi|Merriweather|Merriwea=
+ther:i,b,bi&amp;display=3Dswap"><!--<![endif]-->
+    <title>Starknet Hackathon: Re{ignite} - Bounty information, hackathon c=
+hecklist, and more!</title>
+    <meta property=3D"og:title" content=3D"Starknet Hackathon: Re{ignite} -=
+ Bounty information, hackathon checklist, and more!">
+    <meta name=3D"twitter:title" content=3D"Starknet Hackathon: Re{ignite} =
+- Bounty information, hackathon checklist, and more!">
+   =20
+   =20
+   =20
+<meta name=3D"x-apple-disable-message-reformatting">
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3DUTF-8">
+<meta http-equiv=3D"X-UA-Compatible" content=3D"IE=3Dedge">
+<meta name=3D"viewport" content=3D"width=3Ddevice-width, initial-scale=3D1.=
+0">
+    <!--[if gte mso 9]>
+  <xml>
+    <o:OfficeDocumentSettings>
+      <o:AllowPNG/>
+      <o:PixelsPerInch>96</o:PixelsPerInch>
+    </o:OfficeDocumentSettings><w:WordDocument xmlns:w=3D"urn:schemas-micro=
+soft-com:office:word">
+      <w:DontUseAdvancedTypographyReadingMail/>
+    </w:WordDocument></xml>
+ =20
+  <style>
+    ul > li {
+      text-indent: -1em;
+    }
+  </style>
+<![endif]-->
+<!--[if mso]>
+<style type=3D"text/css">
+ body, td {font-family: Arial, Helvetica, sans-serif;}
+ .hse-body-wrapper-table {background-color: #FFFFFF;}
+</style>
+<![endif]--><!--[if mso | IE]>
+  <style type=3D"text/css">
+    .hse-column-container { border: none !important; padding: 0 !important;=
+ }
+  </style>
+<![endif]-->
+   =20
+     =20
+ =20
+ =20
+   =20
+  <meta name=3D"generator" content=3D"HubSpot"><meta property=3D"og:url" co=
+ntent=3D"http://145681388.hs-sites-eu1.com/-temporary-slug-f2674736-9a0d-47=
+f2-975e-02a3c16a15bf"><meta name=3D"robots" content=3D"noindex,follow"><!--=
+[if !((mso)|(IE))]><!-- --><style type=3D"text/css">@media only screen and =
+(max-width:639px){img.stretch-on-mobile,.hs_rss_email_entries_table img,.hs=
+-stretch-cta .hs-cta-img{height:auto !important;width:100% !important}
+.display_block_on_small_screens{display:block}.hs_padded{padding-left:20px =
+!important;padding-right:20px !important}
+.hs-hm,table.hs-hm{display:none}.hs-hd{display:block !important}table.hs-hd=
+{display:table !important}
+}@media only screen and (max-width:639px){.hse-border-m{border-left:1px sol=
+id #ccc !important;border-right:1px solid #ccc !important;box-sizing:border=
+-box}
+.hse-border-bottom-m{border-bottom:1px solid #ccc !important}.hse-border-to=
+p-m{border-top:1px solid #ccc !important}
+.hse-border-top-hm{border-top:none !important}.hse-border-bottom-hm{border-=
+bottom:none !important}
+}.moz-text-html .hse-column-container{max-width:600px !important;width:600p=
+x !important}
+.moz-text-html .hse-column{display:table-cell;vertical-align:top}.moz-text-=
+html .hse-section .hse-size-12{max-width:600px !important;width:600px !impo=
+rtant}
+@media only screen and (min-width:640px){.hse-column-container{max-width:60=
+0px !important;width:600px !important}
+.hse-column{display:table-cell;vertical-align:top}.hse-section .hse-size-12=
+{max-width:600px !important;width:600px !important}
+}@media only screen and (max-width:639px){ul,blockquote{margin:0;padding:1e=
+m 40px}
+}@media only screen and (max-width:639px){.hse-body-wrapper-td{padding-bott=
+om:20px !important}
+#section_1736779265115 .hse-column-container{background-color:#fff !importa=
+nt} }</style><!--<![endif]--><style type=3D"text/css">#hs_body #hs_cos_wrap=
+per_main a[x-apple-data-detectors]{color:inherit !important;text-decoration=
+:none !important;font-size:inherit !important;font-family:inherit !importan=
+t;font-weight:inherit !important;line-height:inherit !important}
+a{text-decoration:underline}p{margin:0}body{-ms-text-size-adjust:100%;-webk=
+it-text-size-adjust:100%;-webkit-font-smoothing:antialiased;moz-osx-font-sm=
+oothing:grayscale}
+table{border-spacing:0;mso-table-lspace:0;mso-table-rspace:0}table,td{borde=
+r-collapse:collapse}
+img{-ms-interpolation-mode:bicubic}p,a,li,td,blockquote{mso-line-height-rul=
+e:exactly}</style></head>
+  <body id=3D"hs_body" bgcolor=3D"#FFFFFF" style=3D"margin:0 !important; pa=
+dding:0 !important; font-family:Merriweather, Georgia, sans-serif; font-siz=
+e:18px; color:#232342; word-break:break-word">
+    <div id=3D"preview_text" style=3D"display:none;font-size:1px;color:#FFF=
+FFF;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;=
+" lang=3D"en">Join us at Re{ignite} for exciting bounties and support!</div=
+>
+   =20
+<!--[if gte mso 9]>
+<v:background xmlns:v=3D"urn:schemas-microsoft-com:vml" fill=3D"t">
+    <v:fill type=3D"tile" size=3D"100%,100%" color=3D"#ffffff"/>
+</v:background>
+<![endif]-->
+    <div class=3D"hse-body-background" lang=3D"en" style=3D"background-colo=
+r:#ffffff" bgcolor=3D"#ffffff">
+      <table role=3D"presentation" class=3D"hse-body-wrapper-table" cellpad=
+ding=3D"0" cellspacing=3D"0" style=3D"margin:0; padding:0; width:100% !impo=
+rtant; min-width:320px !important; height:100% !important" width=3D"100%" h=
+eight=3D"100%">
+        <tbody><tr>
+          <td class=3D"hse-body-wrapper-td" valign=3D"top" style=3D"font-fa=
+mily:Merriweather, Georgia, sans-serif; font-size:18px; color:#232342; word=
+-break:break-word; padding-bottom:20px">
+            <div id=3D"hs_cos_wrapper_main" class=3D"hs_cos_wrapper hs_cos_=
+wrapper_widget hs_cos_wrapper_type_dnd_area" style=3D"color: inherit; font-=
+size: inherit; line-height: inherit;" data-hs-cos-general-type=3D"widget" d=
+ata-hs-cos-type=3D"dnd_area">  <div id=3D"section-1" class=3D"hse-section" =
+style=3D"padding-left:10px; padding-right:10px; background-color:#ffffff" b=
+gcolor=3D"#ffffff">
+   =20
+     =20
+      <!--[if gte mso 9]><table align=3D"center" border=3D"0" cellpadding=
+=3D"0" cellspacing=3D"0" role=3D"presentation"
+              width=3D"100%" style=3D"width:100%" bgcolor=3D"#ffffff"
+            ><tbody><tr><td valign=3D"top"><![endif]-->
+   =20
+   =20
+   =20
+      <div class=3D"hse-column-container" style=3D"min-width:280px; max-wid=
+th:600px; Margin-left:auto; Margin-right:auto; padding-bottom:29px; padding=
+-top:20px">
+   =20
+   =20
+    <!--[if (mso)|(IE)]>
+     =20
+      <table align=3D"center" style=3D"width:600px;" cellpadding=3D"0" cell=
+spacing=3D"0" role=3D"presentation">
+      <tr>
+    <![endif]-->
+    <!--[if (mso)|(IE)]>
+  <td valign=3D"top" style=3D"width:600px;padding-bottom:29px; padding-top:=
+20px;">
+<![endif]-->
+<!--[if gte mso 9]>
+  <table role=3D"presentation" width=3D"600" cellpadding=3D"0" cellspacing=
+=3D"0" style=3D"width:600px">
+<![endif]-->
+<div id=3D"column-1-0" class=3D"hse-column hse-size-12">
+  <div id=3D"hs_cos_wrapper_module-1-0-0" class=3D"hs_cos_wrapper hs_cos_wr=
+apper_widget hs_cos_wrapper_type_module" style=3D"color: inherit; font-size=
+: inherit; line-height: inherit;" data-hs-cos-general-type=3D"widget" data-=
+hs-cos-type=3D"module"><table class=3D"hse-image-wrapper" role=3D"presentat=
+ion" width=3D"100%" cellpadding=3D"0" cellspacing=3D"0">
+  <tbody>
+    <tr>
+      <td class=3D"hs_padded" align=3D"center" valign=3D"top" style=3D"font=
+-family:Merriweather, Georgia, sans-serif; color:#232342; word-break:break-=
+word; text-align:center; padding:10px 20px; font-size:0px">
+        <img alt=3D"Hackathon Newsletter Header 1_V1@2x" src=3D"https://hs-=
+145681388.f.hubspotstarter-eu1.net/hub/145681388/hubfs/Hackathon%20Newslett=
+er%20Header%201_V1@2x.png?width=3D1120&amp;upscale=3Dtrue&amp;name=3DHackat=
+hon%20Newsletter%20Header%201_V1@2x.png" style=3D"outline:none; text-decora=
+tion:none; max-width:100%; font-size:16px" width=3D"560" align=3D"middle">
+      </td>
+    </tr>
+  </tbody>
+</table></div>
+  <table role=3D"presentation" cellpadding=3D"0" cellspacing=3D"0" width=3D=
+"100%" class=3D"" style=3D""><tbody><tr><td class=3D"hs_padded" style=3D"fo=
+nt-family:Merriweather, Georgia, sans-serif; font-size:18px; color:#232342;=
+ word-break:break-word; padding:10px 20px"><div id=3D"hs_cos_wrapper_module=
+-1-0-1" class=3D"hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_m=
+odule" style=3D"color: inherit; font-size: inherit; line-height: inherit;" =
+data-hs-cos-general-type=3D"widget" data-hs-cos-type=3D"module"><div id=3D"=
+hs_cos_wrapper_module-1-0-1_" class=3D"hs_cos_wrapper hs_cos_wrapper_widget=
+ hs_cos_wrapper_type_rich_text" style=3D"color: inherit; font-size: inherit=
+; line-height: inherit;" data-hs-cos-general-type=3D"widget" data-hs-cos-ty=
+pe=3D"rich_text"><h2 style=3D"margin:0; mso-line-height-rule:exactly; font-=
+family:Merriweather, Georgia, sans-serif; font-size:24px; line-height:115%;=
+ text-align:center" align=3D"center"><span style=3D"font-family: Helvetica,=
+ Arial, sans-serif;">Starknet Hackathon: Re{ignite} - Bounty information, h=
+ackathon checklist, and more!</span></h2>
+<p style=3D"mso-line-height-rule:exactly; line-height:125%"><span style=3D"=
+font-family: Helvetica, Arial, sans-serif;">&nbsp;</span></p>
+<p style=3D"mso-line-height-rule:exactly; line-height:125%"><span style=3D"=
+font-family: Helvetica, Arial, sans-serif;">In our previous newsletter, we =
+promised you more information about the <a href=3D"https://dk79kv04.eu1.hub=
+spotlinksstarter.com/Ctc/2Q+113/dk79kv04/VVDcWB65vV92Mr0d4xlr0-NW3pvQRf5wmB=
+3LN5GS5S43m2ndW6N1vHY6lZ3n4W5D3txp4KRPrYW6Kl9446kMWlCN3FRzcdvVpJKW8d8zf4167=
+rDNW2Z_MRT2b9XSnW7NpXW-5lKcnfW6hf0Nr3J-by7VBPGSC1xr80RVvkHNs2v34mHW1N9fNP1h=
+XVqxW1X2r535rJDjtW4J6D771LdQfzW12nGcY15D86RW1hHpkZ2HkDX0W1QbmhX7rqdZtN1g_jY=
+LQW0CHW5zhCTp2kb7PFMs6wV_NkjNfV2_1BW3yXBKQVZ4vx31CFxH2W3tX3qR32G_n-W8CbPHT6=
+2F3C2f8JrVQv04" style=3D"color:#79859a" data-hs-link-id=3D"0" data-hs-link-=
+id-v2=3D"jOI8BtMZ" target=3D"_blank">Starknet Hackathon: Re{ignite}</a>. Th=
+e countdown has begun. With just a few days remaining until launch, now is =
+the ideal time to finalize your preparations and get ready to build your pr=
+ojects on Starknet!</span></p>
+<p style=3D"mso-line-height-rule:exactly; line-height:125%">&nbsp;</p>
+<p style=3D"mso-line-height-rule:exactly; line-height:125%"><span style=3D"=
+font-family: Helvetica, Arial, sans-serif;">The hackathon will start on <st=
+rong>May 12th at 13:00 UTC</strong> and the submissions will close on <stro=
+ng>May 26th 23:59 UTC</strong>.&nbsp;</span></p>
+<p style=3D"mso-line-height-rule:exactly; line-height:175%"><span style=3D"=
+font-family: Helvetica, Arial, sans-serif;"><!-- notionvc: aea1f52a-01d9-48=
+02-af0b-8d44618b3f34 --></span></p>
+<p style=3D"mso-line-height-rule:exactly; font-size:18px; line-height:125%"=
+><!-- notionvc: 4d350195-a9ea-477e-914e-81417635d945 --><!-- notionvc: c062=
+a014-6cba-478c-ad59-01c80c6f660f --></p></div></div></td></tr></tbody></tab=
+le>
+  <table role=3D"presentation" cellpadding=3D"0" cellspacing=3D"0" width=3D=
+"100%" class=3D"" style=3D""><tbody><tr><td class=3D"hs_padded" style=3D"fo=
+nt-family:Merriweather, Georgia, sans-serif; font-size:18px; color:#232342;=
+ word-break:break-word; padding:10px 20px"><div id=3D"hs_cos_wrapper_module=
+_17454374631881" class=3D"hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapp=
+er_type_module" style=3D"color: inherit; font-size: inherit; line-height: i=
+nherit;" data-hs-cos-general-type=3D"widget" data-hs-cos-type=3D"module"><t=
+able align=3D"center" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" role=
+=3D"presentation" style=3D"border-collapse:separate!important">
+    <tbody><tr>
+      <td align=3D"center" valign=3D"middle" bgcolor=3D"#232342" style=3D"f=
+ont-family:Merriweather, Georgia, sans-serif; font-size:18px; color:#232342=
+; word-break:break-word; border-radius:0px; cursor:auto; background-color:#=
+232342; mso-padding-alt:12px 18px">
+        <a href=3D"https://dk79kv04.eu1.hubspotlinksstarter.com/Ctc/2Q+113/=
+dk79kv04/VVDcWB65vV92Mr0d4xlr0-NW3pvQRf5wmB3LN5GS5S43m2ndW6N1vHY6lZ3ndN5pzm=
+QxvTF5QVktpBz4DBwdkW19014H99zHJHVLbpTd57HtSMN7fdWWCRpQxmW36Gk997tPsGBW9m0pq=
+v4fBCxtW596qPh5rr2s6W72VGXW5vpf_5W95QX862g-yRPW3n5hv3353_jmW5SFsPB692NXtW1m=
+b5Yk5qwskzW6DXqG47jbjBNW3KVQKs1rp1qPW2Zj6lb3gJfvMW5yxb1K3YSsNHW5dJhG739R-Tp=
+W5nz84r1Y8Fj9W4y5tK21GlL7FW2wY4d99dr1BFW2yyRGc7C-Gpgf4ZTYM804" target=3D"_b=
+lank" style=3D"color:#00a4bd; font-size:16px; font-family:Helvetica,Arial,s=
+ans-serif; Margin:0; text-transform:none; text-decoration:none; padding:12p=
+x 18px; display:block" data-hs-link-id=3D"1" data-hs-link-id-v2=3D"wsBl+2fL=
+">
+          <strong style=3D"color:#ffffff;font-weight:bold;text-decoration:n=
+one;font-style:normal;">Register for Re{ignite}</strong>
+        </a>
+      </td>
+    </tr>
+  </tbody></table></div></td></tr></tbody></table>
+  <table role=3D"presentation" cellpadding=3D"0" cellspacing=3D"0" width=3D=
+"100%" class=3D"" style=3D""><tbody><tr><td class=3D"hs_padded" style=3D"fo=
+nt-family:Merriweather, Georgia, sans-serif; font-size:18px; color:#232342;=
+ word-break:break-word; padding:10px 20px"><div id=3D"hs_cos_wrapper_module=
+_17454374956862" class=3D"hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapp=
+er_type_module" style=3D"color: inherit; font-size: inherit; line-height: i=
+nherit;" data-hs-cos-general-type=3D"widget" data-hs-cos-type=3D"module"><d=
+iv id=3D"hs_cos_wrapper_module_17454374956862_" class=3D"hs_cos_wrapper hs_=
+cos_wrapper_widget hs_cos_wrapper_type_rich_text" style=3D"color: inherit; =
+font-size: inherit; line-height: inherit;" data-hs-cos-general-type=3D"widg=
+et" data-hs-cos-type=3D"rich_text"><h2 style=3D"margin:0; mso-line-height-r=
+ule:exactly; font-family:Merriweather, Georgia, sans-serif; font-size:24px;=
+ line-height:394%"><span style=3D"color: #000000; font-family: Helvetica, A=
+rial, sans-serif;">$33,000 in bounties up for grabs</span></h2>
+<p style=3D"mso-line-height-rule:exactly; line-height:125%"><span style=3D"=
+font-family: Helvetica, Arial, sans-serif;">We're happy to announce our exp=
+anded prize pool of $33,000! Here are the exciting bounties you can compete=
+ for:</span></p>
+<ul style=3D"mso-line-height-rule:exactly; line-height:175%">
+<li style=3D"line-height: 125%;" aria-level=3D"1"><span style=3D"font-famil=
+y: Helvetica, Arial, sans-serif;"><strong>Build Mobile Apps with Starknet.d=
+art</strong> =E2=80=94 Build the next generation of mobile app products usi=
+ng Starknet.dart to onboard millions of users.</span></li>
+<li style=3D"line-height: 125%;" aria-level=3D"1"><span style=3D"font-famil=
+y: Helvetica, Arial, sans-serif;"><strong>Build with Dojo</strong> =E2=80=
+=94 Unleash your creativity and build games using the Dojo Engine and the C=
+artridge Controller on Starknet.</span></li>
+<li style=3D"line-height: 125%;" aria-level=3D"1"><span style=3D"font-famil=
+y: Helvetica, Arial, sans-serif;"><strong>Build with Pragma</strong> =E2=80=
+=94 Implement any of Pragma's product suite, including&nbsp;price feeds, co=
+mputational feeds, or optimistic oracle.</span></li>
+<li style=3D"line-height: 125%;" aria-level=3D"1"><span style=3D"font-famil=
+y: Helvetica, Arial, sans-serif;"><strong>BTCfi Season powered by Vesu</str=
+ong> =E2=80=94 Build the best BTC yield app powered by Starknet=E2=80=99s D=
+eFi power houses Vesu and Ekubo.</span></li>
+<li style=3D"line-height: 125%;" aria-level=3D"1"><span style=3D"font-famil=
+y: Helvetica, Arial, sans-serif;"><strong>Best use of Starknet</strong> =E2=
+=80=94&nbsp;Let your creativity flow and build any dApp on Starknet,&nbsp;w=
+hether it=E2=80=99s for infrastructure, artistic expression, or community-d=
+riven purposes.</span></li>
+</ul>
+<h2 style=3D"margin:0; mso-line-height-rule:exactly; line-height:175%; font=
+-family:Merriweather, Georgia, sans-serif; font-size:36px"><span style=3D"f=
+ont-size: 24px; color: #000000; font-family: Helvetica, Arial, sans-serif;"=
+>Your Hackathon support system</span></h2>
+<p style=3D"mso-line-height-rule:exactly; line-height:175%"><span style=3D"=
+font-size: 24px;"> </span></p>
+<p style=3D"mso-line-height-rule:exactly; line-height:125%"><span style=3D"=
+font-family: Helvetica, Arial, sans-serif;">Remember, you have an entire su=
+pport system at your disposal during <a href=3D"https://dk79kv04.eu1.hubspo=
+tlinksstarter.com/Ctc/2Q+113/dk79kv04/VVDcWB65vV92Mr0d4xlr0-NW3pvQRf5wmB3LN=
+5GS5S43m2ndW6N1vHY6lZ3nQW7RBgV36st7YrW9hHMfw8tzfxSW6WLc0K5-9W-rN6n-KdJTJf2W=
+W3KcZnn7l9rDlW1gwHgr8YcqhkW3Fc6982Jdl4VW1M0LBP7xvhW9W3gds663sk8KMW7y68_t8Hh=
+4SmW4kcNwR97SP5KW7bbFhl2656clW9dRRxg2_QnBFW7_H__M36hj2qW5PXNVX5bmYRvW7_89Jv=
+5sGH6FW4KMHpb4lmfQlW6kqdCG1WgMBWW1cb6jK2V8r1NN8TyBrxvc3pyW3g7ZWc37vJYzW44VF=
+B74r9tJHf6CTZXT04" style=3D"color:#79859a" data-hs-link-id=3D"2" data-hs-li=
+nk-id-v2=3D"6jLXQ6rP" target=3D"_blank">Re{ignite}</a>. Use it!</span><br><=
+br><span style=3D"font-family: Helvetica, Arial, sans-serif;">Here=E2=80=99=
+s the type of support you can expect:&nbsp;</span></p>
+<ul style=3D"mso-line-height-rule:exactly; line-height:125%">
+<li style=3D"line-height: 125%;" aria-level=3D"1"><span style=3D"font-famil=
+y: Helvetica, Arial, sans-serif;"><strong>Workshops &amp; Learning</strong>=
+ =E2=80=94&nbsp;Check out our <a href=3D"https://dk79kv04.eu1.hubspotlinkss=
+tarter.com/Ctc/2Q+113/dk79kv04/VVDcWB65vV92Mr0d4xlr0-NW3pvQRf5wmB3LN5GS5Tg3=
+m2ndW95jsWP6lZ3ngW15sG4d18Mcg2W5XfBK81vFD9PN7qNd_XnJYZrN3vCS8Sk04hyW34tW-J7=
+V3p7KW7-VW0R3ZB5_8W44g_z87w7t9LW2sk4zy174Md7W7LWTW03dDfq-W3tQLxD5xmdRsW7rMN=
+w991FB41W5lkd8f65m1g5W97zWMl5wvjhPW5Lj7SY39PccqW630s_p8X0LgtW10F_B8332jKSW1=
+6FGRC6CwBlTW77vRs13MYPKcW2vT2H87WZwn2W1DGsbn4g3hnVW7qwXxx8mcr5fW1ptJCd3-x9x=
+QW6ghldw6jcDjdVKflJJ8S8YDxMC_gNbTmnCCW1bjNnx2JkjLwW15tjsN3knjfDW4x89mn12dkt=
+9W3d9dkm6M8SkJVnwVJT6RPVWJf3RFpNq04" style=3D"color:#79859a" data-hs-link-i=
+d=3D"0" data-hs-link-id-v2=3D"cVFKAtqD" target=3D"_blank">full agenda</a> o=
+f workshops throughout the two-week period.</span></li>
+<li style=3D"line-height: 125%;" aria-level=3D"1"><span style=3D"font-famil=
+y: Helvetica, Arial, sans-serif;"><strong>Community Support</strong> =E2=80=
+=94&nbsp;Join our <a href=3D"https://dk79kv04.eu1.hubspotlinksstarter.com/C=
+tc/2Q+113/dk79kv04/VVDcWB65vV92Mr0d4xlr0-NW3pvQRf5wmB3LN5GS5S43m2ndW6N1vHY6=
+lZ3pDN4yts4Bsj8ZJW21MnV75Hvly0W6jV-JD3DX2p1W1yDnXH7lM7dCW17WjSf4y23M9W5qG8K=
+j6yBswVW4GT81x39p5D5M1GMMV9rz5WW2VmB1f2JkpyKVZMvh46XLp3wN6kCkm7mlVBHVPFWQ03=
+p3JyZVRVlXW8ZJw-pW3sXdm-6ZG9FpW7JZjvY4rm5jyW6J51R38lF4YjW3_LMQ44p6R7SW7r506=
+b6pJmTbW5ThGZt8qR_JwW2cG3X67JxdHHW4B-3z_3dX8sVW3_2RPH4Vn-wYf4HWbwK04" style=
+=3D"color:#79859a" data-hs-link-id=3D"0" data-hs-link-id-v2=3D"Vi2N4FiQ" ta=
+rget=3D"_blank">Hackathon Telegram Group</a> for real-time updates, support=
+, and important announcements.</span></li>
+<li style=3D"line-height: 125%;" aria-level=3D"1"><span style=3D"font-famil=
+y: Helvetica, Arial, sans-serif;"><strong>Team Building</strong> =E2=80=94&=
+nbsp;Still looking for a team? Visit our <a href=3D"https://dk79kv04.eu1.hu=
+bspotlinksstarter.com/Ctc/2Q+113/dk79kv04/VVDcWB65vV92Mr0d4xlr0-NW3pvQRf5wm=
+B3LN5GS5S43m2ndW6N1vHY6lZ3l6VmQv8F3h62rvW6r_1x56qTRNTVbczT550DK1vW3tdXFZ4NP=
+rGgW1tYbln59Bp75W1Qxjp67R1309W8gD_QS45nP7bW36g6xN1N9TVCW2nYmzg8KWhvqW7yqHCz=
+1wmglLW8k3rSk2rkypzN1yYwkM3vPwPW9g2fKg7399PzW4m6tzB4sqyz_W1b8JwF2yjZyZVXnP_=
+91vBvHjW4St-306117QQN1CK8CKNH2YKW7BYLjk8tTG2fW6zwJrh8H8RMMW5P0l8148v6yBVcWy=
+Y-8KRXnCf8YjSZb04" style=3D"color:#79859a" data-hs-link-id=3D"1" data-hs-li=
+nk-id-v2=3D"MpcCgPtk" target=3D"_blank">Team Formation channel</a> or atten=
+d our Office Hours sessions.</span></li>
+</ul>
+<h2 style=3D"margin:0; mso-line-height-rule:exactly; font-family:Merriweath=
+er, Georgia, sans-serif; font-size:24px; line-height:394%"><span style=3D"c=
+olor: #000000; font-family: Helvetica, Arial, sans-serif;">Hackathon checkl=
+ist: Your pre-event guide</span></h2>
+<p style=3D"mso-line-height-rule:exactly; line-height:125%"><span style=3D"=
+font-family: Helvetica, Arial, sans-serif;">We want you to succeed, so we=
+=E2=80=99ve put together a super short guide on how to best prepare for Re{=
+ignite}:</span></p>
+<p style=3D"mso-line-height-rule:exactly; line-height:125%">&nbsp;</p>
+<p style=3D"mso-line-height-rule:exactly; padding-left:40px; line-height:12=
+5%"><span style=3D"font-family: Helvetica, Arial, sans-serif;">=E2=9C=94=EF=
+=B8=8F&nbsp;Assemble your team.</span></p>
+<p style=3D"mso-line-height-rule:exactly; padding-left:40px; line-height:12=
+5%"><span style=3D"font-family: Helvetica, Arial, sans-serif;">=E2=9C=94=EF=
+=B8=8F Brainstorm and find the right idea.</span></p>
+<p style=3D"mso-line-height-rule:exactly; padding-left:40px; line-height:12=
+5%"><span style=3D"font-family: Helvetica, Arial, sans-serif;">=E2=9C=94=EF=
+=B8=8F Create a clear project plan with defined roles and milestones.</span=
+></p>
+<p style=3D"mso-line-height-rule:exactly; padding-left:40px; line-height:12=
+5%"><span style=3D"font-family: Helvetica, Arial, sans-serif;">=E2=9C=94=EF=
+=B8=8F Get familiar with the tools and technologies you'll be using.</span>=
+</p>
+<h2 style=3D"margin:0; mso-line-height-rule:exactly; font-family:Merriweath=
+er, Georgia, sans-serif; font-size:24px; line-height:394%"><span style=3D"c=
+olor: #000000; font-family: Helvetica, Arial, sans-serif;">Final steps&nbsp=
+;</span></h2>
+<p style=3D"mso-line-height-rule:exactly; line-height:125%"><span style=3D"=
+font-family: Helvetica, Arial, sans-serif;">Haven't registered yet? Sign up=
+ <a href=3D"https://dk79kv04.eu1.hubspotlinksstarter.com/Ctc/2Q+113/dk79kv0=
+4/VVDcWB65vV92Mr0d4xlr0-NW3pvQRf5wmB3LN5GS5S43m2ndW6N1vHY6lZ3nRW3vVGcF7VY91=
+tW4-dg2w6sV09fW52yVjn2GM3zGW13fK3s80hnrwN6rz4MsVvb1wW6rFpr35Q79-tVq794R7H-q=
+rBW1-6l3x8GJlJsN2hkmC6S6CSdW6bDwc18WhFGpN9cbt7_c7ZCkW3qx8bY8vGG7NW90D5Y729l=
+54fVhhb4K8WKWT1W18b4Wc7jLt6gW1jYMb98R0fjTW8dbTTx2BYF6DW6QHzyp7W95ClW2ZqwCp9=
+6_VtwV6zNZv4ddsWqW8KrrqB90M9t7W7TwdLS23nR_Kf188k8d04" style=3D"color:#79859=
+a" data-hs-link-id=3D"3" data-hs-link-id-v2=3D"QKVR5DFz" target=3D"_blank">=
+here</a> to secure your spot in Re{ignite}!&nbsp;</span></p>
+<p style=3D"mso-line-height-rule:exactly; line-height:125%">&nbsp;</p>
+<p style=3D"mso-line-height-rule:exactly; line-height:125%"><span style=3D"=
+font-family: Helvetica, Arial, sans-serif;">We can't wait to see what you b=
+uild! Get ready to launch innovative solutions on Starknet!</span></p>
+<p style=3D"mso-line-height-rule:exactly; line-height:125%">&nbsp;</p>
+<p style=3D"mso-line-height-rule:exactly; line-height:125%"><span style=3D"=
+font-family: Helvetica, Arial, sans-serif;">Happy building,</span></p>
+<p style=3D"mso-line-height-rule:exactly; line-height:125%">&nbsp;</p>
+<p style=3D"mso-line-height-rule:exactly; line-height:125%"><span style=3D"=
+font-family: Helvetica, Arial, sans-serif;">The Starknet Foundation Team</s=
+pan></p></div></div></td></tr></tbody></table>
+  <table role=3D"presentation" cellpadding=3D"0" cellspacing=3D"0" width=3D=
+"100%" class=3D"" style=3D""><tbody><tr><td class=3D"hs_padded" style=3D"fo=
+nt-family:Merriweather, Georgia, sans-serif; font-size:18px; color:#232342;=
+ word-break:break-word; padding:10px 20px"><div id=3D"hs_cos_wrapper_module=
+_174434517846110" class=3D"hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrap=
+per_type_module" style=3D"color: inherit; font-size: inherit; line-height: =
+inherit;" data-hs-cos-general-type=3D"widget" data-hs-cos-type=3D"module"><=
+table align=3D"center" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" rol=
+e=3D"presentation" style=3D"border-collapse:separate!important">
+    <tbody><tr>
+      <td align=3D"center" valign=3D"middle" bgcolor=3D"#232342" style=3D"f=
+ont-family:Merriweather, Georgia, sans-serif; font-size:18px; color:#232342=
+; word-break:break-word; border-radius:0px; cursor:auto; background-color:#=
+232342; mso-padding-alt:12px 18px">
+        <a href=3D"https://dk79kv04.eu1.hubspotlinksstarter.com/Ctc/2Q+113/=
+dk79kv04/VVDcWB65vV92Mr0d4xlr0-NW3pvQRf5wmB3LN5GS5S43m2ndW6N1vHY6lZ3nCW1_9Z=
+Bh74XB_NW8jc3rp1-f0wKW1tbGq28Yft8FF8Z6C3VMTlNW3MJ2Nr5Jv1g6W2pgt3889Xc4TW6XJ=
+cX54DqqcmW6WH7jM6B2bftW3c8GJs83KDFHW8vSy4Z57zCCWW8WJsL45wVWHkW87qrMq55pmMFW=
+6Gf-ZN30ZYv7W1H0g_73Nrl4TV5PSQL2C6yRGW9lXwfN2M_bMvW5DJbp02d3kvnW3gkzTK8DWHm=
+kW6McPcK5MDzhwVQQdrl2dYd0_W16qwnX3908bKN6QdRv58F1dRf5mR9Ll04" target=3D"_bl=
+ank" style=3D"color:#00a4bd; font-size:16px; font-family:Helvetica,Arial,sa=
+ns-serif; Margin:0; text-transform:none; text-decoration:none; padding:12px=
+ 18px; display:block" data-hs-link-id=3D"4" data-hs-link-id-v2=3D"t6eu8cMu"=
+>
+          <strong style=3D"color:#ffffff;font-weight:bold;text-decoration:n=
+one;font-style:normal;">Register for Re{ignite}</strong>
+        </a>
+      </td>
+    </tr>
+  </tbody></table></div></td></tr></tbody></table>
+</div>
+<!--[if gte mso 9]></table><![endif]-->
+<!--[if (mso)|(IE)]></td><![endif]-->
+    <!--[if (mso)|(IE)]></tr></table><![endif]-->
+    </div>
+  =20
+      <!--[if gte mso 9]></td></tr></table><![endif]-->
+  =20
+  </div>
+  <div id=3D"section_1736779265115" class=3D"hse-section hse-section-last" =
+style=3D"padding-left:10px; padding-right:10px">
+   =20
+   =20
+   =20
+      <div class=3D"hse-column-container" style=3D"min-width:280px; max-wid=
+th:600px; Margin-left:auto; Margin-right:auto; background-color:#ffffff" bg=
+color=3D"#ffffff">
+   =20
+   =20
+    <!--[if (mso)|(IE)]>
+     =20
+      <table align=3D"center" style=3D"width:600px;" cellpadding=3D"0" cell=
+spacing=3D"0" role=3D"presentation" width=3D"600" bgcolor=3D"#ffffff">
+      <tr style=3D"background-color:#ffffff;">
+    <![endif]-->
+    <!--[if (mso)|(IE)]>
+  <td valign=3D"top" style=3D"width:600px;">
+<![endif]-->
+<!--[if gte mso 9]>
+  <table role=3D"presentation" width=3D"600" cellpadding=3D"0" cellspacing=
+=3D"0" style=3D"width:600px">
+<![endif]-->
+<div id=3D"column_1736779265115_0" class=3D"hse-column hse-size-12">
+    <table role=3D"presentation" cellpadding=3D"0" cellspacing=3D"0" width=
+=3D"100%" class=3D"" style=3D""><tbody><tr><td class=3D"hs_padded" style=3D=
+"font-family:Merriweather, Georgia, sans-serif; font-size:18px; color:#2323=
+42; word-break:break-word; padding:10px 20px"><div id=3D"hs_cos_wrapper_mod=
+ule-3-0-0" class=3D"hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_typ=
+e_module" style=3D"color: inherit; font-size: inherit; line-height: inherit=
+;" data-hs-cos-general-type=3D"widget" data-hs-cos-type=3D"module"><table r=
+ole=3D"presentation" class=3D"hse-footer hse-secondary" width=3D"100%" cell=
+padding=3D"0" cellspacing=3D"0" style=3D"font-family:Arial, sans-serif; fon=
+t-size:12px; line-height:135%; color:#23496d; margin-bottom:0; padding:0">
+  <tbody>
+    <tr>
+      <td align=3D"center" valign=3D"top" style=3D"font-family:Merriweather=
+, Georgia, sans-serif; font-size:18px; color:#232342; word-break:break-word=
+; text-align:center; margin-bottom:0; line-height:135%; padding:10px 20px">
+        <p style=3D"font-family:Lato,Tahoma,sans-serif;font-size:12px;font-=
+weight:normal;text-decoration:none;font-style:normal;color:#79859a">
+          Starknet Foundation, Suite 3119, 9 Forum Lane, Camana Bay, PO Box=
+ 144, George Town, Grand Cayman
+        </p>
+        <p>
+          <a data-unsubscribe=3D"true" href=3D"https://hs-145681388.s.hubsp=
+otstarter-eu1.net/preferences/en/unsubscribe?data=3DW2nVjwf3Y2x4TW2PCdy32zW=
+1qyW2FBmn22nN6bsW215nh736y5R1W1VdYXy2KppT-W3XX2Cn4rDLxtW1Z8HNS1Q3h4MW3FdWLg=
+22WrfSW3VXHqf2-CmVvW47VnyL4chR2jW3648FP3LHnN9W2Yrxpm1Swgy8W2PQ00f3DJLY0W30m=
+mP934qcT9W212YZs2-GMpxW1NpTY13T4bh0W2vSX3n2KMYxFW30pTRw4kgnvvW3LV7XJ3_-P8cW=
+2HBY3B3H4l7YW34lVxG3D-lFfW3BWpzr385DXGW2Pmh1q3gxJnzW3brJ9021nPFSW21rkTG3P7-=
+MKW2WxdFR1LBd4NW43V0ys2sQG_nW4rj-SJ3SD9HTW4hFvv53ZDp2TW3gtMnH3VQ3m5W2Kz4NT1=
+LgxWXW3R1Zj93blhZMW3Fh1LL2zP8HMW32743X4chm_CW3BYYyd2YKVjtW3gg_W-3djnbLW41HS=
+fd4kD243W4rw33d32s_4GW2Ysmfd2v-9M-W3R4sdg3ZW2YyW47RtpN1Qhq60W2qCFCF3QZPtYW4=
+kJg8C1ShxwMW36pHN7327TLzW3g9X_B3ZTNpFW3P5Whq2HPnNfW4mGpsZ3dglKx0&amp;utm_so=
+urce=3Dhs_email&amp;utm_medium=3Demail&amp;utm_content=3D109210387&amp;_hse=
+nc=3Dp2ANqtz-_Ls52mqIIInNXufpGrPOCxI0gKV2NeG8yU8w-ZRDEQ3PWiUWYQuXCZilc4pFMy=
+nnWEIFthsG5dFrSXfmINHBcntKbv8w&amp;_hsmi=3D109210387" style=3D"font-family:=
+Lato,Tahoma,sans-serif; font-size:12px; color:#79859a; font-weight:normal; =
+text-decoration:underline; font-style:normal" data-hs-link-id=3D"0" data-hs=
+-link-id-v2=3D"SFRZzEXk" target=3D"_blank">Unsubscribe</a>
+          <a data-unsubscribe=3D"true" href=3D"https://hs-145681388.s.hubsp=
+otstarter-eu1.net/preferences/en/manage?data=3DW2nVjwf3Y2x4TW2PCdy32zW1qyW2=
+FBmn22nN6bsW215nh736y5R1W1VdYXy2KppT-W3XX2Cn4rDLxtW1Z8HNS1Q3h4MW3FdWLg22Wrf=
+SW3VXHqf2-CmVvW47VnyL4chR2jW3648FP3LHnN9W2Yrxpm1Swgy8W2PQ00f3DJLY0W30mmP934=
+qcT9W212YZs2-GMpxW1NpTY13T4bh0W2vSX3n2KMYxFW30pTRw4kgnvvW3LV7XJ3_-P8cW2HBY3=
+B3H4l7YW34lVxG3D-lFfW3BWpzr385DXGW2Pmh1q3gxJnzW3brJ9021nPFSW21rkTG3P7-MKW2W=
+xdFR1LBd4NW43V0ys2sQG_nW4rj-SJ3SD9HTW4hFvv53ZDp2TW3gtMnH3VQ3m5W2Kz4NT1LgxWX=
+W3R1Zj93blhZMW3Fh1LL2zP8HMW32743X4chm_CW3BYYyd2YKVjtW3gg_W-3djnbLW41HSfd4kD=
+243W4rw33d32s_4GW2Ysmfd2v-9M-W3R4sdg3ZW2YyW47RtpN1Qhq60W2qCFCF3QZPtYW4kJg8C=
+1ShxwMW36pHN7327TLzW3g9X_B3ZTNpFW3P5Whq2HPnNfW4mGpsZ3dglKx0&amp;utm_source=
+=3Dhs_email&amp;utm_medium=3Demail&amp;utm_content=3D109210387&amp;_hsenc=
+=3Dp2ANqtz-_Ls52mqIIInNXufpGrPOCxI0gKV2NeG8yU8w-ZRDEQ3PWiUWYQuXCZilc4pFMynn=
+WEIFthsG5dFrSXfmINHBcntKbv8w&amp;_hsmi=3D109210387" style=3D"font-family:La=
+to,Tahoma,sans-serif; font-size:12px; color:#79859a; font-weight:normal; te=
+xt-decoration:underline; font-style:normal" data-hs-link-id=3D"0" data-hs-l=
+ink-id-v2=3D"qjPJqCop" target=3D"_blank">Manage preferences</a>
+        </p>
+      </td>
+    </tr>
+  </tbody>
+</table></div></td></tr></tbody></table>
+</div>
+<!--[if gte mso 9]></table><![endif]-->
+<!--[if (mso)|(IE)]></td><![endif]-->
+    <!--[if (mso)|(IE)]></tr></table><![endif]-->
+    </div>
+  =20
+  </div></div>
+          </td>
+        </tr>
+      </tbody></table>
+    </div>
+ =20
+<img src=3D"https://dk79kv04.eu1.hubspotlinksstarter.com/Cto/2Q+113/dk79kv0=
+4/VVDcWB65vV92Mr0d4xlr0-NW3pvQRf5wmB3LW5GS5Cb8fYJwX366B1" alt=3D"" width=3D=
+"1" height=3D"1" border=3D"0" style=3D"display:none!important;min-height:1p=
+x!important;width:1px!important;border-width:0!important;margin-top:0!impor=
+tant;margin-bottom:0!important;margin-right:0!important;margin-left:0!impor=
+tant;padding-top:0!important;padding-bottom:0!important;padding-right:0!imp=
+ortant;padding-left:0!important"></body></html>
+------=_Part_105424_851581277.1746805079879--
+

@@ -1,6 +1,6 @@
 import { pki } from 'node-forge';
 import { DkimVerifier } from '../lib/mailauth/dkim-verifier';
-import { writeToStream } from '../lib/mailauth/tools';
+import { writeToStream, CustomError } from '../lib/mailauth/tools';
 import sanitizers from './sanitizers';
 import { resolveDNSHTTP } from './dns-over-http';
 import { resolveDNSFromZKEmailArchive } from './dns-archive';
@@ -103,17 +103,31 @@ async function tryVerifyDKIM(
   skipBodyHash = false,
 ) {
   const resolver = async (name: string, type: string) => {
+    let dnsKeys: string[] = [];
+    let archiveKeys: string[] = [];
+
     try {
-      const result = await resolveDNSHTTP(name, type);
-      return result;
+      dnsKeys = await resolveDNSHTTP(name, type);
     } catch (e) {
-      if (fallbackToZKEmailDNSArchive) {
-        console.log('DNS over HTTP failed, falling back to ZK Email Archive');
-        const result = await resolveDNSFromZKEmailArchive(name, type);
-        return result;
-      }
-      throw e;
+      // DNS failed, that's okay - will try archive
     }
+
+    if (fallbackToZKEmailDNSArchive) {
+      try {
+        archiveKeys = await resolveDNSFromZKEmailArchive(name, type);
+      } catch (e) {
+        // Archive failed, that's okay - will use DNS keys if available
+      }
+    }
+
+    // Combine and deduplicate keys
+    const allKeys = [...new Set([...dnsKeys, ...archiveKeys])];
+
+    if (allKeys.length === 0) {
+      throw new CustomError('No DNS records found from any source', 'ENODATA');
+    }
+
+    return allKeys;
   };
 
   const dkimVerifier = new DkimVerifier({
