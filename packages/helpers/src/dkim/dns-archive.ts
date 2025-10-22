@@ -17,10 +17,7 @@ export async function resolveDNSFromZKEmailArchive(name: string, type: string) {
   const resp = await fetch(queryUrl);
 
   if (!resp.ok) {
-    throw new CustomError(
-      `ZK Email Archive API returned ${resp.status}: ${resp.statusText}`,
-      'ESERVFAIL',
-    );
+    throw new CustomError(`ZK Email Archive API returned ${resp.status}: ${resp.statusText}`, 'ESERVFAIL');
   }
 
   const data = await resp.json();

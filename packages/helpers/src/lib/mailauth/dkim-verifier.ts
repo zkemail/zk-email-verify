@@ -57,7 +57,7 @@ export class DkimVerifier extends MessageParser {
     this.options = options || {};
     this.resolver = this.options.resolver;
     this.minBitLength = this.options.minBitLength;
-    this.skipBodyHash = this.options.skipBodyHash 
+    this.skipBodyHash = this.options.skipBodyHash;
 
     this.results = [];
 
@@ -244,7 +244,7 @@ export class DkimVerifier extends MessageParser {
 
         let bodyHashObj = this.bodyHashes.get(signatureHeader.bodyHashKey);
         let bodyHash = bodyHashObj?.hash;
-        if ((signatureHeader.parsed?.bh?.value !== bodyHash) && !this.skipBodyHash) {
+        if (signatureHeader.parsed?.bh?.value !== bodyHash && !this.skipBodyHash) {
           status.result = 'neutral';
           status.comment = `body hash did not verify`;
         } else {

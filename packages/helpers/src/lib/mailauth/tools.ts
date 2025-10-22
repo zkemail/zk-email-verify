@@ -300,7 +300,6 @@ export const getPublicKey = async (
 };
 
 const processPublicKey = async (type: string, rr: string, minBitLength: number) => {
-
   if (rr) {
     // prefix value for parsing as there is no default value
     let entry = parseDkimHeaders('DNS: TXT;' + rr);

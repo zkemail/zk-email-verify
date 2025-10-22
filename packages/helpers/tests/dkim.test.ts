@@ -78,7 +78,7 @@ describe('DKIM signature verification', () => {
     const email = fs.readFileSync(path.join(__dirname, 'test-data/email-bodyless.eml'));
 
     // Should pass with default domain
-    const result = await verifyDKIMSignature(email, "", true, false, true);
+    const result = await verifyDKIMSignature(email, '', true, false, true);
     expect.assertions(1);
     expect(result.signingDomain).toBe('icloud.com');
   });
