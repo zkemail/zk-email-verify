@@ -249,44 +249,66 @@ export class DkimVerifier extends MessageParser {
           status.comment = `body hash did not verify`;
         } else {
           try {
-            let res = await getPublicKey(
+            let publicKeys = await getPublicKey(
               signatureHeader.type,
               `${signatureHeader.selector}._domainkey.${signatureHeader.signingDomain}`,
               this.minBitLength,
               this.resolver,
             );
 
-            publicKey = res?.publicKey;
-            rr = res?.rr;
-            modulusLength = res?.modulusLength;
+            // Ensure publicKeys is always an array
+            if (!Array.isArray(publicKeys)) {
+              publicKeys = [publicKeys];
+            }
 
-            try {
-              let ver_result = false;
-              if (!IS_BROWSER) {
-                ver_result = crypto.verify(
-                  signatureHeader.signAlgo === 'rsa' ? signatureHeader.algorithm : null,
-                  canonicalizedHeader,
-                  publicKey,
-                  Buffer.from(signatureHeader.parsed?.b?.value, 'base64'),
-                );
-              } else {
-                let ver = crypto.createVerify('RSA-SHA256');
-                ver.update(canonicalizedHeader);
-                ver_result = ver.verify(
-                  { key: publicKey.toString(), format: 'pem' },
-                  Buffer.from(signatureHeader.parsed?.b?.value, 'base64'),
-                );
+            // Try each key until one verifies successfully
+            let verified = false;
+            for (let i = 0; i < publicKeys.length; i++) {
+              const keyData = publicKeys[i];
+
+              try {
+                let ver_result = false;
+                if (!IS_BROWSER) {
+                  ver_result = crypto.verify(
+                    signatureHeader.signAlgo === 'rsa' ? signatureHeader.algorithm : null,
+                    canonicalizedHeader,
+                    keyData.publicKey,
+                    Buffer.from(signatureHeader.parsed?.b?.value, 'base64'),
+                  );
+                } else {
+                  let ver = crypto.createVerify('RSA-SHA256');
+                  ver.update(canonicalizedHeader);
+                  ver_result = ver.verify(
+                    { key: keyData.publicKey.toString(), format: 'pem' },
+                    Buffer.from(signatureHeader.parsed?.b?.value, 'base64'),
+                  );
+                }
+
+                if (ver_result) {
+                  // Success! Use this key
+                  publicKey = keyData.publicKey;
+                  rr = keyData.rr;
+                  modulusLength = keyData.modulusLength;
+                  status.signedHeaders = canonicalizedHeader;
+                  status.result = 'pass';
+                  verified = true;
+                  break;
+                }
+              } catch (err: any) {
+                // Continue to next key
               }
+            }
 
-              status.signedHeaders = canonicalizedHeader;
-              status.result = ver_result ? 'pass' : 'fail';
-
-              if (status?.result === 'fail') {
-                status.comment = 'bad signature';
+            if (!verified) {
+              // All keys failed
+              status.result = 'fail';
+              status.comment = 'bad signature';
+              // Use first key for metadata
+              if (publicKeys[0]) {
+                publicKey = publicKeys[0].publicKey;
+                rr = publicKeys[0].rr;
+                modulusLength = publicKeys[0].modulusLength;
               }
-            } catch (err: any) {
-              status.comment = err.message;
-              status.result = 'neutral';
             }
           } catch (err: any) {
             if (err.rr) {

@@ -266,13 +266,40 @@ export const getPublicKey = async (
   minBitLength = minBitLength || 1024;
 
   let list = await resolver(name, 'TXT');
-  let rr =
-    list &&
-    []
-      .concat(list[0] || [])
+
+  // Try all available DKIM keys (for key rotation support)
+  if (!list || !Array.isArray(list) || list.length === 0) {
+    throw new CustomError('No DNS records found', 'ENODATA');
+  }
+
+  let validKeys = [];
+  let lastError;
+
+  for (let i = 0; i < list.length; i++) {
+    let rr = []
+      .concat(list[i] || [])
       .join('')
       .replaceAll(/\s+/g, '')
       .replaceAll('"', '');
+
+    try {
+      const result = await processPublicKey(type, rr, minBitLength);
+      validKeys.push(result);
+    } catch (err) {
+      lastError = err;
+      // Continue to try next key
+    }
+  }
+
+  // If no valid keys found, throw the last error
+  if (validKeys.length === 0) {
+    throw lastError;
+  }
+
+  return validKeys;
+};
+
+const processPublicKey = async (type: string, rr: string, minBitLength: number) => {
 
   if (rr) {
     // prefix value for parsing as there is no default value
@@ -347,7 +374,7 @@ export const getPublicKey = async (
       modulusLength = pubKeyData.n.bitLength();
     }
 
-    if (keyType === 'rsa' && modulusLength < 1024) {
+    if (keyType === 'rsa' && modulusLength < minBitLength) {
       throw new CustomError('RSA key too short', 'ESHORTKEY', rr);
     }
 
