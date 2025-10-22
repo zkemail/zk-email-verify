@@ -113,6 +113,29 @@ it('should fallback to ZK Email Archive if DNS over HTTP fails', async () => {
   mockResolveDNSHTTP.mockRestore();
 });
 
+it('should try multiple DKIM keys when archive returns multiple records for same selector', async () => {
+  const email = fs.readFileSync(path.join(__dirname, 'test-data/multi-dkim-sig.eml'));
+
+  // Mock resolveDNSHTTP to throw an error to force fallback to archive
+  const mockResolveDNSHTTP = jest
+    .spyOn(dnsOverHttp, 'resolveDNSHTTP')
+    .mockRejectedValue(new Error('Failed due to mock'));
+
+  const consoleSpy = jest.spyOn(console, 'log');
+  // This email requires trying multiple keys from the archive before finding the correct one
+  // Archive returns 7 keys for selector 'hs2', and the 6th one is the correct key
+  const result = await verifyDKIMSignature(email, 'bf01.eu1.hubspotstarter.net', false, true);
+
+  // Verify fallback happened
+  expect(consoleSpy).toHaveBeenCalledWith('DNS over HTTP failed, falling back to ZK Email Archive');
+
+  // Verify signature passed with one of the multiple keys
+  expect(result.signingDomain).toBe('bf01.eu1.hubspotstarter.net');
+  expect(result.selector).toBe('hs2');
+
+  mockResolveDNSHTTP.mockRestore();
+}, 20000);
+
 it('should fail on DNS over HTTP failure if fallback is not enabled', async () => {
   const email = fs.readFileSync(path.join(__dirname, 'test-data/email-good.eml'));
 
