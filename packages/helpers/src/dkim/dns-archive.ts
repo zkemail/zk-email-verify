@@ -17,14 +17,14 @@ export async function resolveDNSFromZKEmailArchive(name: string, type: string) {
   const resp = await fetch(queryUrl);
   const data = await resp.json();
 
-  const dkimRecord = data.find((record: any) => record.selector === selector);
+  const dkimRecords = data.filter((record: any) => record.selector === selector);
 
-  if (!dkimRecord) {
+  if (dkimRecords.length === 0) {
     throw new CustomError(
       `DKIM record not found for domain ${domain} and selector ${selector} in ZK Email Archive.`,
       'ENODATA',
     );
   }
 
-  return [dkimRecord.value];
+  return dkimRecords.map((record: any) => record.value);
 }
