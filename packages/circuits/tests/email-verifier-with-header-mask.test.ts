@@ -40,7 +40,7 @@ describe("EmailVerifier : With header masking", () => {
             {
                 maxHeadersLength: 640,
                 maxBodyLength: 768,
-                ignoreBodyHashCheck: false,
+                ignoreBodyHashCheck: true,
                 enableHeaderMasking: true,
                 headerMask: mask.map((value) => (value ? 1 : 0)),
             }

@@ -2,7 +2,7 @@ pragma circom 2.1.6;
 
 include "circomlib/circuits/bitify.circom";
 include "circomlib/circuits/poseidon.circom";
-include "@zk-email/zk-regex-circom/circuits/common/body_hash_regex.circom";
+include "./utils/body_hash_regex_compat.circom";
 include "./lib/base64.circom";
 include "./lib/rsa.circom";
 include "./lib/sha.circom";
