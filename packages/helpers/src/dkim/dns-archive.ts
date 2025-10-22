@@ -1,6 +1,6 @@
 import { CustomError } from '../lib/mailauth/tools';
 
-const ZKEMAIL_DNS_ARCHIVER_API = 'https://archive.prove.email/api/key';
+const ZKEMAIL_DNS_ARCHIVER_API = 'https://archive.prove.email/api/key/domain';
 
 export async function resolveDNSFromZKEmailArchive(name: string, type: string) {
   if (type !== 'TXT') {
