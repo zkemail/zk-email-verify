@@ -149,7 +149,7 @@ https://learn.0xparc.org/materials/circom/learning-group-1/circom-2
 
 ## Related Work
 
-https://semaphore.appliedzkp.org/
+https://docs.semaphore.pse.dev
 
 https://stealthdrop.xyz/ + https://github.com/stealthdrop/stealthdrop
 
