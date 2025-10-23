@@ -180,6 +180,35 @@ export class DkimVerifier extends MessageParser {
     }
   }
 
+  private getSkipReasons(signatureHeader: any): string[] {
+    const skipReasons = [];
+    const validSignAlgo = ['rsa', 'ed25519'];
+    const validHeaderAlgo = signatureHeader.type === 'DKIM' ? ['sha256', 'sha1'] : ['sha256'];
+    const validHeaderCanon = signatureHeader.type !== 'AS' ? ['relaxed', 'simple'] : ['relaxed'];
+    const validBodyCanon = signatureHeader.type !== 'AS' ? ['relaxed', 'simple'] : ['relaxed'];
+
+    if (!validSignAlgo.includes(signatureHeader.signAlgo)) {
+      skipReasons.push(`invalid signing algorithm: ${signatureHeader.signAlgo}`);
+    }
+    if (!validHeaderAlgo.includes(signatureHeader.hashAlgo)) {
+      skipReasons.push(`invalid hash algorithm: ${signatureHeader.hashAlgo}`);
+    }
+    if (!validHeaderCanon.includes(signatureHeader.headerCanon)) {
+      skipReasons.push(`invalid header canonicalization: ${signatureHeader.headerCanon}`);
+    }
+    if (!validBodyCanon.includes(signatureHeader.bodyCanon)) {
+      skipReasons.push(`invalid body canonicalization: ${signatureHeader.bodyCanon}`);
+    }
+    if (!signatureHeader.signingDomain) {
+      skipReasons.push('missing signing domain');
+    }
+    if (!signatureHeader.selector) {
+      skipReasons.push('missing selector');
+    }
+
+    return skipReasons;
+  }
+
   async finalChunk() {
     try {
       if (!this.headers || (!this.skipBodyHash && !this.bodyHashes.size)) {
@@ -193,7 +222,22 @@ export class DkimVerifier extends MessageParser {
 
       for (let signatureHeader of this.signatureHeaders) {
         if (signatureHeader.skip) {
-          // TODO: add failing header line?
+          // Add information about skipped signature headers for debugging
+          const skipReasons = this.getSkipReasons(signatureHeader);
+
+          const result: { [key: string]: any } = {
+            signingDomain: signatureHeader.signingDomain || 'unknown',
+            selector: signatureHeader.selector || 'unknown',
+            signature: signatureHeader.parsed?.b?.value,
+            algo: signatureHeader.parsed?.a?.value,
+            format: signatureHeader.parsed?.c?.value,
+            status: {
+              result: 'neutral',
+              comment: `signature header skipped: ${skipReasons.join(', ')}`,
+            },
+          };
+
+          this.results.push(result);
           continue;
         }
 
