@@ -14,7 +14,7 @@ async function updateContract(domain: string, pubkeyHashes: string[]) {
     return;
   }
 
-  if (!process.env.PRIVATE_KEY) throw new Error("Env private key found");
+  if (!process.env.PRIVATE_KEY) throw new Error("Env PRIVATE_KEY not found");
   if (!process.env.RPC_URL) throw new Error("Env RPC URL found");
   if (!process.env.DKIM_REGISTRY) throw new Error("Env DKIM_REGISTRY found");
 
