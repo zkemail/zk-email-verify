@@ -19,23 +19,20 @@ export async function poseidonModular(inputs: bigint[]): Promise<bigint> {
     const poseidon = await buildPoseidon();
     const CHUNK_SIZE = 16;
 
-    // Calculate number of chunks
-    const numElements = inputs.length;
-    let chunks = Math.floor(numElements / CHUNK_SIZE);
-    const lastChunkSize = numElements % CHUNK_SIZE;
-    if (lastChunkSize !== 0) {
-        chunks += 1;
+    if (inputs.length === 0) {
+        throw new Error("No inputs provided");
     }
+
+    // Calculate number of chunks using Math.ceil for cleaner code
+    const chunks = Math.ceil(inputs.length / CHUNK_SIZE);
 
     let out: bigint | null = null;
 
     // Process each chunk
     for (let i = 0; i < chunks; i++) {
         const start = i * CHUNK_SIZE;
-        let end = start + CHUNK_SIZE;
-        if (end > numElements) {
-            end = numElements;
-        }
+        // Use Math.min for cleaner end calculation
+        const end = Math.min(start + CHUNK_SIZE, inputs.length);
         const chunk = inputs.slice(start, end);
         const chunkHash = poseidon.F.toObject(poseidon(chunk));
 
@@ -46,9 +43,5 @@ export async function poseidonModular(inputs: bigint[]): Promise<bigint> {
         }
     }
 
-    if (out === null) {
-        throw new Error("No inputs provided");
-    }
-
-    return out;
+    return out as bigint;
 }
