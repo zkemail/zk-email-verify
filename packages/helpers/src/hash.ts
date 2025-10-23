@@ -6,7 +6,7 @@ export async function poseidonLarge(input: bigint, numChunks: number, bitsPerChu
   const pubkeyChunked = bigIntToChunkedBytes(input, bitsPerChunk, numChunks);
   const hash = poseidon(pubkeyChunked);
 
-  return poseidon.F.toObject(hash) as Promise<bigint>;
+  return poseidon.F.toObject(hash);
 }
 
 /**
