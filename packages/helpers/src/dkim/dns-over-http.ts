@@ -102,10 +102,9 @@ export async function resolveDNSHTTP(name: string, type: string) {
     throw new Error(`DNS over HTTP: Only type TXT is supported, got ${type}`);
   }
 
-
   let dkimRecord: string | null = null;
-  let googleError: CustomError | null = null;
-  let cloudflareError: CustomError | null = null;
+  let googleError: Error | null = null;
+  let cloudflareError: Error | null = null;
 
   // Try Google DNS first
   try {
@@ -118,7 +117,7 @@ export async function resolveDNSHTTP(name: string, type: string) {
       }
     }
   } catch (error) {
-    googleError = new CustomError('No DKIM record found in Google', 'ENODATA');
+    googleError = error instanceof Error ? error : new Error(`Google DNS error: ${error}`);
   }
 
   // Try Cloudflare as well
@@ -139,14 +138,17 @@ export async function resolveDNSHTTP(name: string, type: string) {
       }
     }
   } catch (error) {
-    cloudflareError = new CustomError('No DKIM record found in Cloudflare', 'ENODATA');
+    cloudflareError = error instanceof Error ? error : new Error(`Cloudflare DNS error: ${error}`);
   }
 
-  //
+  // If no valid DKIM record found, throw appropriate error
   if (!dkimRecord) {
     if (googleError && cloudflareError) {
-      throw new Error(`Failed to fetch DKIM record from both providers. Google: ${googleError},\n Cloudflare: ${cloudflareError}`);
-    } else if (!dkimRecord) {
+      throw new CustomError(
+        `Failed to fetch DKIM record from both providers. Google: ${googleError.message}, Cloudflare: ${cloudflareError.message}`,
+        'ENODATA'
+      );
+    } else {
       throw new CustomError('No valid DKIM record found (empty or missing p= value)', 'ENODATA');
     }
   }
