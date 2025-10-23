@@ -146,7 +146,7 @@ This operation will produce a file named 'witness.wtns'. This file is encoded in
 
 The next step involves using the `snarkjs` command-line tool to generate the keys and the verifier contract. If you haven't installed `snarkjs` globally, you can do so by running `npm install -g snarkjs`.
 
-The generation of the zk proof requires a trusted setup, which includes the `powers of tau ceremony` and `phase 2`. Click [here](https://zkp2p.gitbook.io/zkp2p/developer/circuits/trusted-setup-ceremony/) to read more about Trusted Setup.
+The generation of the zk proof requires a trusted setup, which includes the `powers of tau ceremony` and `phase 2`. Click [here](https://ceremony.pse.dev/projects/ZKP2P%20Trusted%20Setup%20Ceremony) to read more about Trusted Setup.
 
 Firstly, you need to determine the constraint size of your circuit. You can do this by running the following command:
 ```bash
