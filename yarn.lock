@@ -2277,10 +2277,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openzeppelin/contracts@npm:5.3.0":
-  version: 5.3.0
-  resolution: "@openzeppelin/contracts@npm:5.3.0"
-  checksum: 1d1629c42d170e070c112779c33b3b81c133995695271bc62a696160b598b56455a3c56d1f976a42ee3dd426c4ad984451b1752139f2b7897c9e1ba56c1947da
+"@openzeppelin/contracts@npm:5.4.0":
+  version: 5.4.0
+  resolution: "@openzeppelin/contracts@npm:5.4.0"
+  checksum: 8a0c64266f5213801029251fdc9815798917b311b7fc9acb94db13a479a3a0d044e0312f57e739f13b87161105157cb8da023124b4f026cf6b72a718a333ef64
   languageName: node
   linkType: hard
 
@@ -2732,7 +2732,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@zk-email/contracts@workspace:packages/contracts"
   dependencies:
-    "@openzeppelin/contracts": 5.3.0
+    "@openzeppelin/contracts": 5.4.0
     "@openzeppelin/contracts-upgradeable": 5.3.0
     dotenv: ^16.3.1
     forge-std: "https://github.com/foundry-rs/forge-std#v1.10.0"
