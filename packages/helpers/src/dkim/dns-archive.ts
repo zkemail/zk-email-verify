@@ -1,6 +1,6 @@
 import { CustomError } from '../lib/mailauth/tools';
 
-const ZKEMAIL_DNS_ARCHIVER_API = 'https://archive.prove.email/api/key';
+const ZKEMAIL_DNS_ARCHIVER_API = 'https://archive.prove.email/api/key/domain';
 
 export async function resolveDNSFromZKEmailArchive(name: string, type: string) {
   if (type !== 'TXT') {
@@ -15,16 +15,21 @@ export async function resolveDNSFromZKEmailArchive(name: string, type: string) {
   queryUrl.searchParams.set('domain', domain);
 
   const resp = await fetch(queryUrl);
+
+  if (!resp.ok) {
+    throw new CustomError(`ZK Email Archive API returned ${resp.status}: ${resp.statusText}`, 'ESERVFAIL');
+  }
+
   const data = await resp.json();
 
-  const dkimRecord = data.find((record: any) => record.selector === selector);
+  const dkimRecords = data.filter((record: any) => record.selector === selector);
 
-  if (!dkimRecord) {
+  if (dkimRecords.length === 0) {
     throw new CustomError(
       `DKIM record not found for domain ${domain} and selector ${selector} in ZK Email Archive.`,
       'ENODATA',
     );
   }
 
-  return [dkimRecord.value];
+  return dkimRecords.map((record: any) => record.value);
 }

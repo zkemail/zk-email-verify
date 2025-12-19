@@ -102,7 +102,6 @@ export async function resolveDNSHTTP(name: string, type: string) {
     throw new Error(`DNS over HTTP: Only type TXT is supported, got ${type}`);
   }
 
-
   let dkimRecord: string | null = null;
   let googleError: CustomError | null = null;
   let cloudflareError: CustomError | null = null;
@@ -145,7 +144,9 @@ export async function resolveDNSHTTP(name: string, type: string) {
   //
   if (!dkimRecord) {
     if (googleError && cloudflareError) {
-      throw new Error(`Failed to fetch DKIM record from both providers. Google: ${googleError},\n Cloudflare: ${cloudflareError}`);
+      throw new Error(
+        `Failed to fetch DKIM record from both providers. Google: ${googleError},\n Cloudflare: ${cloudflareError}`,
+      );
     } else if (!dkimRecord) {
       throw new CustomError('No valid DKIM record found (empty or missing p= value)', 'ENODATA');
     }

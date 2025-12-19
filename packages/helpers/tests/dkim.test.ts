@@ -78,7 +78,7 @@ describe('DKIM signature verification', () => {
     const email = fs.readFileSync(path.join(__dirname, 'test-data/email-bodyless.eml'));
 
     // Should pass with default domain
-    const result = await verifyDKIMSignature(email, "", true, false, true);
+    const result = await verifyDKIMSignature(email, '', true, false, true);
     expect.assertions(1);
     expect(result.signingDomain).toBe('icloud.com');
   });
@@ -104,14 +104,59 @@ it('should fallback to ZK Email Archive if DNS over HTTP fails', async () => {
     .spyOn(dnsOverHttp, 'resolveDNSHTTP')
     .mockRejectedValue(new Error('Failed due to mock'));
 
-  const consoleSpy = jest.spyOn(console, 'log');
-  await verifyDKIMSignature(email, 'icloud.com', true, true);
-
-  // Check if the error was logged to ensure fallback to ZK Email Archive happened
-  expect(consoleSpy).toHaveBeenCalledWith('DNS over HTTP failed, falling back to ZK Email Archive');
+  // Should succeed using Archive keys even though DNS failed
+  const result = await verifyDKIMSignature(email, 'icloud.com', true, true);
+  expect(result.signingDomain).toBe('icloud.com');
 
   mockResolveDNSHTTP.mockRestore();
 });
+
+it('should try multiple DKIM keys when archive returns multiple records for same selector', async () => {
+  const email = fs.readFileSync(path.join(__dirname, 'test-data/multi-dkim-sig.eml'));
+
+  // Mock resolveDNSHTTP to throw an error to force using archive keys
+  const mockResolveDNSHTTP = jest
+    .spyOn(dnsOverHttp, 'resolveDNSHTTP')
+    .mockRejectedValue(new Error('Failed due to mock'));
+
+  // This email requires trying multiple keys from the archive before finding the correct one
+  // Archive returns 7 keys for selector 'hs2', and the 6th one is the correct key
+  const result = await verifyDKIMSignature(email, 'bf01.eu1.hubspotstarter.net', false, true);
+
+  // Verify signature passed with one of the multiple keys
+  expect(result.signingDomain).toBe('bf01.eu1.hubspotstarter.net');
+  expect(result.selector).toBe('hs2');
+
+  mockResolveDNSHTTP.mockRestore();
+}, 20000);
+
+it('should query both DNS and Archive in parallel and succeed with historical key', async () => {
+  const email = fs.readFileSync(path.join(__dirname, 'test-data/multi-dkim-sig.eml'));
+
+  // NO MOCKING - This test verifies the fix with real API calls
+  // The email was signed with an old rotated key (key #6 from May 2025)
+  // DNS will return the CURRENT key (Oct 2025) which is WRONG for this email
+  // Archive will return 7 historical keys including the correct one
+  // With the fix, both sources are queried and keys are combined
+  // Verification should succeed with the correct historical key from archive
+
+  // Spy on both functions to verify they are both called
+  const dnsHttpSpy = jest.spyOn(dnsOverHttp, 'resolveDNSHTTP');
+  const archiveSpy = jest.spyOn(dnsArchive, 'resolveDNSFromZKEmailArchive');
+
+  const result = await verifyDKIMSignature(email, 'bf01.eu1.hubspotstarter.net', false, true);
+
+  // Verify signature passed
+  expect(result.signingDomain).toBe('bf01.eu1.hubspotstarter.net');
+  expect(result.selector).toBe('hs2');
+
+  // Verify both DNS and Archive were called (not just archive as fallback)
+  expect(dnsHttpSpy).toHaveBeenCalled();
+  expect(archiveSpy).toHaveBeenCalled();
+
+  dnsHttpSpy.mockRestore();
+  archiveSpy.mockRestore();
+}, 20000);
 
 it('should fail on DNS over HTTP failure if fallback is not enabled', async () => {
   const email = fs.readFileSync(path.join(__dirname, 'test-data/email-good.eml'));
@@ -125,9 +170,7 @@ it('should fail on DNS over HTTP failure if fallback is not enabled', async () =
   try {
     await verifyDKIMSignature(email, 'icloud.com', true, false);
   } catch (e) {
-    expect(e.message).toBe(
-      'DKIM signature verification failed for domain icloud.com. Reason: DNS failure: Failed due to mock',
-    );
+    expect(e.message).toBe('DKIM signature verification failed for domain icloud.com. Reason: no key');
   }
   mockResolveDNSHTTP.mockRestore();
 });
@@ -145,11 +188,9 @@ it('should fail if both DNS over HTTP and ZK Email Archive fail', async () => {
 
   expect.assertions(1);
   try {
-    await verifyDKIMSignature(email, 'icloud.com', true, false);
+    await verifyDKIMSignature(email, 'icloud.com', true, true);
   } catch (e) {
-    expect(e.message).toBe(
-      'DKIM signature verification failed for domain icloud.com. Reason: DNS failure: Failed due to mock',
-    );
+    expect(e.message).toBe('DKIM signature verification failed for domain icloud.com. Reason: no key');
   }
 
   mockResolveDNSHTTP.mockRestore();
