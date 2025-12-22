@@ -36,9 +36,6 @@ template SelectRegexReveal(maxArrayLen, maxRevealLen) {
         }
         isAboveMaxRevealLen[i] <== GreaterThan(bitLength)([i, startIndex + maxRevealLen - 1]);
 
-        // Assert startIndex is not zero
-        isStartIndex[i] * isZero[i] === 0;
-
         // Assert value before startIndex is zero
         // ZK-Regex circuit contstrains that every byte before the reveal part is zero
         // This is assuming matched data doesn't contain 0 (null) byte
