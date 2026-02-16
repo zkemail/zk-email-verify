@@ -40,32 +40,25 @@ describe("EmailVerifier : With body masking", () => {
             {
                 maxHeadersLength: 640,
                 maxBodyLength: 768,
-                ignoreBodyHashCheck: true,
                 enableBodyMasking: true,
                 bodyMask: mask.map((value) => (value ? 1 : 0)),
             }
         );
 
-        // Skip this test when body data isn't available due to ignoreBodyHashCheck
-        if (!emailVerifierInputs.emailBody) {
-            console.log("Skipping body mask test - body data not available when ignoreBodyHashCheck is true");
-            return;
-        }
-
-        const expectedMaskedBody = emailVerifierInputs.emailBody.map(
+        const expectedMaskedBody = emailVerifierInputs.emailBody!.map(
             (byte, i) => (mask[i] === 1 ? byte : 0)
         );
 
         const witness = await circuit.calculateWitness(emailVerifierInputs);
         await circuit.checkConstraints(witness);
-                
+
         const maskedBodyStartIndex = 4; // Skip  (Index 0: constant 1,pubkeyHash, shaHi, shaLo)
         const maskedBodyWitness = witness.slice(maskedBodyStartIndex, maskedBodyStartIndex + expectedMaskedBody.length);
-        
+
         // Convert BigInt values to regular numbers for assertOut
         const maskedBodyWitnessNumbers = maskedBodyWitness.map((val: any) => String(val));
         const expectedMaskedBodyNumbers = expectedMaskedBody.map(val => String(val));
-        
+
         expect(maskedBodyWitnessNumbers).toEqual(expectedMaskedBodyNumbers);
 
     });
