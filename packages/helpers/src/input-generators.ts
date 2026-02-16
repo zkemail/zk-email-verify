@@ -268,13 +268,17 @@ export function generateEmailVerifierInputsFromDKIMResult(
     );
 
     // Flatten body hash inputs into direct circuit inputs
-    circuitInputs.bodyHashMatchStart = bodyHashCircuitInputs.matchStart;
-    circuitInputs.bodyHashMatchLength = bodyHashCircuitInputs.matchLength;
+    // genCircuitInputs returns matchStart/matchLength for the FULL regex match,
+    // but body_hash_regex_compat.circom expects capture group position/length.
+    // captureGroupStartIndices[0] is relative to matchStart, so add to get absolute.
+    const captureGroupAbsStart = bodyHashCircuitInputs.matchStart + bodyHashCircuitInputs.captureGroupStartIndices[0];
+    circuitInputs.bodyHashMatchStart = captureGroupAbsStart;
+    circuitInputs.bodyHashMatchLength = 44; // base64-encoded SHA-256 hash is always 44 chars
     circuitInputs.bodyHashCurrStates = bodyHashCircuitInputs.currStates?.map((s: any) => Number(s));
     circuitInputs.bodyHashNextStates = bodyHashCircuitInputs.nextStates?.map((s: any) => Number(s));
     circuitInputs.bodyHashCaptureGroup1Id = bodyHashCircuitInputs.captureGroupIds?.[0]?.map((s: any) => Number(s));
     circuitInputs.bodyHashCaptureGroup1Start = bodyHashCircuitInputs.captureGroupStarts?.[0]?.map((s: any) => Number(s));
-    circuitInputs.bodyHashCaptureGroupStartIndices = bodyHashCircuitInputs.captureGroupStartIndices?.map((s: any) => Number(s) - bodyHashCircuitInputs.matchStart);
+    circuitInputs.bodyHashCaptureGroupStartIndices = [captureGroupAbsStart];
   }
 
   return circuitInputs;
