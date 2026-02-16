@@ -1,0 +1,47 @@
+{
+  "name": "zk-email-benchmark",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate-keys": "npx tsx lib/generate-keys.ts",
+    "generate-emails": "npx tsx lib/generate-signed-emails.ts",
+    "verify-emails": "npx tsx lib/verify-emails.ts",
+
+    "generate-circuits": "npx tsx lib/circuit-generator.ts",
+    "generate-circuits:scaling": "npx tsx lib/circuit-generator.ts --scaling",
+    "generate-circuits:rsa": "npx tsx lib/circuit-generator.ts --rsa",
+    "generate-circuits:features": "npx tsx lib/circuit-generator.ts --features",
+
+    "generate-circuit-inputs": "npx tsx lib/input-generator-circuit.ts",
+
+    "compile-circuits": "npx tsx lib/constraint-counter.ts",
+    "compile-circuit": "npx tsx lib/constraint-counter.ts --config",
+
+    "prove": "npx tsx lib/prover.ts",
+    "prove:config": "npx tsx lib/prover.ts --config",
+
+    "report": "npx tsx lib/reporter.ts",
+
+    "benchmark": "npx tsx runners/run-all.ts",
+    "benchmark:scaling": "npx tsx runners/run-all.ts --scaling",
+    "benchmark:rsa": "npx tsx runners/run-all.ts --rsa",
+    "benchmark:features": "npx tsx runners/run-all.ts --features",
+    "benchmark:compile-only": "npx tsx runners/run-all.ts --skip-prove",
+
+    "setup": "pnpm run generate-keys && pnpm run generate-emails && pnpm run verify-emails && pnpm run generate-circuits && pnpm run generate-circuit-inputs",
+    "clean": "rm -rf circuits compiled inputs results"
+  },
+  "dependencies": {
+    "mailauth": "^4.13.0",
+    "node-forge": "^1.3.3",
+    "nodemailer": "^6.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/node-forge": "^1.3.0",
+    "@types/nodemailer": "^6.4.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}
