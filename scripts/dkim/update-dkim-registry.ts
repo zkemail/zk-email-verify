@@ -22,9 +22,10 @@ async function updateContract(domain: string, pubkeyHashes: string[]) {
   const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
   const contract = new ethers.Contract(process.env.DKIM_REGISTRY, abi, wallet);
 
-  const hashes = pubkeyHashes.map((hash) => ethers.toBeArray(BigInt(hash)));
+  const domainHash = ethers.keccak256(ethers.toUtf8Bytes(domain.toLowerCase()));
+  const hashes = pubkeyHashes.map((hash) => ethers.toBeHex(BigInt(hash), 32));
 
-  const tx = await contract.setDKIMPublicKeyHashes(domain, hashes);
+  const tx = await contract.setDKIMPublicKeyHashes(domainHash, hashes);
   await tx.wait();
 
   console.log(`Updated hashes for domain ${domain}. Tx: ${tx.hash}`);
