@@ -20,8 +20,9 @@ contract ECDSAOwnedDKIMRegistryTest_computeSignedMsg is Test {
         string memory domainName = "example.com";
         bytes32 publicKeyHash = bytes32(uint256(1));
 
-        string memory expectedMsg =
-            string.concat(prefix, "domain=", domainName, ";public_key_hash=", uint256(publicKeyHash).toHexString(), ";");
+        string memory expectedMsg = string.concat(
+            prefix, "domain=", domainName, ";public_key_hash=", uint256(publicKeyHash).toHexString(), ";"
+        );
 
         string memory computedMsg = dkim.computeSignedMsg(prefix, domainName, publicKeyHash);
 

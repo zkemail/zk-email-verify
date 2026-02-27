@@ -24,9 +24,6 @@ interface IDKIMRegistry {
     /// @param domainHash The keccak256 hash of the lowercase domain name
     /// @param keyHash The keccak256 hash of the DKIM public key
     /// @return True if the key hash is valid for the domain, false otherwise
-    function isKeyHashValid(
-        bytes32 domainHash,
-        bytes32 keyHash
-    ) external view returns (bool);
+    function isKeyHashValid(bytes32 domainHash, bytes32 keyHash) external view returns (bool);
 }
 

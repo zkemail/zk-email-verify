@@ -11,24 +11,17 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeab
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 /**
-  A Registry that store the hash(dkim_public_key) for each domain and each user.
-  This functions similarly to [DKIMRegistry](./DKIMRegistry.sol), but it allows users to set their own public keys. 
-  Even if the main authorizer, who is the contract owner, has already approved a public key, the user's signature is still required for setting it until the predetermined delay time (`setTimestampDelay`) has passed. 
-  Additionally, the public key can be revoked by the signature of either the user or the main authorizer alone.
+ *   A Registry that store the hash(dkim_public_key) for each domain and each user.
+ *   This functions similarly to [DKIMRegistry](./DKIMRegistry.sol), but it allows users to set their own public keys.
+ *   Even if the main authorizer, who is the contract owner, has already approved a public key, the user's signature is still required for setting it until the predetermined delay time (`setTimestampDelay`) has passed.
+ *   Additionally, the public key can be revoked by the signature of either the user or the main authorizer alone.
  */
-contract UserOverrideableDKIMRegistry is
-    IDKIMRegistry,
-    OwnableUpgradeable,
-    UUPSUpgradeable
-{
+contract UserOverrideableDKIMRegistry is IDKIMRegistry, OwnableUpgradeable, UUPSUpgradeable {
     using Strings for *;
     using ECDSA for *;
 
     /// @notice Emitted when a DKIM public key hash is successfully reactivated.
-    event KeyHashReactivated(
-        bytes32 indexed publicKeyHash,
-        address indexed authorizer
-    );
+    event KeyHashReactivated(bytes32 indexed publicKeyHash, address indexed authorizer);
 
     /// @notice Emitted when the main authorizer address is changed.
     event MainAuthorizerChanged(address indexed newMainAuthorizer);
@@ -37,22 +30,19 @@ contract UserOverrideableDKIMRegistry is
     address public mainAuthorizer;
 
     /// @notice Time delay until a DKIM public key hash set by the main authorizer is enabled
-    uint public setTimestampDelay;
+    uint256 public setTimestampDelay;
 
     /// @notice DKIM public key hashes that are set
-    mapping(bytes32 => mapping(bytes32 => mapping(address => bool)))
-        public dkimPublicKeyHashes;
+    mapping(bytes32 => mapping(bytes32 => mapping(address => bool))) public dkimPublicKeyHashes;
 
     /// @notice DKIM public key hashes that are revoked (eg: in case of private key compromise)
-    mapping(bytes32 => mapping(address => bool))
-        public revokedDKIMPublicKeyHashes;
+    mapping(bytes32 => mapping(address => bool)) public revokedDKIMPublicKeyHashes;
 
     /// @notice DKIM public key hashes that are reactivated (eg: in case that a malicious `mainAuthorizer` revokes a valid public key but a user reactivates it.)
-    mapping(bytes32 => mapping(address => bool))
-        public reactivatedDKIMPublicKeyHashes;
+    mapping(bytes32 => mapping(address => bool)) public reactivatedDKIMPublicKeyHashes;
 
     /// @notice The timestamp from which the set DKIM public key hash is enabled
-    mapping(bytes32 => uint) public enabledTimeOfDKIMPublicKeyHash;
+    mapping(bytes32 => uint256) public enabledTimeOfDKIMPublicKeyHash;
 
     string public constant SET_PREFIX = "SET:";
     string public constant REVOKE_PREFIX = "REVOKE:";
@@ -64,11 +54,7 @@ contract UserOverrideableDKIMRegistry is
     /// @param _initialOwner The address of the initial owner of the contract.
     /// @param _mainAuthorizer The address of the main authorizer.
     /// @param _setTimestampDelay The time delay until a DKIM public key hash set by the main authorizer is enabled.
-    function initialize(
-        address _initialOwner,
-        address _mainAuthorizer,
-        uint _setTimestampDelay
-    ) public initializer {
+    function initialize(address _initialOwner, address _mainAuthorizer, uint256 _setTimestampDelay) public initializer {
         __Ownable_init(_initialOwner);
         mainAuthorizer = _mainAuthorizer;
         setTimestampDelay = _setTimestampDelay;
@@ -79,10 +65,7 @@ contract UserOverrideableDKIMRegistry is
     /// @param publicKeyHash The hash of the DKIM public key to be checked.
     /// @return bool True if the DKIM public key hash is valid, false otherwise.
     /// @dev This function returns true if the owner of the given `msg.sender` approves the public key hash before `enabledTimeOfDKIMPublicKeyHash` and neither `mainAuthorizer` nor the owner of `msg.sender` revokes the public key hash. However, after `enabledTimeOfDKIMPublicKeyHash`, only one of their approvals is required. In addition, if the public key hash is reactivated by the owner of `msg.sender`, the public key hash revoked only by `mainAuthorizer` is considered valid.
-    function isKeyHashValid(
-        bytes32 domainNameHash,
-        bytes32 publicKeyHash
-    ) public view returns (bool) {
+    function isKeyHashValid(bytes32 domainNameHash, bytes32 publicKeyHash) public view returns (bool) {
         address ownerOfSender = Ownable(msg.sender).owner();
         return isKeyHashValid(domainNameHash, publicKeyHash, ownerOfSender);
     }
@@ -95,27 +78,17 @@ contract UserOverrideableDKIMRegistry is
     /// @dev This function returns true if 1) at least the given `authorizer` approves the public key hash before `enabledTimeOfDKIMPublicKeyHash` and 2) neither `mainAuthorizer` nor `authorizer` revokes the public key hash. However, after `enabledTimeOfDKIMPublicKeyHash`, only one of their approvals is required. In addition, if the public key hash is reactivated by the `authorizer`, the public key hash revoked only by `mainAuthorizer` is considered valid.
     /// @dev The domain name, public key hash, and authorizer address must not be zero.
     /// @dev The authorizer address cannot be the mainAuthorizer.
-    function isKeyHashValid(
-        bytes32 domainNameHash,
-        bytes32 publicKeyHash,
-        address authorizer
-    ) public view returns (bool) {
+    function isKeyHashValid(bytes32 domainNameHash, bytes32 publicKeyHash, address authorizer)
+        public
+        view
+        returns (bool)
+    {
         require(domainNameHash != bytes32(0), "domain name cannot be zero");
         require(publicKeyHash != bytes32(0), "public key hash cannot be zero");
         require(authorizer != address(0), "authorizer address cannot be zero");
-        require(
-            authorizer != mainAuthorizer,
-            "authorizer cannot be mainAuthorizer"
-        );
-        uint256 revokeThreshold = _computeRevokeThreshold(
-            publicKeyHash,
-            authorizer
-        );
-        uint256 setThreshold = _computeSetThreshold(
-            domainNameHash,
-            publicKeyHash,
-            authorizer
-        );
+        require(authorizer != mainAuthorizer, "authorizer cannot be mainAuthorizer");
+        uint256 revokeThreshold = _computeRevokeThreshold(publicKeyHash, authorizer);
+        uint256 setThreshold = _computeSetThreshold(domainNameHash, publicKeyHash, authorizer);
         if (revokeThreshold >= 1) {
             return false;
         } else if (setThreshold < 2) {
@@ -148,43 +121,25 @@ contract UserOverrideableDKIMRegistry is
         require(authorizer != address(0), "authorizer address cannot be zero");
         bytes32 domainNameHash = keccak256(bytes(domainName));
         require(
-            dkimPublicKeyHashes[domainNameHash][publicKeyHash][authorizer] ==
-                false,
-            "public key hash is already set"
+            dkimPublicKeyHashes[domainNameHash][publicKeyHash][authorizer] == false, "public key hash is already set"
         );
-        require(
-            revokedDKIMPublicKeyHashes[publicKeyHash][authorizer] == false,
-            "public key hash is already revoked"
-        );
+        require(revokedDKIMPublicKeyHashes[publicKeyHash][authorizer] == false, "public key hash is already revoked");
         if (msg.sender != authorizer) {
-            string memory signedMsg = computeSignedMsg(
-                SET_PREFIX,
-                domainName,
-                publicKeyHash
-            );
-            bytes32 digest = MessageHashUtils.toEthSignedMessageHash(
-                bytes(signedMsg)
-            );
+            string memory signedMsg = computeSignedMsg(SET_PREFIX, domainName, publicKeyHash);
+            bytes32 digest = MessageHashUtils.toEthSignedMessageHash(bytes(signedMsg));
             if (authorizer.code.length > 0) {
                 require(
-                    IERC1271(authorizer).isValidSignature(digest, signature) ==
-                        0x1626ba7e,
-                    "invalid eip1271 signature"
+                    IERC1271(authorizer).isValidSignature(digest, signature) == 0x1626ba7e, "invalid eip1271 signature"
                 );
             } else {
                 address recoveredSigner = digest.recover(signature);
-                require(
-                    recoveredSigner == authorizer,
-                    "invalid ecdsa signature"
-                );
+                require(recoveredSigner == authorizer, "invalid ecdsa signature");
             }
         }
 
         dkimPublicKeyHashes[domainNameHash][publicKeyHash][authorizer] = true;
         if (authorizer == mainAuthorizer) {
-            enabledTimeOfDKIMPublicKeyHash[publicKeyHash] =
-                block.timestamp +
-                setTimestampDelay;
+            enabledTimeOfDKIMPublicKeyHash[publicKeyHash] = block.timestamp + setTimestampDelay;
         }
 
         emit KeyHashRegistered(domainNameHash, publicKeyHash);
@@ -207,25 +162,11 @@ contract UserOverrideableDKIMRegistry is
         address[] memory authorizers,
         bytes[] memory signatures
     ) public {
-        require(
-            domainNames.length == publicKeyHashes.length,
-            "invalid publicKeyHashes length"
-        );
-        require(
-            domainNames.length == authorizers.length,
-            "invalid authorizers length"
-        );
-        require(
-            domainNames.length == signatures.length,
-            "invalid signatures length"
-        );
+        require(domainNames.length == publicKeyHashes.length, "invalid publicKeyHashes length");
+        require(domainNames.length == authorizers.length, "invalid authorizers length");
+        require(domainNames.length == signatures.length, "invalid signatures length");
         for (uint256 i = 0; i < domainNames.length; i++) {
-            setDKIMPublicKeyHash(
-                domainNames[i],
-                publicKeyHashes[i],
-                authorizers[i],
-                signatures[i]
-            );
+            setDKIMPublicKeyHash(domainNames[i], publicKeyHashes[i], authorizers[i], signatures[i]);
         }
     }
 
@@ -250,31 +191,17 @@ contract UserOverrideableDKIMRegistry is
         require(bytes(domainName).length > 0, "domain name cannot be zero");
         require(publicKeyHash != bytes32(0), "public key hash cannot be zero");
         require(authorizer != address(0), "authorizer address cannot be zero");
-        require(
-            revokedDKIMPublicKeyHashes[publicKeyHash][authorizer] == false,
-            "public key hash is already revoked"
-        );
+        require(revokedDKIMPublicKeyHashes[publicKeyHash][authorizer] == false, "public key hash is already revoked");
         if (msg.sender != authorizer) {
-            string memory signedMsg = computeSignedMsg(
-                REVOKE_PREFIX,
-                domainName,
-                publicKeyHash
-            );
-            bytes32 digest = MessageHashUtils.toEthSignedMessageHash(
-                bytes(signedMsg)
-            );
+            string memory signedMsg = computeSignedMsg(REVOKE_PREFIX, domainName, publicKeyHash);
+            bytes32 digest = MessageHashUtils.toEthSignedMessageHash(bytes(signedMsg));
             if (authorizer.code.length > 0) {
                 require(
-                    IERC1271(authorizer).isValidSignature(digest, signature) ==
-                        0x1626ba7e,
-                    "invalid eip1271 signature"
+                    IERC1271(authorizer).isValidSignature(digest, signature) == 0x1626ba7e, "invalid eip1271 signature"
                 );
             } else {
                 address recoveredSigner = digest.recover(signature);
-                require(
-                    recoveredSigner == authorizer,
-                    "invalid ecdsa signature"
-                );
+                require(recoveredSigner == authorizer, "invalid ecdsa signature");
             }
         }
         revokedDKIMPublicKeyHashes[publicKeyHash][authorizer] = true;
@@ -303,44 +230,25 @@ contract UserOverrideableDKIMRegistry is
         require(bytes(domainName).length > 0, "domain name cannot be zero");
         require(publicKeyHash != bytes32(0), "public key hash cannot be zero");
         require(authorizer != address(0), "authorizer address cannot be zero");
+        require(authorizer != mainAuthorizer, "mainAuthorizer cannot reactivate the public key hash");
         require(
-            authorizer != mainAuthorizer,
-            "mainAuthorizer cannot reactivate the public key hash"
+            reactivatedDKIMPublicKeyHashes[publicKeyHash][authorizer] == false, "public key hash is already reactivated"
         );
+        require(_computeRevokeThreshold(publicKeyHash, authorizer) == 1, "revoke threshold must be one");
         require(
-            reactivatedDKIMPublicKeyHashes[publicKeyHash][authorizer] == false,
-            "public key hash is already reactivated"
-        );
-        require(
-            _computeRevokeThreshold(publicKeyHash, authorizer) == 1,
-            "revoke threshold must be one"
-        );
-        require(
-            _computeSetThreshold(keccak256(bytes(domainName)), publicKeyHash, authorizer) >=
-                2,
+            _computeSetThreshold(keccak256(bytes(domainName)), publicKeyHash, authorizer) >= 2,
             "set threshold must be larger than two"
         );
         if (msg.sender != authorizer) {
-            string memory signedMsg = computeSignedMsg(
-                REACTIVATE_PREFIX,
-                domainName,
-                publicKeyHash
-            );
-            bytes32 digest = MessageHashUtils.toEthSignedMessageHash(
-                bytes(signedMsg)
-            );
+            string memory signedMsg = computeSignedMsg(REACTIVATE_PREFIX, domainName, publicKeyHash);
+            bytes32 digest = MessageHashUtils.toEthSignedMessageHash(bytes(signedMsg));
             if (authorizer.code.length > 0) {
                 require(
-                    IERC1271(authorizer).isValidSignature(digest, signature) ==
-                        0x1626ba7e,
-                    "invalid eip1271 signature"
+                    IERC1271(authorizer).isValidSignature(digest, signature) == 0x1626ba7e, "invalid eip1271 signature"
                 );
             } else {
                 address recoveredSigner = digest.recover(signature);
-                require(
-                    recoveredSigner == authorizer,
-                    "invalid ecdsa signature"
-                );
+                require(recoveredSigner == authorizer, "invalid ecdsa signature");
             }
         }
         reactivatedDKIMPublicKeyHashes[publicKeyHash][authorizer] = true;
@@ -357,10 +265,7 @@ contract UserOverrideableDKIMRegistry is
      * @custom:event MainAuthorizerChanged Emitted when the main authorizer address changes.
      */
     function changeMainAuthorizer(address newMainAuthorizer) public onlyOwner {
-        require(
-            newMainAuthorizer != address(0),
-            "newMainAuthorizer address cannot be zero"
-        );
+        require(newMainAuthorizer != address(0), "newMainAuthorizer address cannot be zero");
         require(
             newMainAuthorizer != mainAuthorizer,
             "newMainAuthorizer address cannot be the same as the current mainAuthorizer"
@@ -377,54 +282,36 @@ contract UserOverrideableDKIMRegistry is
      * @return string The computed signed message.
      * @dev This function is used internally to generate the message that needs to be signed for setting or revoking a public key hash.
      */
-    function computeSignedMsg(
-        string memory prefix,
-        string memory domainName,
-        bytes32 publicKeyHash
-    ) public pure returns (string memory) {
-        return
-            string.concat(
-                prefix,
-                "domain=",
-                domainName,
-                ";public_key_hash=",
-                uint256(publicKeyHash).toHexString(),
-                ";"
-            );
+    function computeSignedMsg(string memory prefix, string memory domainName, bytes32 publicKeyHash)
+        public
+        pure
+        returns (string memory)
+    {
+        return string.concat(
+            prefix, "domain=", domainName, ";public_key_hash=", uint256(publicKeyHash).toHexString(), ";"
+        );
     }
 
-    function _computeSetThreshold(
-        bytes32 domainNameHash,
-        bytes32 publicKeyHash,
-        address authorizer
-    ) private view returns (uint256) {
+    function _computeSetThreshold(bytes32 domainNameHash, bytes32 publicKeyHash, address authorizer)
+        private
+        view
+        returns (uint256)
+    {
         uint256 threshold = 0;
-        if (
-            dkimPublicKeyHashes[domainNameHash][publicKeyHash][
-                mainAuthorizer
-            ] == true
-        ) {
-            if (
-                block.timestamp < enabledTimeOfDKIMPublicKeyHash[publicKeyHash]
-            ) {
+        if (dkimPublicKeyHashes[domainNameHash][publicKeyHash][mainAuthorizer] == true) {
+            if (block.timestamp < enabledTimeOfDKIMPublicKeyHash[publicKeyHash]) {
                 threshold += 1;
             } else {
                 threshold += 2;
             }
         }
-        if (
-            dkimPublicKeyHashes[domainNameHash][publicKeyHash][authorizer] ==
-            true
-        ) {
+        if (dkimPublicKeyHashes[domainNameHash][publicKeyHash][authorizer] == true) {
             threshold += 2;
         }
         return threshold;
     }
 
-    function _computeRevokeThreshold(
-        bytes32 publicKeyHash,
-        address authorizer
-    ) private view returns (uint256) {
+    function _computeRevokeThreshold(bytes32 publicKeyHash, address authorizer) private view returns (uint256) {
         uint256 threshold = 0;
         if (revokedDKIMPublicKeyHashes[publicKeyHash][mainAuthorizer] == true) {
             threshold += 1;
@@ -432,10 +319,7 @@ contract UserOverrideableDKIMRegistry is
         if (revokedDKIMPublicKeyHashes[publicKeyHash][authorizer] == true) {
             threshold += 2;
         }
-        if (
-            threshold == 1 &&
-            reactivatedDKIMPublicKeyHashes[publicKeyHash][authorizer] == true
-        ) {
+        if (threshold == 1 && reactivatedDKIMPublicKeyHashes[publicKeyHash][authorizer] == true) {
             threshold -= 1;
         }
         return threshold;
@@ -443,8 +327,6 @@ contract UserOverrideableDKIMRegistry is
 
     /// @notice Upgrade the implementation of the proxy.
     /// @param newImplementation Address of the new implementation.
-    function _authorizeUpgrade(
-        address newImplementation
-    ) internal override onlyOwner {}
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 }
 

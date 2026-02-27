@@ -43,10 +43,7 @@ contract UserOverrideableDKIMRegistryTest is Test {
             UserOverrideableDKIMRegistry registryImpl = new UserOverrideableDKIMRegistry();
             ERC1967Proxy proxy = new ERC1967Proxy(
                 address(registryImpl),
-                abi.encodeCall(
-                    UserOverrideableDKIMRegistry.initialize,
-                    (deployer, mainAuthorizer, setTimestampDelay)
-                )
+                abi.encodeCall(UserOverrideableDKIMRegistry.initialize, (deployer, mainAuthorizer, setTimestampDelay))
             );
             registry = UserOverrideableDKIMRegistry(address(proxy));
         }
@@ -60,11 +57,7 @@ contract UserOverrideableDKIMRegistryTest is Test {
                 address(registryImpl),
                 abi.encodeCall(
                     UserOverrideableDKIMRegistry.initialize,
-                    (
-                        deployer,
-                        address(mainAuthorizerContract),
-                        setTimestampDelay
-                    )
+                    (deployer, address(mainAuthorizerContract), setTimestampDelay)
                 )
             );
             registryWithContract = UserOverrideableDKIMRegistry(address(proxy));
@@ -76,19 +69,11 @@ contract UserOverrideableDKIMRegistryTest is Test {
 
         vm.expectEmit();
         emit IDKIMRegistry.KeyHashRegistered(domainNameHash, publicKeyHash);
-        registry.setDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            user1,
-            new bytes(0)
-        );
+        registry.setDKIMPublicKeyHash(domainName, publicKeyHash, user1, new bytes(0));
         vm.stopPrank();
         vm.startPrank(address(exampleOwnable1));
         // setThreshold = 2
-        require(
-            registry.isKeyHashValid(domainNameHash, publicKeyHash),
-            "Invalid public key hash"
-        );
+        require(registry.isKeyHashValid(domainNameHash, publicKeyHash), "Invalid public key hash");
         vm.stopPrank();
     }
 
@@ -97,32 +82,19 @@ contract UserOverrideableDKIMRegistryTest is Test {
 
         vm.expectEmit();
         emit IDKIMRegistry.KeyHashRegistered(domainNameHash, publicKeyHash);
-        registry.setDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            mainAuthorizer,
-            new bytes(0)
-        );
+        registry.setDKIMPublicKeyHash(domainName, publicKeyHash, mainAuthorizer, new bytes(0));
         vm.stopPrank();
 
         vm.startPrank(user1);
 
         vm.expectEmit();
         emit IDKIMRegistry.KeyHashRegistered(domainNameHash, publicKeyHash);
-        registry.setDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            user1,
-            new bytes(0)
-        );
+        registry.setDKIMPublicKeyHash(domainName, publicKeyHash, user1, new bytes(0));
         vm.stopPrank();
 
         vm.startPrank(address(exampleOwnable1));
         // setThreshold = 3
-        require(
-            registry.isKeyHashValid(domainNameHash, publicKeyHash),
-            "Invalid public key hash"
-        );
+        require(registry.isKeyHashValid(domainNameHash, publicKeyHash), "Invalid public key hash");
         vm.stopPrank();
     }
 
@@ -131,179 +103,97 @@ contract UserOverrideableDKIMRegistryTest is Test {
 
         vm.expectEmit();
         emit IDKIMRegistry.KeyHashRegistered(domainNameHash, publicKeyHash);
-        registry.setDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            mainAuthorizer,
-            new bytes(0)
-        );
+        registry.setDKIMPublicKeyHash(domainName, publicKeyHash, mainAuthorizer, new bytes(0));
         vm.stopPrank();
 
         vm.startPrank(address(exampleOwnable1));
         vm.warp(block.timestamp + setTimestampDelay);
         // setThreshold = 2
-        require(
-            registry.isKeyHashValid(domainNameHash, publicKeyHash),
-            "Invalid public key hash"
-        );
+        require(registry.isKeyHashValid(domainNameHash, publicKeyHash), "Invalid public key hash");
         vm.stopPrank();
     }
 
-    function testSetDKIMPublicKeyHashByMainAuthorizerECDSABeforeEnabled()
-        public
-    {
+    function testSetDKIMPublicKeyHashByMainAuthorizerECDSABeforeEnabled() public {
         vm.startPrank(deployer);
-        string memory signedMsg = registry.computeSignedMsg(
-            registry.SET_PREFIX(),
-            domainName,
-            publicKeyHash
-        );
-        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(
-            bytes(signedMsg)
-        );
+        string memory signedMsg = registry.computeSignedMsg(registry.SET_PREFIX(), domainName, publicKeyHash);
+        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(bytes(signedMsg));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(9, digest);
         bytes memory signature = abi.encodePacked(r, s, v);
         vm.expectEmit();
         emit IDKIMRegistry.KeyHashRegistered(domainNameHash, publicKeyHash);
-        registry.setDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            mainAuthorizer,
-            signature
-        );
+        registry.setDKIMPublicKeyHash(domainName, publicKeyHash, mainAuthorizer, signature);
         vm.stopPrank();
 
         vm.startPrank(user1);
 
         vm.expectEmit();
         emit IDKIMRegistry.KeyHashRegistered(domainNameHash, publicKeyHash);
-        registry.setDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            user1,
-            new bytes(0)
-        );
+        registry.setDKIMPublicKeyHash(domainName, publicKeyHash, user1, new bytes(0));
         vm.stopPrank();
 
         vm.startPrank(address(exampleOwnable1));
         // setThreshold = 2
-        require(
-            registry.isKeyHashValid(domainNameHash, publicKeyHash),
-            "Invalid public key hash"
-        );
+        require(registry.isKeyHashValid(domainNameHash, publicKeyHash), "Invalid public key hash");
         vm.stopPrank();
     }
 
-    function testSetDKIMPublicKeyHashByMainAuthorizerECDSAAfterEnabled()
-        public
-    {
+    function testSetDKIMPublicKeyHashByMainAuthorizerECDSAAfterEnabled() public {
         vm.startPrank(deployer);
-        string memory signedMsg = registry.computeSignedMsg(
-            registry.SET_PREFIX(),
-            domainName,
-            publicKeyHash
-        );
-        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(
-            bytes(signedMsg)
-        );
+        string memory signedMsg = registry.computeSignedMsg(registry.SET_PREFIX(), domainName, publicKeyHash);
+        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(bytes(signedMsg));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(9, digest);
         bytes memory signature = abi.encodePacked(r, s, v);
         vm.expectEmit();
         emit IDKIMRegistry.KeyHashRegistered(domainNameHash, publicKeyHash);
-        registry.setDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            mainAuthorizer,
-            signature
-        );
+        registry.setDKIMPublicKeyHash(domainName, publicKeyHash, mainAuthorizer, signature);
         vm.stopPrank();
 
         vm.startPrank(address(exampleOwnable1));
         vm.warp(block.timestamp + setTimestampDelay);
         // setThreshold = 2
-        require(
-            registry.isKeyHashValid(domainNameHash, publicKeyHash),
-            "Invalid public key hash"
-        );
+        require(registry.isKeyHashValid(domainNameHash, publicKeyHash), "Invalid public key hash");
         vm.stopPrank();
     }
 
-    function testSetDKIMPublicKeyHashByMainAuthorizerContractBeforeEnabled()
-        public
-    {
+    function testSetDKIMPublicKeyHashByMainAuthorizerContractBeforeEnabled() public {
         vm.startPrank(deployer);
-        string memory signedMsg = registry.computeSignedMsg(
-            registry.SET_PREFIX(),
-            domainName,
-            publicKeyHash
-        );
-        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(
-            bytes(signedMsg)
-        );
+        string memory signedMsg = registry.computeSignedMsg(registry.SET_PREFIX(), domainName, publicKeyHash);
+        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(bytes(signedMsg));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(9, digest);
         bytes memory signature = abi.encodePacked(r, s, v);
         vm.expectEmit();
         emit IDKIMRegistry.KeyHashRegistered(domainNameHash, publicKeyHash);
-        registryWithContract.setDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            address(mainAuthorizerContract),
-            signature
-        );
+        registryWithContract.setDKIMPublicKeyHash(domainName, publicKeyHash, address(mainAuthorizerContract), signature);
         vm.stopPrank();
 
         vm.startPrank(user1);
 
         vm.expectEmit();
         emit IDKIMRegistry.KeyHashRegistered(domainNameHash, publicKeyHash);
-        registryWithContract.setDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            user1,
-            new bytes(0)
-        );
+        registryWithContract.setDKIMPublicKeyHash(domainName, publicKeyHash, user1, new bytes(0));
         vm.stopPrank();
 
         vm.startPrank(address(exampleOwnable1));
         // setThreshold = 2
-        require(
-            registryWithContract.isKeyHashValid(domainNameHash, publicKeyHash),
-            "Invalid public key hash"
-        );
+        require(registryWithContract.isKeyHashValid(domainNameHash, publicKeyHash), "Invalid public key hash");
         vm.stopPrank();
     }
 
-    function testSetDKIMPublicKeyHashByMainAuthorizerContractAfterEnabled()
-        public
-    {
+    function testSetDKIMPublicKeyHashByMainAuthorizerContractAfterEnabled() public {
         vm.startPrank(deployer);
-        string memory signedMsg = registry.computeSignedMsg(
-            registry.SET_PREFIX(),
-            domainName,
-            publicKeyHash
-        );
-        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(
-            bytes(signedMsg)
-        );
+        string memory signedMsg = registry.computeSignedMsg(registry.SET_PREFIX(), domainName, publicKeyHash);
+        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(bytes(signedMsg));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(9, digest);
         bytes memory signature = abi.encodePacked(r, s, v);
         vm.expectEmit();
         emit IDKIMRegistry.KeyHashRegistered(domainNameHash, publicKeyHash);
-        registryWithContract.setDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            address(mainAuthorizerContract),
-            signature
-        );
+        registryWithContract.setDKIMPublicKeyHash(domainName, publicKeyHash, address(mainAuthorizerContract), signature);
         vm.stopPrank();
 
         vm.startPrank(address(exampleOwnable1));
         vm.warp(block.timestamp + setTimestampDelay);
         // setThreshold = 2
-        require(
-            registryWithContract.isKeyHashValid(domainNameHash, publicKeyHash),
-            "Invalid public key hash"
-        );
+        require(registryWithContract.isKeyHashValid(domainNameHash, publicKeyHash), "Invalid public key hash");
         vm.stopPrank();
     }
 
@@ -311,19 +201,11 @@ contract UserOverrideableDKIMRegistryTest is Test {
         vm.startPrank(user1);
         vm.expectEmit();
         emit IDKIMRegistry.KeyHashRevoked(domainNameHash);
-        registry.revokeDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            user1,
-            new bytes(0)
-        );
+        registry.revokeDKIMPublicKeyHash(domainName, publicKeyHash, user1, new bytes(0));
         vm.stopPrank();
 
         vm.startPrank(address(exampleOwnable1));
-        require(
-            !registry.isKeyHashValid(domainNameHash, publicKeyHash),
-            "public key hash is not revoked"
-        );
+        require(!registry.isKeyHashValid(domainNameHash, publicKeyHash), "public key hash is not revoked");
         vm.stopPrank();
     }
 
@@ -331,19 +213,11 @@ contract UserOverrideableDKIMRegistryTest is Test {
         vm.startPrank(mainAuthorizer);
         vm.expectEmit();
         emit IDKIMRegistry.KeyHashRevoked(domainNameHash);
-        registry.revokeDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            mainAuthorizer,
-            new bytes(0)
-        );
+        registry.revokeDKIMPublicKeyHash(domainName, publicKeyHash, mainAuthorizer, new bytes(0));
         vm.stopPrank();
 
         vm.startPrank(address(exampleOwnable1));
-        require(
-            !registry.isKeyHashValid(domainNameHash, publicKeyHash),
-            "public key hash is not revoked"
-        );
+        require(!registry.isKeyHashValid(domainNameHash, publicKeyHash), "public key hash is not revoked");
         vm.stopPrank();
     }
 
@@ -351,31 +225,17 @@ contract UserOverrideableDKIMRegistryTest is Test {
         testSetDKIMPublicKeyHashByUser1();
 
         vm.startPrank(deployer);
-        string memory signedMsg = registry.computeSignedMsg(
-            registry.REVOKE_PREFIX(),
-            domainName,
-            publicKeyHash
-        );
-        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(
-            bytes(signedMsg)
-        );
+        string memory signedMsg = registry.computeSignedMsg(registry.REVOKE_PREFIX(), domainName, publicKeyHash);
+        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(bytes(signedMsg));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(9, digest);
         bytes memory signature = abi.encodePacked(r, s, v);
         vm.expectEmit();
         emit IDKIMRegistry.KeyHashRevoked(domainNameHash);
-        registry.revokeDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            mainAuthorizer,
-            signature
-        );
+        registry.revokeDKIMPublicKeyHash(domainName, publicKeyHash, mainAuthorizer, signature);
         vm.stopPrank();
 
         vm.startPrank(address(exampleOwnable1));
-        require(
-            !registry.isKeyHashValid(domainNameHash, publicKeyHash),
-            "public key hash is not revoked"
-        );
+        require(!registry.isKeyHashValid(domainNameHash, publicKeyHash), "public key hash is not revoked");
         vm.stopPrank();
     }
 
@@ -383,31 +243,19 @@ contract UserOverrideableDKIMRegistryTest is Test {
         testSetDKIMPublicKeyHashByMainAuthorizerContractBeforeEnabled();
 
         vm.startPrank(deployer);
-        string memory signedMsg = registry.computeSignedMsg(
-            registry.REVOKE_PREFIX(),
-            domainName,
-            publicKeyHash
-        );
-        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(
-            bytes(signedMsg)
-        );
+        string memory signedMsg = registry.computeSignedMsg(registry.REVOKE_PREFIX(), domainName, publicKeyHash);
+        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(bytes(signedMsg));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(9, digest);
         bytes memory signature = abi.encodePacked(r, s, v);
         vm.expectEmit();
         emit IDKIMRegistry.KeyHashRevoked(domainNameHash);
         registryWithContract.revokeDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            address(mainAuthorizerContract),
-            signature
+            domainName, publicKeyHash, address(mainAuthorizerContract), signature
         );
         vm.stopPrank();
 
         vm.startPrank(address(exampleOwnable1));
-        require(
-            !registryWithContract.isKeyHashValid(domainNameHash, publicKeyHash),
-            "public key hash is not revoked"
-        );
+        require(!registryWithContract.isKeyHashValid(domainNameHash, publicKeyHash), "public key hash is not revoked");
         vm.stopPrank();
     }
 
@@ -415,119 +263,66 @@ contract UserOverrideableDKIMRegistryTest is Test {
         testSetDKIMPublicKeyHashByMainAuthorizerAfterEnabled();
 
         vm.startPrank(user2);
-        registry.revokeDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            user2,
-            new bytes(0)
-        );
+        registry.revokeDKIMPublicKeyHash(domainName, publicKeyHash, user2, new bytes(0));
         vm.stopPrank();
 
         vm.startPrank(address(exampleOwnable1));
         // revokeThreshold = 0
-        require(
-            registry.isKeyHashValid(domainNameHash, publicKeyHash),
-            "Invalid public key hash"
-        );
+        require(registry.isKeyHashValid(domainNameHash, publicKeyHash), "Invalid public key hash");
         vm.stopPrank();
     }
 
-    function testDKIMPublicKeyHashValidByUser1AfterSetByMainAuthorizerBeforeEnabledReactivatedByUser1()
-        public
-    {
+    function testDKIMPublicKeyHashValidByUser1AfterSetByMainAuthorizerBeforeEnabledReactivatedByUser1() public {
         testSetDKIMPublicKeyHashByMainAuthorizerBeforeEnabled();
 
         vm.startPrank(mainAuthorizer);
-        registry.revokeDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            mainAuthorizer,
-            new bytes(0)
-        );
+        registry.revokeDKIMPublicKeyHash(domainName, publicKeyHash, mainAuthorizer, new bytes(0));
         vm.stopPrank();
 
         vm.startPrank(user1);
-        registry.reactivateDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            user1,
-            new bytes(0)
-        );
+        registry.reactivateDKIMPublicKeyHash(domainName, publicKeyHash, user1, new bytes(0));
         vm.stopPrank();
 
         vm.startPrank(address(exampleOwnable1));
         // revokeThreshold = 1
         // reactivated
-        require(
-            registry.isKeyHashValid(domainNameHash, publicKeyHash),
-            "Invalid public key hash"
-        );
+        require(registry.isKeyHashValid(domainNameHash, publicKeyHash), "Invalid public key hash");
         vm.stopPrank();
     }
 
-    function testDKIMPublicKeyHashValidByUser1AfterSetByMainAuthorizerAfterEnabledReactivatedByUser1()
-        public
-    {
+    function testDKIMPublicKeyHashValidByUser1AfterSetByMainAuthorizerAfterEnabledReactivatedByUser1() public {
         testSetDKIMPublicKeyHashByMainAuthorizerAfterEnabled();
 
         vm.startPrank(mainAuthorizer);
-        registry.revokeDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            mainAuthorizer,
-            new bytes(0)
-        );
+        registry.revokeDKIMPublicKeyHash(domainName, publicKeyHash, mainAuthorizer, new bytes(0));
         vm.stopPrank();
 
         vm.startPrank(user1);
-        registry.reactivateDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            user1,
-            new bytes(0)
-        );
+        registry.reactivateDKIMPublicKeyHash(domainName, publicKeyHash, user1, new bytes(0));
         vm.stopPrank();
 
         vm.startPrank(address(exampleOwnable1));
         // revokeThreshold = 1
         // reactivated
-        require(
-            registry.isKeyHashValid(domainNameHash, publicKeyHash),
-            "Invalid public key hash"
-        );
+        require(registry.isKeyHashValid(domainNameHash, publicKeyHash), "Invalid public key hash");
         vm.stopPrank();
     }
 
-    function testDKIMPublicKeyHashValidByUser1AfterSetByMainAuthorizerAfterEnabledReactivatedByUser2()
-        public
-    {
+    function testDKIMPublicKeyHashValidByUser1AfterSetByMainAuthorizerAfterEnabledReactivatedByUser2() public {
         testSetDKIMPublicKeyHashByMainAuthorizerAfterEnabled();
 
         vm.startPrank(mainAuthorizer);
-        registry.revokeDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            mainAuthorizer,
-            new bytes(0)
-        );
+        registry.revokeDKIMPublicKeyHash(domainName, publicKeyHash, mainAuthorizer, new bytes(0));
         vm.stopPrank();
 
         vm.startPrank(user2);
-        registry.reactivateDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            user2,
-            new bytes(0)
-        );
+        registry.reactivateDKIMPublicKeyHash(domainName, publicKeyHash, user2, new bytes(0));
         vm.stopPrank();
 
         vm.startPrank(address(exampleOwnable1));
         // revokeThreshold = 1
         // not reactivated
-        require(
-            !registry.isKeyHashValid(domainNameHash, publicKeyHash),
-            "public key hash must be valid"
-        );
+        require(!registry.isKeyHashValid(domainNameHash, publicKeyHash), "public key hash must be valid");
         vm.stopPrank();
     }
 
@@ -561,12 +356,7 @@ contract UserOverrideableDKIMRegistryTest is Test {
 
         vm.expectEmit();
         emit IDKIMRegistry.KeyHashRegistered(domainNameHash, publicKeyHash);
-        registry.setDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            mainAuthorizer,
-            new bytes(0)
-        );
+        registry.setDKIMPublicKeyHash(domainName, publicKeyHash, mainAuthorizer, new bytes(0));
         vm.stopPrank();
 
         vm.startPrank(address(exampleOwnable1));
@@ -575,29 +365,16 @@ contract UserOverrideableDKIMRegistryTest is Test {
         vm.stopPrank();
     }
 
-    function testIsDKIMPublicKeyHashBeforeEnabledWithoutUserConfirmECDSA()
-        public
-    {
+    function testIsDKIMPublicKeyHashBeforeEnabledWithoutUserConfirmECDSA() public {
         vm.startPrank(deployer);
 
-        string memory signedMsg = registry.computeSignedMsg(
-            registry.SET_PREFIX(),
-            domainName,
-            publicKeyHash
-        );
-        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(
-            bytes(signedMsg)
-        );
+        string memory signedMsg = registry.computeSignedMsg(registry.SET_PREFIX(), domainName, publicKeyHash);
+        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(bytes(signedMsg));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(9, digest);
         bytes memory signature = abi.encodePacked(r, s, v);
         vm.expectEmit();
         emit IDKIMRegistry.KeyHashRegistered(domainNameHash, publicKeyHash);
-        registry.setDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            mainAuthorizer,
-            signature
-        );
+        registry.setDKIMPublicKeyHash(domainName, publicKeyHash, mainAuthorizer, signature);
         vm.stopPrank();
 
         vm.startPrank(address(exampleOwnable1));
@@ -606,174 +383,97 @@ contract UserOverrideableDKIMRegistryTest is Test {
         vm.stopPrank();
     }
 
-    function testIsDKIMPublicKeyHashBeforeEnabledWithoutUserConfirmContract()
-        public
-    {
+    function testIsDKIMPublicKeyHashBeforeEnabledWithoutUserConfirmContract() public {
         vm.startPrank(deployer);
 
-        string memory signedMsg = registry.computeSignedMsg(
-            registry.SET_PREFIX(),
-            domainName,
-            publicKeyHash
-        );
-        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(
-            bytes(signedMsg)
-        );
+        string memory signedMsg = registry.computeSignedMsg(registry.SET_PREFIX(), domainName, publicKeyHash);
+        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(bytes(signedMsg));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(9, digest);
         bytes memory signature = abi.encodePacked(r, s, v);
         vm.expectEmit();
         emit IDKIMRegistry.KeyHashRegistered(domainNameHash, publicKeyHash);
-        registryWithContract.setDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            address(mainAuthorizerContract),
-            signature
-        );
+        registryWithContract.setDKIMPublicKeyHash(domainName, publicKeyHash, address(mainAuthorizerContract), signature);
         vm.stopPrank();
 
         vm.startPrank(address(exampleOwnable1));
         // setThreshold = 1
-        assertFalse(
-            registryWithContract.isKeyHashValid(domainNameHash, publicKeyHash)
-        );
+        assertFalse(registryWithContract.isKeyHashValid(domainNameHash, publicKeyHash));
         vm.stopPrank();
     }
 
     function testExpectRevertInvalidECDSA() public {
         vm.startPrank(deployer);
-        string memory signedMsg = registry.computeSignedMsg(
-            registry.SET_PREFIX(),
-            domainName,
-            publicKeyHash
-        );
-        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(
-            bytes(signedMsg)
-        );
+        string memory signedMsg = registry.computeSignedMsg(registry.SET_PREFIX(), domainName, publicKeyHash);
+        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(bytes(signedMsg));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(110, digest);
         bytes memory signature = abi.encodePacked(r, s, v);
         vm.expectRevert("invalid ecdsa signature");
-        registry.setDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            mainAuthorizer,
-            signature
-        );
+        registry.setDKIMPublicKeyHash(domainName, publicKeyHash, mainAuthorizer, signature);
         vm.stopPrank();
     }
 
     function testExpectRevertInvalidEip1271() public {
         vm.startPrank(deployer);
-        string memory signedMsg = registry.computeSignedMsg(
-            registry.SET_PREFIX(),
-            "dummy.com",
-            publicKeyHash
-        );
-        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(
-            bytes(signedMsg)
-        );
+        string memory signedMsg = registry.computeSignedMsg(registry.SET_PREFIX(), "dummy.com", publicKeyHash);
+        bytes32 digest = MessageHashUtils.toEthSignedMessageHash(bytes(signedMsg));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(9, digest);
         bytes memory signature = abi.encodePacked(r, s, v);
         vm.expectRevert("invalid eip1271 signature");
-        registryWithContract.setDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            address(mainAuthorizerContract),
-            signature
-        );
+        registryWithContract.setDKIMPublicKeyHash(domainName, publicKeyHash, address(mainAuthorizerContract), signature);
         vm.stopPrank();
     }
 
-    function testExpectRevertDomainNameCannotBeZeroSetDKIMPublicKeyHashByUser1()
-        public
-    {
+    function testExpectRevertDomainNameCannotBeZeroSetDKIMPublicKeyHashByUser1() public {
         vm.startPrank(user1);
         vm.expectRevert("domain name cannot be zero");
         registry.setDKIMPublicKeyHash("", publicKeyHash, user1, new bytes(0));
         vm.stopPrank();
     }
 
-    function testExpectRevertPublicKeyHashCannotBeZeroSetDKIMPublicKeyHashByUser1()
-        public
-    {
+    function testExpectRevertPublicKeyHashCannotBeZeroSetDKIMPublicKeyHashByUser1() public {
         vm.startPrank(user1);
 
         vm.expectRevert("public key hash cannot be zero");
-        registry.setDKIMPublicKeyHash(
-            domainName,
-            bytes32(uint256(0)),
-            user1,
-            new bytes(0)
-        );
+        registry.setDKIMPublicKeyHash(domainName, bytes32(uint256(0)), user1, new bytes(0));
         vm.stopPrank();
     }
 
-    function testExpectRevertAuthorizerAddressCannotBeZeroSetDKIMPublicKeyHashByUser1()
-        public
-    {
+    function testExpectRevertAuthorizerAddressCannotBeZeroSetDKIMPublicKeyHashByUser1() public {
         vm.startPrank(user1);
 
         vm.expectRevert("authorizer address cannot be zero");
-        registry.setDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            address(0),
-            new bytes(0)
-        );
+        registry.setDKIMPublicKeyHash(domainName, publicKeyHash, address(0), new bytes(0));
         vm.stopPrank();
     }
 
-    function testExpectRevertPublicKeyHashIsAlreadySetDKIMPublicKeyHashByMainAuthorizer()
-        public
-    {
+    function testExpectRevertPublicKeyHashIsAlreadySetDKIMPublicKeyHashByMainAuthorizer() public {
         testSetDKIMPublicKeyHashByMainAuthorizerAfterEnabled();
         vm.startPrank(mainAuthorizer);
 
         vm.expectRevert("public key hash is already set");
-        registry.setDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            mainAuthorizer,
-            new bytes(0)
-        );
+        registry.setDKIMPublicKeyHash(domainName, publicKeyHash, mainAuthorizer, new bytes(0));
         vm.stopPrank();
     }
 
-        function testExpectRevertPublicKeyHashIsAlreadyRevokedByUser1() public {
-            testRevokeDKIMPublicKeyHashByUser1();
-            vm.startPrank(user1);
+    function testExpectRevertPublicKeyHashIsAlreadyRevokedByUser1() public {
+        testRevokeDKIMPublicKeyHashByUser1();
+        vm.startPrank(user1);
 
-            vm.expectRevert("public key hash is already revoked");
-            registry.setDKIMPublicKeyHash(
-                domainName,
-                publicKeyHash,
-                user1,
-                new bytes(0)
-            );
+        vm.expectRevert("public key hash is already revoked");
+        registry.setDKIMPublicKeyHash(domainName, publicKeyHash, user1, new bytes(0));
 
-            vm.expectRevert("public key hash is already revoked");
-            registry.revokeDKIMPublicKeyHash(
-                domainName,
-                publicKeyHash,
-                user1,
-                new bytes(0)
-            );
-            vm.stopPrank();
-        }
+        vm.expectRevert("public key hash is already revoked");
+        registry.revokeDKIMPublicKeyHash(domainName, publicKeyHash, user1, new bytes(0));
+        vm.stopPrank();
+    }
 
-    function testExpectRevertReactivateDKIMPublicKeyHashByMainAuthorizer()
-        public
-    {
+    function testExpectRevertReactivateDKIMPublicKeyHashByMainAuthorizer() public {
         testSetDKIMPublicKeyHashByMainAuthorizerAfterEnabled();
         testRevokeDKIMPublicKeyHashByMainAuthorizer();
 
         vm.startPrank(mainAuthorizer);
         vm.expectRevert("mainAuthorizer cannot reactivate the public key hash");
-        registry.reactivateDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            mainAuthorizer,
-            new bytes(0)
-        );
+        registry.reactivateDKIMPublicKeyHash(domainName, publicKeyHash, mainAuthorizer, new bytes(0));
         vm.stopPrank();
     }
 
@@ -782,27 +482,15 @@ contract UserOverrideableDKIMRegistryTest is Test {
 
         vm.startPrank(user1);
         vm.expectRevert("public key hash is already reactivated");
-        registry.reactivateDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            user1,
-            new bytes(0)
-        );
+        registry.reactivateDKIMPublicKeyHash(domainName, publicKeyHash, user1, new bytes(0));
         vm.stopPrank();
     }
 
-    function testExpectReactivatePublicKeyHashIsNotRevokedByMainAuthorizer()
-        public
-    {
+    function testExpectReactivatePublicKeyHashIsNotRevokedByMainAuthorizer() public {
         testSetDKIMPublicKeyHashByMainAuthorizerBeforeEnabled();
         vm.startPrank(user1);
         vm.expectRevert("revoke threshold must be one");
-        registry.reactivateDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            user1,
-            new bytes(0)
-        );
+        registry.reactivateDKIMPublicKeyHash(domainName, publicKeyHash, user1, new bytes(0));
         vm.stopPrank();
     }
 
@@ -811,12 +499,7 @@ contract UserOverrideableDKIMRegistryTest is Test {
 
         vm.startPrank(user1);
         vm.expectRevert("revoke threshold must be one");
-        registry.reactivateDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            user1,
-            new bytes(0)
-        );
+        registry.reactivateDKIMPublicKeyHash(domainName, publicKeyHash, user1, new bytes(0));
         vm.stopPrank();
     }
 
@@ -825,12 +508,7 @@ contract UserOverrideableDKIMRegistryTest is Test {
 
         vm.startPrank(user1);
         vm.expectRevert("set threshold must be larger than two");
-        registry.reactivateDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            user1,
-            new bytes(0)
-        );
+        registry.reactivateDKIMPublicKeyHash(domainName, publicKeyHash, user1, new bytes(0));
         vm.stopPrank();
     }
 
@@ -839,28 +517,16 @@ contract UserOverrideableDKIMRegistryTest is Test {
 
         vm.startPrank(user1);
         vm.expectRevert("set threshold must be larger than two");
-        registry.reactivateDKIMPublicKeyHash(
-            domainName,
-            publicKeyHash,
-            user1,
-            new bytes(0)
-        );
+        registry.reactivateDKIMPublicKeyHash(domainName, publicKeyHash, user1, new bytes(0));
         vm.stopPrank();
     }
 
-    function testExpectRevertDomainNameCannotBeZeroRevokeDKIMPublicKeyHashByUser1()
-        public
-    {
+    function testExpectRevertDomainNameCannotBeZeroRevokeDKIMPublicKeyHashByUser1() public {
         testSetDKIMPublicKeyHashByUser1();
 
         vm.startPrank(user1);
         vm.expectRevert("domain name cannot be zero");
-        registry.revokeDKIMPublicKeyHash(
-            "",
-            publicKeyHash,
-            user1,
-            new bytes(0)
-        );
+        registry.revokeDKIMPublicKeyHash("", publicKeyHash, user1, new bytes(0));
         vm.stopPrank();
     }
 
@@ -882,9 +548,7 @@ contract UserOverrideableDKIMRegistryTest is Test {
         vm.stopPrank();
     }
 
-    function testIsKeyHashValidByUser1AfterSetByUser1RevokedByMainAuthorizer()
-        public
-    {
+    function testIsKeyHashValidByUser1AfterSetByUser1RevokedByMainAuthorizer() public {
         testSetDKIMPublicKeyHashByUser1();
         testRevokeDKIMPublicKeyHashByMainAuthorizer();
 
@@ -894,9 +558,7 @@ contract UserOverrideableDKIMRegistryTest is Test {
         vm.stopPrank();
     }
 
-    function testIsKeyHashValidByUser1AfterSetByMainAuthorizerBeforeEnabledRevokedByMainAuthorizer()
-        public
-    {
+    function testIsKeyHashValidByUser1AfterSetByMainAuthorizerBeforeEnabledRevokedByMainAuthorizer() public {
         testSetDKIMPublicKeyHashByMainAuthorizerBeforeEnabled();
         testRevokeDKIMPublicKeyHashByMainAuthorizer();
 
@@ -906,9 +568,7 @@ contract UserOverrideableDKIMRegistryTest is Test {
         vm.stopPrank();
     }
 
-    function testIsKeyHashValidByUser1AfterSetByMainAuthorizerAfterEnabledRevokedByMainAuthorizer()
-        public
-    {
+    function testIsKeyHashValidByUser1AfterSetByMainAuthorizerAfterEnabledRevokedByMainAuthorizer() public {
         testSetDKIMPublicKeyHashByMainAuthorizerAfterEnabled();
         testRevokeDKIMPublicKeyHashByMainAuthorizer();
 
@@ -928,9 +588,7 @@ contract UserOverrideableDKIMRegistryTest is Test {
         vm.stopPrank();
     }
 
-    function testIsKeyHashValidByUser1AfterSetByMainAuthorizerBeforeEnabledRevokedByUser1()
-        public
-    {
+    function testIsKeyHashValidByUser1AfterSetByMainAuthorizerBeforeEnabledRevokedByUser1() public {
         testSetDKIMPublicKeyHashByMainAuthorizerBeforeEnabled();
         testRevokeDKIMPublicKeyHashByUser1();
 
@@ -940,9 +598,7 @@ contract UserOverrideableDKIMRegistryTest is Test {
         vm.stopPrank();
     }
 
-    function testIsKeyHashValidByUser1AfterSetByMainAuthorizerAfterEnabledRevokedByUser1()
-        public
-    {
+    function testIsKeyHashValidByUser1AfterSetByMainAuthorizerAfterEnabledRevokedByUser1() public {
         testSetDKIMPublicKeyHashByMainAuthorizerAfterEnabled();
         testRevokeDKIMPublicKeyHashByUser1();
 
@@ -953,61 +609,28 @@ contract UserOverrideableDKIMRegistryTest is Test {
     }
 
     function testcomputeSetSignedMsg() public view {
-        string memory signedMsg = registry.computeSignedMsg(
-            registry.SET_PREFIX(),
-            domainName,
-            publicKeyHash
-        );
-        require(
-            Strings.equal(
-                signedMsg,
-                "SET:domain=example.com;public_key_hash=0x01;"
-            ),
-            "Invalid signed message"
-        );
+        string memory signedMsg = registry.computeSignedMsg(registry.SET_PREFIX(), domainName, publicKeyHash);
+        require(Strings.equal(signedMsg, "SET:domain=example.com;public_key_hash=0x01;"), "Invalid signed message");
         console.log(signedMsg);
     }
 
     function testcomputeRevokeSignedMsg() public view {
-        string memory signedMsg = registry.computeSignedMsg(
-            registry.REVOKE_PREFIX(),
-            domainName,
-            publicKeyHash
-        );
-        require(
-            Strings.equal(
-                signedMsg,
-                "REVOKE:domain=example.com;public_key_hash=0x01;"
-            ),
-            "Invalid signed message"
-        );
+        string memory signedMsg = registry.computeSignedMsg(registry.REVOKE_PREFIX(), domainName, publicKeyHash);
+        require(Strings.equal(signedMsg, "REVOKE:domain=example.com;public_key_hash=0x01;"), "Invalid signed message");
         console.log(signedMsg);
     }
 
     function testcomputeReactivateSignedMsg() public view {
-        string memory signedMsg = registry.computeSignedMsg(
-            registry.REACTIVATE_PREFIX(),
-            domainName,
-            publicKeyHash
-        );
+        string memory signedMsg = registry.computeSignedMsg(registry.REACTIVATE_PREFIX(), domainName, publicKeyHash);
         require(
-            Strings.equal(
-                signedMsg,
-                "REACTIVATE:domain=example.com;public_key_hash=0x01;"
-            ),
-            "Invalid signed message"
+            Strings.equal(signedMsg, "REACTIVATE:domain=example.com;public_key_hash=0x01;"), "Invalid signed message"
         );
         console.log(signedMsg);
     }
 
     function testExpectRevertChangeMainAuthorizerByNonOwner() public {
         vm.startPrank(mainAuthorizer);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                OwnableUpgradeable.OwnableUnauthorizedAccount.selector,
-                mainAuthorizer
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(OwnableUpgradeable.OwnableUnauthorizedAccount.selector, mainAuthorizer));
         registry.changeMainAuthorizer(user1);
         vm.stopPrank();
     }
@@ -1021,9 +644,7 @@ contract UserOverrideableDKIMRegistryTest is Test {
 
     function testExpectRevertChangeMainAuthorizerIsSame() public {
         vm.startPrank(deployer);
-        vm.expectRevert(
-            "newMainAuthorizer address cannot be the same as the current mainAuthorizer"
-        );
+        vm.expectRevert("newMainAuthorizer address cannot be the same as the current mainAuthorizer");
         registry.changeMainAuthorizer(mainAuthorizer);
         vm.stopPrank();
     }
