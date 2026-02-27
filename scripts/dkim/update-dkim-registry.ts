@@ -1,12 +1,12 @@
-import { ethers, JsonRpcProvider } from "ethers";
-import { buildPoseidon } from "circomlibjs";
-import dns from "dns";
+import fs from "fs";
 import path from "path";
+import dns from "dns";
 import forge from "node-forge";
-import { bigIntToChunkedBytes } from "@zk-email/helpers/src/binaryFormat";
-const fs = require("fs");
-import { abi } from "../abis/DKIMRegistry.json";
+import { ethers, JsonRpcProvider } from "ethers";
+import { bigIntToChunkedBytes } from "@zk-email/helpers/src/binary-format";
 import { poseidonLarge } from "@zk-email/helpers/src/hash";
+import { abi } from "../abis/DKIMRegistry.json";
+
 require("dotenv").config();
 
 async function updateContract(domain: string, pubkeyHashes: string[]) {
@@ -33,7 +33,7 @@ async function updateContract(domain: string, pubkeyHashes: string[]) {
 async function getPublicKeyForDomainAndSelector(
   domain: string,
   selector: string,
-  print: boolean = true
+  print: boolean = true,
 ) {
   // Construct the DKIM record name
   let dkimRecordName = `${selector}._domainkey.${domain}`;
@@ -91,7 +91,7 @@ async function checkSelector(domain: string, selector: string) {
     const publicKey = await getPublicKeyForDomainAndSelector(
       domain,
       selector,
-      false
+      false,
     );
     if (publicKey) {
       console.log(`Domain: ${domain}, Selector: ${selector} - Match found`);
@@ -106,7 +106,7 @@ async function checkSelector(domain: string, selector: string) {
     }
   } catch (error) {
     console.error(
-      `Error processing domain: ${domain}, Selector: ${selector} - ${error}`
+      `Error processing domain: ${domain}, Selector: ${selector} - ${error}`,
     );
   }
 
@@ -171,7 +171,7 @@ async function getDKIMPublicKeysForDomains(filename: string) {
     "skiff1",
     "s1024",
     "selector1",
-    "dkim-202308"
+    "dkim-202308",
   ];
 
   let results = [];
@@ -224,7 +224,7 @@ async function updateDKIMRegistry({
     }
     fs.writeFileSync(
       path.join(__dirname, "out/" + filename),
-      JSON.stringify(data, null, 2)
+      JSON.stringify(data, null, 2),
     );
   }
 
