@@ -2,7 +2,7 @@
 pragma solidity ^0.8.30;
 
 import {Test} from "forge-std/Test.sol";
-import {CircomUtils} from "../../../utils/CircomUtils.sol";
+import {CircomUtils} from "../../../src/utils/CircomUtils.sol";
 import {CircomUtilsHelper} from "./_CircomUtilsHelper.sol";
 
 contract PackBytes2FieldsTest is Test {

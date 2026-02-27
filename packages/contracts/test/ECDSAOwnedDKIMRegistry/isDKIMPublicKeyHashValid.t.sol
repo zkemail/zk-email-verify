@@ -2,7 +2,7 @@
 pragma solidity ^0.8.12;
 
 import "forge-std/Test.sol";
-import "../../ECDSAOwnedDKIMRegistry.sol";
+import "../../src/ECDSAOwnedDKIMRegistry.sol";
 
 contract ECDSAOwnedDKIMRegistryTest_isDKIMPublicKeyHashValid is Test {
     ECDSAOwnedDKIMRegistry dkim;

@@ -105,3 +105,4 @@ contract ECDSAOwnedDKIMRegistry is IDKIMRegistry {
             string.concat(prefix, "domain=", domainName, ";public_key_hash=", uint256(publicKeyHash).toHexString(), ";");
     }
 }
+

@@ -29,3 +29,4 @@ interface IDKIMRegistry {
         bytes32 keyHash
     ) external view returns (bool);
 }
+

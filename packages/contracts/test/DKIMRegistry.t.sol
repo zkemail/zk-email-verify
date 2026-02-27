@@ -4,8 +4,8 @@ pragma solidity ^0.8.12;
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
-import "../interfaces/IERC7969.sol";
-import "../DKIMRegistry.sol";
+import "../src/interfaces/IERC7969.sol";
+import "../src/DKIMRegistry.sol";
 
 /// @title ECDSAOwnedDKIMRegistry
 /// @notice A DKIM Registry that could be updated by predefined ECDSA signer

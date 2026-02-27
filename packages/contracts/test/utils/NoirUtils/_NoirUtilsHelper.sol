@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import {NoirUtils} from "../../../utils/NoirUtils.sol";
+import {NoirUtils} from "../../../src/utils/NoirUtils.sol";
 
 contract NoirUtilsHelper {
     // PACK FUNCTIONS

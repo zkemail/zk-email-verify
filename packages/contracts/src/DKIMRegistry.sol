@@ -58,3 +58,4 @@ contract DKIMRegistry is IDKIMRegistry, Ownable {
         emit KeyHashRevoked(publicKeyHash);
     }
 }
+

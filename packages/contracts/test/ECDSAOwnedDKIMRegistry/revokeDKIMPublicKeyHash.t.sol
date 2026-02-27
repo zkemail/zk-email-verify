@@ -5,7 +5,7 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
-import "../../ECDSAOwnedDKIMRegistry.sol";
+import "../../src/ECDSAOwnedDKIMRegistry.sol";
 
 contract ECDSAOwnedDKIMRegistryTest_revokeDKIMPublicKeyHash is Test {
     ECDSAOwnedDKIMRegistry dkim;

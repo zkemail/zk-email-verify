@@ -130,3 +130,4 @@ library CircomUtils {
         return uint256(fields[0]) == 1;
     }
 }
+

@@ -1,5 +1,5 @@
 [profile.default]
-src = './'
+src = 'src'
 out = 'out'
 allow_paths = ['../../node_modules']
 libs = ['../../node_modules']
