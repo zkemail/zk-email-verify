@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.7.6;
+pragma solidity ^0.8.34;
 
 // https://github.com/nalinbhardwaj/ethdosnumber/blob/main/ethdos-contracts/src/HexStrings.sol
 library StringUtils {
@@ -73,7 +73,7 @@ library StringUtils {
     // Note: This convenience function removes the max string length check, which may cause misalignment with the circom
     // If using this, then the circom needs to rangecheck packed length in the circuit itself
     // This defaults to 31 bytes per packed byte
-    function convertPackedBytesToString(uint256[] memory packedBytes) 
+    function convertPackedBytesToString(uint256[] memory packedBytes)
         internal
         pure
         returns (string memory extractedString)

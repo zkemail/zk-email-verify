@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.30;
+pragma solidity ^0.8.34;
 
 import {CircomUtils} from "../../../src/utils/CircomUtils.sol";
 
@@ -8,11 +8,7 @@ contract CircomUtilsHelper {
         return CircomUtils.packFieldsArray(input, paddedSize);
     }
 
-    function callUnpackFieldsArray(bytes32[] calldata fields, uint256 paddedSize)
-        external
-        pure
-        returns (bytes memory)
-    {
+    function callUnpackFieldsArray(bytes32[] calldata fields, uint256 paddedSize) external pure returns (bytes memory) {
         return CircomUtils.unpackFieldsArray(fields, paddedSize);
     }
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.12;
+pragma solidity ^0.8.34;
 
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
@@ -101,8 +101,9 @@ contract ECDSAOwnedDKIMRegistry is IDKIMRegistry {
         pure
         returns (string memory)
     {
-        return
-            string.concat(prefix, "domain=", domainName, ";public_key_hash=", uint256(publicKeyHash).toHexString(), ";");
+        return string.concat(
+            prefix, "domain=", domainName, ";public_key_hash=", uint256(publicKeyHash).toHexString(), ";"
+        );
     }
 }
 
