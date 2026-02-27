@@ -12,6 +12,10 @@
 #   bb       0.84.0
 #   Node.js  24  (via nvm)
 #
+# Repository commits:
+#   zk-email-verify  bb19cc124f773a99f8600f59a7709721a91f7d34  (feat/benchmark-and-fixes)
+#   zkemail.nr       e694d59eb7880423804253b7e1ec8812a5f3fd55  (chore/code-quality-improvements)
+#
 # Usage:
 #   chmod +x setup-macos.sh && ./setup-macos.sh
 #
