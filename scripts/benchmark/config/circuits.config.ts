@@ -194,17 +194,6 @@ export const FEATURE_CONFIGS: CircuitConfig[] = [
     removeSoftLineBreaks: 0,
   },
   {
-    id: 'FEAT-SOFT',
-    category: 'features',
-    maxHeadersLength: 640,
-    maxBodyLength: 1408,
-    n: 121, k: 17,
-    ignoreBodyHashCheck: 0,
-    enableHeaderMasking: 0,
-    enableBodyMasking: 0,
-    removeSoftLineBreaks: 1,
-  },
-  {
     id: 'FEAT-FULL',
     category: 'features',
     maxHeadersLength: 640,
@@ -215,17 +204,11 @@ export const FEATURE_CONFIGS: CircuitConfig[] = [
     enableBodyMasking: 1,
     removeSoftLineBreaks: 0,
   },
-  {
-    id: 'FEAT-NOBODY-BMASK',
-    category: 'features',
-    maxHeadersLength: 640,
-    maxBodyLength: 768,
-    n: 121, k: 17,
-    ignoreBodyHashCheck: 1,
-    enableHeaderMasking: 0,
-    enableBodyMasking: 1,
-    removeSoftLineBreaks: 0,
-  },
+  // FEAT-NOBODY-BMASK and FEAT-NOBODY-FULL removed:
+  // Body masking with ignoreBodyHashCheck=1 doesn't make sense — when the body hash
+  // check is skipped, the body is never loaded into the circuit, so there's nothing
+  // to mask. In email-verifier.circom, enableBodyMasking is guarded inside the
+  // ignoreBodyHashCheck!=1 block, making it a compile-time no-op.
   {
     id: 'FEAT-NOBODY-HMASK',
     category: 'features',
@@ -237,102 +220,51 @@ export const FEATURE_CONFIGS: CircuitConfig[] = [
     enableBodyMasking: 0,
     removeSoftLineBreaks: 0,
   },
-  {
-    id: 'FEAT-NOBODY-FULL',
-    category: 'features',
-    maxHeadersLength: 640,
-    maxBodyLength: 768,
-    n: 121, k: 17,
-    ignoreBodyHashCheck: 1,
-    enableHeaderMasking: 1,
-    enableBodyMasking: 1,
-    removeSoftLineBreaks: 0,
-  },
 ];
 
-// SHA precompute configs — same circuit as FEAT-BASE, only inputs differ.
+// SHA precompute configs — reduced maxBodyLength demonstrates actual constraint savings.
+// All use same 1024-byte source email (via sourceEmailBodySize) to match Noir benchmark configs.
+// Circom's in_body_padded includes SHA padding, so maxBodyLength = SHA-padded remaining + 2-block margin.
 // Selectors are extracted dynamically from the actual email body at the given position (0–1).
-// This avoids hardcoding strings that may not exist in the email selected by findEmailFile.
 export const PRECOMPUTE_CONFIGS: CircuitConfig[] = [
   {
-    id: 'PRECOMP-NONE',
+    id: 'PRECOMP-25',
     category: 'precompute',
     maxHeadersLength: 640,
-    maxBodyLength: 768,
+    maxBodyLength: 960,   // ~75% remaining (768) + SHA padding (64) + 2-block margin (128)
     n: 121, k: 17,
     ignoreBodyHashCheck: 0,
     enableHeaderMasking: 0,
     enableBodyMasking: 0,
     removeSoftLineBreaks: 0,
-    // No selector — baseline, full SHA from start
+    shaPrecomputePosition: 0.25,
+    sourceEmailBodySize: 1024,
   },
   {
-    id: 'PRECOMP-EARLY',
+    id: 'PRECOMP-50',
     category: 'precompute',
     maxHeadersLength: 640,
-    maxBodyLength: 768,
+    maxBodyLength: 704,   // ~50% remaining (512) + SHA padding (64) + 2-block margin (128)
     n: 121, k: 17,
     ignoreBodyHashCheck: 0,
     enableHeaderMasking: 0,
     enableBodyMasking: 0,
     removeSoftLineBreaks: 0,
-    shaPrecomputePosition: 0.1,  // ~10% into body
+    shaPrecomputePosition: 0.50,
+    sourceEmailBodySize: 1024,
   },
   {
-    id: 'PRECOMP-MID',
+    id: 'PRECOMP-75',
     category: 'precompute',
     maxHeadersLength: 640,
-    maxBodyLength: 768,
+    maxBodyLength: 448,   // ~25% remaining (256) + SHA padding (64) + 2-block margin (128)
     n: 121, k: 17,
     ignoreBodyHashCheck: 0,
     enableHeaderMasking: 0,
     enableBodyMasking: 0,
     removeSoftLineBreaks: 0,
-    shaPrecomputePosition: 0.5,  // ~50% into body
-  },
-  {
-    id: 'PRECOMP-LATE',
-    category: 'precompute',
-    maxHeadersLength: 640,
-    maxBodyLength: 768,
-    n: 121, k: 17,
-    ignoreBodyHashCheck: 0,
-    enableHeaderMasking: 0,
-    enableBodyMasking: 0,
-    removeSoftLineBreaks: 0,
-    shaPrecomputePosition: 0.8,  // ~80% into body
-  },
-];
-
-// SHA precompute with REDUCED maxBodyLength — demonstrates actual constraint savings.
-// Same email as PRECOMP-NONE (b512, SHA-padded to 640 bytes), but maxBodyLength shrunk
-// to fit only the remaining body after precompute.
-export const PRECOMPUTE_REDUCED_CONFIGS: CircuitConfig[] = [
-  {
-    id: 'PRECOMP-MID-SMALL',
-    category: 'precompute',
-    maxHeadersLength: 640,
-    maxBodyLength: 448,   // remaining after 50% precompute + 1 block margin for alignment
-    n: 121, k: 17,
-    ignoreBodyHashCheck: 0,
-    enableHeaderMasking: 0,
-    enableBodyMasking: 0,
-    removeSoftLineBreaks: 0,
-    shaPrecomputePosition: 0.5,
-    sourceEmailBodySize: 512,  // force same email as PRECOMP-NONE
-  },
-  {
-    id: 'PRECOMP-LATE-SMALL',
-    category: 'precompute',
-    maxHeadersLength: 640,
-    maxBodyLength: 320,   // remaining after 80% precompute + 1 block margin for alignment
-    n: 121, k: 17,
-    ignoreBodyHashCheck: 0,
-    enableHeaderMasking: 0,
-    enableBodyMasking: 0,
-    removeSoftLineBreaks: 0,
-    shaPrecomputePosition: 0.8,
-    sourceEmailBodySize: 512,  // force same email as PRECOMP-NONE
+    shaPrecomputePosition: 0.75,
+    sourceEmailBodySize: 1024,
   },
 ];
 
@@ -341,7 +273,6 @@ export const ALL_CONFIGS: CircuitConfig[] = [
   ...RSA_CONFIGS,
   ...FEATURE_CONFIGS,
   ...PRECOMPUTE_CONFIGS,
-  ...PRECOMPUTE_REDUCED_CONFIGS,
 ];
 
 // Get config by ID

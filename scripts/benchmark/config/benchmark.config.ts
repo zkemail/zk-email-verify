@@ -35,6 +35,7 @@ export const BENCHMARK_CONFIG = {
 
   // Powers of tau file (download separately)
   ptauFile: path.join(__dirname, '../powersOfTau28_hez_final_22.ptau'),
+  ptauPower: 22,  // 2^22 = 4,194,304 max constraints
 
   // Circom options
   circomOptions: {
