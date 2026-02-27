@@ -1,2 +1,17 @@
+# polkadot hardhat node binaries
 bin/dev-node
 bin/eth-rpc
+
+# hardhat directories
+hh-artifacts
+hh-cache
+hh-out
+hh-tests
+
+# TypeChain files
+/typechain
+/typechain-types
+
+# solidity-coverage files
+/coverage
+/coverage.json

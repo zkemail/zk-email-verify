@@ -2,6 +2,9 @@
   "name": "@zk-email/contracts",
   "version": "6.3.2",
   "license": "MIT",
+  "files": [
+    "src"
+  ],
   "scripts": {
     "build": "forge build",
     "publish": "yarn npm publish --access=public"
@@ -11,13 +14,24 @@
     "@openzeppelin/contracts-upgradeable": "5.3.0",
     "dotenv": "^16.3.1"
   },
-  "files": [
-    "DKIMRegistry.sol",
-    "UserOverrideableDKIMRegistry.sol",
-    "/utils",
-    "/interfaces"
-  ],
   "devDependencies": {
-    "forge-std": "https://github.com/foundry-rs/forge-std#v1.10.0"
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
+    "@nomicfoundation/hardhat-ethers": "^3.0.0",
+    "@nomicfoundation/hardhat-ignition": "^0.15.16",
+    "@nomicfoundation/hardhat-ignition-ethers": "^0.15.0",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.0",
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.0",
+    "@nomicfoundation/ignition-core": "^0.15.15",
+    "@parity/hardhat-polkadot": "^0.2.7",
+    "@parity/hardhat-polkadot-resolc": "^0.2.3",
+    "@typechain/ethers-v6": "^0.5.0",
+    "@typechain/hardhat": "^9.0.0",
+    "@types/chai": "^4.2.0",
+    "forge-std": "https://github.com/foundry-rs/forge-std#v1.10.0",
+    "hardhat": "2.28.6",
+    "hardhat-gas-reporter": "^1.0.8",
+    "solidity-coverage": "^0.8.1",
+    "typechain": "^8.3.0"
   }
 }
