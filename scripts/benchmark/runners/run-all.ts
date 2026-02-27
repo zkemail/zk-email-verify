@@ -7,11 +7,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
-import { ALL_CONFIGS, SCALING_CONFIGS, RSA_CONFIGS, FEATURE_CONFIGS, PRECOMPUTE_CONFIGS, PRECOMPUTE_REDUCED_CONFIGS } from '../config/circuits.config.js';
+import { ALL_CONFIGS, SCALING_CONFIGS, RSA_CONFIGS, FEATURE_CONFIGS, PRECOMPUTE_CONFIGS } from '../config/circuits.config.js';
 import { BENCHMARK_CONFIG } from '../config/benchmark.config.js';
 import { generateAllCircuits } from '../lib/circuit-generator.js';
 import { compileAllCircuits, ConstraintInfo } from '../lib/constraint-counter.js';
-import { runBenchmarks, ProvingResult } from '../lib/prover.js';
+import { runBenchmarks, validateConstraintsAgainstPtau, ProvingResult } from '../lib/prover.js';
 import { generateReport, saveReports } from '../lib/reporter.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -36,7 +36,7 @@ async function main() {
     configs = FEATURE_CONFIGS;
     categoryName = 'Features';
   } else if (category === '--precompute') {
-    configs = [...PRECOMPUTE_CONFIGS, ...PRECOMPUTE_REDUCED_CONFIGS];
+    configs = PRECOMPUTE_CONFIGS;
     categoryName = 'Precompute';
   }
 
@@ -90,6 +90,15 @@ async function main() {
     console.log(`Compiled ${constraintResults.size} circuits\n`);
   } else {
     console.log('Phase 2: Skipped (--skip-compile)\n');
+  }
+
+  // Validate constraints against ptau limit before proving
+  if (!skipProve && constraintResults.size > 0) {
+    const exceeded = validateConstraintsAgainstPtau(constraintResults);
+    if (exceeded.length > 0) {
+      configs = configs.filter(c => !exceeded.includes(c.id));
+      console.log(`Filtered out ${exceeded.length} configs exceeding ptau limit\n`);
+    }
   }
 
   // Phase 3: Run proving benchmarks

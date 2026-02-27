@@ -29,7 +29,7 @@
     "benchmark:features": "npx tsx runners/run-all.ts --features",
     "benchmark:compile-only": "npx tsx runners/run-all.ts --skip-prove",
 
-    "setup": "pnpm run generate-keys && pnpm run generate-emails && pnpm run verify-emails && pnpm run generate-circuits && pnpm run generate-circuit-inputs",
+    "setup": "bun run generate-keys && pnpm run generate-emails && pnpm run verify-emails && pnpm run generate-circuits && pnpm run generate-circuit-inputs",
     "clean": "rm -rf circuits compiled inputs results"
   },
   "dependencies": {
