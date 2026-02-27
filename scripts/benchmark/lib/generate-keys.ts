@@ -1,7 +1,7 @@
 /**
  * Generate RSA key pairs for DKIM signing
  *
- * Usage: npm run generate-keys
+ * Usage: bun run generate-keys
  */
 
 import { execSync } from 'child_process';

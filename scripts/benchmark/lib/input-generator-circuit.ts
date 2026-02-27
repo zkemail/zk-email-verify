@@ -96,8 +96,10 @@ function findEmailFile(config: CircuitConfig): string | null {
 }
 
 /**
- * Extract a ~3-word selector from the body at a fractional position (0–1).
- * Snaps to the nearest word boundary so the selector is always a clean substring.
+ * Extract a selector from the body at a fractional position (0–1).
+ * Snaps to the nearest word boundary. Expands the selector (up to 8 words)
+ * until its first occurrence in the body is at or near the intended position,
+ * so that findIndexInUint8Array won't match an earlier duplicate.
  */
 function extractSelectorAtPosition(body: string, position: number): string {
   const target = Math.floor(body.length * Math.max(0, Math.min(1, position)));
@@ -108,12 +110,24 @@ function extractSelectorAtPosition(body: string, position: number): string {
   // Walk back to the start of the current word if we landed mid-word
   while (start > 0 && !/\s/.test(body[start - 1])) start--;
 
-  // Grab 3 consecutive words
   const remaining = body.slice(start);
+
+  // Expand from 3 to 8 words until the selector's first occurrence is near `start`.
+  // This avoids collisions where the same short phrase appears earlier in the body,
+  // which would cause findIndexInUint8Array to return the wrong position.
+  for (let wordCount = 3; wordCount <= 8; wordCount++) {
+    const regex = new RegExp(`^(\\S+(?:\\s+\\S+){${wordCount - 1}})`);
+    const match = remaining.match(regex);
+    if (!match) break;
+    const candidate = match[1];
+    const firstOccurrence = body.indexOf(candidate);
+    if (firstOccurrence >= start) return candidate;
+  }
+
+  // Fallback: return best available (3-word) even if it has an earlier duplicate
   const match = remaining.match(/^(\S+(?:\s+\S+){2})/);
   if (match) return match[1];
 
-  // Fallback: take whatever is left
   const fallback = remaining.trim().split(/\s+/).slice(0, 3).join(' ');
   if (fallback.length > 0) return fallback;
   throw new Error(`Cannot extract selector at position ${position} — body too short`);

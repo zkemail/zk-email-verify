@@ -7,7 +7,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
-import { CircuitConfig, ALL_CONFIGS, SCALING_CONFIGS, RSA_CONFIGS, FEATURE_CONFIGS, PRECOMPUTE_CONFIGS, PRECOMPUTE_REDUCED_CONFIGS } from '../config/circuits.config.js';
+import { CircuitConfig, ALL_CONFIGS, SCALING_CONFIGS, RSA_CONFIGS, FEATURE_CONFIGS, PRECOMPUTE_CONFIGS } from '../config/circuits.config.js';
 import { BENCHMARK_CONFIG } from '../config/benchmark.config.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -80,7 +80,7 @@ async function main() {
     configs = FEATURE_CONFIGS;
     console.log('=== Generating Feature Benchmark Circuits ===\n');
   } else if (args.includes('--precompute')) {
-    configs = [...PRECOMPUTE_CONFIGS, ...PRECOMPUTE_REDUCED_CONFIGS];
+    configs = PRECOMPUTE_CONFIGS;
     console.log('=== Generating Precompute Benchmark Circuits ===\n');
   } else {
     console.log('=== Generating All Benchmark Circuits ===\n');
