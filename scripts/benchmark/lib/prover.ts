@@ -4,12 +4,13 @@
  * Usage: npx tsx lib/prover.ts [--config CONFIG_ID]
  */
 
-import { execSync, exec } from 'child_process';
+import { execSync, spawnSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { CircuitConfig, ALL_CONFIGS, getConfigById } from '../config/circuits.config.js';
 import { BENCHMARK_CONFIG } from '../config/benchmark.config.js';
+import { ConstraintInfo } from './constraint-counter.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -30,8 +31,14 @@ export interface ProvingResult {
   configId: string;
   run: number;
   witnessGenTimeMs: number;
+  /** Time spent on pre-compute setup (package.json check, path validation) before witness gen */
+  witnessLoadTimeMs?: number;
+  /** Time for the actual witness computation (excludes load overhead) */
+  witnessComputeTimeMs?: number;
   setupTimeMs: number;
   provingTimeMs: number;
+  /** Peak RSS during proving in megabytes (captured via /usr/bin/time) */
+  provingMemoryMb?: number;
   verificationTimeMs: number;
   proofSize: number;
   publicSize: number;
@@ -53,12 +60,40 @@ function checkPtau(): boolean {
 }
 
 /**
- * Generate witness from inputs
+ * Validate circuit constraints against ptau capacity.
+ * Returns list of config IDs that exceed the ptau limit.
+ */
+export function validateConstraintsAgainstPtau(
+  constraintResults: Map<string, ConstraintInfo>
+): string[] {
+  const ptauLimit = Math.pow(2, BENCHMARK_CONFIG.ptauPower);
+  const exceeded: string[] = [];
+
+  for (const [configId, info] of constraintResults) {
+    if (info.constraints > ptauLimit) {
+      console.error(
+        `⚠ ${configId}: ${info.constraints.toLocaleString()} constraints exceeds ` +
+        `ptau-${BENCHMARK_CONFIG.ptauPower} limit (${ptauLimit.toLocaleString()}). Skipping.`
+      );
+      exceeded.push(configId);
+    }
+  }
+
+  if (exceeded.length === 0) {
+    console.log(`All circuits within ptau-${BENCHMARK_CONFIG.ptauPower} limit (${ptauLimit.toLocaleString()} constraints).`);
+  }
+
+  return exceeded;
+}
+
+/**
+ * Generate witness from inputs.
+ * Returns split timings: loadTimeMs (setup/validation) and computeTimeMs (actual generation).
  */
 export function generateWitness(
   configId: string,
   inputsPath: string
-): { witnessPath: string; timeMs: number } {
+): { witnessPath: string; timeMs: number; loadTimeMs: number; computeTimeMs: number } {
   const compiledDir = path.join(BENCHMARK_CONFIG.compiledDir, configId);
   const circuitName = `benchmark_${configId}`;
 
@@ -74,21 +109,25 @@ export function generateWitness(
     throw new Error(`Witness generator not found: ${witnessGenScript}`);
   }
 
-  const startTime = Date.now();
+  // Phase A: Pre-compute setup (timed separately)
+  const loadStart = Date.now();
   // Circom emits CJS (require()) in generate_witness.js, but benchmark package.json
   // has "type": "module". A local package.json in compiled/ overrides this for witness scripts.
   const compiledPkgJson = path.join(BENCHMARK_CONFIG.compiledDir, 'package.json');
   if (!fs.existsSync(compiledPkgJson)) {
     fs.writeFileSync(compiledPkgJson, '{"type": "commonjs"}\n');
   }
+  const loadTimeMs = Date.now() - loadStart;
 
+  // Phase B: Actual witness generation
+  const computeStart = Date.now();
   execSync(`node "${witnessGenScript}" "${wasmPath}" "${inputsPath}" "${witnessPath}"`, {
     stdio: 'pipe',
     timeout: BENCHMARK_CONFIG.proveTimeoutMs,
   });
-  const timeMs = Date.now() - startTime;
+  const computeTimeMs = Date.now() - computeStart;
 
-  return { witnessPath, timeMs };
+  return { witnessPath, timeMs: loadTimeMs + computeTimeMs, loadTimeMs, computeTimeMs };
 }
 
 /**
@@ -121,29 +160,73 @@ export function runSetup(configId: string): { zkeyPath: string; timeMs: number }
 }
 
 /**
- * Run Groth16 prove
+ * Parse peak RSS from /usr/bin/time -l stderr output.
+ * macOS reports "maximum resident set size" in bytes.
+ * Linux reports it in kilobytes.
+ */
+function parsePeakRssMb(stderr: string): number {
+  // macOS: "  4218880  maximum resident set size"  (bytes)
+  const macMatch = stderr.match(/(\d+)\s+maximum resident set size/);
+  if (macMatch) return parseInt(macMatch[1], 10) / (1024 * 1024);
+
+  // Linux: "Maximum resident set size (kbytes): 4120"
+  const linuxMatch = stderr.match(/Maximum resident set size.*?:\s*(\d+)/i);
+  if (linuxMatch) return parseInt(linuxMatch[1], 10) / 1024;
+
+  return 0;
+}
+
+/**
+ * Run Groth16 prove, capturing peak RSS via /usr/bin/time -l
  */
 export function runProve(
   configId: string,
   witnessPath: string,
   zkeyPath: string
-): { proofPath: string; publicPath: string; timeMs: number; proofSize: number; publicSize: number } {
+): { proofPath: string; publicPath: string; timeMs: number; proofSize: number; publicSize: number; provingMemoryMb: number } {
   const compiledDir = path.join(BENCHMARK_CONFIG.compiledDir, configId);
 
   const proofPath = path.join(compiledDir, 'proof.json');
   const publicPath = path.join(compiledDir, 'public.json');
 
+  const snarkjsPath = fs.existsSync(SNARKJS) ? SNARKJS : 'snarkjs';
+  const useTimeCmd = fs.existsSync('/usr/bin/time');
+
   const startTime = Date.now();
-  execSync(
-    snarkjs(`groth16 prove "${zkeyPath}" "${witnessPath}" "${proofPath}" "${publicPath}"`),
-    { stdio: 'pipe', timeout: BENCHMARK_CONFIG.proveTimeoutMs }
-  );
+
+  let provingMemoryMb = 0;
+
+  if (useTimeCmd) {
+    const result = spawnSync('/usr/bin/time', [
+      '-l',
+      'node',
+      `--max-old-space-size=${BENCHMARK_CONFIG.maxMemoryMb}`,
+      snarkjsPath,
+      'groth16', 'prove', zkeyPath, witnessPath, proofPath, publicPath,
+    ], {
+      stdio: ['pipe', 'pipe', 'pipe'],
+      timeout: BENCHMARK_CONFIG.proveTimeoutMs,
+    });
+
+    if (result.status !== 0) {
+      const errMsg = result.stderr?.toString() || result.error?.message || 'unknown error';
+      throw new Error(`Proving failed (exit ${result.status}): ${errMsg.slice(0, 500)}`);
+    }
+
+    provingMemoryMb = parsePeakRssMb(result.stderr?.toString() || '');
+  } else {
+    execSync(
+      snarkjs(`groth16 prove "${zkeyPath}" "${witnessPath}" "${proofPath}" "${publicPath}"`),
+      { stdio: 'pipe', timeout: BENCHMARK_CONFIG.proveTimeoutMs }
+    );
+  }
+
   const timeMs = Date.now() - startTime;
 
   const proofSize = fs.statSync(proofPath).size;
   const publicSize = fs.statSync(publicPath).size;
 
-  return { proofPath, publicPath, timeMs, proofSize, publicSize };
+  return { proofPath, publicPath, timeMs, proofSize, publicSize, provingMemoryMb };
 }
 
 /**
@@ -204,8 +287,11 @@ export async function runProvingBenchmark(
       configId,
       run,
       witnessGenTimeMs: witness.timeMs,
+      witnessLoadTimeMs: witness.loadTimeMs,
+      witnessComputeTimeMs: witness.computeTimeMs,
       setupTimeMs: setup.timeMs,
       provingTimeMs: prove.timeMs,
+      provingMemoryMb: prove.provingMemoryMb,
       verificationTimeMs: verify.timeMs,
       proofSize: prove.proofSize,
       publicSize: prove.publicSize,
@@ -216,8 +302,11 @@ export async function runProvingBenchmark(
       configId,
       run,
       witnessGenTimeMs: 0,
+      witnessLoadTimeMs: 0,
+      witnessComputeTimeMs: 0,
       setupTimeMs: 0,
       provingTimeMs: 0,
+      provingMemoryMb: 0,
       verificationTimeMs: 0,
       proofSize: 0,
       publicSize: 0,
@@ -246,11 +335,19 @@ export async function runBenchmarks(
 
     console.log(`\nBenchmarking ${config.id}...`);
 
+    // Warmup runs (discarded) to eliminate cold-cache variance
+    const warmupRuns = BENCHMARK_CONFIG.warmupRuns || 0;
+    for (let w = 0; w < warmupRuns; w++) {
+      console.log(`  Warmup ${w + 1}/${warmupRuns}...`);
+      await runProvingBenchmark(config.id, inputsPath, 0);
+    }
+
     for (let run = 1; run <= numRuns; run++) {
       const result = await runProvingBenchmark(config.id, inputsPath, run);
 
       if (result.success) {
-        console.log(`  Run ${run}: witness=${result.witnessGenTimeMs}ms, prove=${result.provingTimeMs}ms, verify=${result.verificationTimeMs}ms`);
+        const memStr = result.provingMemoryMb ? `, mem=${result.provingMemoryMb.toFixed(0)}MB` : '';
+        console.log(`  Run ${run}: witness=${result.witnessComputeTimeMs}ms (load=${result.witnessLoadTimeMs}ms), prove=${result.provingTimeMs}ms${memStr}, verify=${result.verificationTimeMs}ms`);
       } else {
         console.log(`  Run ${run}: FAILED - ${result.error}`);
       }

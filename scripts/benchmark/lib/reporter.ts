@@ -127,7 +127,9 @@ export function generateCSVReport(
     'wires',
     'compileTimeMs',
     'witnessGenTimeMs_median',
+    'witnessComputeTimeMs_median',
     'provingTimeMs_median',
+    'provingMemoryMb_median',
     'verificationTimeMs_median',
     'proofSize',
     'numRuns',
@@ -149,7 +151,9 @@ export function generateCSVReport(
     const successful = proving.filter(p => p.success);
 
     const witnessStats = calcStats(successful.map(p => p.witnessGenTimeMs));
+    const witnessComputeStats = calcStats(successful.map(p => p.witnessComputeTimeMs ?? p.witnessGenTimeMs));
     const provingStats = calcStats(successful.map(p => p.provingTimeMs));
+    const memoryStats = calcStats(successful.map(p => p.provingMemoryMb ?? 0));
     const verifyStats = calcStats(successful.map(p => p.verificationTimeMs));
 
     lines.push([
@@ -162,7 +166,9 @@ export function generateCSVReport(
       constraint.wires,
       constraint.compileTimeMs,
       witnessStats.median.toFixed(0) || '',
+      witnessComputeStats.median.toFixed(0) || '',
       provingStats.median.toFixed(0) || '',
+      memoryStats.median.toFixed(1),
       verifyStats.median.toFixed(0) || '',
       successful[0]?.proofSize || '',
       proving.length,
@@ -278,8 +284,8 @@ ${report.constraintResults.map(c => {
 
 ## Proving Results (Median)
 
-| Config | Witness Gen | Proving | Verification | Proof Size |
-|--------|-------------|---------|--------------|------------|
+| Config | Witness (total) | Witness (compute) | Proving | Memory (MB) | Verification | Proof Size |
+|--------|-----------------|-------------------|---------|-------------|--------------|------------|
 ${(() => {
       const provingByConfig = new Map<string, ProvingResult[]>();
       for (const r of report.provingResults) {
@@ -291,13 +297,15 @@ ${(() => {
       return report.constraintResults.map(c => {
         const proving = provingByConfig.get(c.configId) || [];
         const successful = proving.filter(p => p.success);
-        if (successful.length === 0) return `| ${c.configId} | - | - | - | - |`;
+        if (successful.length === 0) return `| ${c.configId} | - | - | - | - | - | - |`;
 
         const witnessStats = calcStats(successful.map(p => p.witnessGenTimeMs));
+        const witnessComputeStats = calcStats(successful.map(p => p.witnessComputeTimeMs ?? p.witnessGenTimeMs));
         const provingStats = calcStats(successful.map(p => p.provingTimeMs));
+        const memoryStats = calcStats(successful.map(p => p.provingMemoryMb ?? 0));
         const verifyStats = calcStats(successful.map(p => p.verificationTimeMs));
 
-        return `| ${c.configId} | ${(witnessStats.median / 1000).toFixed(2)}s | ${(provingStats.median / 1000).toFixed(2)}s | ${verifyStats.median.toFixed(0)}ms | ${successful[0].proofSize} B |`;
+        return `| ${c.configId} | ${(witnessStats.median / 1000).toFixed(2)}s | ${(witnessComputeStats.median / 1000).toFixed(2)}s | ${(provingStats.median / 1000).toFixed(2)}s | ${memoryStats.median.toFixed(1)} | ${verifyStats.median.toFixed(0)}ms | ${successful[0].proofSize} B |`;
       }).join('\n');
     })()}
 `;
