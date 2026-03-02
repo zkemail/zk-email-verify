@@ -2739,7 +2739,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@zk-email/helpers@workspace:*, @zk-email/helpers@workspace:packages/helpers":
+"@zk-email/helpers@workspace:packages/helpers":
   version: 0.0.0-use.local
   resolution: "@zk-email/helpers@workspace:packages/helpers"
   dependencies:
@@ -2785,12 +2785,9 @@ __metadata:
   resolution: "@zk-email/scripts@workspace:scripts"
   dependencies:
     "@types/circomlibjs": ^0.1.5
-    "@zk-email/helpers": "workspace:*"
-    circom_tester: ^0.0.20
     circomlibjs: ^0.1.7
     dotenv: ^16.3.1
     ethers: ^6.8.1
-    snarkjs: ^0.7.5
     ts-node: ^10.9.1
     typescript: ^5.2.2
   languageName: unknown
@@ -7769,7 +7766,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"snarkjs@npm:^0.7.0, snarkjs@npm:^0.7.5":
+"snarkjs@npm:^0.7.0":
   version: 0.7.5
   resolution: "snarkjs@npm:0.7.5"
   dependencies:
