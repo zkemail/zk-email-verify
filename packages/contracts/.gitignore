@@ -1,17 +1,24 @@
-# polkadot hardhat node binaries
-bin/dev-node
-bin/eth-rpc
+# foundry directories
+broadcast
+cache
+out
 
 # hardhat directories
 hh-artifacts
 hh-cache
-hh-out
-hh-tests
+hh-deployments
 
-# TypeChain files
+# polkadot hardhat node binaries
+bin/dev-node
+bin/eth-rpc
+
+# .env files
+.env
+.env.*
+!.env.example
+
+# other directories
+coverage
+node_modules
 /typechain
 /typechain-types
-
-# solidity-coverage files
-/coverage
-/coverage.json

@@ -1,4 +1,3 @@
 @openzeppelin/contracts/=../../node_modules/@openzeppelin/contracts/
 @openzeppelin/contracts-upgradeable/=../../node_modules/@openzeppelin/contracts-upgradeable/
-@zk-email/email-tx-builder/=../../node_modules/@zk-email/email-tx-builder/packages/contracts/
 forge-std/=../../node_modules/forge-std/src

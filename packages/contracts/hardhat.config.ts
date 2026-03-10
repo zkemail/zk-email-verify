@@ -1,6 +1,8 @@
-import { HardhatUserConfig, vars } from "hardhat/config";
-import "@nomicfoundation/hardhat-toolbox";
+import { HardhatUserConfig } from "hardhat/config";
+import "@nomicfoundation/hardhat-ethers";
+import "@nomicfoundation/hardhat-verify";
 import "@parity/hardhat-polkadot";
+import "dotenv/config";
 
 const config: HardhatUserConfig = {
   networks: {
@@ -29,16 +31,16 @@ const config: HardhatUserConfig = {
         target: "evm",
       },
       url: "https://services.polkadothub-rpc.com/testnet",
-      accounts: [vars.get("PRIVATE_KEY")],
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
     },
   },
   etherscan: {
     apiKey: {
-      polkadotTestnet: "no-api-key-needed",
+      polkadotHubTestnet: "no-api-key-needed",
     },
     customChains: [
       {
-        network: "polkadotTestnet",
+        network: "polkadotHubTestnet",
         chainId: 420420417,
         urls: {
           apiURL: "https://blockscout-testnet.polkadot.io/api",

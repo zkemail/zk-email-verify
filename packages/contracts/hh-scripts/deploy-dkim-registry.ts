@@ -1,25 +1,58 @@
-import { ethers } from "hardhat";
+import fs from "fs";
+import path from "path";
+import { ethers, network } from "hardhat";
+import { requireEnv } from "../hh-utils/require-env";
 
-async function main() {
+const DEPLOYMENTS_DIR = "hh-deployments";
+
+const main = async () => {
+  const owner = requireEnv("OWNER");
+
+  if (!ethers.isAddress(owner) || owner === ethers.ZeroAddress) {
+    throw new Error(`OWNER is not a valid Ethereum address: ${owner}`);
+  }
+
   const [deployer] = await ethers.getSigners();
-  const signer = process.env.DKIM_REGISTRY_OWNER ?? deployer.address;
+  if (!deployer) {
+    throw new Error("No deployer signer available. Ensure PRIVATE_KEY is set");
+  }
 
-  console.log("Deploying DKIMRegistry with signer/owner:", signer);
-  console.log("Deployer account:", deployer.address);
+  console.log(`\nUsing network: ${network.name}`);
+  console.log(`Deployer address: ${await deployer.getAddress()}`);
+  console.log(`OWNER: ${owner}`);
 
-  const DKIMRegistry = await ethers.getContractFactory("DKIMRegistry");
-  const registry = await DKIMRegistry.deploy(signer);
+  console.log("\n=== Deploy DKIMRegistry ===");
+  console.log("Deploying DKIMRegistry with signer:", owner);
+  const DKIMRegistryFactory = await ethers.getContractFactory(
+    "DKIMRegistry",
+    deployer,
+  );
+  const dkimRegistry = await DKIMRegistryFactory.deploy(owner);
+  await dkimRegistry.waitForDeployment();
+  const dkimRegistryAddress = await dkimRegistry.getAddress();
+  console.log("DKIMRegistry deployed at:", dkimRegistryAddress);
 
-  await registry.waitForDeployment();
-  const address = await registry.getAddress();
+  console.log("\n=== Deployment Complete ===");
+  console.log("DKIM_REGISTRY:", dkimRegistryAddress);
 
-  console.log("DKIMRegistry deployed to:", address);
-  console.log("Owner:", signer);
-}
+  const chainId = (await ethers.provider.getNetwork()).chainId;
+  const deploymentsDir = path.join(DEPLOYMENTS_DIR, chainId.toString());
+  const deploymentsFile = path.join(deploymentsDir, "run-latest.json");
+  fs.mkdirSync(deploymentsDir, { recursive: true });
+  fs.writeFileSync(
+    deploymentsFile,
+    JSON.stringify(
+      {
+        DKIM_REGISTRY: dkimRegistryAddress,
+      },
+      null,
+      2,
+    ),
+  );
+  console.log(`Deployment addresses saved to ${deploymentsFile}`);
+};
 
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
