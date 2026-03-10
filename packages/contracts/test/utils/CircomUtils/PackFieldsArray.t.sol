@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.34;
 
-import {Test} from "forge-std/Test.sol";
-import {CircomUtils} from "../../../src/utils/CircomUtils.sol";
-import {CircomUtilsHelper} from "./_CircomUtilsHelper.sol";
+import { Test } from "forge-std/Test.sol";
+import { CircomUtils } from "../../../src/utils/CircomUtils.sol";
+import { CircomUtilsHelper } from "./_CircomUtilsHelper.sol";
 
 contract PackBytes2FieldsTest is Test {
     CircomUtilsHelper private _helper;

@@ -1,15 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.34;
 
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
-import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
+import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import "./interfaces/IERC7969.sol";
 import "./DKIMRegistry.sol";
 
 /// @title ECDSA Owned DKIM Registry
-/// @notice This contract allows for the management of DKIM public key hashes through an ECDSA-signed mechanism. It enables the setting and revoking of DKIM public key hashes for domain names, ensuring that only the authorized signer can perform these operations. The contract leverages an underlying DKIMRegistry contract for the actual storage and validation of public key hashes.
-/// @dev The contract uses OpenZeppelin's ECDSA library for signature recovery and the DKIMRegistry for storing the DKIM public key hashes.
+/// @notice This contract allows for the management of DKIM public key hashes through an ECDSA-signed mechanism. It
+/// enables the setting and revoking of DKIM public key hashes for domain names, ensuring that only the authorized
+/// signer can perform these operations. The contract leverages an underlying DKIMRegistry contract for the actual
+/// storage and validation of public key hashes. @dev The contract uses OpenZeppelin's ECDSA library for signature
+/// recovery and the DKIMRegistry for storing the DKIM public key hashes.
 contract ECDSAOwnedDKIMRegistry is IDKIMRegistry {
     using Strings for uint256;
     using ECDSA for bytes32;
@@ -47,7 +50,9 @@ contract ECDSAOwnedDKIMRegistry is IDKIMRegistry {
         string memory domainName,
         bytes32 publicKeyHash,
         bytes memory signature
-    ) public {
+    )
+        public
+    {
         bytes32 domainHash = keccak256(bytes(domainName));
         require(bytes(selector).length != 0, "Invalid selector");
         require(bytes(domainName).length != 0, "Invalid domain name");
@@ -74,7 +79,9 @@ contract ECDSAOwnedDKIMRegistry is IDKIMRegistry {
         string memory domainName,
         bytes32 publicKeyHash,
         bytes memory signature
-    ) public {
+    )
+        public
+    {
         bytes32 domainHash = keccak256(bytes(domainName));
         require(bytes(selector).length != 0, "Invalid selector");
         require(bytes(domainName).length != 0, "Invalid domain name");
@@ -95,15 +102,19 @@ contract ECDSAOwnedDKIMRegistry is IDKIMRegistry {
     /// @param domainName The domain name related to the operation.
     /// @param publicKeyHash The DKIM public key hash involved in the operation.
     /// @return string The computed signed message.
-    /// @dev This function is used internally to generate the message that needs to be signed for setting or revoking a public key hash.
-    function computeSignedMsg(string memory prefix, string memory domainName, bytes32 publicKeyHash)
+    /// @dev This function is used internally to generate the message that needs to be signed for setting or revoking a
+    /// public key hash.
+    function computeSignedMsg(
+        string memory prefix,
+        string memory domainName,
+        bytes32 publicKeyHash
+    )
         public
         pure
         returns (string memory)
     {
-        return string.concat(
-            prefix, "domain=", domainName, ";public_key_hash=", uint256(publicKeyHash).toHexString(), ";"
-        );
+        return
+            string.concat(prefix, "domain=", domainName, ";public_key_hash=", uint256(publicKeyHash).toHexString(), ";");
     }
 }
 

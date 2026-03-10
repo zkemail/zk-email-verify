@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.34;
 
-import {Script, console} from "forge-std/Script.sol";
-import {IDKIMRegistry} from "../src/interfaces/IERC7969.sol";
-import {DKIMRegistry} from "../src/DKIMRegistry.sol";
+import { Script, console } from "forge-std/Script.sol";
+import { IDKIMRegistry } from "../src/interfaces/IERC7969.sol";
+import { DKIMRegistry } from "../src/DKIMRegistry.sol";
 
 contract DeployDKIMRegistryScript is Script {
     function run() external {

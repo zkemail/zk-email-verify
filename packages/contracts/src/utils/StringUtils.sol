@@ -7,7 +7,8 @@ library StringUtils {
     uint256 internal constant DEFAULT_PACK_SIZE = 31;
 
     /// @notice Converts a `uint256` to its ASCII `string` hexadecimal representation with fixed length.
-    /// @dev Credit to Open Zeppelin under MIT license https://github.com/OpenZeppelin/openzeppelin-contracts/blob/243adff49ce1700e0ecb99fe522fb16cff1d1ddc/contracts/utils/Strings.sol#L55
+    /// @dev Credit to Open Zeppelin under MIT license
+    /// https://github.com/OpenZeppelin/openzeppelin-contracts/blob/243adff49ce1700e0ecb99fe522fb16cff1d1ddc/contracts/utils/Strings.sol#L55
     function toHexString(uint256 value, uint256 length) internal pure returns (string memory) {
         bytes memory buffer = new bytes(2 * length + 2);
         buffer[0] = "0";
@@ -60,7 +61,10 @@ library StringUtils {
 
     // 1 packed byte = packSize (usually 31) normal bytes, all in one 255/256-bit value
     // Note that this is not 32 due to the field modulus of circom
-    function convertPackedByteToString(uint256 packedByte, uint256 packSize)
+    function convertPackedByteToString(
+        uint256 packedByte,
+        uint256 packSize
+    )
         internal
         pure
         returns (string memory extractedString)
@@ -84,8 +88,13 @@ library StringUtils {
     // Unpacks uint256s into bytes and then extracts the non-zero characters
     // Only extracts contiguous non-zero characters and ensures theres only 1 such state
     // Note that unpackedLen may be more than packedBytes.length * 8 since there may be 0s
-    // signals is the total number of signals (i.e. bytes) packed into the packedBytes. it defaults to packedBytes.length * packSize
-    function convertPackedBytesToString(uint256[] memory packedBytes, uint256 signals, uint256 packSize)
+    // signals is the total number of signals (i.e. bytes) packed into the packedBytes. it defaults to
+    // packedBytes.length * packSize
+    function convertPackedBytesToString(
+        uint256[] memory packedBytes,
+        uint256 signals,
+        uint256 packSize
+    )
         internal
         pure
         returns (string memory extractedString)
@@ -119,9 +128,11 @@ library StringUtils {
         }
         // TODO: You might want to assert that the state is exactly 1 or 2
         // If not, that means empty bytse have been removed from the middle and things have been concatenated.
-        // We removed due to some tests failing, but this is not ideal and the require should be uncommented as soon as tests pass with it.
+        // We removed due to some tests failing, but this is not ideal and the require should be uncommented as soon as
+        // tests pass with it.
 
-        // require(state == 1 || state == 2, "Invalid final state of packed bytes in email; more than two non-zero regions found!");
+        // require(state == 1 || state == 2, "Invalid final state of packed bytes in email; more than two non-zero
+        // regions found!");
         require(state >= 1, "No packed bytes found! Invalid final state of packed bytes in email; value is likely 0!");
         require(nonzeroBytesArrayIndex <= signals, "Packed bytes more than allowed max number of signals!");
         string memory returnValue = removeTrailingZeros(string(nonzeroBytesArray));
@@ -131,7 +142,7 @@ library StringUtils {
 
     function bytes32ToString(bytes32 input) internal pure returns (string memory) {
         uint256 i;
-        for (i = 0; i < 32 && input[i] != 0; i++) {}
+        for (i = 0; i < 32 && input[i] != 0; i++) { }
         bytes memory resultBytes = new bytes(i);
         for (i = 0; i < 32 && input[i] != 0; i++) {
             resultBytes[i] = input[i];

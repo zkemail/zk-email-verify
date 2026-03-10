@@ -4,16 +4,17 @@ pragma solidity ^0.8.34;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IERC7969.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
-import {IERC1271} from "@openzeppelin/contracts/interfaces/IERC1271.sol";
+import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
+import { IERC1271 } from "@openzeppelin/contracts/interfaces/IERC1271.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 /**
  *   A Registry that store the hash(dkim_public_key) for each domain and each user.
  *   This functions similarly to [DKIMRegistry](./DKIMRegistry.sol), but it allows users to set their own public keys.
- *   Even if the main authorizer, who is the contract owner, has already approved a public key, the user's signature is still required for setting it until the predetermined delay time (`setTimestampDelay`) has passed.
+ *   Even if the main authorizer, who is the contract owner, has already approved a public key, the user's signature is
+ * still required for setting it until the predetermined delay time (`setTimestampDelay`) has passed.
  *   Additionally, the public key can be revoked by the signature of either the user or the main authorizer alone.
  */
 contract UserOverrideableDKIMRegistry is IDKIMRegistry, OwnableUpgradeable, UUPSUpgradeable {
@@ -38,7 +39,8 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, OwnableUpgradeable, UUPS
     /// @notice DKIM public key hashes that are revoked (eg: in case of private key compromise)
     mapping(bytes32 => mapping(address => bool)) public revokedDKIMPublicKeyHashes;
 
-    /// @notice DKIM public key hashes that are reactivated (eg: in case that a malicious `mainAuthorizer` revokes a valid public key but a user reactivates it.)
+    /// @notice DKIM public key hashes that are reactivated (eg: in case that a malicious `mainAuthorizer` revokes a
+    /// valid public key but a user reactivates it.)
     mapping(bytes32 => mapping(address => bool)) public reactivatedDKIMPublicKeyHashes;
 
     /// @notice The timestamp from which the set DKIM public key hash is enabled
@@ -48,7 +50,7 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, OwnableUpgradeable, UUPS
     string public constant REVOKE_PREFIX = "REVOKE:";
     string public constant REACTIVATE_PREFIX = "REACTIVATE:";
 
-    constructor() {}
+    constructor() { }
 
     /// @notice Initializes the contract with a predefined signer and deploys a new DKIMRegistry.
     /// @param _initialOwner The address of the initial owner of the contract.
@@ -64,7 +66,11 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, OwnableUpgradeable, UUPS
     /// @param domainNameHash The hash of the domain name for which the DKIM public key hash is being checked.
     /// @param publicKeyHash The hash of the DKIM public key to be checked.
     /// @return bool True if the DKIM public key hash is valid, false otherwise.
-    /// @dev This function returns true if the owner of the given `msg.sender` approves the public key hash before `enabledTimeOfDKIMPublicKeyHash` and neither `mainAuthorizer` nor the owner of `msg.sender` revokes the public key hash. However, after `enabledTimeOfDKIMPublicKeyHash`, only one of their approvals is required. In addition, if the public key hash is reactivated by the owner of `msg.sender`, the public key hash revoked only by `mainAuthorizer` is considered valid.
+    /// @dev This function returns true if the owner of the given `msg.sender` approves the public key hash before
+    /// `enabledTimeOfDKIMPublicKeyHash` and neither `mainAuthorizer` nor the owner of `msg.sender` revokes the public
+    /// key hash. However, after `enabledTimeOfDKIMPublicKeyHash`, only one of their approvals is required. In addition,
+    /// if the public key hash is reactivated by the owner of `msg.sender`, the public key hash revoked only by
+    /// `mainAuthorizer` is considered valid.
     function isKeyHashValid(bytes32 domainNameHash, bytes32 publicKeyHash) public view returns (bool) {
         address ownerOfSender = Ownable(msg.sender).owner();
         return isKeyHashValid(domainNameHash, publicKeyHash, ownerOfSender);
@@ -75,10 +81,17 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, OwnableUpgradeable, UUPS
     /// @param publicKeyHash The hash of the DKIM public key to be checked.
     /// @param authorizer The address of the expected authorizer
     /// @return bool True if the DKIM public key hash is valid, false otherwise.
-    /// @dev This function returns true if 1) at least the given `authorizer` approves the public key hash before `enabledTimeOfDKIMPublicKeyHash` and 2) neither `mainAuthorizer` nor `authorizer` revokes the public key hash. However, after `enabledTimeOfDKIMPublicKeyHash`, only one of their approvals is required. In addition, if the public key hash is reactivated by the `authorizer`, the public key hash revoked only by `mainAuthorizer` is considered valid.
-    /// @dev The domain name, public key hash, and authorizer address must not be zero.
+    /// @dev This function returns true if 1) at least the given `authorizer` approves the public key hash before
+    /// `enabledTimeOfDKIMPublicKeyHash` and 2) neither `mainAuthorizer` nor `authorizer` revokes the public key hash.
+    /// However, after `enabledTimeOfDKIMPublicKeyHash`, only one of their approvals is required. In addition, if the
+    /// public key hash is reactivated by the `authorizer`, the public key hash revoked only by `mainAuthorizer` is
+    /// considered valid. @dev The domain name, public key hash, and authorizer address must not be zero.
     /// @dev The authorizer address cannot be the mainAuthorizer.
-    function isKeyHashValid(bytes32 domainNameHash, bytes32 publicKeyHash, address authorizer)
+    function isKeyHashValid(
+        bytes32 domainNameHash,
+        bytes32 publicKeyHash,
+        address authorizer
+    )
         public
         view
         returns (bool)
@@ -100,14 +113,16 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, OwnableUpgradeable, UUPS
 
     /**
      * @notice Sets the DKIM public key hash for a given domain with authorization.
-     * @dev This function allows an authorized user or a contract to set a DKIM public key hash. It uses EIP-1271 or ECDSA for signature verification.
+     * @dev This function allows an authorized user or a contract to set a DKIM public key hash. It uses EIP-1271 or
+     * ECDSA for signature verification.
      * @param domainName The domain name for which the DKIM public key hash is being set.
      * @param publicKeyHash The hash of the DKIM public key to be set.
      * @param authorizer The address of the authorizer who can set the DKIM public key hash.
      * @param signature The signature proving the authorization to set the DKIM public key hash.
      * @custom:require The domain name, public key hash, and authorizer address must not be zero.
      * @custom:require The public key hash must not be revoked.
-     * @custom:require The signature must be valid according to EIP-1271 if the authorizer is a contract, or ECDSA if the authorizer is an EOA.
+     * @custom:require The signature must be valid according to EIP-1271 if the authorizer is a contract, or ECDSA if
+     * the authorizer is an EOA.
      * @custom:event DKIMPublicKeyHashRegistered Emitted when a DKIM public key hash is successfully set.
      */
     function setDKIMPublicKeyHash(
@@ -115,7 +130,9 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, OwnableUpgradeable, UUPS
         bytes32 publicKeyHash,
         address authorizer,
         bytes memory signature
-    ) public {
+    )
+        public
+    {
         require(bytes(domainName).length > 0, "domain name cannot be zero");
         require(publicKeyHash != bytes32(0), "public key hash cannot be zero");
         require(authorizer != address(0), "authorizer address cannot be zero");
@@ -153,7 +170,8 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, OwnableUpgradeable, UUPS
      * @param signatures An array of the signature proving the authorization to set the DKIM public key hash.
      * @custom:require The domain name, public key hash, and authorizer address must not be zero.
      * @custom:require The public key hash must not be revoked.
-     * @custom:require The signature must be valid according to EIP-1271 if the authorizer is a contract, or ECDSA if the authorizer is an EOA.
+     * @custom:require The signature must be valid according to EIP-1271 if the authorizer is a contract, or ECDSA if
+     * the authorizer is an EOA.
      * @custom:event DKIMPublicKeyHashRegistered Emitted when a DKIM public key hash is successfully set.
      */
     function setDKIMPublicKeyHashes(
@@ -161,7 +179,9 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, OwnableUpgradeable, UUPS
         bytes32[] memory publicKeyHashes,
         address[] memory authorizers,
         bytes[] memory signatures
-    ) public {
+    )
+        public
+    {
         require(domainNames.length == publicKeyHashes.length, "invalid publicKeyHashes length");
         require(domainNames.length == authorizers.length, "invalid authorizers length");
         require(domainNames.length == signatures.length, "invalid signatures length");
@@ -172,14 +192,16 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, OwnableUpgradeable, UUPS
 
     /**
      * @notice Revokes a DKIM public key hash.
-     * @dev This function allows the owner to revoke a DKIM public key hash for all users, or an individual user to revoke it for themselves.
+     * @dev This function allows the owner to revoke a DKIM public key hash for all users, or an individual user to
+     * revoke it for themselves.
      * @param domainName The domain name associated with the DKIM public key hash.
      * @param publicKeyHash The hash of the DKIM public key to be revoked.
      * @param authorizer The address of the authorizer who can revoke the DKIM public key hash.
      * @param signature The signature proving the authorization to revoke the DKIM public key hash.
      * @custom:require The domain name, public key hash, and authorizer address must not be zero.
      * @custom:require The public key hash must not already be revoked.
-     * @custom:require The signature must be valid according to EIP-1271 if the authorizer is a contract, or ECDSA if the authorizer is an EOA.
+     * @custom:require The signature must be valid according to EIP-1271 if the authorizer is a contract, or ECDSA if
+     * the authorizer is an EOA.
      * @custom:event DKIMPublicKeyHashRevoked Emitted when a DKIM public key hash is successfully revoked.
      */
     function revokeDKIMPublicKeyHash(
@@ -187,7 +209,9 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, OwnableUpgradeable, UUPS
         bytes32 publicKeyHash,
         address authorizer,
         bytes memory signature
-    ) public {
+    )
+        public
+    {
         require(bytes(domainName).length > 0, "domain name cannot be zero");
         require(publicKeyHash != bytes32(0), "public key hash cannot be zero");
         require(authorizer != address(0), "authorizer address cannot be zero");
@@ -211,14 +235,16 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, OwnableUpgradeable, UUPS
 
     /**
      * @notice Reactivates a DKIM public key hash.
-     * @dev This function allows an authorized user or a contract to reactivate a DKIM public key hash that was revoked by the main authorizer.
+     * @dev This function allows an authorized user or a contract to reactivate a DKIM public key hash that was revoked
+     * by the main authorizer.
      * @param domainName The domain name associated with the DKIM public key hash.
      * @param publicKeyHash The hash of the DKIM public key to be reactivated.
      * @param authorizer The address of the authorizer who can reactivate the DKIM public key hash.
      * @param signature The signature proving the authorization to reactivate the DKIM public key hash.
      * @custom:require The domain name, public key hash, and authorizer address must not be zero.
      * @custom:require The public key hash must be revoked by the main authorizer.
-     * @custom:require The signature must be valid according to EIP-1271 if the authorizer is a contract, or ECDSA if the authorizer is an EOA.
+     * @custom:require The signature must be valid according to EIP-1271 if the authorizer is a contract, or ECDSA if
+     * the authorizer is an EOA.
      * @custom:event KeyHashReactivated Emitted when a DKIM public key hash is successfully reactivated.
      */
     function reactivateDKIMPublicKeyHash(
@@ -226,7 +252,9 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, OwnableUpgradeable, UUPS
         bytes32 publicKeyHash,
         address authorizer,
         bytes memory signature
-    ) public {
+    )
+        public
+    {
         require(bytes(domainName).length > 0, "domain name cannot be zero");
         require(publicKeyHash != bytes32(0), "public key hash cannot be zero");
         require(authorizer != address(0), "authorizer address cannot be zero");
@@ -280,19 +308,27 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, OwnableUpgradeable, UUPS
      * @param domainName The domain name related to the operation.
      * @param publicKeyHash The DKIM public key hash involved in the operation.
      * @return string The computed signed message.
-     * @dev This function is used internally to generate the message that needs to be signed for setting or revoking a public key hash.
+     * @dev This function is used internally to generate the message that needs to be signed for setting or revoking a
+     * public key hash.
      */
-    function computeSignedMsg(string memory prefix, string memory domainName, bytes32 publicKeyHash)
+    function computeSignedMsg(
+        string memory prefix,
+        string memory domainName,
+        bytes32 publicKeyHash
+    )
         public
         pure
         returns (string memory)
     {
-        return string.concat(
-            prefix, "domain=", domainName, ";public_key_hash=", uint256(publicKeyHash).toHexString(), ";"
-        );
+        return
+            string.concat(prefix, "domain=", domainName, ";public_key_hash=", uint256(publicKeyHash).toHexString(), ";");
     }
 
-    function _computeSetThreshold(bytes32 domainNameHash, bytes32 publicKeyHash, address authorizer)
+    function _computeSetThreshold(
+        bytes32 domainNameHash,
+        bytes32 publicKeyHash,
+        address authorizer
+    )
         private
         view
         returns (uint256)
@@ -327,6 +363,6 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, OwnableUpgradeable, UUPS
 
     /// @notice Upgrade the implementation of the proxy.
     /// @param newImplementation Address of the new implementation.
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner { }
 }
 

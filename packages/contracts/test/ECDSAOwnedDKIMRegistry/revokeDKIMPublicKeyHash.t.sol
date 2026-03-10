@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.34;
 
-import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import "../../src/ECDSAOwnedDKIMRegistry.sol";

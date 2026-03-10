@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.34;
 
-import {IERC1271} from "@openzeppelin/contracts/interfaces/IERC1271.sol";
+import { IERC1271 } from "@openzeppelin/contracts/interfaces/IERC1271.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 contract ExampleERC1271 is IERC1271, Ownable {
     using ECDSA for *;
 
-    constructor(address _owner) Ownable(_owner) {}
+    constructor(address _owner) Ownable(_owner) { }
 
     /**
      * @notice Verifies that the signer is the owner of the signing contract.

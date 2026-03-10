@@ -13,7 +13,7 @@ import "./interfaces/IERC7969.sol";
  *   Input is DKIM pub key split into 17 chunks of 121 bits. You can use `helpers` package to fetch/split DKIM keys
  */
 contract DKIMRegistry is IDKIMRegistry, Ownable {
-    constructor(address _signer) Ownable(_signer) {}
+    constructor(address _signer) Ownable(_signer) { }
 
     // Mapping from domain name hash to DKIM public key hash
     mapping(bytes32 => mapping(bytes32 => bool)) public dkimPublicKeyHashes;

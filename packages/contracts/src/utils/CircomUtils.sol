@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.34;
 
-import {Bytes} from "@openzeppelin/contracts/utils/Bytes.sol";
+import { Bytes } from "@openzeppelin/contracts/utils/Bytes.sol";
 
 /**
  * @title CircomUtils

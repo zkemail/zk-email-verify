@@ -6,11 +6,11 @@ import "forge-std/console.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "../src/UserOverrideableDKIMRegistry.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
+import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import "./helpers/ExampleERC1271.sol";
 import "./helpers/ExampleOwnable.sol";
-import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import {IDKIMRegistry} from "../src/interfaces/IERC7969.sol";
+import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import { IDKIMRegistry } from "../src/interfaces/IERC7969.sol";
 
 contract UserOverrideableDKIMRegistryTest is Test {
     UserOverrideableDKIMRegistry registry;
