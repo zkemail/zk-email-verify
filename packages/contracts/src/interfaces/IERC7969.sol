@@ -26,4 +26,3 @@ interface IDKIMRegistry {
     /// @return True if the key hash is valid for the domain, false otherwise
     function isKeyHashValid(bytes32 domainHash, bytes32 keyHash) external view returns (bool);
 }
-

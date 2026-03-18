@@ -24,4 +24,3 @@ contract TestDKIMRegistry is Test {
         vm.stopPrank();
     }
 }
-

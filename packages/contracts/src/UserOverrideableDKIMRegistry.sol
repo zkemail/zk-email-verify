@@ -56,7 +56,14 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, OwnableUpgradeable, UUPS
     /// @param _initialOwner The address of the initial owner of the contract.
     /// @param _mainAuthorizer The address of the main authorizer.
     /// @param _setTimestampDelay The time delay until a DKIM public key hash set by the main authorizer is enabled.
-    function initialize(address _initialOwner, address _mainAuthorizer, uint256 _setTimestampDelay) public initializer {
+    function initialize(
+        address _initialOwner,
+        address _mainAuthorizer,
+        uint256 _setTimestampDelay
+    )
+        public
+        initializer
+    {
         __Ownable_init(_initialOwner);
         mainAuthorizer = _mainAuthorizer;
         setTimestampDelay = _setTimestampDelay;
@@ -365,4 +372,3 @@ contract UserOverrideableDKIMRegistry is IDKIMRegistry, OwnableUpgradeable, UUPS
     /// @param newImplementation Address of the new implementation.
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner { }
 }
-

@@ -87,7 +87,10 @@ library CircomUtils {
      * @param paddedSize Original padded size of the bytes
      * @return result The unpacked bytes
      */
-    function unpackFieldsArray(bytes32[] memory fields, uint256 paddedSize)
+    function unpackFieldsArray(
+        bytes32[] memory fields,
+        uint256 paddedSize
+    )
         internal
         pure
         returns (bytes memory result)
@@ -130,4 +133,3 @@ library CircomUtils {
         return uint256(fields[0]) == 1;
     }
 }
-

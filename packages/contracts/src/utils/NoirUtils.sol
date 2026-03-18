@@ -92,4 +92,3 @@ library NoirUtils {
         return trimmed;
     }
 }
-

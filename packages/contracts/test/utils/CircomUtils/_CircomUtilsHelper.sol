@@ -8,7 +8,14 @@ contract CircomUtilsHelper {
         return CircomUtils.packFieldsArray(input, paddedSize);
     }
 
-    function callUnpackFieldsArray(bytes32[] calldata fields, uint256 paddedSize) external pure returns (bytes memory) {
+    function callUnpackFieldsArray(
+        bytes32[] calldata fields,
+        uint256 paddedSize
+    )
+        external
+        pure
+        returns (bytes memory)
+    {
         return CircomUtils.unpackFieldsArray(fields, paddedSize);
     }
 }

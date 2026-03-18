@@ -14,6 +14,7 @@ import { IDKIMRegistry } from "../src/interfaces/IERC7969.sol";
 
 contract UserOverrideableDKIMRegistryTest is Test {
     UserOverrideableDKIMRegistry registry;
+
     using console for *;
     using ECDSA for *;
     using Strings for *;
