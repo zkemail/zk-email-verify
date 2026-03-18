@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.34;
+pragma solidity ^0.8.30;
 
 import { Script, console } from "forge-std/Script.sol";
 import { IDKIMRegistry } from "../src/interfaces/IERC7969.sol";

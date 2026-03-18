@@ -8,8 +8,8 @@ out = "out"
 libs = ["../../node_modules"]
 optimizer = true
 optimizer_runs = 10_000
-solc = "0.8.34"
-evm_version = "osaka"
+solc = "0.8.30"
+evm_version = "prague"
 ignored_warnings_from = ["../../node_modules"]
 
 [rpc_endpoints]
