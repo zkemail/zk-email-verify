@@ -5,6 +5,9 @@ import "@nomicfoundation/hardhat-verify";
 import "@parity/hardhat-polkadot";
 import "dotenv/config";
 
+const rpcUrl = process.env.RPC_URL;
+const accounts = process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [];
+
 const config: HardhatUserConfig = {
   networks: {
     hardhat: {
@@ -32,18 +35,31 @@ const config: HardhatUserConfig = {
       polkadot: {
         target: "pvm",
       },
-      url: "https://services.polkadothub-rpc.com/testnet",
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      url: rpcUrl || "https://services.polkadothub-rpc.com/testnet",
+      accounts,
     },
     // Base Sepolia
     "84532": {
-      url: "https://sepolia.base.org",
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      url: rpcUrl || "https://sepolia.base.org",
+      accounts,
+    },
+    // Ethereum Sepolia
+    "11155111": {
+      url: rpcUrl || "https://ethereum-sepolia-rpc.publicnode.com",
+      accounts,
     },
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
     customChains: [
+      {
+        chainId: 11155111,
+        network: "11155111",
+        urls: {
+          apiURL: "https://api-sepolia.etherscan.io/api",
+          browserURL: "https://sepolia.etherscan.io/",
+        },
+      },
       {
         chainId: 84532,
         network: "84532",

@@ -91,6 +91,7 @@ Copy `.env.example` to `.env` and fill in values:
 | ------------------- | --------------------- | ------------------------------------------------------------- |
 | `PRIVATE_KEY`       | Yes                   | EOA private key used for deployment transactions.             |
 | `OWNER`             | Yes                   | Owner address passed to `DKIMRegistry` constructor.           |
+| `RPC_URL`           | Optional              | Global RPC override for configured networks.                  |
 | `ETHERSCAN_API_KEY` | For verification only | API key for explorer verification (for example Base Sepolia). |
 
 ### Deploying with Hardhat Ignition
@@ -109,11 +110,13 @@ Build:
 yarn build
 ```
 
-Deploy (network values come from `hardhat.config.ts`, for example `84532` for Base Sepolia or `420420417` for Polkadot Hub Testnet):
+Deploy (network values come from `hardhat.config.ts`, for example `84532` for Base Sepolia, `420420417` for Polkadot Hub Testnet, or `11155111` for Ethereum Sepolia):
 
 ```bash
 yarn deploy 84532
 ```
+
+RPC selection precedence is: `RPC_URL` (global override) -> default RPC URL in `hardhat.config.ts`.
 
 Verify contracts for the same deployment:
 
