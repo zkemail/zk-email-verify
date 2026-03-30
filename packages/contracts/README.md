@@ -134,6 +134,16 @@ Hardhat Ignition stores deployment artifacts under `hh-ignition/deployments`, an
 
 > Note: Programmatic verification is currently not available for Polkadot Hub deployments because of Hardhat/Subscan integration limitations and Subscan API compatibility gaps. Base Sepolia verification is supported through Etherscan-compatible APIs.
 
+### Current `DKIMRegistry` deployments
+
+Canonical deployed addresses are tracked here (while generated Ignition artifacts remain git-ignored):
+
+| Network               | Chain ID    | `DKIMRegistry` address                       | Explorer                                                                                              |
+| --------------------- | ----------- | -------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Ethereum Sepolia      | `11155111`  | `0x95806f01D497Bc6AE7b6F0D192D625b9442b1172` | [Etherscan](https://sepolia.etherscan.io/address/0x95806f01D497Bc6AE7b6F0D192D625b9442b1172)        |
+| Base Sepolia          | `84532`     | `0x969a461F6becC9c4344cd9925AA249585a8406a6` | [BaseScan](https://sepolia.basescan.org/address/0x969a461F6becC9c4344cd9925AA249585a8406a6)         |
+| Polkadot Hub Testnet  | `420420417` | `0x83A1b3958D49195D3F62C44B42e7a41336Bc3ffc` | [Subscan](https://assethub-paseo.subscan.io/account/0x83A1b3958D49195D3F62C44B42e7a41336Bc3ffc)     |
+
 ### All available commands
 
 | Command       | Description                                                                  |
