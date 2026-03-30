@@ -2,7 +2,7 @@
 pragma solidity ^0.8.30;
 
 import "forge-std/Test.sol";
-import { DKIMRegistry } from "../../src/DKIMRegistry.sol";
+import { DKIMRegistry } from "../../../src/DKIMRegistry.sol";
 
 contract DKIMRegistryTest_setDKIMPublicKeyHashes is Test {
     DKIMRegistry internal registry;

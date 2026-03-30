@@ -3,7 +3,7 @@ pragma solidity ^0.8.30;
 
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import "forge-std/Test.sol";
-import "../../src/ECDSAOwnedDKIMRegistry.sol";
+import "../../../src/ECDSAOwnedDKIMRegistry.sol";
 
 contract ECDSAOwnedDKIMRegistryTest_computeSignedMsg is Test {
     using Strings for uint256;
