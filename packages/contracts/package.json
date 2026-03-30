@@ -30,5 +30,8 @@
   },
   "resolutions": {
     "micro-eth-signer": "0.16.0"
+  },
+  "installConfig": {
+    "hoistingLimits": "workspaces"
   }
 }
