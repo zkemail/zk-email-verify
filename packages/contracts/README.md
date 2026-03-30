@@ -18,7 +18,7 @@ For a detailed overview of its functionalities, please refer to the source file:
 
 ## UserOverrideableDKIMRegistry.sol
 
-`UserOverrideableDKIMRegistry.sol` is a Solidity contract within the `@zk-email/contracts` package.     
+`UserOverrideableDKIMRegistry.sol` is a Solidity contract within the `@zk-email/contracts` package.
 This functions similarly to [DKIMRegistry](./DKIMRegistry.sol), but it allows users to set their own public keys. Even if the main authorizer, who is the contract owner, has already approved a public key, the user's signature is still required for setting it until the predetermined delay time has passed. Additionally, the public key can be revoked by the signature of either the user or the main authorizer alone.
 
 [UserOverrideableDKIMRegistry.sol](./UserOverrideableDKIMRegistry.sol)
@@ -35,10 +35,9 @@ This functions similarly to [DKIMRegistry](./DKIMRegistry.sol), but it allows us
 
 ```solidity
 string memory hexString = StringUtils.toHexString(12345, 4);
-// hexString will be "0x3039" 
+// hexString will be "0x3039"
 ```
 - **To Hex String Without Prefix**: Similar to `toHexString` but without the "0x" prefix.
-
 
 ```solidity
 string memory hexStringNoPrefix = StringUtils.toHexStringNoPrefix(12345, 4);
@@ -77,3 +76,59 @@ string memory upperString = StringUtils.upper("hello"); // "HELLO"
 string memory lowerString = StringUtils.lower("HELLO"); // "hello"
 ```
 </details>
+
+---
+
+## Deployment migration notes (Hardhat Ignition)
+
+The following deployment flow is now used for this package, aligned with the sdk-images contracts deployment approach.
+
+### Environment variables
+
+Copy `.env.example` to `.env` and fill in values:
+
+| Variable            | Required              | Description                                                   |
+| ------------------- | --------------------- | ------------------------------------------------------------- |
+| `PRIVATE_KEY`       | Yes                   | EOA private key used for deployment transactions.             |
+| `OWNER`             | Yes                   | Owner address passed to `DKIMRegistry` constructor.           |
+| `ETHERSCAN_API_KEY` | For verification only | API key for explorer verification (for example Base Sepolia). |
+
+### Deploying with Hardhat Ignition
+
+Deployment is handled through `hh-ignition/modules/DKIMRegistry.ts`.
+
+Install dependencies:
+
+```bash
+yarn
+```
+
+Build:
+
+```bash
+yarn build
+```
+
+Deploy (network values come from `hardhat.config.ts`, for example `84532` for Base Sepolia or `420420417` for Polkadot Hub Testnet):
+
+```bash
+yarn deploy 84532
+```
+
+Verify contracts for the same deployment:
+
+```bash
+yarn verify chain-84532
+```
+
+Hardhat Ignition stores deployment artifacts under `hh-ignition/deployments`, and verification uses those deployment IDs.
+
+> Note: Programmatic verification is currently not available for Polkadot Hub deployments because of Hardhat/Subscan integration limitations and Subscan API compatibility gaps. Base Sepolia verification is supported through Etherscan-compatible APIs.
+
+### All available commands
+
+| Command       | Description                                                                   |
+| ------------- | ----------------------------------------------------------------------------- |
+| `yarn build`  | Compile contracts with Hardhat (`hardhat compile`).                           |
+| `yarn deploy` | Deploy with Hardhat Ignition (`hardhat ignition deploy ... --network <id>`). |
+| `yarn verify` | Verify Ignition deployments (`hardhat ignition verify ...`).                  |
