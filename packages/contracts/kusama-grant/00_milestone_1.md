@@ -18,10 +18,10 @@ Milestone 1 scope for `packages/contracts`.
 
 ## Evidence Index
 
-- `01_planning_review.md` - reviewed implementation plan, contract adjustments, risks, and sign-off checklist.
-- `02_tests_and_results.md` - unit/integration Foundry test commands and result evidence.
-- `03_deployment_evidence.md` - deployed contract evidence for Paseo Assethub.
-- `04_public_howto.md` - public usage instructions for setup, build, test, deploy, and verification.
+- [`01_planning_review.md`](./01_planning_review.md) - reviewed implementation plan, contract adjustments, risks, and checklist.
+- [`02_tests_and_results.md`](./02_tests_and_results.md) - unit/integration Foundry test commands and result evidence.
+- [`03_deployment_evidence.md`](./03_deployment_evidence.md) - deployed contract evidence for Paseo Assethub.
+- [`04_public_howto.md`](./04_public_howto.md) - public usage instructions for setup, build, test, deploy, and verification.
 
 ## Current Milestone 1 Status
 
