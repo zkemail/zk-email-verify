@@ -1,14 +1,12 @@
 {
-  "name": "@zk-email/circom-contracts",
-  "version": "1.0.0",
-  "description": "Circom onchain verifier contracts for ZKEmail Blueprints",
+  "name": "@zk-email/contracts",
+  "version": "6.3.2",
+  "description": "Onchain DKIM Registry contracts",
   "license": "MIT",
   "scripts": {
-    "build": "forge build",
-    "build:polka": "hardhat compile",
-    "deploy": "forge script script/DeployDKIMRegistry.s.sol --broadcast --non-interactive --rpc-url rpc_url",
-    "deploy:polka": "hardhat run hh-scripts/deploy-dkim-registry.ts --network polkadotHubTestnet",
-    "verify": "bash script/verify-dkim-registry.sh"
+    "build": "hardhat compile",
+    "deploy": "yes | hardhat ignition deploy hh-ignition/modules/DKIMRegistry.ts --network",
+    "verify": "hardhat ignition verify --include-unrelated-contracts"
   },
   "dependencies": {
     "@openzeppelin/contracts": "5.6.1",
@@ -16,6 +14,8 @@
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-ethers": "^3.0.0",
+    "@nomicfoundation/hardhat-ignition": "0.15.16",
+    "@nomicfoundation/hardhat-ignition-ethers": "0.15.16",
     "@nomicfoundation/hardhat-verify": "^2.0.0",
     "@parity/hardhat-polkadot": "^0.2.7",
     "@parity/hardhat-polkadot-resolc": "^0.2.3",
@@ -27,5 +27,8 @@
     "rxjs": "^7.8.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
+  },
+  "resolutions": {
+    "micro-eth-signer": "0.16.0"
   }
 }

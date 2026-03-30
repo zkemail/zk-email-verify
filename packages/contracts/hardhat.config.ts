@@ -1,5 +1,6 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-ethers";
+import "@nomicfoundation/hardhat-ignition-ethers";
 import "@nomicfoundation/hardhat-verify";
 import "@parity/hardhat-polkadot";
 import "dotenv/config";
@@ -26,30 +27,33 @@ const config: HardhatUserConfig = {
       },
       url: `http://127.0.0.1:8545`,
     },
-    polkadotHubTestnet: {
+    // Polkadot Hub Testnet
+    "420420417": {
       polkadot: {
         target: "pvm",
       },
       url: "https://services.polkadothub-rpc.com/testnet",
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
     },
+    // Base Sepolia
+    "84532": {
+      url: "https://sepolia.base.org",
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+    },
   },
   etherscan: {
-    apiKey: {
-      polkadotHubTestnet: "no-api-key-needed",
-    },
+    apiKey: process.env.ETHERSCAN_API_KEY,
     customChains: [
       {
-        network: "polkadotHubTestnet",
-        chainId: 420420417,
+        chainId: 84532,
+        network: "84532",
         urls: {
-          apiURL: "https://blockscout-testnet.polkadot.io/api",
-          browserURL: "https://blockscout-testnet.polkadot.io/",
+          apiURL: "https://api-sepolia.basescan.org/api",
+          browserURL: "https://sepolia.basescan.org/",
         },
       },
     ],
   },
-
   solidity: {
     version: "0.8.30",
     settings: {
@@ -74,6 +78,7 @@ const config: HardhatUserConfig = {
     tests: "hh-tests",
     cache: "hh-cache",
     artifacts: "hh-artifacts",
+    ignition: "hh-ignition",
   },
 };
 
