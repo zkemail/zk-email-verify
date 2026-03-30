@@ -133,6 +133,25 @@ yarn verify chain-84532
 Hardhat Ignition stores deployment artifacts under `hh-ignition/deployments`, and verification uses those deployment IDs.
 
 > Note: Programmatic verification is currently not available for Polkadot Hub deployments because of Hardhat/Subscan integration limitations and Subscan API compatibility gaps. Base Sepolia verification is supported through Etherscan-compatible APIs.
+>
+> You can still verify Polkadot Hub deployments manually in Subscan:
+>
+> 1. Open `https://assethub-paseo.subscan.io/account/<deployed-address>?tab=contract`.
+> 2. Choose verification mode: `Solidity (Single file)`.
+> 3. Fill the form with:
+>    - Contract Name: `DKIMRegistry`
+>    - Compiler Version: `v0.8.30`
+>    - Resolc Version: `v0.5.0`
+>    - Optimization: `Yes`
+>    - Optimization runs: `10000`
+>    - Solidity Contract Code: flattened `DKIMRegistry` source (see command below)
+> 4. Flatten the contract source:
+>
+> ```bash
+> npx hardhat flatten src/DKIMRegistry.sol > FlattenedDKIMRegistry.sol
+> ```
+>
+> 5. Paste the flattened code and click `Verify & Publish`.
 
 ### Current [`DKIMRegistry`](./src/DKIMRegistry.sol) deployments
 
