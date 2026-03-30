@@ -14,6 +14,7 @@
 3. **Revoking Compromised Keys**: In the event of a security breach or compromise of a private key, developers can revoke the associated DKIM public key hash to prevent misuse.
 
 For a detailed overview of its functionalities, please refer to the source file: [DKIMRegistry.sol](./DKIMRegistry.sol)
+
 </details>
 
 ## UserOverrideableDKIMRegistry.sol
@@ -31,18 +32,21 @@ This functions similarly to [DKIMRegistry](./DKIMRegistry.sol), but it allows us
 <summary><b>Details</b></summary>
 
 #### Converting Values to Strings
+
 - **To Hex String**: Convert a `uint256` to its ASCII `string` hexadecimal representation.
 
 ```solidity
 string memory hexString = StringUtils.toHexString(12345, 4);
 // hexString will be "0x3039"
 ```
+
 - **To Hex String Without Prefix**: Similar to `toHexString` but without the "0x" prefix.
 
 ```solidity
 string memory hexStringNoPrefix = StringUtils.toHexStringNoPrefix(12345, 4);
 // hexStringNoPrefix will be "3039"
 ```
+
 - **To String from Various Types**: Convert `uint256`, `bytes32`, or `address` to a string.
 
 ```solidity
@@ -52,6 +56,7 @@ string memory addressToString = StringUtils.toString(address(0x123));
 ```
 
 #### String Comparisons
+
 - **String Equality**: Check if two strings are equal.
 
 ```solidity
@@ -75,6 +80,7 @@ string memory trimmedString = StringUtils.removeTrailingZeros("hello\x00\x00");
 string memory upperString = StringUtils.upper("hello"); // "HELLO"
 string memory lowerString = StringUtils.lower("HELLO"); // "hello"
 ```
+
 </details>
 
 ---
@@ -130,8 +136,8 @@ Hardhat Ignition stores deployment artifacts under `hh-ignition/deployments`, an
 
 ### All available commands
 
-| Command       | Description                                                                   |
-| ------------- | ----------------------------------------------------------------------------- |
-| `yarn build`  | Compile contracts with Hardhat (`hardhat compile`).                           |
+| Command       | Description                                                                  |
+| ------------- | ---------------------------------------------------------------------------- |
+| `yarn build`  | Compile contracts with Hardhat (`hardhat compile`).                          |
 | `yarn deploy` | Deploy with Hardhat Ignition (`hardhat ignition deploy ... --network <id>`). |
-| `yarn verify` | Verify Ignition deployments (`hardhat ignition verify ...`).                  |
+| `yarn verify` | Verify Ignition deployments (`hardhat ignition verify ...`).                 |
