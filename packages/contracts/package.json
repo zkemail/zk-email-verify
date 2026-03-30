@@ -6,7 +6,9 @@
   "scripts": {
     "build": "hardhat compile",
     "deploy": "yes | hardhat ignition deploy hh-ignition/modules/DKIMRegistry.ts --network",
-    "verify": "hardhat ignition verify --include-unrelated-contracts"
+    "verify": "hardhat ignition verify --include-unrelated-contracts",
+    "test:unit": "forge test --match-path \"test/unit/**/*.t.sol\"",
+    "test:integration": "forge test --match-path \"test/integration/**/*.t.sol\""
   },
   "dependencies": {
     "@openzeppelin/contracts": "5.6.1",
