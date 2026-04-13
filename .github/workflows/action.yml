@@ -3,7 +3,6 @@ on: [push]
 jobs:
   run_circuit_tests:
     runs-on: ubuntu-latest
-    environment: development
     steps:
       - uses: actions/checkout@v3
 
@@ -45,7 +44,6 @@ jobs:
 
   run_helpers_tests:
     runs-on: ubuntu-latest
-    environment: development
     steps:
       - uses: actions/checkout@v3
       
