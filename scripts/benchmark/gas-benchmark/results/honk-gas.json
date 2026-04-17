@@ -1,0 +1,19 @@
+{
+  "system": "Noir / UltraHonk (keccak transcript)",
+  "n_public_inputs": 3,
+  "proof_bytes": 14080,
+  "public_inputs_bytes": 96,
+  "tool_versions": {
+    "bb":     "0.84.0",
+    "nargo":  "1.0.0-beta.5",
+    "forge":  "1.5.0",
+    "solc":   "0.8.28",
+    "evm":    "cancun"
+  },
+  "measurement": "verifier.verify(proof, publicInputs) call, gas delta via gasleft() inside a Foundry test. Does NOT include the 21k tx-intrinsic or outer-tx calldata cost (see analytical breakdown for full-tx numbers).",
+  "results": [
+    {"config": "SCALE-1", "header_body_bytes": "512/512",   "gate_count": 150767, "circuit_N": 262144,  "log_N": 18, "verify_gas": 1885076, "verifier_bytecode_bytes": 21585},
+    {"config": "SCALE-4", "header_body_bytes": "1024/1024", "gate_count": 240179, "circuit_N": 262144,  "log_N": 18, "verify_gas": 1885076, "verifier_bytecode_bytes": 21585},
+    {"config": "SCALE-7", "header_body_bytes": "2048/4096", "gate_count": 594755, "circuit_N": 1048576, "log_N": 20, "verify_gas": 1944814, "verifier_bytecode_bytes": 21585}
+  ]
+}

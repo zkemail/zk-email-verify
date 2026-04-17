@@ -1,0 +1,16 @@
+{
+  "system": "Circom / Groth16 (BN254)",
+  "n_public_inputs": 20,
+  "tool_versions": {
+    "snarkjs": "0.7.6",
+    "forge": "1.5.0",
+    "solc": "0.8.28",
+    "evm": "cancun"
+  },
+  "measurement": "verifier.verifyProof() call, gas delta via gasleft() inside a Foundry test. Does NOT include the 21k tx-intrinsic or outer-tx calldata cost (see analytical breakdown for full-tx numbers).",
+  "results": [
+    {"config": "SCALE-1", "header_body_bytes": "512/512",   "verifyProof_gas": 318559, "verifier_bytecode_bytes": 3142},
+    {"config": "SCALE-4", "header_body_bytes": "1024/1024", "verifyProof_gas": 318559, "verifier_bytecode_bytes": 3141},
+    {"config": "SCALE-7", "header_body_bytes": "2048/4096", "verifyProof_gas": 318559, "verifier_bytecode_bytes": 3141}
+  ]
+}

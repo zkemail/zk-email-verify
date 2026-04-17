@@ -2,6 +2,11 @@
 
 Benchmarks the **zk-email-verify** Circom circuits across four dimensions: body-size scaling, RSA key sizes, feature toggles, and SHA precompute savings.
 
+> **See also:** [`gas-benchmark/`](./gas-benchmark/) — on-chain Ethereum gas measurement for
+> Circom/Groth16 vs Noir/UltraHonk verifiers across SCALE-1/4/7. Self-contained Foundry
+> harness with reviewer-reproducible `run.sh`. Used to produce the §6.4 on-chain
+> verification-cost table in the paper.
+
 ## Prerequisites
 
 Run the setup script to install all system dependencies (circom, Node.js, snarkjs, ptau file, etc.):
@@ -109,6 +114,14 @@ scripts/benchmark/
 │   └── reporter.ts            # CSV/JSON/Markdown report generation
 ├── runners/
 │   └── run-all.ts             # Orchestrator (compile → prove → report)
+├── gas-benchmark/             # On-chain gas benchmark (Groth16 vs UltraHonk)
+│   ├── run.sh                 #   one-shot reproduction
+│   ├── README.md              #   reviewer-facing docs
+│   ├── src/verifiers/         #   generated Solidity verifiers
+│   ├── test/                  #   Foundry gas tests
+│   ├── noir/{SCALE-1,4,7}/    #   parameterized Noir circuits
+│   ├── fixtures/              #   proof + public-input fixtures
+│   └── results/               #   gas measurements + analytical model
 ├── setup-macos.sh             # macOS dependency installer
 └── package.json
 ```
