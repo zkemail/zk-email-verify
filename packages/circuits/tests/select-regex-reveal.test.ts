@@ -112,4 +112,29 @@ describe("Select Regex Reveal", () => {
 
         expect.assertions(1);
     });
+
+    it("should fail when revealed data continues after max reveal length", async function () {
+        let input = new Array(34).fill(0);
+        const startIndex = 10;
+        const maxRevealLen = 8;
+        const revealed = Array.from({ length: maxRevealLen }, () =>
+            "a".charCodeAt(0)
+        );
+        for (let i = 0; i < revealed.length; i++) {
+            input[startIndex + i] = revealed[i];
+        }
+        input[startIndex + maxRevealLen] = "m".charCodeAt(0);
+
+        try {
+            const witness = await circuit.calculateWitness({
+                in: input,
+                startIndex: startIndex,
+            });
+            await circuit.checkConstraints(witness);
+        } catch (error) {
+            expect((error as Error).message).toMatch("Assert Failed");
+        }
+
+        expect.assertions(1);
+    });
 });
