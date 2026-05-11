@@ -3,7 +3,7 @@ import { buildPoseidon } from "circomlibjs";
 import dns from "dns";
 import path from "path";
 import forge from "node-forge";
-import { bigIntToChunkedBytes } from "@zk-email/helpers/src/binaryFormat";
+import { bigIntToChunkedBytes } from "@zk-email/helpers/src/binary-format";
 const fs = require("fs");
 import { abi } from "../abis/DKIMRegistry.json";
 import { poseidonLarge } from "@zk-email/helpers/src/hash";
@@ -14,9 +14,9 @@ async function updateContract(domain: string, pubkeyHashes: string[]) {
     return;
   }
 
-  if (!process.env.PRIVATE_KEY) throw new Error("Env private key found");
-  if (!process.env.RPC_URL) throw new Error("Env RPC URL found");
-  if (!process.env.DKIM_REGISTRY) throw new Error("Env DKIM_REGISTRY found");
+  if (!process.env.PRIVATE_KEY) throw new Error("Env PRIVATE_KEY not found");
+  if (!process.env.RPC_URL) throw new Error("Env RPC_URL not found");
+  if (!process.env.DKIM_REGISTRY) throw new Error("Env DKIM_REGISTRY not found");
 
   const provider = new JsonRpcProvider(process.env.RPC_URL);
   const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
@@ -213,9 +213,11 @@ async function getDKIMPublicKeysForDomains(filename: string) {
 async function updateDKIMRegistry({
   domainListFile,
   writeToFile,
+  updateContractOnChain,
 }: {
   domainListFile: string;
   writeToFile: boolean;
+  updateContractOnChain: boolean;
 }) {
   function _writeToFile(filename: string, data: object) {
     if (!writeToFile) return;
@@ -266,6 +268,11 @@ async function updateDKIMRegistry({
   }
   _writeToFile("dkim-keys-hashed.json", domainHashedPubKeyMap);
 
+  if (!updateContractOnChain) {
+    console.log("Skipping on-chain DKIM registry update.");
+    return;
+  }
+
   // Update Mailserver contract with found keys
   for (let domain of Object.keys(domainHashedPubKeyMap)) {
     await updateContract(domain, domainHashedPubKeyMap[domain]);
@@ -275,4 +282,5 @@ async function updateDKIMRegistry({
 updateDKIMRegistry({
   domainListFile: path.join(__dirname, "domains.txt"),
   writeToFile: true,
+  updateContractOnChain: process.env.UPDATE_DKIM_REGISTRY_ONCHAIN !== "false",
 });
