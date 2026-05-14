@@ -23,7 +23,6 @@ async function storeArrayBuffer(keyname: string, buffer: ArrayBuffer) {
 
 async function downloadWithRetries(link: string, downloadAttempts: number) {
   for (let i = 1; i <= downloadAttempts; i++) {
-    console.log(`download attempt ${i} for ${link}`);
     const response = await fetch(link, { method: 'GET' });
     if (response.status === 200) {
       return response;
@@ -48,12 +47,9 @@ export async function downloadFromFilename(baseUrl: string, filename: string, co
     const zkeyUncompressed = await uncompressGz(zkeyBuff);
     const rawFilename = filename.replace(zkeyExtensionRegEx, ''); // replace .gz with ""
     // store the uncompressed data
-    console.log('storing file in localforage', rawFilename);
     await storeArrayBuffer(rawFilename, zkeyUncompressed);
-    console.log('stored file in localforage', rawFilename);
     // await localforage.setItem(filename, zkeyBuff);
   }
-  console.log(`Storage of ${filename} successful!`);
 }
 
 export async function downloadProofFiles(baseUrl: string, circuitName: string, onFileDownloaded: () => void) {
@@ -63,26 +59,21 @@ export async function downloadProofFiles(baseUrl: string, circuitName: string, o
     // const itemCompressed = await localforage.getItem(targzFilename);
     const item = await localforage.getItem(`${circuitName}.zkey${c}`);
     if (item) {
-      console.log(`${circuitName}.zkey${c}${item ? '' : zkeyExtension} already found in localforage!`);
       onFileDownloaded();
       continue;
     }
     filePromises.push(downloadFromFilename(baseUrl, targzFilename, true).then(() => onFileDownloaded()));
   }
-  console.log(filePromises);
   await Promise.all(filePromises);
 }
 
 export async function generateProof(input: any, baseUrl: string, circuitName: string) {
   // TODO: figure out how to generate this s.t. it passes build
-  console.log('generating proof for input');
-  console.log(input);
   const { proof, publicSignals } = await snarkjs.groth16.fullProve(
     input,
     `${baseUrl}${circuitName}.wasm`,
     `${circuitName}.zkey`,
   );
-  console.log(`Generated proof ${JSON.stringify(proof)}`);
 
   return {
     proof,
@@ -91,15 +82,10 @@ export async function generateProof(input: any, baseUrl: string, circuitName: st
 }
 
 export async function verifyProof(proof: any, publicSignals: any, baseUrl: string, circuitName: string) {
-  console.log('PROOF', proof);
-  console.log('PUBLIC SIGNALS', publicSignals);
-
   const response = await downloadWithRetries(`${baseUrl}${circuitName}.vkey.json`, 3);
   const vkey = await response.json();
-  console.log('vkey', vkey);
 
   const proofVerified = await snarkjs.groth16.verify(vkey, publicSignals, proof);
-  console.log('proofV', proofVerified);
 
   return proofVerified;
 }

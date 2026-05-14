@@ -124,11 +124,6 @@ export async function resolveDNSHTTP(name: string, type: string) {
   try {
     const cloudflareResult = await DoH.resolveDKIMPublicKey(name, DoHServer.Cloudflare);
 
-    // If we have both results, log if there's a mismatch
-    if (dkimRecord && cloudflareResult && dkimRecord !== cloudflareResult) {
-      console.warn('DKIM record mismatch between Google and Cloudflare! Using Google result.');
-    }
-
     // If we don't have a Google result, use Cloudflare's result
     if (!dkimRecord && cloudflareResult) {
       const regex = /p=([^;]*)/;
