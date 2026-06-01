@@ -13,7 +13,7 @@ set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 cd "$HERE"
 
-CONFIGS=(SCALE-1 SCALE-4 SCALE-7)
+CONFIGS=(SCALE-1 SCALE-2 SCALE-3 SCALE-4 SCALE-5 SCALE-6 SCALE-7)
 ZKEY_ROOT="$HERE/../compiled"
 
 # Portable in-place sed: works on both GNU and BSD (macOS).

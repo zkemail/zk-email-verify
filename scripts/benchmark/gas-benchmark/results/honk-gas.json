@@ -11,9 +11,15 @@
     "evm":    "cancun"
   },
   "measurement": "verifier.verify(proof, publicInputs) call, gas delta via gasleft() inside a Foundry test. Does NOT include the 21k tx-intrinsic or outer-tx calldata cost (see analytical breakdown for full-tx numbers).",
+  "gas_per_sumcheck_round": 29869,
+  "note": "verify_gas is a step function of log_N (circuit padded to the next power of two): each extra sumcheck round adds ~29,869 gas. 2^18 -> 1,885,076; 2^19 -> 1,914,944; 2^20 -> 1,944,814. gate_count is bb's circuit_size (subgroup size before power-of-two padding).",
   "results": [
     {"config": "SCALE-1", "header_body_bytes": "512/512",   "gate_count": 150767, "circuit_N": 262144,  "log_N": 18, "verify_gas": 1885076, "verifier_bytecode_bytes": 21585},
+    {"config": "SCALE-2", "header_body_bytes": "512/768",   "gate_count": 172736, "circuit_N": 262144,  "log_N": 18, "verify_gas": 1885076, "verifier_bytecode_bytes": 21583},
+    {"config": "SCALE-3", "header_body_bytes": "512/1024",  "gate_count": 194705, "circuit_N": 262144,  "log_N": 18, "verify_gas": 1885076, "verifier_bytecode_bytes": 21584},
     {"config": "SCALE-4", "header_body_bytes": "1024/1024", "gate_count": 240179, "circuit_N": 262144,  "log_N": 18, "verify_gas": 1885076, "verifier_bytecode_bytes": 21585},
+    {"config": "SCALE-5", "header_body_bytes": "1024/2048", "gate_count": 328055, "circuit_N": 524288,  "log_N": 19, "verify_gas": 1914944, "verifier_bytecode_bytes": 21582},
+    {"config": "SCALE-6", "header_body_bytes": "1024/4096", "gate_count": 503807, "circuit_N": 524288,  "log_N": 19, "verify_gas": 1914944, "verifier_bytecode_bytes": 21583},
     {"config": "SCALE-7", "header_body_bytes": "2048/4096", "gate_count": 594755, "circuit_N": 1048576, "log_N": 20, "verify_gas": 1944814, "verifier_bytecode_bytes": 21585}
   ]
 }

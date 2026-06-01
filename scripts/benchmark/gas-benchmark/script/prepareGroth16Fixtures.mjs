@@ -7,7 +7,7 @@ import path from "node:path";
 const ROOT = path.resolve(import.meta.dirname, "..", "..");
 const OUT_DIR = path.resolve(import.meta.dirname, "..", "fixtures", "groth16");
 
-const CONFIGS = ["SCALE-1", "SCALE-4", "SCALE-7"];
+const CONFIGS = ["SCALE-1", "SCALE-2", "SCALE-3", "SCALE-4", "SCALE-5", "SCALE-6", "SCALE-7"];
 
 const toHex = (v) => "0x" + BigInt(v).toString(16).padStart(64, "0");
 

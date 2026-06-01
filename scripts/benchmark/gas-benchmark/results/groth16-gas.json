@@ -8,9 +8,14 @@
     "evm": "cancun"
   },
   "measurement": "verifier.verifyProof() call, gas delta via gasleft() inside a Foundry test. Does NOT include the 21k tx-intrinsic or outer-tx calldata cost (see analytical breakdown for full-tx numbers).",
+  "note": "header_body_bytes labels follow the matched Noir SCALE mapping used in the cross-system comparison. Groth16 verify gas depends only on n_public_inputs (=20), so it is identical across every circuit size; the Groth16 proof for each row is generated from the corresponding Circom zkey in scripts/benchmark/compiled/SCALE-N/.",
   "results": [
     {"config": "SCALE-1", "header_body_bytes": "512/512",   "verifyProof_gas": 318559, "verifier_bytecode_bytes": 3142},
+    {"config": "SCALE-2", "header_body_bytes": "512/768",   "verifyProof_gas": 318559, "verifier_bytecode_bytes": 3141},
+    {"config": "SCALE-3", "header_body_bytes": "512/1024",  "verifyProof_gas": 318559, "verifier_bytecode_bytes": 3141},
     {"config": "SCALE-4", "header_body_bytes": "1024/1024", "verifyProof_gas": 318559, "verifier_bytecode_bytes": 3141},
+    {"config": "SCALE-5", "header_body_bytes": "1024/2048", "verifyProof_gas": 318559, "verifier_bytecode_bytes": 3143},
+    {"config": "SCALE-6", "header_body_bytes": "1024/4096", "verifyProof_gas": 318559, "verifier_bytecode_bytes": 3142},
     {"config": "SCALE-7", "header_body_bytes": "2048/4096", "verifyProof_gas": 318559, "verifier_bytecode_bytes": 3141}
   ]
 }

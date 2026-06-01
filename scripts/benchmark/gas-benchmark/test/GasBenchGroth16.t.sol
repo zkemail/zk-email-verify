@@ -4,7 +4,11 @@ pragma solidity ^0.8.28;
 import {Test} from "forge-std/Test.sol";
 import {console2 as console} from "forge-std/console2.sol";
 import {Groth16VerifierSCALE1} from "../src/verifiers/Groth16VerifierSCALE1.sol";
+import {Groth16VerifierSCALE2} from "../src/verifiers/Groth16VerifierSCALE2.sol";
+import {Groth16VerifierSCALE3} from "../src/verifiers/Groth16VerifierSCALE3.sol";
 import {Groth16VerifierSCALE4} from "../src/verifiers/Groth16VerifierSCALE4.sol";
+import {Groth16VerifierSCALE5} from "../src/verifiers/Groth16VerifierSCALE5.sol";
+import {Groth16VerifierSCALE6} from "../src/verifiers/Groth16VerifierSCALE6.sol";
 import {Groth16VerifierSCALE7} from "../src/verifiers/Groth16VerifierSCALE7.sol";
 
 interface IGroth16 {
@@ -50,6 +54,10 @@ contract GasBenchGroth16 is Test {
     }
 
     function testGroth16_SCALE1() public { _measure("SCALE-1", IGroth16(address(new Groth16VerifierSCALE1()))); }
+    function testGroth16_SCALE2() public { _measure("SCALE-2", IGroth16(address(new Groth16VerifierSCALE2()))); }
+    function testGroth16_SCALE3() public { _measure("SCALE-3", IGroth16(address(new Groth16VerifierSCALE3()))); }
     function testGroth16_SCALE4() public { _measure("SCALE-4", IGroth16(address(new Groth16VerifierSCALE4()))); }
+    function testGroth16_SCALE5() public { _measure("SCALE-5", IGroth16(address(new Groth16VerifierSCALE5()))); }
+    function testGroth16_SCALE6() public { _measure("SCALE-6", IGroth16(address(new Groth16VerifierSCALE6()))); }
     function testGroth16_SCALE7() public { _measure("SCALE-7", IGroth16(address(new Groth16VerifierSCALE7()))); }
 }

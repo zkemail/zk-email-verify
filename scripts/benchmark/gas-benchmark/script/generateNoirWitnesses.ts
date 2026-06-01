@@ -10,7 +10,11 @@ const EMAIL_EML = path.resolve(__dirname, "../../../../..", "zkemail.nr/js/tests
 
 const CONFIGS = [
   { name: "SCALE-1", maxHeader: 512,  maxBody: 512,  circuit: "gas_bench_scale1" },
+  { name: "SCALE-2", maxHeader: 512,  maxBody: 768,  circuit: "gas_bench_scale2" },
+  { name: "SCALE-3", maxHeader: 512,  maxBody: 1024, circuit: "gas_bench_scale3" },
   { name: "SCALE-4", maxHeader: 1024, maxBody: 1024, circuit: "gas_bench_scale4" },
+  { name: "SCALE-5", maxHeader: 1024, maxBody: 2048, circuit: "gas_bench_scale5" },
+  { name: "SCALE-6", maxHeader: 1024, maxBody: 4096, circuit: "gas_bench_scale6" },
   { name: "SCALE-7", maxHeader: 2048, maxBody: 4096, circuit: "gas_bench_scale7" },
 ];
 
