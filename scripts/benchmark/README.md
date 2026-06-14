@@ -90,9 +90,9 @@ pnpm run report
 ## Output
 
 Results are written to `results/` as:
-- `benchmark-report-<timestamp>.csv` — Machine-readable, one row per config.
-- `benchmark-report-<timestamp>.json` — Full data including per-run timings.
-- `benchmark-report-<timestamp>.md` — Human-readable Markdown summary.
+- `results/csv/benchmark_<timestamp>.csv` — Machine-readable, one row per config (medians).
+- `results/raw/benchmark_<timestamp>.json` — Full data including per-run timings.
+- `results/summary_<timestamp>.md` — Human-readable Markdown summary.
 
 Columns include: constraints, wires, compile time, witness gen (total/compute), proving time, proving memory (MB), verification time, and proof size.
 
