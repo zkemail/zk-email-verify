@@ -97,11 +97,11 @@ template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashChec
     if (enableHeaderMasking == 1) {
         signal input headerMask[maxHeadersLength];
         signal output maskedHeader[maxHeadersLength];
-        component byteMask = ByteMask(maxHeadersLength);
-        
-        byteMask.in <== emailHeader;
-        byteMask.mask <== headerMask;
-        maskedHeader <== byteMask.out;
+        component headerByteMask = ByteMask(maxHeadersLength);
+
+        headerByteMask.in <== emailHeader;
+        headerByteMask.mask <== headerMask;
+        maskedHeader <== headerByteMask.out;
     }
 
     // Calculate the SHA256 hash of the body and verify it matches the hash in the header
@@ -173,11 +173,11 @@ template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashChec
         if (enableBodyMasking == 1) {
             signal input bodyMask[maxBodyLength];
             signal output maskedBody[maxBodyLength];
-            component byteMask = ByteMask(maxBodyLength);
-            
-            byteMask.in <== emailBody;
-            byteMask.mask <== bodyMask;
-            maskedBody <== byteMask.out;
+            component bodyByteMask = ByteMask(maxBodyLength);
+
+            bodyByteMask.in <== emailBody;
+            bodyByteMask.mask <== bodyMask;
+            maskedBody <== bodyByteMask.out;
         }
     }
 

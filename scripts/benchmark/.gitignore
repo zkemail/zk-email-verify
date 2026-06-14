@@ -1,0 +1,19 @@
+# Generated files - recreate with `npm run setup`
+keys/
+emails/
+node_modules/
+
+# Generated circuits
+circuits/
+
+# Compiled circuits (can be huge)
+compiled/
+
+# Circuit inputs
+inputs/
+
+# Benchmark results (optional to track)
+results/
+
+# Powers of tau file (1.9GB)
+*.ptau

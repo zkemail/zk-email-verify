@@ -26,17 +26,18 @@ template BodyHashRegex(maxHeadersLength, maxStatesLength) {
     isLen44 <== IsEqual()([matchLength, 44]);
     isLen44 === 1;
 
-    // Use the provided start index to reveal exactly 44 bytes from the haystack
-    component reveal = SelectRegexReveal(maxHeadersLength, 44);
+    // Use VarShiftLeft to extract exactly 44 bytes from the haystack starting at matchStart.
+    // Note: SelectRegexReveal cannot be used here because it asserts in[startIndex-1] == 0,
+    // which assumes a pre-zeroed capture array. The compat template passes raw emailHeader
+    // where the byte before the hash is '=' (from "bh="), so that assertion always fails.
+    // VarShiftLeft performs the same barrel-shift extraction without the zero-check.
+    component reveal = VarShiftLeft(maxHeadersLength, 44);
     reveal.in <== inHaystack;
-    reveal.startIndex <== matchStart;
+    reveal.shift <== matchStart;
     capture1 <== reveal.out;
 
-    // Basic validity constraints mimicking zk-regex interface:
-    // - matchStart must be non-zero (SelectRegexReveal enforces non-zero at start)
-    // - bytes before start are zero and after the 44-byte window are zero (enforced by SelectRegexReveal)
-    // - ensure at least one of the state transitions indicates a real match region
-    //   Here we assert that the capture group start index aligns with matchStart.
+    // Basic validity constraints:
+    // - ensure the capture group start index aligns with matchStart
     // captureGroupStartIndices[0] equals matchStart
     signal isStartAligned;
     isStartAligned <== IsEqual()([captureGroupStartIndices[0], matchStart]);
@@ -44,10 +45,10 @@ template BodyHashRegex(maxHeadersLength, maxStatesLength) {
 
     // Constrain that all curr/next state ids and capture metadata are zero outside maxStatesLength boundary implicitly
     // by reading them but not producing free signals. Add a lightweight check that sums are within field (no-op safety)
-    signal sumStates;
-    sumStates <== 0;
+    signal sumStates[maxStatesLength + 1];
+    sumStates[0] <== 0;
     for (var i = 0; i < maxStatesLength; i++) {
-        sumStates <== sumStates + currStates[i] + nextStates[i] + captureGroup1Id[i] + captureGroup1Start[i];
+        sumStates[i + 1] <== sumStates[i] + currStates[i] + nextStates[i] + captureGroup1Id[i] + captureGroup1Start[i];
     }
     // Tie isValid to conjunction of enforced checks (already enforced by === 1); output 1
     isValid <== 1;

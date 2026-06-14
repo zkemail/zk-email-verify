@@ -37,7 +37,6 @@ describe("EmailVerifier", () => {
             {
                 maxHeadersLength: 640,
                 maxBodyLength: 768,
-                ignoreBodyHashCheck: true,
             }
         );
 
@@ -52,7 +51,6 @@ describe("EmailVerifier", () => {
                 shaPrecomputeSelector: "How are",
                 maxHeadersLength: 640,
                 maxBodyLength: 768,
-                ignoreBodyHashCheck: true,
             }
         );
 
@@ -69,7 +67,6 @@ describe("EmailVerifier", () => {
             {
                 maxHeadersLength: 640,
                 maxBodyLength: 768,
-                ignoreBodyHashCheck: true,
             }
         );
 
@@ -93,7 +90,6 @@ describe("EmailVerifier", () => {
             {
                 maxHeadersLength: 640,
                 maxBodyLength: 768,
-                ignoreBodyHashCheck: true,
             }
         );
 
@@ -112,7 +108,6 @@ describe("EmailVerifier", () => {
             {
                 maxHeadersLength: 640,
                 maxBodyLength: 768,
-                ignoreBodyHashCheck: true,
             }
         );
         emailVerifierInputs.emailHeader[640 - 1] = "1";
@@ -137,15 +132,8 @@ describe("EmailVerifier", () => {
             {
                 maxHeadersLength: 640,
                 maxBodyLength: 768,
-                ignoreBodyHashCheck: true,
             }
         );
-
-        // Skip this test when body data isn't available due to ignoreBodyHashCheck
-        if (!emailVerifierInputs.emailBody) {
-            console.log("Skipping body tamper test - body data not available when ignoreBodyHashCheck is true");
-            return;
-        }
 
         expect.assertions(1);
         try {
@@ -162,17 +150,10 @@ describe("EmailVerifier", () => {
             {
                 maxHeadersLength: 640,
                 maxBodyLength: 768,
-                ignoreBodyHashCheck: true,
             }
         );
 
-        // Skip this test when body data isn't available due to ignoreBodyHashCheck
-        if (!emailVerifierInputs.emailBody) {
-            console.log("Skipping body padding tamper test - body data not available when ignoreBodyHashCheck is true");
-            return;
-        }
-
-        emailVerifierInputs.emailBody[768 - 1] = "1";
+        emailVerifierInputs.emailBody![768 - 1] = "1";
 
         expect.assertions(1);
         try {
@@ -183,26 +164,21 @@ describe("EmailVerifier", () => {
         }
     });
 
-    // TODO : THis test fails, since it generates the witness with wrong bodyhash
-    it("should fail if body hash is tampered", async function () {
-        const invalidBodyHash = dkimResult.bodyHash + "a";
-
-        const dkim = { ...dkimResult, bodyHash: invalidBodyHash };
-
+    it("should fail if body hash does not match body content", async function () {
+        // Generate valid inputs, then tamper emailBody so SHA-256(body) won't match
+        // the body hash extracted from the header by BodyHashRegex.
         const emailVerifierInputs = generateEmailVerifierInputsFromDKIMResult(
-            dkim,
+            dkimResult,
             {
                 maxHeadersLength: 640,
                 maxBodyLength: 768,
-                ignoreBodyHashCheck: true,
             }
         );
 
-        // Skip this test when body data isn't available due to ignoreBodyHashCheck
-        if (!emailVerifierInputs.emailBody) {
-            console.log("Skipping body hash tamper test - body data not available when ignoreBodyHashCheck is true");
-            return;
-        }
+        // Flip the first non-zero body byte so SHA-256 changes
+        emailVerifierInputs.emailBody![0] = String(
+            (Number(emailVerifierInputs.emailBody![0]) + 1) % 256
+        );
 
         expect.assertions(1);
         try {
@@ -220,7 +196,6 @@ describe("EmailVerifier", () => {
                 shaPrecomputeSelector: "How are",
                 maxHeadersLength: 640,
                 maxBodyLength: 768,
-                ignoreBodyHashCheck: true,
             }
         );
 

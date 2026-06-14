@@ -40,7 +40,6 @@ describe("EmailVerifier : With header masking", () => {
             {
                 maxHeadersLength: 640,
                 maxBodyLength: 768,
-                ignoreBodyHashCheck: true,
                 enableHeaderMasking: true,
                 headerMask: mask.map((value) => (value ? 1 : 0)),
             }
@@ -52,14 +51,14 @@ describe("EmailVerifier : With header masking", () => {
 
         const witness = await circuit.calculateWitness(emailVerifierInputs);
         await circuit.checkConstraints(witness);
-        
+
         // The witness output starts after the first 4 elements (Index 0: constant 1,pubkeyHash, shaHi, shaLo) and then masked header
         const maskedHeaderStartIndex = 4; // Skip first 4 elements (1,pubkeyHash, shaHi, shaLo)
         const maskedHeaderWitness = witness.slice(maskedHeaderStartIndex, maskedHeaderStartIndex + expectedMaskedHeader.length);
-        
+
         const maskedHeaderWitnessNumbers = maskedHeaderWitness.map((val: any) => String(val));
         const expectedMaskedHeaderNumbers = expectedMaskedHeader.map(val => String(val));
-        
+
         expect(maskedHeaderWitnessNumbers).toEqual(expectedMaskedHeaderNumbers);
     });
 });

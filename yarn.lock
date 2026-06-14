@@ -2710,24 +2710,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@zk-email/circuits@npm:6.3.4":
-  version: 6.3.4
-  resolution: "@zk-email/circuits@npm:6.3.4"
-  dependencies:
-    "@zk-email/zk-regex-circom": 2.3.2
-    circomlib: ^2.0.5
-  checksum: 03ef9958a5ee95df90bdc92cb5c822910ccd330a45a61ed441bfb0447518869cabad0e859e804732b9a8c997be9357136fb6f1fce550b7fe9bee535b66be32bb
-  languageName: node
-  linkType: hard
-
-"@zk-email/circuits@workspace:packages/circuits":
+"@zk-email/circuits@6.4.1-alpha.0, @zk-email/circuits@workspace:packages/circuits":
   version: 0.0.0-use.local
   resolution: "@zk-email/circuits@workspace:packages/circuits"
   dependencies:
     "@babel/core": ^7.22.5
     "@babel/preset-env": ^7.22.2
     "@babel/preset-typescript": ^7.21.5
-    "@zk-email/zk-regex-circom": 2.3.2
+    "@zk-email/zk-regex-circom": 2.2.2-alpha.1
     babel-jest: ^29.5.0
     babel-preset-jest: ^29.5.0
     circom_tester: ^0.0.20
@@ -2765,8 +2755,8 @@ __metadata:
     "@types/psl": ^1.1.2
     "@typescript-eslint/eslint-plugin": ^7.0.0
     "@typescript-eslint/parser": ^7.0.0
-    "@zk-email/zk-regex-circom": 2.2.2-alpha.0
-    "@zk-email/zk-regex-compiler": 2.2.3-alpha.0
+    "@zk-email/zk-regex-circom": 2.2.2-alpha.1
+    "@zk-email/zk-regex-compiler": 2.2.2-alpha.1
     addressparser: ^1.0.1
     atob: ^2.1.2
     babel-jest: ^29.5.0
@@ -2803,33 +2793,23 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@zk-email/zk-regex-circom@npm:2.2.2-alpha.0":
-  version: 2.2.2-alpha.0
-  resolution: "@zk-email/zk-regex-circom@npm:2.2.2-alpha.0"
+"@zk-email/zk-regex-circom@npm:2.2.2-alpha.1":
+  version: 2.2.2-alpha.1
+  resolution: "@zk-email/zk-regex-circom@npm:2.2.2-alpha.1"
   dependencies:
-    "@zk-email/circuits": 6.3.4
+    "@zk-email/circuits": 6.4.1-alpha.0
     circomlib: ^2.0.5
     prettier: ""
   peerDependencies:
     typescript: ^5
-  checksum: d4012527baa5a40209f11cff5d8409859ee729951c035abff355d04fd3a3be55756f69a959e9f9752f80641a4910cafd563dce8b57ac5056a0ad01af060a097e
+  checksum: 1e48db8680d19daf248a289e6279a97c2b7ab76586009135da13b5f30c69a297c3c6ee23eef90bf65c8730722f8c4ef11ff83c44c7055c2a062c6d781f0b71cc
   languageName: node
   linkType: hard
 
-"@zk-email/zk-regex-circom@npm:2.3.2":
-  version: 2.3.2
-  resolution: "@zk-email/zk-regex-circom@npm:2.3.2"
-  dependencies:
-    commander: ^11.0.0
-    snarkjs: ^0.7.5
-  checksum: 6a72bcd33e0efba202d39e25e679701e18701c999f601ca711da73ca08986b27d3c849ba2a01c8c81e649bcce0736fca1eb504bfb04ec5125a15981776a8b6c0
-  languageName: node
-  linkType: hard
-
-"@zk-email/zk-regex-compiler@npm:2.2.3-alpha.0":
-  version: 2.2.3-alpha.0
-  resolution: "@zk-email/zk-regex-compiler@npm:2.2.3-alpha.0"
-  checksum: 2c94ccbcb9d0eae3a42c76396695f84d074ea48dc2b4114807b48da030fd421ddb6016b89f990589581470d986a89152b4f20bd8820caedf379db8bd9abedc6a
+"@zk-email/zk-regex-compiler@npm:2.2.2-alpha.1":
+  version: 2.2.2-alpha.1
+  resolution: "@zk-email/zk-regex-compiler@npm:2.2.2-alpha.1"
+  checksum: 1aed1d2cc56aba997d1287425f161f3215bfe4b82bb7d126ed386e19cf094eb22838234bd0df4ac7aeaf6e9f2561d88b433f2a1a38a343c8592a0c33c262dc28
   languageName: node
   linkType: hard
 
@@ -3720,13 +3700,6 @@ __metadata:
   version: 1.1.4
   resolution: "color-name@npm:1.1.4"
   checksum: b0445859521eb4021cd0fb0cc1a75cecf67fceecae89b63f62b201cca8d345baf8b952c966862a9d9a2632987d4f6581f0ec8d957dfacece86f0a7919316f610
-  languageName: node
-  linkType: hard
-
-"commander@npm:^11.0.0":
-  version: 11.1.0
-  resolution: "commander@npm:11.1.0"
-  checksum: fd1a8557c6b5b622c89ecdfde703242ab7db3b628ea5d1755784c79b8e7cb0d74d65b4a262289b533359cd58e1bfc0bf50245dfbcd2954682a6f367c828b79ef
   languageName: node
   linkType: hard
 
@@ -7793,7 +7766,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"snarkjs@npm:^0.7.0, snarkjs@npm:^0.7.5":
+"snarkjs@npm:^0.7.0":
   version: 0.7.5
   resolution: "snarkjs@npm:0.7.5"
   dependencies:
