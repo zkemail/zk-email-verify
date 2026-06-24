@@ -4,7 +4,7 @@ import libmime from 'libmime';
 import psl from 'psl';
 import { setImmediate } from 'timers';
 import { pki } from 'node-forge';
-import punycode from 'punycode';
+import punycode from 'punycode/';
 import crypto, { KeyObject } from 'crypto';
 import parseDkimHeaders from './parse-dkim-headers';
 import { DkimVerifier } from './dkim-verifier';
