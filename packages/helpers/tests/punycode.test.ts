@@ -14,11 +14,14 @@ describe('mailauth punycode dependency', () => {
     const warningListener = (warning: Error & { code?: string }) => warnings.push(warning.code ?? '');
 
     process.on('warning', warningListener);
-    jest.isolateModules(() => {
-      require('../src/lib/mailauth/tools');
-    });
-    await new Promise((resolve) => setImmediate(resolve));
-    process.off('warning', warningListener);
+    try {
+      jest.isolateModules(() => {
+        require('../src/lib/mailauth/tools');
+      });
+      await new Promise((resolve) => setImmediate(resolve));
+    } finally {
+      process.off('warning', warningListener);
+    }
 
     expect(warnings).not.toContain('DEP0040');
   });
