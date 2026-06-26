@@ -20,16 +20,16 @@ template RevealSubstring(maxLength, maxSubstringLength, shouldCheckUniqueness) {
     signal output substring[maxSubstringLength];
 
     // Substring start index should be less than maxLength
-    signal isSubstringStartIndexValid <== LessThan(log2Ceil(maxLength))([substringStartIndex, maxLength]);
+    signal isSubstringStartIndexValid <== LessThan(log2Ceil(maxLength + 1))([substringStartIndex, maxLength]);
     isSubstringStartIndexValid === 1;
 
     // Substring length should be less than maxSubstringLength + 1
-    signal isSubstringLengthValid <== LessThan(log2Ceil(maxSubstringLength + 1))([substringLength, maxSubstringLength + 1]);
+    signal isSubstringLengthValid <== LessThan(log2Ceil(maxSubstringLength + 2))([substringLength, maxSubstringLength + 1]);
     isSubstringLengthValid === 1;
 
     // substring index + substring length should be less than maxLength + 1
     signal sum <== substringStartIndex + substringLength;
-    signal isSumValid <== LessThan(log2Ceil(maxLength + 1))([sum, maxLength + 1]);
+    signal isSumValid <== LessThan(log2Ceil(maxLength + 2))([sum, maxLength + 1]);
     isSumValid === 1;
 
     // Extract the substring
