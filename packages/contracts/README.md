@@ -132,36 +132,21 @@ yarn verify chain-84532
 
 Hardhat Ignition stores deployment artifacts under `hh-ignition/deployments`, and verification uses those deployment IDs.
 
-> Note: Programmatic verification is currently not available for Polkadot Hub deployments because of Hardhat/Subscan integration limitations and Subscan API compatibility gaps. Base Sepolia verification is supported through Etherscan-compatible APIs.
+> Note: Source-code verification is **not currently possible for Polkadot Hub (PolkaVM) deployments.** The contract is compiled to PolkaVM/RISC-V bytecode by the `resolc` compiler, and neither the block explorer nor the Hardhat verify tooling supports resolc verification yet.
 >
-> You can still verify Polkadot Hub deployments manually in Subscan:
+> This is a known gap in the PolkaVM tooling, not a problem with the deployment. A deployed contract is still fully visible on Blockscout (address, bytecode, transactions) and can be exercised through its read/write methods. Verification can be revisited once resolc support lands in the explorer and Hardhat plugin.
 >
-> 1. Open `https://assethub-paseo.subscan.io/account/<deployed-address>?tab=contract`.
-> 2. Choose verification mode: `Solidity (Single file)`.
-> 3. Fill the form with:
->    - Contract Name: `DKIMRegistry`
->    - Compiler Version: `v0.8.30`
->    - Resolc Version: `v0.5.0`
->    - Optimization: `Yes`
->    - Optimization runs: `10000`
->    - Solidity Contract Code: flattened `DKIMRegistry` source (see command below)
-> 4. Flatten the contract source:
->
-> ```bash
-> npx hardhat flatten src/DKIMRegistry.sol > FlattenedDKIMRegistry.sol
-> ```
->
-> 5. Paste the flattened code and click `Verify & Publish`.
+> EVM networks (Base Sepolia, Ethereum Sepolia) are verified normally through Etherscan-compatible APIs.
 
 ### Current [`DKIMRegistry`](./src/DKIMRegistry.sol) deployments
 
 Canonical deployed addresses are tracked here. Ignition deployment artifacts are generated outputs and are git-ignored by default; if deployment snapshots appear in the repository, treat the address table below as the canonical source of truth:
 
-| Network              | Chain ID    | [`DKIMRegistry`](./src/DKIMRegistry.sol) address | Explorer                                                                                        |
-| -------------------- | ----------- | ------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
-| Ethereum Sepolia     | `11155111`  | `0x95806f01D497Bc6AE7b6F0D192D625b9442b1172`     | [Etherscan](https://sepolia.etherscan.io/address/0x95806f01D497Bc6AE7b6F0D192D625b9442b1172)    |
-| Base Sepolia         | `84532`     | `0x969a461F6becC9c4344cd9925AA249585a8406a6`     | [BaseScan](https://sepolia.basescan.org/address/0x969a461F6becC9c4344cd9925AA249585a8406a6)     |
-| Polkadot Hub Testnet | `420420417` | `0x83A1b3958D49195D3F62C44B42e7a41336Bc3ffc`     | [Subscan](https://assethub-paseo.subscan.io/account/0x83A1b3958D49195D3F62C44B42e7a41336Bc3ffc) |
+| Network              | Chain ID    | [`DKIMRegistry`](./src/DKIMRegistry.sol) address | Explorer                                                                                                |
+| -------------------- | ----------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| Ethereum Sepolia     | `11155111`  | `0x95806f01D497Bc6AE7b6F0D192D625b9442b1172`     | [Etherscan](https://sepolia.etherscan.io/address/0x95806f01D497Bc6AE7b6F0D192D625b9442b1172)            |
+| Base Sepolia         | `84532`     | `0x969a461F6becC9c4344cd9925AA249585a8406a6`     | [BaseScan](https://sepolia.basescan.org/address/0x969a461F6becC9c4344cd9925AA249585a8406a6)             |
+| Polkadot Hub Testnet | `420420417` | `0x83A1b3958D49195D3F62C44B42e7a41336Bc3ffc`     | [Blockscout](https://blockscout-testnet.polkadot.io/address/0x83A1b3958D49195D3F62C44B42e7a41336Bc3ffc) |
 
 ### All available commands
 

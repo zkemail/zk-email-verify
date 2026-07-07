@@ -33,8 +33,8 @@ This document is the Milestone 1 planning and review artifact for the DKIM Regis
 
 ## Risks and Mitigations
 
-- Risk: Polkadot Hub explorer API limitations for automated verification.
-  - Mitigation: documented manual Subscan verification workflow.
+- Risk: source-code verification is not yet supported for PolkaVM (`resolc`) deployments by the explorer or Hardhat verify tooling.
+  - Mitigation: documented the limitation; the contract remains fully visible and exercisable on Blockscout, and verification can be revisited once resolc support lands.
 - Risk: ambiguity about deployment artifacts in git.
   - Mitigation: define canonical source of truth as documented address table and deployment evidence doc; artifacts remain locally generated and git-ignored by default.
 - Risk: lifecycle test interpretation gaps.

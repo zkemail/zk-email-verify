@@ -48,13 +48,7 @@ Deployment module:
 
 - `hh-ignition/modules/DKIMRegistry.ts`
 
-## 5) Verify on Explorer
-
-- For Polkadot Hub environments, use manual Subscan verification.
-- Detailed step-by-step verification instructions are in:
-  - `packages/contracts/README.md`
-
-## 6) Smoke-check Example
+## 5) Smoke-check Example
 
 After deployment, verify behavior by calling contract methods:
 

@@ -12,7 +12,7 @@ Milestone 1 deployment evidence for DKIM Registry on Paseo Assethub.
 
 - Contract: `DKIMRegistry`
 - Address: `0x83A1b3958D49195D3F62C44B42e7a41336Bc3ffc`
-- Explorer: [Subscan](https://assethub-paseo.subscan.io/account/0x83A1b3958D49195D3F62C44B42e7a41336Bc3ffc)
+- Explorer: [Blockscout](https://blockscout-testnet.polkadot.io/address/0x83A1b3958D49195D3F62C44B42e7a41336Bc3ffc)
 
 ## Deployment Artifacts
 
@@ -33,9 +33,9 @@ yarn deploy 420420417
 
 ## Verification
 
-- Programmatic verification is limited on Polkadot Hub environments.
-- Manual Subscan verification flow is documented in:
-  - `packages/contracts/README.md`
+- Source-code verification is **not currently possible for PolkaVM deployments.** The contract is `resolc`-compiled to PolkaVM/RISC-V bytecode; the Blockscout explorer's verification API and `@nomicfoundation/hardhat-verify` both only support EVM `solc`/Vyper bytecode, and `@parity/hardhat-polkadot` does not yet provide a resolc-aware verify task. This is a PolkaVM tooling gap, not a deployment issue.
+- The contract is still fully visible on [Blockscout](https://blockscout-testnet.polkadot.io) (address, PolkaVM bytecode, transactions) and is exercisable via its read/write methods.
+- Background is documented in `packages/contracts/README.md`.
 
 ## Source-of-Truth Policy
 
