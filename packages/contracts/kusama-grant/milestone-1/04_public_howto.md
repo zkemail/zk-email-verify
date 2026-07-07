@@ -29,6 +29,7 @@ cast wallet new
 Put both into `packages/contracts/.env` — the deployer and the registry owner are the same account here:
 
 ```
+RPC_URL=https://eth-rpc-testnet.polkadot.io
 PRIVATE_KEY=0x4dede19a11e5f30f5a67db0fc5ecbd8dbd261c1779d8e77aead1b0fcb5ff7d68
 OWNER=0xf0ce43Bf26d1868e3aC27e6fc4356a94867BC2ED
 ```
@@ -67,6 +68,19 @@ yarn test:integration
 
 ```bash
 yarn deploy 420420417
+# ✔ Confirm deploy to network 420420417 (420420417)? … yes
+# Hardhat Ignition 🚀
+
+# Deploying [ DKIMRegistryModule ]
+
+# Batch #1
+#   Executed DKIMRegistryModule#DKIMRegistry
+
+# [ DKIMRegistryModule ] successfully deployed 🚀
+
+# Deployed Addresses
+
+# DKIMRegistryModule#DKIMRegistry - 0x12dc89E4a0cBB2718092F2bf00763B047850ef32
 ```
 
 Deployment module:
@@ -75,35 +89,70 @@ Deployment module:
 
 ## 5) Try It Out
 
-The registry stores hashes of DKIM public keys per domain. You can populate it and then query it using the scripts in `scripts/dkim` (repo root). These reuse the same Poseidon key-hashing as the ZK Email tooling, so a registered key matches what an email verifier would check.
+The registry stores hashes of DKIM public keys per domain. You can populate it and then query it using the scripts in `scripts` (from repo root). These reuse the same Poseidon key-hashing as the ZK Email tooling, so a registered key matches what an email verifier would check.
 
-From the repo root, configure `scripts/.env` (see `scripts/.env.sample`):
+Enter the `scripts` dir. From the repo root:
+
+```bash
+cd scripts
+```
+
+Configure `.env`:
+
+```bash
+cp .env.sample .env
+```
+
+Populate `.env` with the deployed registry address and your funded testnet keypair:
 
 ```
 RPC_URL=https://eth-rpc-testnet.polkadot.io
-DKIM_REGISTRY=<your deployed registry address>   # from step 4
-PRIVATE_KEY=<registry owner key>                  # only needed to populate
+PRIVATE_KEY=0x4dede19a11e5f30f5a67db0fc5ecbd8dbd261c1779d8e77aead1b0fcb5ff7d68
+DKIM_REGISTRY=0x12dc89E4a0cBB2718092F2bf00763B047850ef32
 ```
 
 ### Check whether a domain is registered (read-only, no key/funds)
 
-From the repo root:
+Run the check script for a domain (e.g. `ethereum.org`):
 
 ```bash
-cd scripts
-yarn check-dkim-registry ethereum.org       # a domain whose key is registered  -> ✅
-yarn check-dkim-registry cloudflare.com     # a domain that is not registered    -> ❌
+yarn check-dkim-registry ethereum.org
+# Registry: 0x12dc89E4a0cBB2718092F2bf00763B047850ef32
+# Domain:   ethereum.org
+
+#   ❌ not registered  0x0bd2801e3cbcf396…
+#   ❌ not registered  0x0b5c3810709c5fcc…
+#   ❌ not registered  0x2dbd1b65c3f4eb55…
+
+# ❌ ethereum.org: its live DKIM key is not on this registry (populate it with yarn update-dkim-registry).
 ```
 
 The script fetches the domain's live DKIM key from DNS, hashes it, and asks the on-chain registry `isKeyHashValid(...)`.
 
-### Populate the registry with DKIM keys (owner only)
+We did not yet register any DKIM keys, so the registry reports `not registered`.
 
-`update-dkim-registry` fetches DKIM keys for the domains in `scripts/dkim/domains.txt` and registers them (one owner transaction per domain). From the repo root:
+### Populate the registry with DKIM keys
+
+`update-dkim-registry` fetches DKIM keys for the domains in `dkim/domains.txt` and registers them (one owner transaction per domain). From the repo root:
 
 ```bash
-cd scripts
 yarn update-dkim-registry
 ```
 
-After populating, re-run `check-dkim-registry <domain>` for a domain from the list and it will report `✅ registered`.
+The script goes through each domain in `dkim/domains.txt`, fetches its DKIM key from DNS, hashes it, and calls the registry's `registerKeyHash(...)` function. You can add more domains to `domains.txt` to register their DKIM keys.
+
+After populating, re-run the check script:
+
+```bash
+yarn check-dkim-registry ethereum.org
+# Registry: 0x12dc89E4a0cBB2718092F2bf00763B047850ef32
+# Domain:   ethereum.org
+
+#   ✅ registered      0x0bd2801e3cbcf396…
+#   ✅ registered      0x0b5c3810709c5fcc…
+#   ✅ registered      0x2dbd1b65c3f4eb55…
+
+# ✅ ethereum.org: a live DKIM key is registered — emails signed with it can be verified on-chain.
+```
+
+The registry now reports the live DKIM key for `ethereum.org` as registered.
