@@ -6,7 +6,7 @@ Milestone 1 deployment evidence for DKIM Registry on Paseo Assethub.
 
 - Network: Polkadot Hub Testnet (Paseo Assethub)
 - Chain ID: `420420417`
-- RPC (default): `https://services.polkadothub-rpc.com/testnet`
+- RPC (default): `https://eth-rpc-testnet.polkadot.io`
 
 ## Deployed Contract
 

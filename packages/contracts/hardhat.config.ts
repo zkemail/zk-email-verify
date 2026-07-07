@@ -35,7 +35,7 @@ const config: HardhatUserConfig = {
       polkadot: {
         target: "pvm",
       },
-      url: rpcUrl || "https://services.polkadothub-rpc.com/testnet",
+      url: rpcUrl || "https://eth-rpc-testnet.polkadot.io",
       accounts,
     },
     // Base Sepolia
