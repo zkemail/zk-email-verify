@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "update-dkim-registry": "ts-node dkim/update-dkim-registry",
+    "check-dkim-registry": "ts-node dkim/check-dkim-registry",
     "update-abis": "cp -r ../packages/contracts/out/DKIMRegistry.sol/DKIMRegistry.json ./abis/"
   },
   "keywords": [],
