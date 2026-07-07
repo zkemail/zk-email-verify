@@ -139,7 +139,7 @@ We did not yet register any DKIM keys, so the registry reports `not registered`.
 yarn update-dkim-registry
 ```
 
-The script goes through each domain in `dkim/domains.txt`, fetches its DKIM key from DNS, hashes it, and calls the registry's `registerKeyHash(...)` function. You can add more domains to `domains.txt` to register their DKIM keys.
+The script goes through each domain in `dkim/domains.txt`, fetches its DKIM key from DNS, hashes it, and calls the registry's `setDKIMPublicKeyHashes(...)` function. You can add more domains to `domains.txt` to register their DKIM keys.
 
 After populating, re-run the check script:
 
