@@ -15,6 +15,31 @@ Required env values:
 - optional: `RPC_URL`
 - optional: `ETHERSCAN_API_KEY` (for EVM explorers where supported)
 
+### Create and fund a wallet
+
+The deployer/owner account needs testnet PAS to deploy and to populate the registry. Create a fresh keypair (Foundry's `cast` ships with this repo):
+
+```bash
+cast wallet new
+# Successfully created new keypair.
+# Address:     0xf0ce43Bf26d1868e3aC27e6fc4356a94867BC2ED
+# Private key: 0x4dede19a11e5f30f5a67db0fc5ecbd8dbd261c1779d8e77aead1b0fcb5ff7d68
+```
+
+Put both into `packages/contracts/.env` — the deployer and the registry owner are the same account here:
+
+```
+PRIVATE_KEY=0x4dede19a11e5f30f5a67db0fc5ecbd8dbd261c1779d8e77aead1b0fcb5ff7d68
+OWNER=0xf0ce43Bf26d1868e3aC27e6fc4356a94867BC2ED
+```
+
+Fund the address with testnet PAS, then confirm it arrived:
+
+- Faucet: <https://faucet.polkadot.io/> — select the Polkadot Hub TestNet (Paseo Asset Hub) and paste your address.
+- Explorer: <https://blockscout-testnet.polkadot.io/address/0xf0ce43Bf26d1868e3aC27e6fc4356a94867BC2ED>
+
+> The keypair above is a funded testnet example for Paseo — you can use it as-is to follow this guide, or generate your own with `cast wallet new`. It is a throwaway testnet key with no real value; never reuse it on mainnet.
+
 ## 2) Install and Build
 
 From `packages/contracts`:
