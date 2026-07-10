@@ -1,0 +1,18 @@
+# Render Blueprint template for the DKIM Registry demo.
+# To use: move this file to the repo root and connect the repo as a Blueprint,
+# then set DKIM_REGISTRY and PRIVATE_KEY in the Render dashboard (not committed).
+services:
+  - type: web
+    name: dkim-registry-demo
+    runtime: node
+    plan: starter
+    # rootDir left as repo root so the Yarn workspace installs normally
+    buildCommand: yarn && yarn workspace @zk-email/dkim-registry-demo build
+    startCommand: yarn workspace @zk-email/dkim-registry-demo start
+    envVars:
+      - key: RPC_URL
+        value: https://eth-rpc-testnet.polkadot.io
+      - key: DKIM_REGISTRY
+        sync: false # set in dashboard
+      - key: PRIVATE_KEY
+        sync: false # set in dashboard (throwaway testnet key)

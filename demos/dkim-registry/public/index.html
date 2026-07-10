@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DKIM Registry · Paseo demo</title>
+    <style>
+      :root {
+        --bg: #0f1115;
+        --panel: #181b22;
+        --line: #262b36;
+        --text: #e7eaf0;
+        --muted: #9aa4b2;
+        --ok: #34d399;
+        --bad: #f87171;
+        --accent: #7c9cff;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      }
+      main { max-width: 720px; margin: 0 auto; padding: 40px 20px 80px; }
+      h1 { font-size: 22px; margin: 0 0 6px; }
+      .sub { color: var(--muted); margin: 0 0 24px; }
+      .flow { color: var(--muted); font-size: 13px; margin: 0 0 16px; }
+      .flow code { color: var(--accent); }
+      .reg {
+        color: var(--muted); font-size: 12px; margin: 0 0 24px;
+        font-family: ui-monospace, monospace; word-break: break-all;
+      }
+      .row { display: flex; gap: 8px; }
+      input {
+        flex: 1; padding: 12px 14px; border-radius: 10px;
+        border: 1px solid var(--line); background: var(--panel); color: var(--text);
+        font-size: 15px;
+      }
+      button {
+        padding: 12px 18px; border-radius: 10px; border: 1px solid var(--line);
+        background: var(--accent); color: #0b0e14; font-weight: 600; cursor: pointer;
+      }
+      button:disabled { opacity: .5; cursor: default; }
+      button.secondary { background: transparent; color: var(--text); }
+      .chips { margin: 12px 0 0; display: flex; gap: 8px; flex-wrap: wrap; }
+      .chip {
+        padding: 6px 10px; font-size: 13px; border-radius: 999px;
+        border: 1px solid var(--line); background: var(--panel); color: var(--muted); cursor: pointer;
+      }
+      .panel {
+        margin-top: 24px; border: 1px solid var(--line); background: var(--panel);
+        border-radius: 12px; padding: 18px;
+      }
+      .hidden { display: none; }
+      .key { padding: 12px 0; }
+      .key + .key { border-top: 1px solid var(--line); }
+      .kv { display: flex; gap: 12px; font-size: 13px; padding: 2px 0; }
+      .kv .k { color: var(--muted); flex: none; width: 150px; }
+      .kv .v { word-break: break-all; }
+      .kv .v.mono { font-family: ui-monospace, monospace; font-size: 12px; }
+      .v.yes { color: var(--ok); font-weight: 600; }
+      .v.no { color: var(--bad); font-weight: 600; }
+      .verdict { margin-top: 12px; font-weight: 600; }
+      .muted { color: var(--muted); }
+      a { color: var(--accent); }
+      .wallet { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 13px; }
+      .wallet a { font-family: ui-monospace, monospace; word-break: break-all; }
+      .note { color: var(--muted); font-size: 12px; margin-top: 14px; }
+      .spinner { color: var(--muted); font-size: 14px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>DKIM Registry — Paseo testnet demo</h1>
+      <p class="sub">
+        Enter a domain. We fetch its live DKIM public key from DNS, hash it the way
+        ZK Email does, and ask the on-chain registry whether it's trusted.
+      </p>
+      <p class="flow">
+        <code>DNS TXT</code> → <code>Poseidon hash</code> → <code>DKIMRegistry.isKeyHashValid()</code>
+        on Paseo Asset Hub.
+      </p>
+      <p class="reg" id="registry"></p>
+
+      <div class="row">
+        <input id="domain" placeholder="ethereum.org" autocomplete="off" />
+        <button id="checkBtn">Check</button>
+      </div>
+      <div class="chips" id="chips"></div>
+
+      <div id="status" class="panel hidden"></div>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
