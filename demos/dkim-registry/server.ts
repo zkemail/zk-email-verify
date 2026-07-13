@@ -78,7 +78,7 @@ app.post("/api/update", async (req, res) => {
   const domain = String(req.body?.domain || "").trim().toLowerCase();
   if (!domain) return res.status(400).json({ error: "domain required" });
   if (rateLimited(ip))
-    return res.status(429).json({ error: "Rate limited — try again shortly." });
+    return res.status(429).json({ error: "Rate limited, try again shortly." });
   try {
     const result = await enqueue(() => updateDomain(domain, REGISTRY, wallet));
     if (!result.txHash)

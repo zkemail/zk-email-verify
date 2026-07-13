@@ -1,5 +1,5 @@
 // Browser client for the DKIM Registry demo. Talks only to the backend API
-// (/api/check, /api/update, /api/wallet) — no keys or chain access here.
+// (/api/check, /api/update, /api/wallet), no keys or chain access here.
 
 const BLOCKSCOUT = "https://blockscout-testnet.polkadot.io";
 // Faucet pre-filled for Paseo Asset Hub: /paseo picks the network, address=
@@ -39,7 +39,7 @@ function keyRow(k: KeyCheck): string {
     : `<span class="v no">no</span>`;
   return `<div class="key">
     <div class="kv"><span class="k">selector</span><span class="v">${k.selectors.join(", ")}</span></div>
-    <div class="kv"><span class="k" title="Poseidon hash of the domain's DKIM public key — what the registry stores and the ZK Email circuit checks">Poseidon key hash</span><span class="v mono">${k.keyHash}</span></div>
+    <div class="kv"><span class="k" title="Poseidon hash of the domain's DKIM public key, what the registry stores and the ZK Email circuit checks">Poseidon key hash</span><span class="v mono">${k.keyHash}</span></div>
     <div class="kv"><span class="k">registered on-chain</span>${reg}</div>
   </div>`;
 }
@@ -60,7 +60,7 @@ async function walletPanel(): Promise<string> {
           <span>
             <a href="${explorer}" target="_blank" title="View this wallet on Blockscout">${bal} PAS</a>
             ·
-            <a href="${faucetUrl(w.address)}" target="_blank" title="Opens the Paseo faucet with this address pre-filled — 5000 PAS per request, once every 24h">top up via faucet</a>
+            <a href="${faucetUrl(w.address)}" target="_blank" title="Opens the Paseo faucet with this address pre-filled, 5000 PAS per request, once every 24h">top up via faucet</a>
           </span>
         </div>
       </div>`;
@@ -88,7 +88,7 @@ async function check(domain: string) {
 
   const rows = res.keys.map(keyRow).join("");
   const verdict = res.anyValid
-    ? `<div class="verdict ok">✅ A live DKIM key for ${domain} is registered — emails signed with it can be verified on-chain.</div>`
+    ? `<div class="verdict ok">✅ A live DKIM key for ${domain} is registered, emails signed with it can be verified on-chain.</div>`
     : `<div class="verdict bad">❌ ${domain}'s live DKIM key is not on this registry yet.</div>`;
 
   const update = res.anyValid

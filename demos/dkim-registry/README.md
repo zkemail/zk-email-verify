@@ -1,4 +1,4 @@
-# DKIM Registry — Paseo testnet demo
+# DKIM Registry: Paseo testnet demo
 
 A tiny web app for the Kusama grant Milestone 1 DKIM Registry. Enter a domain and it:
 
@@ -6,11 +6,11 @@ A tiny web app for the Kusama grant Milestone 1 DKIM Registry. Enter a domain an
 2. hashes it exactly the way ZK Email does (Poseidon over 9×242-bit chunks),
 3. asks the on-chain `DKIMRegistry` on **Paseo Asset Hub** whether that key is trusted.
 
-If the key isn't registered yet, one button registers it — paid for by a prefunded
+If the key isn't registered yet, one button registers it, paid for by a prefunded
 testnet wallet behind the backend, so visitors never connect a wallet or spend anything.
 
 All the DNS + hashing + contract logic is the shared [`scripts/dkim/core.ts`](../../scripts/dkim/core.ts),
-the same module the `check-dkim-registry` / `update-dkim-registry` CLIs use — so the
+the same module the `check-dkim-registry` / `update-dkim-registry` CLIs use, so the
 website can never disagree with the CLI.
 
 ## Endpoints
@@ -56,7 +56,7 @@ Open <http://localhost:3000>.
 A single **Web Service** serves both the API and the static page (a persistent
 process is what lets the rate-limiter and update queue live in memory).
 
-- **Root Directory:** _(leave blank — repo root, so the Yarn workspace installs normally)_
+- **Root Directory:** _(leave blank, repo root, so the Yarn workspace installs normally)_
 - **Build Command:** `yarn && yarn workspace @zk-email/dkim-registry-demo build`
 - **Start Command:** `yarn workspace @zk-email/dkim-registry-demo start`
 - **Environment variables:**
@@ -65,9 +65,9 @@ process is what lets the rate-limiter and update queue live in memory).
   - `PRIVATE_KEY=<throwaway owner wallet key>`
   - (`PORT` is set by Render automatically)
 
-A [`render.yaml`](./render.yaml) blueprint is included as a template — move it to the
+A [`render.yaml`](./render.yaml) blueprint is included as a template, move it to the
 repo root to use Render's Blueprint deploy, or just enter the settings above by hand.
 
-> This is a testnet demo. Paseo may be reset, and the wallet key is disposable — never
+> This is a testnet demo. Paseo may be reset, and the wallet key is disposable, never
 > reuse it on mainnet. Wind it down by deleting the Render service when the announcement
 > has run its course.
