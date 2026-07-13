@@ -37,6 +37,42 @@ yarn deploy 420420417
 - The contract is still fully visible on [Blockscout](https://blockscout-testnet.polkadot.io) (address, PolkaVM bytecode, transactions) and is exercisable via its read/write methods.
 - Background is documented in `packages/contracts/README.md`.
 
+## Bytecode Provenance
+
+Because automated source verification is not yet available for PolkaVM, provenance is
+established by comparing the locally compiled runtime bytecode against the on-chain code.
+Compilation is deterministic: a clean rebuild reproduces the blob byte-for-byte.
+
+### Compiler
+
+- `resolc`: `0.5.0+commit.046455.llvm-18.1.8` (pinned in `hardhat.config.ts` as `resolc.version = "0.5.0"`; plugin default `compilerSource: "binary"`)
+- `solc`: `0.8.30+commit.73712a01`
+- Optimizer: enabled, `runs = 10000`
+- `evmVersion`: `prague`
+
+### Runtime-bytecode hash (keccak256)
+
+| Source | keccak256 |
+| --- | --- |
+| Locally compiled (`hh-artifacts/src/DKIMRegistry.sol/DKIMRegistry.json`) | `0x22f6687e73dc3ec47a28636b8ac3d17dd278ab25575bb30449a223c07008d974` |
+| On-chain (`0x83A1b3958D49195D3F62C44B42e7a41336Bc3ffc`) | `0x22f6687e73dc3ec47a28636b8ac3d17dd278ab25575bb30449a223c07008d974` |
+
+The two hashes are identical, proving the deployed contract is exactly this source compiled
+with the compiler above. On PolkaVM the deploy and runtime code are the same PVM blob, so
+`bytecode` and `deployedBytecode` in the artifact are identical.
+
+### Reproduce
+
+```bash
+# on-chain runtime-bytecode hash
+cast code 0x83A1b3958D49195D3F62C44B42e7a41336Bc3ffc \
+  --rpc-url https://eth-rpc-testnet.polkadot.io | cast keccak
+
+# locally compiled runtime-bytecode hash (from packages/contracts)
+yarn build
+jq -r '.bytecode' hh-artifacts/src/DKIMRegistry.sol/DKIMRegistry.json | cast keccak
+```
+
 ## Source-of-Truth Policy
 
 - Canonical public proof: documented address table and this deployment evidence doc.
