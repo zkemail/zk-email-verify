@@ -148,12 +148,12 @@ export async function getDomainKeysDetailed(
   return [...byKey.values()];
 }
 
-// Unique DKIM key moduli for a domain (selectors dropped) — used by the write path.
+// Unique DKIM key moduli for a domain (selectors dropped), used by the write path.
 export async function getDomainKeys(domain: string): Promise<bigint[]> {
   return (await getDomainKeysDetailed(domain)).map((d) => d.key);
 }
 
-// keccak256 of the lowercased domain — how the registry keys domains.
+// keccak256 of the lowercased domain, how the registry keys domains.
 export function domainHash(domain: string): string {
   return ethers.keccak256(ethers.toUtf8Bytes(domain.toLowerCase()));
 }
@@ -184,7 +184,7 @@ export interface CheckResult {
 }
 
 // Read-only: fetch a domain's live DKIM keys and ask the registry whether each is
-// trusted. Needs only a provider — no private key.
+// trusted. Needs only a provider, no private key.
 export async function checkDomain(
   domain: string,
   registryAddress: string,
