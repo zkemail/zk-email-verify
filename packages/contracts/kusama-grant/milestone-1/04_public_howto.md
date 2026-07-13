@@ -26,7 +26,7 @@ cast wallet new
 # Private key: 0x4dede19a11e5f30f5a67db0fc5ecbd8dbd261c1779d8e77aead1b0fcb5ff7d68
 ```
 
-Put both into `packages/contracts/.env` — the deployer and the registry owner are the same account here:
+Put both into `packages/contracts/.env`, where the deployer and the registry owner are the same account here:
 
 ```
 RPC_URL=https://eth-rpc-testnet.polkadot.io
@@ -36,10 +36,10 @@ OWNER=0xf0ce43Bf26d1868e3aC27e6fc4356a94867BC2ED
 
 Fund the address with testnet PAS, then confirm it arrived:
 
-- Faucet: <https://faucet.polkadot.io/> — select the Polkadot Hub TestNet (Paseo Asset Hub) and paste your address.
+- Faucet: <https://faucet.polkadot.io/>, select the Polkadot Hub TestNet (Paseo Asset Hub) and paste your address.
 - Explorer: <https://blockscout-testnet.polkadot.io/address/0xf0ce43Bf26d1868e3aC27e6fc4356a94867BC2ED>
 
-> The keypair above is a funded testnet example for Paseo — you can use it as-is to follow this guide, or generate your own with `cast wallet new`. It is a throwaway testnet key with no real value; never reuse it on mainnet.
+> The keypair above is a funded testnet example for Paseo; you can use it as-is to follow this guide, or generate your own with `cast wallet new`. It is a throwaway testnet key with no real value; never reuse it on mainnet.
 
 ## 2) Install and Build
 
@@ -152,7 +152,7 @@ yarn check-dkim-registry ethereum.org
 #   ✅ registered      0x0b5c3810709c5fcc…
 #   ✅ registered      0x2dbd1b65c3f4eb55…
 
-# ✅ ethereum.org: a live DKIM key is registered — emails signed with it can be verified on-chain.
+# ✅ ethereum.org: a live DKIM key is registered, emails signed with it can be verified on-chain.
 ```
 
 The registry now reports the live DKIM key for `ethereum.org` as registered.
