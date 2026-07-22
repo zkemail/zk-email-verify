@@ -34,7 +34,7 @@ yarn test:integration
 
 ## Results Snapshot
 
-- Unit suite: passes (123 tests, 0 failed).
+- Unit suite: passes (129 tests, 0 failed).
 - Integration suite: passes (4 tests, 0 failed).
 - Both suites now run in CI on every push via the `run_contracts_tests` job in `.github/workflows/action.yml`.
 - Integration files:
@@ -43,13 +43,13 @@ yarn test:integration
 
 ### CI run
 
-Example passing `run_contracts_tests` job (2026-07-22): https://github.com/zkemail/zk-email-verify/actions/runs/29924240032/job/88937169022. For the current state of the branch, see the [Actions tab](https://github.com/zkemail/zk-email-verify/actions/workflows/action.yml?query=branch%3Akusama-grant).
+Example passing `run_contracts_tests` job (2026-07-22): https://github.com/zkemail/zk-email-verify/actions/runs/29932170036/job/88964446400. For the current state of the branch, see the [Actions tab](https://github.com/zkemail/zk-email-verify/actions/workflows/action.yml?query=branch%3Akusama-grant).
 
 ## Key Assertions Proven
 
 - Owner can register key hashes and set them valid for a domain.
 - Rotation flow works: old key revoked, new key remains valid.
-- Revocation invalidates key validity checks.
-- Batch registration sets multiple keys.
-- Access control prevents non-owner mutation calls.
-- Global key revocation behavior across domains is consistent with contract logic.
+- Revocation invalidates key validity checks and is scoped to the domain it was revoked for (a key revoked on one domain remains valid on others).
+- A revoked key hash can be re-registered afterward, including through the batch path.
+- Batch registration sets multiple keys, rejects an empty array, and rejects a zero key hash (atomically, per transaction).
+- Access control prevents non-owner mutation calls, asserted against the specific `OwnableUnauthorizedAccount` error.
