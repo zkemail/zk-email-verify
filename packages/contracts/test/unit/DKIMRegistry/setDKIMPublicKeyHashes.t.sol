@@ -2,6 +2,7 @@
 pragma solidity ^0.8.30;
 
 import "forge-std/Test.sol";
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { DKIMRegistry } from "../../../src/DKIMRegistry.sol";
 
 contract DKIMRegistryTest_setDKIMPublicKeyHashes is Test {
@@ -35,7 +36,7 @@ contract DKIMRegistryTest_setDKIMPublicKeyHashes is Test {
         keyHashes[0] = oldKeyHash;
 
         vm.prank(nonOwner);
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, nonOwner));
         registry.setDKIMPublicKeyHashes(domainHash, keyHashes);
     }
 
