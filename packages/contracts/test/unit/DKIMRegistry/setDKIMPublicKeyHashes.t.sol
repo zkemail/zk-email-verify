@@ -38,4 +38,41 @@ contract DKIMRegistryTest_setDKIMPublicKeyHashes is Test {
         vm.expectRevert();
         registry.setDKIMPublicKeyHashes(domainHash, keyHashes);
     }
+
+    function test_RevertIfArrayIsEmpty() public {
+        bytes32[] memory keyHashes = new bytes32[](0);
+
+        vm.prank(owner);
+        vm.expectRevert("empty array");
+        registry.setDKIMPublicKeyHashes(domainHash, keyHashes);
+    }
+
+    function test_RevertIfBatchContainsZeroHash() public {
+        bytes32[] memory keyHashes = new bytes32[](2);
+        keyHashes[0] = oldKeyHash;
+        keyHashes[1] = bytes32(0);
+
+        vm.prank(owner);
+        vm.expectRevert("cannot set zero hash");
+        registry.setDKIMPublicKeyHashes(domainHash, keyHashes);
+
+        // The revert must be atomic: the valid entry earlier in the same batch
+        // must not have been persisted either.
+        assertFalse(registry.isKeyHashValid(domainHash, oldKeyHash));
+    }
+
+    function test_BatchCanReRegisterPreviouslyRevokedKey() public {
+        vm.startPrank(owner);
+        registry.setDKIMPublicKeyHash(domainHash, oldKeyHash);
+        registry.revokeDKIMPublicKeyHash(domainHash, oldKeyHash);
+
+        bytes32[] memory keyHashes = new bytes32[](2);
+        keyHashes[0] = oldKeyHash;
+        keyHashes[1] = newKeyHash;
+        registry.setDKIMPublicKeyHashes(domainHash, keyHashes);
+        vm.stopPrank();
+
+        assertTrue(registry.isKeyHashValid(domainHash, oldKeyHash));
+        assertTrue(registry.isKeyHashValid(domainHash, newKeyHash));
+    }
 }

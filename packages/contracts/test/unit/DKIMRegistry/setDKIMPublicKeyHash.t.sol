@@ -42,4 +42,10 @@ contract DKIMRegistryTest_setDKIMPublicKeyHash is Test {
 
         assertTrue(registry.isKeyHashValid(domainHash, keyHash));
     }
+
+    function test_RevertIfKeyHashIsZero() public {
+        vm.prank(owner);
+        vm.expectRevert("cannot set zero hash");
+        registry.setDKIMPublicKeyHash(domainHash, bytes32(0));
+    }
 }

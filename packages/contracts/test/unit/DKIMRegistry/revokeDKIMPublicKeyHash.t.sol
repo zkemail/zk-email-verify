@@ -3,6 +3,7 @@ pragma solidity ^0.8.30;
 
 import "forge-std/Test.sol";
 import { DKIMRegistry } from "../../../src/DKIMRegistry.sol";
+import { IDKIMRegistry } from "../../../src/interfaces/IERC7969.sol";
 
 contract DKIMRegistryTest_revokeDKIMPublicKeyHash is Test {
     DKIMRegistry internal registry;
@@ -54,5 +55,22 @@ contract DKIMRegistryTest_revokeDKIMPublicKeyHash is Test {
         vm.prank(nonOwner);
         vm.expectRevert();
         registry.revokeDKIMPublicKeyHash(domainHash, keyHash);
+    }
+
+    function test_EmitsKeyHashRevokedEvent() public {
+        vm.startPrank(owner);
+        registry.setDKIMPublicKeyHash(domainHash, keyHash);
+
+        vm.expectEmit();
+        emit IDKIMRegistry.KeyHashRevoked(domainHash);
+        registry.revokeDKIMPublicKeyHash(domainHash, keyHash);
+        vm.stopPrank();
+    }
+
+    function test_RevokingUnsetKeyDoesNotRevert() public {
+        vm.prank(owner);
+        registry.revokeDKIMPublicKeyHash(domainHash, keyHash);
+
+        assertFalse(registry.isKeyHashValid(domainHash, keyHash));
     }
 }
