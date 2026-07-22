@@ -65,3 +65,29 @@ jobs:
       - name: Run Tests
         working-directory: ./packages/helpers
         run: yarn test
+
+  run_contracts_tests:
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Set Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Yarn dependencies
+        working-directory: ./packages/contracts
+        run: yarn install --immutable
+
+      - name: Run unit tests
+        working-directory: ./packages/contracts
+        run: forge test --match-path "test/unit/**/*.t.sol" -vvv
+
+      - name: Run integration tests
+        working-directory: ./packages/contracts
+        run: forge test --match-path "test/integration/**/*.t.sol" -vvv

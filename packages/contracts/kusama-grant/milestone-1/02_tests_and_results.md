@@ -34,11 +34,22 @@ yarn test:integration
 
 ## Results Snapshot
 
-- Unit suite: passes.
-- Integration suite: passes.
+- Unit suite: passes (123 tests, 0 failed).
+- Integration suite: passes (4 tests, 0 failed).
+- Both suites now run in CI on every push via the `run_contracts_tests` job in `.github/workflows/action.yml`.
 - Integration files:
   - `test/integration/DKIMRegistry/lifecycle.integration.t.sol`
   - `test/integration/DKIMRegistry/batch_and_behavior.integration.t.sol`
+
+### Latest local run
+
+```
+Ran 15 test suites in 1.24s (204.54ms CPU time): 123 tests passed, 0 failed, 0 skipped (123 total tests)
+```
+
+```
+Ran 2 test suites in 1.13s (19.14ms CPU time): 4 tests passed, 0 failed, 0 skipped (4 total tests)
+```
 
 ## Key Assertions Proven
 
