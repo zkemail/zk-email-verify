@@ -22,24 +22,22 @@ The deployer/owner account needs testnet PAS to deploy and to populate the regis
 ```bash
 cast wallet new
 # Successfully created new keypair.
-# Address:     0xf0ce43Bf26d1868e3aC27e6fc4356a94867BC2ED
-# Private key: 0x4dede19a11e5f30f5a67db0fc5ecbd8dbd261c1779d8e77aead1b0fcb5ff7d68
+# Address:     0xYourAddress...
+# Private key: 0xYourPrivateKey...
 ```
 
 Put both into `packages/contracts/.env`, where the deployer and the registry owner are the same account here:
 
 ```
 RPC_URL=https://eth-rpc-testnet.polkadot.io
-PRIVATE_KEY=0x4dede19a11e5f30f5a67db0fc5ecbd8dbd261c1779d8e77aead1b0fcb5ff7d68
-OWNER=0xf0ce43Bf26d1868e3aC27e6fc4356a94867BC2ED
+PRIVATE_KEY=<the private key from your cast wallet new output above>
+OWNER=<the address from your cast wallet new output above>
 ```
 
 Fund the address with testnet PAS, then confirm it arrived:
 
 - Faucet: <https://faucet.polkadot.io/>, select the Polkadot Hub TestNet (Paseo Asset Hub) and paste your address.
-- Explorer: <https://blockscout-testnet.polkadot.io/address/0xf0ce43Bf26d1868e3aC27e6fc4356a94867BC2ED>
-
-> The keypair above is a funded testnet example for Paseo; you can use it as-is to follow this guide, or generate your own with `cast wallet new`. It is a throwaway testnet key with no real value; never reuse it on mainnet.
+- Explorer: `https://blockscout-testnet.polkadot.io/address/<your address>`
 
 ## 2) Install and Build
 
@@ -103,11 +101,11 @@ Configure `.env`:
 cp .env.sample .env
 ```
 
-Populate `.env` with the deployed registry address and your funded testnet keypair:
+Populate `.env` with the deployed registry address and your own funded testnet keypair (the same one from step 1):
 
 ```
 RPC_URL=https://eth-rpc-testnet.polkadot.io
-PRIVATE_KEY=0x4dede19a11e5f30f5a67db0fc5ecbd8dbd261c1779d8e77aead1b0fcb5ff7d68
+PRIVATE_KEY=<your private key from step 1>
 DKIM_REGISTRY=0x12dc89E4a0cBB2718092F2bf00763B047850ef32
 ```
 
