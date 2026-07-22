@@ -8,7 +8,7 @@ pragma solidity ^0.8.30;
  * Domain owners can register their DKIM public key hashes and third parties can verify their validity
  * The interface enables email-based account abstraction and secure account recovery mechanisms.
  *
- * NOTE: The ERC-165 identifier for this interface is `0xdee3d600`.
+ * NOTE: If an implementation chooses to support ERC-165, this interface's identifier is `0xdee3d600`.
  */
 interface IDKIMRegistry {
     /// @dev Emitted when a new DKIM public key hash is registered for a domain
