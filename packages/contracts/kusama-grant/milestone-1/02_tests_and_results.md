@@ -41,15 +41,9 @@ yarn test:integration
   - `test/integration/DKIMRegistry/lifecycle.integration.t.sol`
   - `test/integration/DKIMRegistry/batch_and_behavior.integration.t.sol`
 
-### Latest local run
+### CI run
 
-```
-Ran 15 test suites in 1.24s (204.54ms CPU time): 123 tests passed, 0 failed, 0 skipped (123 total tests)
-```
-
-```
-Ran 2 test suites in 1.13s (19.14ms CPU time): 4 tests passed, 0 failed, 0 skipped (4 total tests)
-```
+Example passing `run_contracts_tests` job (2026-07-22): https://github.com/zkemail/zk-email-verify/actions/runs/29924240032/job/88937169022. For the current state of the branch, see the [Actions tab](https://github.com/zkemail/zk-email-verify/actions/workflows/action.yml?query=branch%3Akusama-grant).
 
 ## Key Assertions Proven
 
