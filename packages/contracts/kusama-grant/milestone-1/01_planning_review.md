@@ -31,6 +31,14 @@ This document is the Milestone 1 planning and review artifact for the DKIM Regis
 4. Confirm deployment evidence for Paseo Assethub contract address.
 5. Publish grant-focused documentation bundle.
 
+## Revocation Semantics
+
+`revokeDKIMPublicKeyHash(domainHash, keyHash)` is scoped to a single domain and is reversible, matching the ERC-7969 reference implementation:
+
+- Revoking a key hash only invalidates that specific domain/key-hash pairing. The same key hash remains valid for any other domain it's registered under.
+- Revocation is not permanent: a revoked key hash can be re-registered for the same domain afterward. There is no "once revoked, blocked forever" state.
+- Revoking a key hash that was never registered for that domain does not revert; it's a no-op.
+
 ## Risks and Mitigations
 
 - Risk: source-code verification is not yet supported for PolkaVM (`resolc`) deployments by the explorer or Hardhat verify tooling.
