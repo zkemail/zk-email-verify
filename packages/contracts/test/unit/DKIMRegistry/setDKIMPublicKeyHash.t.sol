@@ -33,11 +33,13 @@ contract DKIMRegistryTest_setDKIMPublicKeyHash is Test {
         registry.setDKIMPublicKeyHash(domainHash, keyHash);
     }
 
-    function test_RevertIfKeyAlreadyRevoked() public {
+    function test_CanReRegisterAfterRevocation() public {
         vm.startPrank(owner);
-        registry.revokeDKIMPublicKeyHash(keyHash);
-        vm.expectRevert("cannot set revoked pubkey");
+        registry.setDKIMPublicKeyHash(domainHash, keyHash);
+        registry.revokeDKIMPublicKeyHash(domainHash, keyHash);
         registry.setDKIMPublicKeyHash(domainHash, keyHash);
         vm.stopPrank();
+
+        assertTrue(registry.isKeyHashValid(domainHash, keyHash));
     }
 }

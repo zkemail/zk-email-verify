@@ -58,7 +58,6 @@ contract ECDSAOwnedDKIMRegistry is IDKIMRegistry {
         require(bytes(domainName).length != 0, "Invalid domain name");
         require(publicKeyHash != bytes32(0), "Invalid public key hash");
         require(!isKeyHashValid(domainHash, publicKeyHash), "publicKeyHash is already set");
-        require(!dkimRegistry.revokedDKIMPublicKeyHashes(publicKeyHash), "publicKeyHash is revoked");
 
         string memory signedMsg = computeSignedMsg(SET_PREFIX, domainName, publicKeyHash);
         bytes32 digest = MessageHashUtils.toEthSignedMessageHash(bytes(signedMsg));
@@ -87,14 +86,13 @@ contract ECDSAOwnedDKIMRegistry is IDKIMRegistry {
         require(bytes(domainName).length != 0, "Invalid domain name");
         require(publicKeyHash != bytes32(0), "Invalid public key hash");
         require(isKeyHashValid(domainHash, publicKeyHash), "publicKeyHash is not set");
-        require(!dkimRegistry.revokedDKIMPublicKeyHashes(publicKeyHash), "publicKeyHash is already revoked");
 
         string memory signedMsg = computeSignedMsg(REVOKE_PREFIX, domainName, publicKeyHash);
         bytes32 digest = MessageHashUtils.toEthSignedMessageHash(bytes(signedMsg));
         address recoveredSigner = digest.recover(signature);
         require(recoveredSigner == signer, "Invalid signature");
 
-        dkimRegistry.revokeDKIMPublicKeyHash(publicKeyHash);
+        dkimRegistry.revokeDKIMPublicKeyHash(domainHash, publicKeyHash);
     }
 
     /// @notice Computes a signed message string for setting or revoking a DKIM public key hash.

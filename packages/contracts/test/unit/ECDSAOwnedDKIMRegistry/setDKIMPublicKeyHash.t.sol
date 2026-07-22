@@ -157,7 +157,7 @@ contract ECDSAOwnedDKIMRegistryTest_setDKIMPublicKeyHash is Test {
         dkim.setDKIMPublicKeyHash(selector, domainName, publicKeyHash, signature1);
     }
 
-    function test_Revert_IfRevorked() public {
+    function test_CanReSetAfterRevoked() public {
         // vm.chainId(1);
         string memory signedMsg = dkim.computeSignedMsg(dkim.SET_PREFIX(), domainName, publicKeyHash);
         bytes32 digest = MessageHashUtils.toEthSignedMessageHash(bytes(signedMsg));
@@ -173,11 +173,14 @@ contract ECDSAOwnedDKIMRegistryTest_setDKIMPublicKeyHash is Test {
         dkim.revokeDKIMPublicKeyHash(selector, domainName, publicKeyHash, revokeSig);
         require(!dkim.isKeyHashValid(keccak256(bytes(domainName)), publicKeyHash));
 
+        // Revocation is scoped and reversible (ERC-7969): re-setting the same key hash for the
+        // same domain after revocation must succeed, not revert.
         signedMsg = dkim.computeSignedMsg(dkim.SET_PREFIX(), domainName, publicKeyHash);
         (uint8 v2, bytes32 r2, bytes32 s2) = vm.sign(1, digest);
         bytes memory signature2 = abi.encodePacked(r2, s2, v2);
-        vm.expectRevert("publicKeyHash is revoked");
         dkim.setDKIMPublicKeyHash(selector, domainName, publicKeyHash, signature2);
+
+        assertTrue(dkim.isKeyHashValid(keccak256(bytes(domainName)), publicKeyHash));
     }
 
     function test_Revert_IfSignatureInvalid() public {

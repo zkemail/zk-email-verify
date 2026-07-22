@@ -29,7 +29,7 @@ contract DKIMRegistryTest_isKeyHashValid is Test {
     function test_ReturnsFalseForRevokedKey() public {
         vm.startPrank(owner);
         registry.setDKIMPublicKeyHash(domainHash, keyHash);
-        registry.revokeDKIMPublicKeyHash(keyHash);
+        registry.revokeDKIMPublicKeyHash(domainHash, keyHash);
         vm.stopPrank();
 
         assertFalse(registry.isKeyHashValid(domainHash, keyHash));

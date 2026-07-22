@@ -18,16 +18,11 @@ contract DKIMRegistry is IDKIMRegistry, Ownable {
     // Mapping from domain name hash to DKIM public key hash
     mapping(bytes32 => mapping(bytes32 => bool)) public dkimPublicKeyHashes;
 
-    // DKIM public that are revoked (eg: in case of private key compromise)
-    mapping(bytes32 => bool) public revokedDKIMPublicKeyHashes;
-
     function isKeyHashValid(bytes32 domainNameHash, bytes32 publicKeyHash) public view returns (bool) {
-        return dkimPublicKeyHashes[domainNameHash][publicKeyHash] && !revokedDKIMPublicKeyHashes[publicKeyHash];
+        return dkimPublicKeyHashes[domainNameHash][publicKeyHash];
     }
 
     function setDKIMPublicKeyHash(bytes32 domainHash, bytes32 publicKeyHash) public onlyOwner {
-        require(!revokedDKIMPublicKeyHashes[publicKeyHash], "cannot set revoked pubkey");
-
         dkimPublicKeyHashes[domainHash][publicKeyHash] = true;
         emit KeyHashRegistered(domainHash, publicKeyHash);
     }
@@ -38,9 +33,10 @@ contract DKIMRegistry is IDKIMRegistry, Ownable {
         }
     }
 
-    function revokeDKIMPublicKeyHash(bytes32 publicKeyHash) public onlyOwner {
-        revokedDKIMPublicKeyHashes[publicKeyHash] = true;
+    // Revokes a key hash for a single domain (ERC-7969: scoped and reversible, not a global blacklist).
+    function revokeDKIMPublicKeyHash(bytes32 domainHash, bytes32 publicKeyHash) public onlyOwner {
+        dkimPublicKeyHashes[domainHash][publicKeyHash] = false;
 
-        emit KeyHashRevoked(publicKeyHash);
+        emit KeyHashRevoked(domainHash);
     }
 }

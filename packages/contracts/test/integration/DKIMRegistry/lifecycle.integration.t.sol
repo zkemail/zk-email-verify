@@ -33,8 +33,8 @@ contract DKIMRegistryLifecycleIntegrationTest is Test {
         assertTrue(registry.isKeyHashValid(domainHash, newKeyHash));
 
         vm.expectEmit();
-        emit IDKIMRegistry.KeyHashRevoked(oldKeyHash);
-        registry.revokeDKIMPublicKeyHash(oldKeyHash);
+        emit IDKIMRegistry.KeyHashRevoked(domainHash);
+        registry.revokeDKIMPublicKeyHash(domainHash, oldKeyHash);
 
         vm.stopPrank();
 
@@ -49,6 +49,6 @@ contract DKIMRegistryLifecycleIntegrationTest is Test {
 
         vm.prank(attacker);
         vm.expectRevert();
-        registry.revokeDKIMPublicKeyHash(oldKeyHash);
+        registry.revokeDKIMPublicKeyHash(domainHash, oldKeyHash);
     }
 }

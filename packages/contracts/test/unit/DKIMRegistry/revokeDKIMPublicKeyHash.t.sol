@@ -22,28 +22,28 @@ contract DKIMRegistryTest_revokeDKIMPublicKeyHash is Test {
     function test_RevokesAndInvalidatesKey() public {
         vm.startPrank(owner);
         registry.setDKIMPublicKeyHash(domainHash, keyHash);
-        registry.revokeDKIMPublicKeyHash(keyHash);
+        registry.revokeDKIMPublicKeyHash(domainHash, keyHash);
         vm.stopPrank();
 
         assertFalse(registry.isKeyHashValid(domainHash, keyHash));
     }
 
-    function test_GlobalRevocationInvalidatesAcrossDomains() public {
+    function test_RevocationIsScopedToDomain() public {
         vm.startPrank(owner);
         registry.setDKIMPublicKeyHash(domainHash, keyHash);
         registry.setDKIMPublicKeyHash(anotherDomainHash, keyHash);
-        registry.revokeDKIMPublicKeyHash(keyHash);
+        registry.revokeDKIMPublicKeyHash(domainHash, keyHash);
         vm.stopPrank();
 
         assertFalse(registry.isKeyHashValid(domainHash, keyHash));
-        assertFalse(registry.isKeyHashValid(anotherDomainHash, keyHash));
+        assertTrue(registry.isKeyHashValid(anotherDomainHash, keyHash));
     }
 
     function test_RotationOldKeyRevokedNewKeyValid() public {
         vm.startPrank(owner);
         registry.setDKIMPublicKeyHash(domainHash, keyHash);
         registry.setDKIMPublicKeyHash(domainHash, replacementKeyHash);
-        registry.revokeDKIMPublicKeyHash(keyHash);
+        registry.revokeDKIMPublicKeyHash(domainHash, keyHash);
         vm.stopPrank();
 
         assertFalse(registry.isKeyHashValid(domainHash, keyHash));
@@ -53,6 +53,6 @@ contract DKIMRegistryTest_revokeDKIMPublicKeyHash is Test {
     function test_RevertIfCalledByNonOwner() public {
         vm.prank(nonOwner);
         vm.expectRevert();
-        registry.revokeDKIMPublicKeyHash(keyHash);
+        registry.revokeDKIMPublicKeyHash(domainHash, keyHash);
     }
 }

@@ -30,17 +30,17 @@ contract DKIMRegistryBatchAndBehaviorIntegrationTest is Test {
         assertTrue(registry.isKeyHashValid(domainHash, keyB));
     }
 
-    function test_Integration_GlobalRevocationBehaviorAcrossDomains() public {
+    function test_Integration_RevocationIsScopedToDomainAcrossDomains() public {
         vm.startPrank(owner);
         registry.setDKIMPublicKeyHash(domainHash, sharedKeyHash);
         registry.setDKIMPublicKeyHash(anotherDomainHash, sharedKeyHash);
         assertTrue(registry.isKeyHashValid(domainHash, sharedKeyHash));
         assertTrue(registry.isKeyHashValid(anotherDomainHash, sharedKeyHash));
 
-        registry.revokeDKIMPublicKeyHash(sharedKeyHash);
+        registry.revokeDKIMPublicKeyHash(domainHash, sharedKeyHash);
         vm.stopPrank();
 
         assertFalse(registry.isKeyHashValid(domainHash, sharedKeyHash));
-        assertFalse(registry.isKeyHashValid(anotherDomainHash, sharedKeyHash));
+        assertTrue(registry.isKeyHashValid(anotherDomainHash, sharedKeyHash));
     }
 }
