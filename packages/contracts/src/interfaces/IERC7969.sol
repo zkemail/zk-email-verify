@@ -13,7 +13,7 @@ pragma solidity ^0.8.30;
 interface IDKIMRegistry {
     /// @dev Emitted when a new DKIM public key hash is registered for a domain
     /// @param domainHash The keccak256 hash of the lowercase domain name
-    /// @param keyHash The Poseidon hash of the DKIM public key
+    /// @param keyHash The hash of the DKIM public key
     event KeyHashRegistered(bytes32 domainHash, bytes32 keyHash);
 
     /// @dev Emitted when a DKIM public key hash is revoked for a domain
@@ -22,7 +22,7 @@ interface IDKIMRegistry {
 
     /// @dev Checks if a DKIM key hash is valid for a given domain
     /// @param domainHash The keccak256 hash of the lowercase domain name
-    /// @param keyHash The Poseidon hash of the DKIM public key
+    /// @param keyHash The hash of the DKIM public key
     /// @return True if the key hash is valid for the domain, false otherwise
     function isKeyHashValid(bytes32 domainHash, bytes32 keyHash) external view returns (bool);
 }
