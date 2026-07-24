@@ -144,9 +144,14 @@ Canonical deployed addresses are tracked here. Ignition deployment artifacts are
 
 | Network              | Chain ID    | [`DKIMRegistry`](./src/DKIMRegistry.sol) address | Explorer                                                                                                |
 | -------------------- | ----------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
-| Ethereum Sepolia     | `11155111`  | `0x95806f01D497Bc6AE7b6F0D192D625b9442b1172`     | [Etherscan](https://sepolia.etherscan.io/address/0x95806f01D497Bc6AE7b6F0D192D625b9442b1172)            |
-| Base Sepolia         | `84532`     | `0x969a461F6becC9c4344cd9925AA249585a8406a6`     | [BaseScan](https://sepolia.basescan.org/address/0x969a461F6becC9c4344cd9925AA249585a8406a6)             |
-| Polkadot Hub Testnet | `420420417` | `0x83A1b3958D49195D3F62C44B42e7a41336Bc3ffc`     | [Blockscout](https://blockscout-testnet.polkadot.io/address/0x83A1b3958D49195D3F62C44B42e7a41336Bc3ffc) |
+| Ethereum Sepolia     | `11155111`  | `0xf936d1b39c4cCEaFB5EeD27CC7890272Da6958B6`     | [Etherscan](https://sepolia.etherscan.io/address/0xf936d1b39c4cCEaFB5EeD27CC7890272Da6958B6)            |
+| Base Sepolia         | `84532`     | `0x287C76fADc09863176229e00CC39E5c65d3c7C68`     | [BaseScan](https://sepolia.basescan.org/address/0x287C76fADc09863176229e00CC39E5c65d3c7C68)             |
+| Polkadot Hub Testnet | `420420417` | `0xD9e492f8104Ec730AF47A1A5C0cEAf94C89Da8EE`     | [Blockscout](https://blockscout-testnet.polkadot.io/address/0xD9e492f8104Ec730AF47A1A5C0cEAf94C89Da8EE) |
+
+> Redeployed after the ERC-7969 compliance fixes (domain-scoped/reversible
+> revocation, zero-hash/empty-array guards). Addresses above reflect the
+> current contract; see `kusama-grant/milestone-1/03_deployment_evidence.md`
+> for the Paseo deployment's bytecode provenance.
 
 ### All available commands
 
