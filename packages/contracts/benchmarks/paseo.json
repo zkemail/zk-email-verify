@@ -1,0 +1,43 @@
+{
+  "label": "Paseo Asset Hub",
+  "mode": "pvm",
+  "chainId": "420420417",
+  "rpc": "https://eth-rpc-testnet.polkadot.io",
+  "contract": "0xc5A33346bA4C418BFe686498b1B986FE66BD51e4",
+  "signer": "0xFd096EC4FC759D4075fBb4F3e4D9203E12765742",
+  "totalRealCostWei": "429942792000000000",
+  "results": [
+    {
+      "name": "deploy",
+      "hash": "0xc8a687f0a17748c6a55f96f9a0ef755654eff107d0c124dd18c5a6f557af0ec8",
+      "gasUsed": "416197",
+      "gasPriceWei": "1000000000000",
+      "feeGasWei": "416197000000000000",
+      "realCostWei": "416165839000000000"
+    },
+    {
+      "name": "setDKIMPublicKeyHash",
+      "hash": "0x726d80429ac4dcc91dbe71447db3409829a817a8dec78abc376ff0f02b9b6adf",
+      "gasUsed": "4196",
+      "gasPriceWei": "1000000000000",
+      "feeGasWei": "4196000000000000",
+      "realCostWei": "4164838900000000"
+    },
+    {
+      "name": "setDKIMPublicKeyHashes(x3)",
+      "hash": "0x563e8ce8b279cd249cbfb4bddfe0936112f961232828e71b911183d2d33b77ff",
+      "gasUsed": "10758",
+      "gasPriceWei": "1000000000000",
+      "feeGasWei": "10758000000000000",
+      "realCostWei": "10726839000000000"
+    },
+    {
+      "name": "revokeDKIMPublicKeyHash",
+      "hash": "0x8469b271911c34f3f1a76b17e571f379f84a514e3d862d85da7fffea81a5dace",
+      "gasUsed": "0",
+      "gasPriceWei": "1000000000000",
+      "feeGasWei": "0",
+      "realCostWei": "-1114724900000000"
+    }
+  ]
+}

@@ -93,7 +93,7 @@ await record("setDKIMPublicKeyHash", () => contract.setDKIMPublicKeyHash(d, k1))
 await record("setDKIMPublicKeyHashes(x3)", () =>
   contract.setDKIMPublicKeyHashes(d, [k2, k3, k4])
 );
-await record("revokeDKIMPublicKeyHash", () => contract.revokeDKIMPublicKeyHash(k1));
+await record("revokeDKIMPublicKeyHash", () => contract.revokeDKIMPublicKeyHash(d, k1));
 
 const endBal = await provider.getBalance(wallet.address);
 const out = {

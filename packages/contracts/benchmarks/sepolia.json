@@ -1,0 +1,43 @@
+{
+  "label": "Ethereum Sepolia",
+  "mode": "evm",
+  "chainId": "11155111",
+  "rpc": "https://ethereum-sepolia-rpc.publicnode.com",
+  "contract": "0xD35c9bd494d825Fa707a21e5d50B9813db41E280",
+  "signer": "0xFd096EC4FC759D4075fBb4F3e4D9203E12765742",
+  "totalRealCostWei": "664255531999499",
+  "results": [
+    {
+      "name": "deploy",
+      "hash": "0x3d5780a62c1de5f1b3808d9f32ab69fb081fe77c18fc769dc15ec34145b34f93",
+      "gasUsed": "432844",
+      "gasPriceWei": "1110564043",
+      "feeGasWei": "480700982628292",
+      "realCostWei": "480700982628292"
+    },
+    {
+      "name": "setDKIMPublicKeyHash",
+      "hash": "0x75dac8d9b00262b22ddf99722eb21104ae913cab08605fa503ed2524b1e25fa1",
+      "gasUsed": "48111",
+      "gasPriceWei": "1020123905",
+      "feeGasWei": "49079181193455",
+      "realCostWei": "49079181193455"
+    },
+    {
+      "name": "setDKIMPublicKeyHashes(x3)",
+      "hash": "0xbc8ac42c20f4f924dc45a537ed95a061b080bdd720dcedca48868ef5787f5689",
+      "gasUsed": "98119",
+      "gasPriceWei": "1087980048",
+      "feeGasWei": "106751514329712",
+      "realCostWei": "106751514329712"
+    },
+    {
+      "name": "revokeDKIMPublicKeyHash",
+      "hash": "0x5513422eeaba83f97d07c50579293ae4a0306884368efe1a7f4f6cfef207e8d3",
+      "gasUsed": "25895",
+      "gasPriceWei": "1070625752",
+      "feeGasWei": "27723853848040",
+      "realCostWei": "27723853848040"
+    }
+  ]
+}
