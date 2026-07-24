@@ -6,8 +6,6 @@ out
 # hardhat directories
 hh-artifacts
 hh-cache
-hh-deployments
-hh-ignition/deployments
 
 # polkadot hardhat node binaries
 bin/dev-node
