@@ -11,8 +11,23 @@ Milestone 1 deployment evidence for DKIM Registry on Paseo Assethub.
 ## Deployed Contract
 
 - Contract: `DKIMRegistry`
-- Address: `0x83A1b3958D49195D3F62C44B42e7a41336Bc3ffc`
-- Explorer: [Blockscout](https://blockscout-testnet.polkadot.io/address/0x83A1b3958D49195D3F62C44B42e7a41336Bc3ffc)
+- Address: `0xD9e492f8104Ec730AF47A1A5C0cEAf94C89Da8EE`
+- Deploy tx: [`0xf21ed2468853f2c61ed0053b76b81c7ee38b5944ed1c56697edf7c42f968cccd`](https://blockscout-testnet.polkadot.io/tx/0xf21ed2468853f2c61ed0053b76b81c7ee38b5944ed1c56697edf7c42f968cccd)
+- Block: `11368796`
+- Explorer: [Blockscout](https://blockscout-testnet.polkadot.io/address/0xD9e492f8104Ec730AF47A1A5C0cEAf94C89Da8EE)
+
+> Redeployed after the review's requested fixes (domain-scoped/reversible revocation,
+> zero-hash/empty-array guards, ERC-165 note, NatSpec accuracy). The previous address
+> (`0x83A1b3958D49195D3F62C44B42e7a41336Bc3ffc`) reflected the pre-review contract and is
+> superseded by this deployment.
+
+## Real Registration Activity
+
+Populated via `yarn update-dkim-registry` (the same flow documented in `04_public_howto.md`),
+registering `ethereum.org`'s live DKIM keys:
+
+- Tx: [`0xb578136d5274446242b4cf01a19700adfc525d48cb6a36e7562038b8aeba8485`](https://blockscout-testnet.polkadot.io/tx/0xb578136d5274446242b4cf01a19700adfc525d48cb6a36e7562038b8aeba8485)
+- Verified with `yarn check-dkim-registry ethereum.org`: 4 key hashes registered and valid.
 
 ## Deployment Artifacts
 
@@ -54,8 +69,8 @@ Compilation is deterministic: a clean rebuild reproduces the blob byte-for-byte.
 
 | Source | keccak256 |
 | --- | --- |
-| Locally compiled (`hh-artifacts/src/DKIMRegistry.sol/DKIMRegistry.json`) | `0x22f6687e73dc3ec47a28636b8ac3d17dd278ab25575bb30449a223c07008d974` |
-| On-chain (`0x83A1b3958D49195D3F62C44B42e7a41336Bc3ffc`) | `0x22f6687e73dc3ec47a28636b8ac3d17dd278ab25575bb30449a223c07008d974` |
+| Locally compiled (`hh-artifacts/src/DKIMRegistry.sol/DKIMRegistry.json`) | `0xc285163ebf486f3d0fc847bfc5e3d32dacad87483737a70ef54debfea2af4a81` |
+| On-chain (`0xD9e492f8104Ec730AF47A1A5C0cEAf94C89Da8EE`) | `0xc285163ebf486f3d0fc847bfc5e3d32dacad87483737a70ef54debfea2af4a81` |
 
 The two hashes are identical, proving the deployed contract is exactly this source compiled
 with the compiler above. On PolkaVM the deploy and runtime code are the same PVM blob, so
@@ -65,7 +80,7 @@ with the compiler above. On PolkaVM the deploy and runtime code are the same PVM
 
 ```bash
 # on-chain runtime-bytecode hash
-cast code 0x83A1b3958D49195D3F62C44B42e7a41336Bc3ffc \
+cast code 0xD9e492f8104Ec730AF47A1A5C0cEAf94C89Da8EE \
   --rpc-url https://eth-rpc-testnet.polkadot.io | cast keccak
 
 # locally compiled runtime-bytecode hash (from packages/contracts)
