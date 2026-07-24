@@ -41,7 +41,8 @@ contract ECDSAOwnedDKIMRegistry is IDKIMRegistry {
 
     /// @notice Sets a DKIM public key hash for a domain name after validating the provided signature.
     /// @param selector The selector associated with the DKIM public key.
-    /// @param domainName The domain name to set the DKIM public key hash for.
+    /// @param domainName The lowercase domain name to set the DKIM public key hash for. The caller is responsible
+    /// for lowercasing it; this contract hashes it as given and does not normalize case.
     /// @param publicKeyHash The DKIM public key hash to set.
     /// @param signature The ECDSA signature proving the operation is authorized by the signer.
     /// @dev This function requires that the public key hash is not already set or revoked.
@@ -69,7 +70,8 @@ contract ECDSAOwnedDKIMRegistry is IDKIMRegistry {
 
     /// @notice Revokes a DKIM public key hash for a domain name after validating the provided signature.
     /// @param selector The selector associated with the DKIM public key.
-    /// @param domainName The domain name to revoke the DKIM public key hash for.
+    /// @param domainName The lowercase domain name to revoke the DKIM public key hash for. Must match the case
+    /// used when the key hash was set; this contract does not normalize case.
     /// @param publicKeyHash The DKIM public key hash to revoke.
     /// @param signature The ECDSA signature proving the operation is authorized by the signer.
     /// @dev This function requires that the public key hash is currently set and not already revoked.
