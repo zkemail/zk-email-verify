@@ -2,24 +2,33 @@
 
 Milestone 1 deployment evidence for DKIM Registry on Paseo Assethub.
 
-## Target Network
+## Deployment Manifest (canonical)
 
-- Network: Polkadot Hub Testnet (Paseo Assethub)
-- Chain ID: `420420417`
-- RPC (default): `https://eth-rpc-testnet.polkadot.io`
+| Field | Value |
+| --- | --- |
+| Contract | `DKIMRegistry` |
+| Network | Polkadot Hub Testnet (Paseo Assethub), chain ID `420420417` |
+| Address | `0xD9e492f8104Ec730AF47A1A5C0cEAf94C89Da8EE` |
+| Owner | `0x9401296121FC9B78F84fc856B1F8dC88f4415B2e` |
+| Creation block | `11368796` |
+| Deploy tx | [`0xf21ed2468853f2c61ed0053b76b81c7ee38b5944ed1c56697edf7c42f968cccd`](https://blockscout-testnet.polkadot.io/tx/0xf21ed2468853f2c61ed0053b76b81c7ee38b5944ed1c56697edf7c42f968cccd) |
+| `resolc` version | `0.5.0+commit.046455.llvm-18.1.8` |
+| PVM bytecode magic | `0x50564d0000` (`"PVM\0"` prefix - confirms genuine PolkaVM/RISC-V bytecode, not EVM) |
+| Runtime bytecode hash (keccak256) | `0xc285163ebf486f3d0fc847bfc5e3d32dacad87483737a70ef54debfea2af4a81` |
+| Explorer | [Blockscout](https://blockscout-testnet.polkadot.io/address/0xD9e492f8104Ec730AF47A1A5C0cEAf94C89Da8EE) |
 
-## Deployed Contract
-
-- Contract: `DKIMRegistry`
-- Address: `0xD9e492f8104Ec730AF47A1A5C0cEAf94C89Da8EE`
-- Deploy tx: [`0xf21ed2468853f2c61ed0053b76b81c7ee38b5944ed1c56697edf7c42f968cccd`](https://blockscout-testnet.polkadot.io/tx/0xf21ed2468853f2c61ed0053b76b81c7ee38b5944ed1c56697edf7c42f968cccd)
-- Block: `11368796`
-- Explorer: [Blockscout](https://blockscout-testnet.polkadot.io/address/0xD9e492f8104Ec730AF47A1A5C0cEAf94C89Da8EE)
+Full detail and reproduction commands for the compiler/bytecode fields are in "Bytecode Provenance" below.
 
 > Redeployed after the review's requested fixes (domain-scoped/reversible revocation,
 > zero-hash/empty-array guards, ERC-165 note, NatSpec accuracy). The previous address
 > (`0x83A1b3958D49195D3F62C44B42e7a41336Bc3ffc`) reflected the pre-review contract and is
 > superseded by this deployment.
+
+## Target Network
+
+- Network: Polkadot Hub Testnet (Paseo Assethub)
+- Chain ID: `420420417`
+- RPC (default): `https://eth-rpc-testnet.polkadot.io`
 
 ## Real Registration Activity
 
@@ -86,6 +95,14 @@ cast code 0xD9e492f8104Ec730AF47A1A5C0cEAf94C89Da8EE \
 # locally compiled runtime-bytecode hash (from packages/contracts)
 yarn build
 jq -r '.bytecode' hh-artifacts/src/DKIMRegistry.sol/DKIMRegistry.json | cast keccak
+
+# PVM bytecode magic (first bytes should read 0x50564d00, "PVM\0")
+cast code 0xD9e492f8104Ec730AF47A1A5C0cEAf94C89Da8EE \
+  --rpc-url https://eth-rpc-testnet.polkadot.io | cut -c1-12
+
+# owner
+cast call 0xD9e492f8104Ec730AF47A1A5C0cEAf94C89Da8EE "owner()(address)" \
+  --rpc-url https://eth-rpc-testnet.polkadot.io
 ```
 
 ## Source-of-Truth Policy
