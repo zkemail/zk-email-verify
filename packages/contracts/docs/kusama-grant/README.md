@@ -4,15 +4,13 @@ This directory tracks delivery evidence for Kusama grant milestones related to t
 
 ## Milestones
 
-- Milestone 1 (this repository): [`./milestone-1/00_overview.md`](./milestone-1/00_overview.md)
-- Milestone 2 (other repository): [sdk-images `circom/kusama-grant/milestone-2`](https://github.com/zkemail/sdk-images/tree/kusama-grant/circom/kusama-grant/milestone-2)
-- Milestone 3 (other repositories): [sdk-images `circom/kusama-grant/milestone-3`](https://github.com/zkemail/sdk-images/tree/kusama-grant/circom/kusama-grant/milestone-3) and TBD - add external links
-
-## Current Status Snapshot
-
-- Milestone 1: `Delivered`
+- Milestone 1 (this repository): [`./milestone-1/README.md`](./milestone-1/README.md)
+- Milestone 2 (other repository): [sdk-images `circom/docs/kusama-grant/milestone-2`](https://github.com/zkemail/sdk-images/tree/kusama-grant/circom/docs/kusama-grant/milestone-2)
+- Milestone 3, deliverables 1-3 (other repository, Circom/contracts scope): [sdk-images `circom/docs/kusama-grant/milestone-3`](https://github.com/zkemail/sdk-images/tree/kusama-grant/circom/docs/kusama-grant/milestone-3)
+- Milestone 3, deliverable 4 (other repository, SDK scope): [zk-email-sdk-js `docs/kusama-grant/milestone-3`](https://github.com/zkemail/zk-email-sdk-js/tree/kusama-grant/docs/kusama-grant/milestone-3)
+- Milestone 3, deliverable 5 (other repository, frontend scope): [registry `docs/kusama-grant/milestone-3`](https://github.com/zkemail/registry/tree/kusama-grant/docs/kusama-grant/milestone-3)
 
 ## Notes
 
 - Milestone 1: canonical evidence for the DKIM Registry on Paseo lives under [`./milestone-1/`](./milestone-1/).
-- Milestones 2–3: [sdk-images `circom/kusama-grant` (grant index README)](https://github.com/zkemail/sdk-images/tree/kusama-grant/circom/kusama-grant).
+- Milestones 2-3: [sdk-images `circom/docs/kusama-grant` (grant index README)](https://github.com/zkemail/sdk-images/tree/kusama-grant/circom/docs/kusama-grant).

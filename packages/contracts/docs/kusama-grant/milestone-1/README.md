@@ -1,10 +1,6 @@
-# Kusama Grant - Milestone 1
+# Milestone 1 - DKIM Registry on Testnet
 
-Milestone 1 scope for `packages/contracts`.
-
-## Milestone 1 - DKIM Registry on Testnet
-
-- Primary goal: recompile DKIM Registry to PolkaVM bytecode and deploy a functional registry on Paseo testnet (Paseo Assethub).
+Primary Goal: recompile DKIM Registry to PolkaVM bytecode and deploy a functional registry on Paseo testnet (Paseo Assethub).
 
 ## Deliverables
 
@@ -23,11 +19,3 @@ Milestone 1 scope for `packages/contracts`.
 - [`03_deployment_evidence.md`](./03_deployment_evidence.md) - deployed contract evidence for Paseo Assethub.
 - [`04_public_howto.md`](./04_public_howto.md) - public usage instructions for setup, build, test, deploy, and a smoke-check example.
 - [`05_cost_benchmarks.md`](./05_cost_benchmarks.md) - gas and USD cost comparison of the registry operations on Ethereum vs Kusama.
-
-## Current Milestone 1 Status
-
-- Planning & Review: `Delivered`
-- DKIM Registry Contract: `Delivered`
-- Tests: `Delivered`
-- Deployment: `Delivered`
-- Documentation: `Delivered`
