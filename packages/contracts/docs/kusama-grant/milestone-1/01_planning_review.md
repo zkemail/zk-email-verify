@@ -60,4 +60,4 @@ This document is the Milestone 1 planning and review artifact for the DKIM Regis
 ## Sign-off
 
 - Technical scope validated against Milestone 1 deliverables.
-- Evidence docs assembled under `packages/contracts/kusama-grant`.
+- Evidence docs assembled under `packages/contracts/docs/kusama-grant`.
