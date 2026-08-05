@@ -144,7 +144,7 @@ Kusama: gas measured on Paseo, costed at the measured Paseo gas price and live K
 
 ## Reproduce
 
-The scripts live in [`packages/contracts/benchmarks/`](../../benchmarks)
+The scripts live in [`packages/contracts/benchmarks/`](../../../benchmarks)
 (`bench.mjs`, `aggregate.mjs`). Prerequisites: a funded burner key on each
 network, `out/` (Foundry/EVM build) and `hh-artifacts/` (resolc/PolkaVM build)
 present. Run from `packages/contracts/benchmarks/`.
