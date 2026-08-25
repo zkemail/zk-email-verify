@@ -26,8 +26,8 @@ PRIVATE_KEY=    # private key of the wallet
 Run
 
 ```bash
-yarn update-dkim-registry evm
-# or: yarn update-dkim-registry evm --quiet
+yarn update-dkim-registry
+# or: yarn update-dkim-registry --quiet
 ```
 
 ### 3. check-dkim-registry
