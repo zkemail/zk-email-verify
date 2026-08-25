@@ -48,7 +48,7 @@ async function main() {
   console.log(
     result.anyValid
       ? `\n✅ ${domain}: a live DKIM key is registered, emails signed with it can be verified on-chain.`
-      : `\n❌ ${domain}: its live DKIM key is not on this registry (populate it with yarn update-dkim-registry).`,
+      : `\n❌ ${domain}: its live DKIM key is not on this registry (populate it with yarn fetch-dkim-keys && yarn update-dkim-registry evm).`,
   );
 }
 
