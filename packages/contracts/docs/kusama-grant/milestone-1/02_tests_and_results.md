@@ -43,7 +43,7 @@ yarn test:integration
 
 ### CI run
 
-Example passing `run_contracts_tests` job (2026-07-22): https://github.com/zkemail/zk-email-verify/actions/runs/29932170036/job/88964446400. For the current state of the branch, see the [Actions tab](https://github.com/zkemail/zk-email-verify/actions/workflows/action.yml?query=branch%3Akusama-grant).
+Example passing `run_contracts_tests` job (2026-08-25): https://github.com/zkemail/zk-email-verify/actions/runs/32847587963/job/97800794835. For the current state of the branch, see the [Actions tab](https://github.com/zkemail/zk-email-verify/actions/workflows/action.yml?query=branch%3Akusama-grant).
 
 ## Key Assertions Proven
 
