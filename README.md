@@ -43,7 +43,7 @@ Moreover, for those interested in creating the Twitter circuit from scratch, our
   - Audit from [yAcademy](https://yacademy.dev/) - [Report](/audits/yacademy-audit.pdf).
 
 ## Contributors 💡
-For each pull request that successfully merges and addresses an [open issue](https://github.com/zkemail/zk-email-verify/issues), we offer a $50 reward. Feel free to email support@zk.email to let us know. To learn more about how you can contribute to this project, please consult our [Contributing Guide](CONTRIBUTING.md). Thank you to all of our existing contributors!
+To learn more about how you can contribute to this project, please consult our [Contributing Guide](CONTRIBUTING.md). Thank you to all of our existing contributors!
 
 ## Licensing
 Everything we write is MIT-licensed. Note that circom and circomlib is GPL. Broadly we are pro permissive open source usage with attribution! We hope that those who derive profit from this, contribute that money altruistically back to this technology and open source public goods.

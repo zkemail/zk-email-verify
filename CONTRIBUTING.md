@@ -35,11 +35,8 @@ Our issues are categorized by labels to help you identify tasks that might inter
 
 Feel free to filter issues by these labels to find what suits your skills and interests.
 
-## Incentives for Contributions
-We are excited to announce that we will award a $50-$200 bounty for every Pull Request (PR) that is successfully merged and addresses an open issue in our repository. Should there be any oversight on our part regarding the bounty, please feel free to send us a direct message as a reminder.
-
 ## Project Ideas
-We have curated a list of exciting project ideas that we believe would significantly enhance the functionality and user experience of our platform. We encourage contributors to explore these ideas and bring them to fruition. We will give a grant for any successful implementation.
+We have curated a list of exciting project ideas that we believe would significantly enhance the functionality and user experience of our platform. We encourage contributors to explore these ideas and bring them to fruition.
 
 
 | Title | Description |
