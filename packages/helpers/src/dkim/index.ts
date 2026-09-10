@@ -76,7 +76,12 @@ export async function verifyDKIMSignature(
   } = dkimResult;
 
   if (result !== 'pass') {
-    throw new Error(`DKIM signature verification failed for domain ${signingDomain}. Reason: ${comment}`);
+    throw new Error(
+      JSON.stringify({
+        message: `DKIM signature verification failed for domain ${signingDomain}.`,
+        reason: comment,
+      }),
+    );
   }
 
   const pubKeyData = pki.publicKeyFromPem(publicKey.toString());

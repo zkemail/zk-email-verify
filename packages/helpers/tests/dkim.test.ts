@@ -6,6 +6,11 @@ import * as dnsArchive from '../src/dkim/dns-archive';
 
 jest.setTimeout(10000);
 
+const parseStructuredDKIMError = (error: unknown) => {
+  expect(error).toBeInstanceOf(Error);
+  return JSON.parse((error as Error).message);
+};
+
 describe('DKIM signature verification', () => {
   it('should pass for valid email', async () => {
     const email = fs.readFileSync(path.join(__dirname, 'test-data/email-good.eml'));
@@ -18,27 +23,34 @@ describe('DKIM signature verification', () => {
 
   it('should fail for invalid selector', async () => {
     const email = fs.readFileSync(path.join(__dirname, 'test-data/email-invalid-selector.eml'));
+    const mockResolveDNSHTTP = jest.spyOn(dnsOverHttp, 'resolveDNSHTTP').mockRejectedValue(new Error('no key'));
 
-    expect.assertions(1);
+    expect.assertions(2);
 
     try {
       await verifyDKIMSignature(email);
     } catch (e) {
-      expect(e.message).toBe('DKIM signature verification failed for domain icloud.com. Reason: no key');
+      expect(parseStructuredDKIMError(e)).toEqual({
+        message: 'DKIM signature verification failed for domain icloud.com.',
+        reason: 'no key',
+      });
+    } finally {
+      mockResolveDNSHTTP.mockRestore();
     }
   });
 
   it('should fail for tampered body', async () => {
     const email = fs.readFileSync(path.join(__dirname, 'test-data/email-body-tampered.eml'));
 
-    expect.assertions(1);
+    expect.assertions(2);
 
     try {
       await verifyDKIMSignature(email);
     } catch (e) {
-      expect(e.message).toBe(
-        'DKIM signature verification failed for domain icloud.com. Reason: body hash did not verify',
-      );
+      expect(parseStructuredDKIMError(e)).toEqual({
+        message: 'DKIM signature verification failed for domain icloud.com.',
+        reason: 'body hash did not verify',
+      });
     }
   });
 
@@ -89,9 +101,10 @@ describe('DKIM signature verification', () => {
     try {
       await verifyDKIMSignature(email, '', true, false, true);
     } catch (e) {
-      expect(e.message).toBe(
-        'DKIM signature verification failed for domain icloud.com. Reason: body hash did not verify',
-      );
+      expect(parseStructuredDKIMError(e)).toEqual({
+        message: 'DKIM signature verification failed for domain icloud.com.',
+        reason: 'body hash did not verify',
+      });
     }
   });
 });
@@ -166,11 +179,14 @@ it('should fail on DNS over HTTP failure if fallback is not enabled', async () =
     .spyOn(dnsOverHttp, 'resolveDNSHTTP')
     .mockRejectedValue(new Error('Failed due to mock'));
 
-  expect.assertions(1);
+  expect.assertions(2);
   try {
     await verifyDKIMSignature(email, 'icloud.com', true, false);
   } catch (e) {
-    expect(e.message).toBe('DKIM signature verification failed for domain icloud.com. Reason: no key');
+    expect(parseStructuredDKIMError(e)).toEqual({
+      message: 'DKIM signature verification failed for domain icloud.com.',
+      reason: 'no key',
+    });
   }
   mockResolveDNSHTTP.mockRestore();
 });
@@ -186,11 +202,14 @@ it('should fail if both DNS over HTTP and ZK Email Archive fail', async () => {
     .spyOn(dnsArchive, 'resolveDNSFromZKEmailArchive')
     .mockRejectedValue(new Error('Failed due to mock'));
 
-  expect.assertions(1);
+  expect.assertions(2);
   try {
     await verifyDKIMSignature(email, 'icloud.com', true, true);
   } catch (e) {
-    expect(e.message).toBe('DKIM signature verification failed for domain icloud.com. Reason: no key');
+    expect(parseStructuredDKIMError(e)).toEqual({
+      message: 'DKIM signature verification failed for domain icloud.com.',
+      reason: 'no key',
+    });
   }
 
   mockResolveDNSHTTP.mockRestore();
