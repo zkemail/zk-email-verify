@@ -10,7 +10,7 @@ function log2Ceil(a) {
 
     while (n > 0) {
         r++;
-        n \= 2;
+        n /= 2;
     }
 
     return r;
