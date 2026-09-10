@@ -12,7 +12,6 @@ function setHeaderValue(email: string, header: string, value: string) {
 
 // Google sets their own Message-ID and put the original one  in X-Google-Original-Message-ID
 // when ARC forwarding
-// TODO: Add test for this
 function revertGoogleMessageId(email: string): string {
   // (Optional check) This only happens when google does ARC
   if (!email.includes('ARC-Authentication-Results')) {
@@ -36,7 +35,6 @@ function removeLabels(email: string): string {
 }
 
 // Sometimes, newline encodings re-encode \r\n as just \n, so re-insert the \r
-// TODO: Add test for this
 function insert13Before10(email: string): string {
   const byteArray = new TextEncoder().encode(email);
 
@@ -57,7 +55,6 @@ function insert13Before10(email: string): string {
 }
 
 // Replace `=09` with `\t` in email
-// TODO: Add test for this
 function sanitizeTabs(email: string): string {
   return email.replace('=09', '\t');
 }
