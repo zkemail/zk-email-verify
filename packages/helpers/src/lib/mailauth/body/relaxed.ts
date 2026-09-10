@@ -293,6 +293,4 @@ for (let byte of getBody(s)) {
     k.update(Buffer.from([byte]));
 }
 
-console.error(k.digest('base64'));
-console.error(k.byteLength, k.bodyHashedBytes);
 */

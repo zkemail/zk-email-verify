@@ -39,7 +39,6 @@ export const writeToStream = async (
   return new Promise((resolve, reject) => {
     if (typeof input?.on === 'function') {
       // pipe as stream
-      console.log('pipe');
       input.pipe(stream);
       input.on('error', reject);
     } else {
