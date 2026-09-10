@@ -124,8 +124,8 @@ async function tryVerifyDKIM(
     const allKeys = [...new Set([...dnsKeys, ...archiveKeys])];
 
     if (allKeys.length === 0) {
-      throw new CustomError('No DNS records found from any source', 'ENODATA');
-    }
+      return [];
+    }    
 
     return allKeys;
   };
@@ -146,13 +146,28 @@ async function tryVerifyDKIM(
     domainToVerifyDKIM = dkimVerifier.headerFrom[0].split('@')[1];
   }
 
-  const dkimResult = dkimVerifier.results.find((d: any) => d.signingDomain === domainToVerifyDKIM);
-
-  if (!dkimResult) {
-    throw new Error(`DKIM signature not found for domain ${domainToVerifyDKIM}`);
+  const candidateResults = dkimVerifier.results.filter(
+    (d: any) => d.signingDomain === domainToVerifyDKIM
+  );
+  
+  if (candidateResults.length === 0) {
+    throw new Error(
+      `DKIM signature not found for domain ${domainToVerifyDKIM}`
+    );
   }
-
-  dkimResult.headers = dkimVerifier.headers;
-
-  return dkimResult;
-}
+  
+  let lastError: Error | undefined;
+  
+  for (const candidate of candidateResults) {
+    try {
+      candidate.headers = dkimVerifier.headers;
+      return candidate;
+    } catch (e) {
+      lastError = e as Error;
+      continue;
+    }
+  }
+  
+  throw lastError ?? new Error(
+    `All DKIM signatures failed for domain ${domainToVerifyDKIM}`
+  );
