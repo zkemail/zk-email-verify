@@ -88,13 +88,13 @@ fn main() {
             );
 
             let proof = GrothBnProof::from_json_file(proof);
-            let public_inputs: PublicInputs<3> = PublicInputs::from_json_file(public_inputs);
+            let public_inputs = PublicInputs::from_json_file(public_inputs);
 
             let mut serialized_public_inputs = Vec::new();
             let mut serialized_proof = Vec::new();
 
             let writer = BufWriter::new(&mut serialized_public_inputs);
-            public_inputs.inputs.serialize_compressed(writer).unwrap();
+            public_inputs.serialize_compressed(writer).unwrap();
 
             let writer = BufWriter::new(&mut serialized_proof);
             proof.serialize_compressed(writer).unwrap();
