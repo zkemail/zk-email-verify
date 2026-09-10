@@ -7,7 +7,7 @@ include "circomlib/circuits/comparators.circom";
 /// @notice Decodes a Base64 encoded string to array of bytes.
 /// @notice Only support inputs with length = `byteLength` (no 0 padding).
 /// @notice It is known that padding char '=' can be replaed with `A` to produce the same output
-///         as Base64Lookup returns `0` for both, but a pracical attack from this is unlikely.
+///         as Base64Lookup returns `0` for both, but a practical attack from this is unlikely.
 /// @param byteLength Byte length of the encoded value - length of the output array.
 /// @input in Base64 encoded string; assumes elements to be valid Base64 characters.
 /// @output out Decoded array of bytes.
