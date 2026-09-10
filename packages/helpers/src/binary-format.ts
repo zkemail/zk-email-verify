@@ -10,7 +10,7 @@ export function stringToBytes(str: string) {
   const toReturn = Uint8Array.from(str, (x) => x.charCodeAt(0));
   //   const buf = Buffer.from(str, "utf8");
   return toReturn;
-  // TODO: Check encoding mismatch if the proof doesnt work
+  // TODO: Check encoding mismatch if the proof doesn't work
   // Note that our custom encoding function maps (239, 191, 189) -> (253)
   // Note that our custom encoding function maps (207, 181) -> (245)
   // throw Error(

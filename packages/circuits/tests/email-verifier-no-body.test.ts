@@ -32,7 +32,7 @@ describe("EmailVerifier : Without body check", () => {
     });
 
     it("should verify email when ignore_body_hash_check is true", async function () {
-        // The result wont have shaPrecomputeSelector, maxHeadersLength, maxBodyLength, ignoreBodyHashCheck
+        // The result won't have shaPrecomputeSelector, maxHeadersLength, maxBodyLength, ignoreBodyHashCheck
         const emailVerifierInputs = generateEmailVerifierInputsFromDKIMResult(
             dkimResult,
             {

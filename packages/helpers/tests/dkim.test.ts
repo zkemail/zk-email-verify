@@ -62,7 +62,7 @@ describe('DKIM signature verification', () => {
     // Should pass with default domain
     await verifyDKIMSignature(email);
 
-    // Should fail because the email wont have a DKIM signature with the overridden domain
+    // Should fail because the email won't have a DKIM signature with the overridden domain
     // Can be replaced with a better test email where signer is actually
     // different from From domain and the below check pass.
     expect.assertions(1);
