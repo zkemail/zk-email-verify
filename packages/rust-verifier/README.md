@@ -1,6 +1,6 @@
 # Rust Verifier CLI Tool
 
-This is a mini CLI tool for exporting Rust verifiers from snarkjs artifacts. It allows you to generate a verifier from a snarkjs verifying key and generate verifier arguments from snarkjs proof and public inputs.
+This is a mini CLI tool for exporting Rust verifiers from snarkjs artifacts. It allows you to generate a verifier from a snarkjs verifying key and generate verifier arguments from snarkjs proof and public inputs of any length.
 
 ## Usage
 
@@ -27,7 +27,9 @@ cargo run -- generate-verifier -v tests/data/proof_of_twitter/vkey.json -o verif
 
 #### Generate Verifier Arguments
 
-To generate verifier arguments from snarkjs proof and public inputs, use the `generate-verifier-arguments` command:
+The public inputs file may contain any number of field elements.
+
+To generate verifier arguments from a snarkjs proof and public inputs, use the `generate-verifier-arguments` command:
 
 ```sh
 cargo run -- generate-verifier-arguments -p <path_to_proof_file> -i <path_to_public_inputs_file>
