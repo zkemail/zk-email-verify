@@ -238,7 +238,9 @@ export class DkimVerifier extends MessageParser {
 
         if (signatureHeader.type === 'DKIM' && this.headerFrom?.length) {
           status.aligned = this.headerFrom?.length
-            ? getAlignment(this.headerFrom[0] ?? ''.split('@')?.pop(), [signatureHeader.signingDomain])
+            ? // NOTE: parenthesised so the From: *domain* is compared; `a ?? ''.split('@').pop()`
+              // applied split() to '' and passed the whole address, so aligned was always false.
+              getAlignment((this.headerFrom[0] ?? '').split('@').pop() ?? '', [signatureHeader.signingDomain])
             : false;
         }
 
