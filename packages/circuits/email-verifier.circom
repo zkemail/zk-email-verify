@@ -1,6 +1,7 @@
 pragma circom 2.1.6;
 
 include "circomlib/circuits/bitify.circom";
+include "circomlib/circuits/comparators.circom";
 include "circomlib/circuits/poseidon.circom";
 include "@zk-email/zk-regex-circom/circuits/common/body_hash_regex.circom";
 include "./lib/base64.circom";
@@ -127,6 +128,17 @@ template EmailVerifier(maxHeadersLength, maxBodyLength, n, k, ignoreBodyHashChec
         bhRegexMatch === 1;
 
         var shaB64Length = 44; // Length of SHA-256 hash when base64 encoded - ceil(32 / 3) * 4
+        // Assert `bodyHashIndex` leaves room for the whole body hash inside the header.
+        // REASON: SelectRegexReveal and VarShiftLeft leave their index unconstrained on purpose
+        // (#218 reverted #214: utils don't constrain inputs, consuming templates do), and
+        // VarShiftLeft rotates modulo maxHeadersLength. When maxHeadersLength is not a power of
+        // two, an index in [maxHeadersLength, 2^ceil(log2(maxHeadersLength))) matched no position,
+        // so none of SelectRegexReveal's start/zero checks applied. EmailVerifier is the consumer.
+        // NOTE: bodyHashIndex < 2^log2Ceil(maxHeadersLength) is already enforced by VarShiftLeft's
+        // Num2Bits, which keeps this LessThan's inputs in range.
+        signal isBodyHashIndexValid <== LessThan(log2Ceil(maxHeadersLength))([bodyHashIndex, maxHeadersLength - shaB64Length + 1]);
+        isBodyHashIndexValid === 1;
+
         signal bhBase64[shaB64Length] <== SelectRegexReveal(maxHeadersLength, shaB64Length)(bhReveal, bodyHashIndex);
         signal headerBodyHash[32] <== Base64Decode(32)(bhBase64);
 
