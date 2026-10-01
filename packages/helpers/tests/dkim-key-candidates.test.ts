@@ -222,6 +222,97 @@ describe('signer-domain fallback', () => {
   });
 });
 
+describe('signer domain selection (documented paths)', () => {
+  const from = 'Alice <alice@example.com>';
+
+  it('subdomain of the From: domain verifies by default (issue #228)', async () => {
+    const k = newKey();
+    stubFetch({ google: { 'sel._domainkey.mgt.example.com': k.record } }, {});
+    const result = await verifyDKIMSignature(signedEmail(k.privateKey, { d: 'mgt.example.com', from }));
+    expect(result.signingDomain).toBe('mgt.example.com');
+  });
+
+  it('parent of the From: domain verifies by default', async () => {
+    const k = newKey();
+    stubFetch({ google: { [`sel._domainkey.example.com`]: k.record } }, {});
+    const result = await verifyDKIMSignature(
+      signedEmail(k.privateKey, { d: 'example.com', from: 'Alice <alice@mail.example.com>' }),
+    );
+    expect(result.signingDomain).toBe('example.com');
+  });
+
+  it('sibling tenants of a shared signer domain are not aligned', async () => {
+    const k = newKey();
+    stubFetch({ google: { 'sel._domainkey.attacker.onmicrosoft.com': k.record } }, {});
+    await expect(
+      verifyDKIMSignature(
+        signedEmail(k.privateKey, { d: 'attacker.onmicrosoft.com', from: 'CEO <ceo@victim.onmicrosoft.com>' }),
+      ),
+    ).rejects.toThrow('DKIM signature not found for domain victim.onmicrosoft.com');
+  });
+
+  it('Google Workspace default signing (d=<dashed-domain>.<date>.gappssmtp.com): via `domain` or opt-in', async () => {
+    const k = newKey();
+    const signer = 'example-com.20230601.gappssmtp.com';
+    const email = signedEmail(k.privateKey, { d: signer, s: '20230601', from });
+    stubFetch({ google: { [`20230601._domainkey.${signer}`]: k.record } }, {});
+
+    await expect(verifyDKIMSignature(email)).rejects.toThrow('DKIM signature not found for domain example.com');
+    expect((await verifyDKIMSignature(email, signer)).signingDomain).toBe(signer);
+    const optIn = await verifyDKIMSignature(email, '', true, false, false, { fallbackToSignerDomains: true });
+    expect(optIn.signingDomain).toBe(signer);
+  });
+
+  it('Microsoft 365 tenant signing (d=<tenant>.onmicrosoft.com): via `domain` or opt-in', async () => {
+    const k = newKey();
+    const signer = 'contoso.onmicrosoft.com';
+    const selector = 'selector1-example-com';
+    const email = signedEmail(k.privateKey, { d: signer, s: selector, from });
+    stubFetch({ google: { [`${selector}._domainkey.${signer}`]: k.record } }, {});
+
+    await expect(verifyDKIMSignature(email)).rejects.toThrow('DKIM signature not found for domain example.com');
+    expect((await verifyDKIMSignature(email, signer)).signingDomain).toBe(signer);
+    const optIn = await verifyDKIMSignature(email, '', true, false, false, { fallbackToSignerDomains: true });
+    expect(optIn.signingDomain).toBe(signer);
+  });
+
+  it('an explicit `domain` is matched exactly (no subdomain widening)', async () => {
+    const k = newKey();
+    stubFetch({ google: { 'sel._domainkey.mgt.example.com': k.record } }, {});
+    await expect(
+      verifyDKIMSignature(signedEmail(k.privateKey, { d: 'mgt.example.com', from }), 'example.com'),
+    ).rejects.toThrow('DKIM signature not found for domain example.com');
+  });
+});
+
+describe('sanitizers with key candidates', () => {
+  it('the sanitizer that wins is unchanged when the key comes from the archive', async () => {
+    const old = newKey();
+    // A mailing list prepended "[list] " to the signed Subject; removeLabels undoes it.
+    const email = signedEmail(old.privateKey).replace(
+      'Subject: Key rotation test',
+      'Subject: [list] Key rotation test',
+    );
+    stubFetch({ google: { [NAME]: newKey().record } }, { 'example.test': rows('sel', old.record) });
+
+    const result = await verifyDKIMSignature(email, '', true, true);
+    expect(result.appliedSanitization).toBe('removeLabels');
+    expect(result.keySource).toBe('archive');
+    expect(calls.archive).toBe(1);
+  });
+
+  it('DNS key + sanitizer: same sanitizer, archive untouched', async () => {
+    const k = newKey();
+    const email = signedEmail(k.privateKey).replace('Subject: Key rotation test', 'Subject: [list] Key rotation test');
+    stubFetch({ google: { [NAME]: k.record } }, { 'example.test': rows('sel', newKey().record) });
+
+    const result = await verifyDKIMSignature(email, '', true, true);
+    expect(result.appliedSanitization).toBe('removeLabels');
+    expect(result.keySource).toBe('dns');
+    expect(calls.archive).toBe(0);
+  });
+});
+
 describe('From alignment', () => {
   it('status.aligned compares the From: domain, not the whole address', async () => {
     const k = newKey();

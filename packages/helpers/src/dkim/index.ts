@@ -1,6 +1,7 @@
 import { pki } from 'node-forge';
+import psl from 'psl';
 import { DkimVerifier } from '../lib/mailauth/dkim-verifier';
-import { writeToStream, CustomError } from '../lib/mailauth/tools';
+import { writeToStream, CustomError, formatDomain } from '../lib/mailauth/tools';
 import sanitizers from './sanitizers';
 import { resolveDNSHTTP } from './dns-over-http';
 import { resolveDNSFromZKEmailArchive } from './dns-archive';
@@ -267,7 +268,20 @@ async function tryVerifyDKIM(email: Buffer | string, domain: string, resolve: Re
     domainToVerifyDKIM = from.slice(from.lastIndexOf('@') + 1);
   }
 
-  const dkimResult = dkimVerifier.results.find((d: any) => d.signingDomain === domainToVerifyDKIM);
+  let dkimResult = dkimVerifier.results.find((d: any) => d.signingDomain === domainToVerifyDKIM);
+
+  // REASON: a sender often signs with a subdomain of its From: domain (d=mgt.uber.com for
+  // From: @uber.com, issue #228) or with its parent (d=airbnb.com for From: @email.airbnb.com).
+  // Both names are under the same organization's DNS, so accepting the signature proves nothing
+  // the From: domain didn't sign. Only when the caller didn't name a domain; an exact match wins.
+  // NOTE: deliberately NOT mailauth's status.aligned (org-domain equality): the public suffix list
+  // doesn't know multi-tenant signer domains, so d=<attacker>.onmicrosoft.com would "align" with
+  // From: @<victim>.onmicrosoft.com. Requiring one name to contain the other excludes siblings.
+  // Third-party signers (d=<x>.gappssmtp.com, d=<tenant>.onmicrosoft.com, ESPs) are not accepted
+  // here: callers name them via `domain` or opt in with `fallbackToSignerDomains`.
+  if (!dkimResult && !domain) {
+    dkimResult = dkimVerifier.results.find((d: any) => isSameOrgSubdomain(domainToVerifyDKIM, d.signingDomain ?? ''));
+  }
 
   if (!dkimResult) {
     throw new Error(`DKIM signature not found for domain ${domainToVerifyDKIM}`);
@@ -276,4 +290,18 @@ async function tryVerifyDKIM(email: Buffer | string, domain: string, resolve: Re
   dkimResult.headers = dkimVerifier.headers;
 
   return dkimResult;
+}
+
+const MULTI_TENANT_SIGNER_PARENTS = ['gappssmtp.com', 'onmicrosoft.com'];
+
+/** True if one domain is a subdomain of the other and both have the same registrable domain. */
+export function isSameOrgSubdomain(fromDomain: string, signingDomain: string): boolean {
+  const f = formatDomain(fromDomain);
+  const d = formatDomain(signingDomain);
+  if (!f || !d || f === d) return f === d && !!f;
+  if (!d.endsWith(`.${f}`) && !f.endsWith(`.${d}`)) return false;
+  // NOTE: tenants of these get their own subdomain; a tenant must not vouch for the parent.
+  if (MULTI_TENANT_SIGNER_PARENTS.includes(f)) return false;
+  const org = (x: string) => psl.get(x) || x;
+  return org(f) === org(d);
 }
